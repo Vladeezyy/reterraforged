@@ -117,8 +117,9 @@ for loader in $LOADERS; do
     wait_for "$dir/console.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
     line=$(grep -o 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\).*' "$dir/console.log" | tail -1)
     stop_server "$dir" console.log
-    # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts
-    noise='io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)'
+    # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
+    # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
+    noise='io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
     grep -E '/ERROR\]|Exception' "$dir/console.log" | grep -vE "$noise" | sed 's/^\[[0-9:]*\] //' | cut -c1-160 | sort | uniq -c | sort -rn | head -8
