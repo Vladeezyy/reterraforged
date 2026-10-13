@@ -212,7 +212,7 @@ public final class RTFClientTest {
 		float[] desert = biomeSpot(level, spawn, Biomes.DESERT);
 		float[] river = biomeSpot(level, spawn, Biomes.RIVER);
 		int sy = gen.getBaseHeight(spawn.getX(), spawn.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
-		float[] overview = { spawn.getX(), Math.min(sy + 80, level.getMaxBuildHeight() - 10), spawn.getZ() + 160, 180, 30 };
+		float[] overview = { spawn.getX(), Math.min(sy + 80, level.getMaxY() - 9), spawn.getZ() + 160, 180, 30 };
 		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview };
 	}
 
