@@ -149,7 +149,7 @@ public final class RTFClientTest {
 	}
 
 	private static void shoot(Minecraft mc, String name) {
-		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), (message) -> {
+		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
 			RTFCommon.LOGGER.info("[RTF clienttest] {}", message.getString());
 		});
 		shot++;
