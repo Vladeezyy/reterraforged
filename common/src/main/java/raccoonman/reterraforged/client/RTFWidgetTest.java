@@ -71,8 +71,8 @@ public final class RTFWidgetTest {
 		}
 		switch (step) {
 			case 0 -> {
-				if (mc.screen instanceof TitleScreen title) {
-					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
+				if (mc.gui.screen() instanceof TitleScreen title) {
+					CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(title));
 					next(60);
 				}
 			}
@@ -86,14 +86,14 @@ public final class RTFWidgetTest {
 			}
 			case 3 -> {
 				if (!RTFGuiTest.click(mc, (w) -> w instanceof PresetEntry && RTFGuiTest.hasKey(w, RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME), 0.3)) {
-					RTFGuiTest.fail("no Default preset in the list on " + RTFGuiTest.name(mc.screen));
+					RTFGuiTest.fail("no Default preset in the list on " + RTFGuiTest.name(mc.gui.screen()));
 					finish(mc);
 					return;
 				}
 				next(10);
 			}
 			case 4 -> {
-				RTFGuiTest.click(mc, ((PresetConfigScreen) mc.screen).nextButton, 0.5);
+				RTFGuiTest.click(mc, ((PresetConfigScreen) mc.gui.screen()).nextButton, 0.5);
 				next(100);
 			}
 			case 5 -> {
@@ -112,7 +112,7 @@ public final class RTFWidgetTest {
 			case 6 -> widget(mc);
 			case 7 -> {
 				edited = flatten(RTFGuiTest.preset(mc));
-				RTFGuiTest.click(mc, ((LinkedPageScreen) mc.screen).doneButton, 0.5);
+				RTFGuiTest.click(mc, ((LinkedPageScreen) mc.gui.screen()).doneButton, 0.5);
 				timeout = 600;
 				next(20);
 			}
@@ -121,7 +121,7 @@ public final class RTFWidgetTest {
 				var applied = RTFGuiTest.appliedPreset(mc);
 				if (applied.isEmpty()) {
 					if (--timeout <= 0) {
-						RTFGuiTest.fail("Done did not apply the preset: " + RTFGuiTest.name(mc.screen));
+						RTFGuiTest.fail("Done did not apply the preset: " + RTFGuiTest.name(mc.gui.screen()));
 						finish(mc);
 					}
 					return;
@@ -143,7 +143,7 @@ public final class RTFWidgetTest {
 	}
 
 	private static void widget(Minecraft mc) {
-		LinkedPageScreen screen = (LinkedPageScreen) mc.screen;
+		LinkedPageScreen screen = (LinkedPageScreen) mc.gui.screen();
 		if (index >= queue.size()) {
 			RTFGuiTest.shoot(mc, "widgets-" + RTFGuiTest.page(mc));
 			if (screen.nextButton.active) {
@@ -203,7 +203,7 @@ public final class RTFWidgetTest {
 	}
 
 	private static void use(Minecraft mc, AbstractWidget widget, double fraction) {
-		PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+		PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.gui.screen()).getCurrentPage();
 		before = flatten(RTFGuiTest.preset(mc));
 		sliderBefore = widget instanceof Slider slider ? slider.getValue() : 0;
 		shownBefore = shown(widget);
@@ -214,7 +214,7 @@ public final class RTFWidgetTest {
 	}
 
 	private static void check(Minecraft mc, AbstractWidget widget, double fraction) {
-		PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+		PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.gui.screen()).getCurrentPage();
 		Map<String, String> after = flatten(RTFGuiTest.preset(mc));
 		// both ways: a setting at its codec default is left out of the JSON
 		Set<String> paths = new LinkedHashSet<>(before.keySet());
@@ -311,10 +311,10 @@ public final class RTFWidgetTest {
 
 	@SuppressWarnings("unchecked")
 	private static WidgetList<AbstractWidget> left(Minecraft mc) {
-		for (GuiEventListener child : mc.screen.children()) {
+		for (GuiEventListener child : mc.gui.screen().children()) {
 			if (child instanceof WidgetList<?> list) return (WidgetList<AbstractWidget>) list;
 		}
-		throw new IllegalStateException("no widget list on " + RTFGuiTest.name(mc.screen));
+		throw new IllegalStateException("no widget list on " + RTFGuiTest.name(mc.gui.screen()));
 	}
 
 	// the preset as setting path -> value, from its codec (what is saved and exported)
