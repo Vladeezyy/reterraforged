@@ -26,7 +26,7 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	public void onClose() {
 		super.onClose();
 
-		this.minecraft.setScreen(this.parent);
+		this.minecraft.gui.setScreen(this.parent);
 	}
 	
 	public void setSeed(long seed) {

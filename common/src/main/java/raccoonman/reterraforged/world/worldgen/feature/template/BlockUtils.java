@@ -7,6 +7,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -23,7 +24,7 @@ public class BlockUtils {
 
     public static boolean isVegetation(LevelAccessor world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        return state.is(BlockTags.SAPLINGS) || state.is(BlockTags.FLOWERS) || state.is(Blocks.VINE);
+        return state.getBlock() instanceof SaplingBlock || state.is(BlockTags.FLOWERS) || state.is(Blocks.VINE);
     }
 
     public static boolean canTreeReplace(LevelAccessor world, BlockPos pos) {
