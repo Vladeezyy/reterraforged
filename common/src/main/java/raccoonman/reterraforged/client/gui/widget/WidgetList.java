@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -151,7 +151,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
         }
 
         @Override
-        public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovered, float partialTicks) {
             int top = this.getContentY(), left = this.getContentX(), width = this.getContentWidth(), height = this.getContentHeight();
             int optionWidth = Math.min(450, width);
             int padding = (width - optionWidth) / 2;
@@ -163,7 +163,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
             if(widget instanceof PresetEditorPage.Preview preview) {
             	widget.setHeight(widget.getWidth());
             }
-            widget.render(guiGraphics, mouseX, mouseY, partialTicks);
+            widget.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
         }
 
 		@Override
