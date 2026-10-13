@@ -4,12 +4,10 @@ import com.mojang.serialization.Codec;
 
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.GameRules;
 import raccoonman.reterraforged.RTFCommon;
 
 import java.util.List;
@@ -43,10 +41,6 @@ public class RegistryUtilImpl {
 		} else {
 			DynamicRegistries.register(key, codec);
 		}
-	}
-
-	public static <T extends GameRules.Value<T>> GameRules.Key<T> registerGameRule(String name, GameRules.Category category, GameRules.Type<T> type) {
-		return GameRuleRegistry.register(name, category, type);
 	}
 
 	public static List<RegistryDataLoader.RegistryData<?>> getDynamicRegistries() {

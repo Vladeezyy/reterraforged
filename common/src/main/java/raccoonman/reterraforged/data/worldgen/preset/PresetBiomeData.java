@@ -11,7 +11,6 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
-import raccoonman.reterraforged.world.worldgen.biome.RTFBiomes;
 
 public final class PresetBiomeData {
     public static final ResourceKey<Biome> BRYCE = createKey("bryce");
