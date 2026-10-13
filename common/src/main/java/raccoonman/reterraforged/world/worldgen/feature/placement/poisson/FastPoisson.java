@@ -1,12 +1,11 @@
 package raccoonman.reterraforged.world.worldgen.feature.placement.poisson;
 
-import java.util.Random;
-
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
+import java.util.Random;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
+import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class FastPoisson {

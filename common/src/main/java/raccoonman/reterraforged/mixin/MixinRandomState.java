@@ -1,5 +1,20 @@
-package raccoonman.reterraforged.mixin; 
+package raccoonman.reterraforged.mixin;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup.RegistryLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DfRewriteRule;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+import net.minecraft.world.level.biome.Climate;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Implements;
@@ -7,24 +22,10 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup.RegistryLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunction.NoiseHolder;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseRouter;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.SurfaceSystem;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import raccoonman.reterraforged.RTFCommon;
-import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.config.PerformanceConfig;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
@@ -34,7 +35,7 @@ import raccoonman.reterraforged.tags.RTFDensityFunctionTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
-import raccoonman.reterraforged.world.worldgen.densityfunction.NoiseFunction;
+import raccoonman.reterraforged.world.worldgen.densityfunction.RTFCompileContext;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler;
@@ -43,58 +44,34 @@ import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 @Mixin(RandomState.class)
 @Implements(@Interface(iface = RTFRandomState.class, prefix = "reterraforged$RTFRandomState$"))
 class MixinRandomState {
-	private DensityFunction.Visitor densityFunctionWrapper;
 	@Shadow
 	@Final
-	private Climate.Sampler sampler;
+	private long seed;
 	@Shadow
 	@Final
-    private SurfaceSystem surfaceSystem;
-	
-	@Deprecated
-	private boolean hasContext;
+	private NoiseRouter router;
+
 	@Nullable
 	private GeneratorContext generatorContext;
 	@Nullable
 	private Preset preset;
-	
-	private long seed;
-	private NoiseGeneratorSettings noiseGeneratorSettings;
-	
-	@Redirect(
+	@Nullable
+	private BlockPos spawnSearchCenter;
+	// TerraBlender's region choice from the preset's biome regions (MixinParameterList)
+	@Nullable
+	private DensityFunction tbUniqueness;
+
+	// 26.3: density functions are compiled with this context; the mod's functions reach this RandomState through it
+	@ModifyArg(
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;mapAll(Lnet/minecraft/world/level/levelgen/DensityFunction$Visitor;)Lnet/minecraft/world/level/levelgen/NoiseRouter;"
+			target = "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunctionCompiler;<init>(Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction$CompileContext;)V"
 		),
 		method = "<init>",
 		require = 1
 	)
-	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter<NormalNoise.NoiseParameters> params, final long seed) {
-		this.seed = seed;
-		this.noiseGeneratorSettings = noiseGeneratorSettings;
-		this.densityFunctionWrapper = new DensityFunction.Visitor() {
-			
-			@Override
-			public DensityFunction apply(DensityFunction function) {
-				if(function instanceof NoiseFunction.Marker marker) {
-					return new NoiseFunction(marker.noise(), (int) seed);
-				}
-				if(function instanceof CellSampler.Marker marker) {
-					MixinRandomState.this.hasContext |= true;
-					return new CellSampler(() -> {
-						GeneratorContext context = MixinRandomState.this.generatorContext;
-						return context != null ? context.lookup : null;
-					}, marker.field());
-				}
-				return visitor.apply(function);
-			}
-
-			@Override
-			public NoiseHolder visitNoise(NoiseHolder noiseHolder) {
-	            return visitor.visitNoise(noiseHolder);
-	        }
-		};
-		return router.mapAll(this.densityFunctionWrapper);
+	private DensityFunction.CompileContext wrapCompileContext(DensityFunction.CompileContext context) {
+		return new RTFCompileContext(context, (RandomState) (Object) this);
 	}
 
 	public void reterraforged$RTFRandomState$initialize(ServerLevel level) {
@@ -108,51 +85,77 @@ class MixinRandomState {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
-		RegistryLookup<DensityFunction> functions = registries.lookupOrThrow(Registries.DENSITY_FUNCTION);
 
-		functions.get(RTFDensityFunctionTags.ADDITIONAL_NOISE_ROUTER_FUNCTIONS).ifPresent((set) -> {
-			set.forEach((function) -> function.value().mapAll(this.densityFunctionWrapper));
-		});
-		
-		if((Object) this.sampler instanceof TBClimateSampler tbClimateSampler && TBCompat.isEnabled()) {
-			functions.get(TBNoiseRouterData.UNIQUENESS).ifPresent((uniqueness) -> {
-				tbClimateSampler.setUniqueness(uniqueness.value().mapAll(this.densityFunctionWrapper));
+		if(TBCompat.isEnabled()) {
+			registries.lookupOrThrow(Registries.DENSITY_FUNCTION).get(TBNoiseRouterData.UNIQUENESS).ifPresent((uniqueness) -> {
+				this.tbUniqueness = uniqueness.value();
 			});
 		}
-		
-		presets.get(Preset.KEY).ifPresentOrElse((presetHolder) -> {
+
+		presets.get(Preset.KEY).ifPresent((presetHolder) -> {
 			this.preset = presetHolder.value();
 
-			if(this.hasContext) {
+			if(this.usesCellSamplers(registries)) {
 				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.DEFAULT_FILE_PATH)
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
 				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, (int) this.seed, config.tileSize(), config.batchCount(), ThreadPools.availableProcessors() > 4);
-				// where the world spawn is searched from (setInitialSpawn runs after the levels are created)
-				if((Object) this.sampler instanceof RTFClimateSampler rtfClimateSampler) {
-					rtfClimateSampler.setSpawnSearchCenter(this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext));
-				}
-			}
-		}, () -> {
-			if(this.hasContext) {
-//				throw new IllegalStateException("Missing preset!");
+				// where the world spawn is searched from (MixinNoiseBasedChunkGenerator)
+				this.spawnSearchCenter = this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext);
 			}
 		});
 	}
-	
+
+	@Inject(
+		at = @At("RETURN"),
+		method = "createClimateSampler"
+	)
+	private void createClimateSampler(SamplerContext context, CallbackInfoReturnable<Climate.Sampler> callback) {
+		if(this.tbUniqueness != null && this.generatorContext != null && (Object) callback.getReturnValue() instanceof TBClimateSampler tbClimateSampler) {
+			tbClimateSampler.setUniqueness(((RandomState) (Object) this).samplersWithContext(context).get(this.tbUniqueness));
+		}
+	}
+
+	// the generator context is only made when the noise router (or the functions tagged as additional router
+	// functions) samples the preset's cells
+	private boolean usesCellSamplers(RegistryAccess registries) {
+		Set<DensityFunction> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+		boolean[] found = new boolean[1];
+		DfRewriteRule finder = new DfRewriteRule() {
+
+			@Override
+			public DensityFunction rewrite(DensityFunction function) {
+				if(function instanceof CellSampler.Marker) {
+					found[0] = true;
+				} else if(!found[0] && visited.add(function)) {
+					function.rewriteChildren(this);
+				}
+				return function;
+			}
+		};
+		NoiseRouter router = this.router;
+		for(DensityFunction function : new DensityFunction[] { router.temperature(), router.vegetation(), router.continents(), router.erosion(), router.depth(), router.ridges(), router.chunkSurfaceLevel(), router.finalDensity() }) {
+			finder.rewrite(function);
+		}
+		registries.lookupOrThrow(Registries.DENSITY_FUNCTION).get(RTFDensityFunctionTags.ADDITIONAL_NOISE_ROUTER_FUNCTIONS).ifPresent((set) -> {
+			set.forEach((function) -> finder.rewrite(function.value()));
+		});
+		return found[0];
+	}
+
 	@Nullable
 	public Preset reterraforged$RTFRandomState$preset() {
 		return this.preset;
 	}
-	
+
 	@Nullable
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
 		return this.generatorContext;
 	}
 
 	@Nullable
-	public DensityFunction reterraforged$RTFRandomState$wrap(DensityFunction function) {
-		return function.mapAll(this.densityFunctionWrapper);
+	public BlockPos reterraforged$RTFRandomState$spawnSearchCenter() {
+		return this.spawnSearchCenter;
 	}
 
 	public Noise reterraforged$RTFRandomState$seed(Noise noise) {
@@ -160,8 +163,9 @@ class MixinRandomState {
 	}
 
 	private void clearGeneratorContext() {
-		this.hasContext = false;
 		this.generatorContext = null;
 		this.preset = null;
+		this.spawnSearchCenter = null;
+		this.tbUniqueness = null;
 	}
 }

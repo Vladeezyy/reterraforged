@@ -1,19 +1,18 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -22,8 +21,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import org.jetbrains.annotations.Nullable;
 import raccoonman.reterraforged.tags.RTFBlockTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -32,17 +30,25 @@ import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.feature.ErodeFeature.Config;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
-public class ErodeFeature extends Feature<Config> {
+public record ErodeFeature(Config config) implements Feature {
+	public static final MapCodec<ErodeFeature> CODEC = Config.CODEC.fieldOf("config").xmap(ErodeFeature::new, ErodeFeature::config);
 
-	public ErodeFeature(Codec<Config> codec) {
-		super(codec);
+
+	@Override
+	public MapCodec<ErodeFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> placeContext) {
+	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+		return this.place(new PlaceContext<>(this.config, level, chunkGenerator, random, origin));
+	}
+
+	private boolean place(PlaceContext<Config> placeContext) {
 		WorldGenLevel level = placeContext.level();
 		RandomState randomState = level.getLevel().getChunkSource().randomState();
 		
@@ -243,7 +249,7 @@ public class ErodeFeature extends Feature<Config> {
         return Blocks.COARSE_DIRT.defaultBlockState();
     }
 
-    public record Config(int rockVar, int rockMin, int dirtVar, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness, float heightModifier, float slopeModifier, float sedimentModifier, float sedimentNoise, float screeValue) implements FeatureConfiguration {
+    public record Config(int rockVar, int rockMin, int dirtVar, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness, float heightModifier, float slopeModifier, float sedimentModifier, float sedimentNoise, float screeValue) {
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.INT.fieldOf("rock_var").forGetter(Config::rockVar),
 			Codec.INT.fieldOf("rock_min").forGetter(Config::rockMin),
