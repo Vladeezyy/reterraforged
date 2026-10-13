@@ -33,7 +33,7 @@ record AddModifier(Order order, GenerationStep.Decoration step, Optional<Filter>
 
 	@Override
 	public void apply(BiomeSelectionContext selectionContext, BiomeModificationContext modificationContext) {
-		if(this.biomes.isPresent() && !this.biomes.get().test(selectionContext.getBiomeRegistryEntry())) {
+		if(this.biomes.isPresent() && !this.biomes.get().test(selectionContext.getBiomeHolder())) {
 			return;
 		}
 		
