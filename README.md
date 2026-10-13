@@ -4,6 +4,14 @@
 лицензия **MIT**) — той же сборки, что лежит на CurseForge как «ReTerraforged Unofficial» (автор пометил её брошенной).
 NeoForge и Fabric. История коммитов авторов сохранена.
 
+![Горы ReTerraForged](docs/showcase-mountains.jpg)
+
+| ![Река между саванной и пустыней](docs/showcase-river.jpg) | ![Дюны](docs/showcase-desert.jpg) |
+|---|---|
+
+<sub>Minecraft 26.2, пресет «Default», шейдеры Complementary Reimagined (Iris) — только для картинок, мод от них не
+зависит. Снято `tools/showcase.sh`.</sub>
+
 ## Версии
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Ветка |
