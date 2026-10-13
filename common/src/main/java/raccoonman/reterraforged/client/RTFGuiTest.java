@@ -74,8 +74,8 @@ public final class RTFGuiTest {
 		}
 		switch (step) {
 			case 0 -> {
-				if (mc.screen instanceof TitleScreen title) {
-					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
+				if (mc.gui.screen() instanceof TitleScreen title) {
+					CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(title));
 					next(60);
 				}
 			}
@@ -90,8 +90,8 @@ public final class RTFGuiTest {
 				next(40);
 			}
 			case 3 -> {
-				if (!(mc.screen instanceof PresetConfigScreen)) {
-					fail("Customize did not open the preset screen: " + name(mc.screen));
+				if (!(mc.gui.screen() instanceof PresetConfigScreen)) {
+					fail("Customize did not open the preset screen: " + name(mc.gui.screen()));
 					finish(mc);
 					return;
 				}
@@ -100,11 +100,11 @@ public final class RTFGuiTest {
 				next(10);
 			}
 			case 4 -> {
-				PresetEntry selected = selectedPreset(mc.screen);
+				PresetEntry selected = selectedPreset(mc.gui.screen());
 				log("selected after the click: {}", selected != null ? selected.getName().getString() : "nothing");
 				if (selected == null) fail("a click on a preset does not select it");
 				shoot(mc, "gui-" + round + "-preset-clicked");
-				click(mc, ((PresetConfigScreen) mc.screen).nextButton, 0.5);
+				click(mc, ((PresetConfigScreen) mc.gui.screen()).nextButton, 0.5);
 				next(100);
 			}
 			case 5 -> {
@@ -134,7 +134,7 @@ public final class RTFGuiTest {
 			}
 			case 7 -> {
 				// every page forward with ">>", each scrolled down with the mouse wheel first
-				LinkedPageScreen screen = (LinkedPageScreen) mc.screen;
+				LinkedPageScreen screen = (LinkedPageScreen) mc.gui.screen();
 				if (screen.nextButton.active) {
 					scrollDown(mc);
 					SCROLLS.put(page(mc), screen.getCurrentPage().getScroll());
@@ -152,7 +152,7 @@ public final class RTFGuiTest {
 			}
 			case 8 -> {
 				// and back with "<<" up to the first settings page
-				LinkedPageScreen screen = (LinkedPageScreen) mc.screen;
+				LinkedPageScreen screen = (LinkedPageScreen) mc.gui.screen();
 				if (!page(mc).equals("WorldSettingsPage") && screen.previousButton.active && PAGES.size() < 20) {
 					click(mc, screen.previousButton, 0.5);
 					PAGES.add(page(mc));
@@ -169,7 +169,7 @@ public final class RTFGuiTest {
 				}
 			}
 			case 9 -> {
-				click(mc, ((LinkedPageScreen) mc.screen).doneButton, 0.5);
+				click(mc, ((LinkedPageScreen) mc.gui.screen()).doneButton, 0.5);
 				timeout = 600;
 				next(20);
 			}
@@ -177,33 +177,33 @@ public final class RTFGuiTest {
 				// the preset datapack is applied: the create world screen is back, with the new worldgen registries
 				Optional<Preset> applied = appliedPreset(mc);
 				int scale = applied.map((p) -> p.world().continent.continentScale).orElse(-1);
-				if (mc.screen instanceof CreateWorldScreen && scale == expectedScale) {
+				if (mc.gui.screen() instanceof CreateWorldScreen && scale == expectedScale) {
 					log("round {}: the world will use the preset with continent scale {}", round, scale);
 					shoot(mc, "gui-" + round + "-applied");
 					round++;
 					step = round == 1 ? 1 : 11;
 					wait = 20;
 				} else if (--timeout <= 0) {
-					fail("round " + round + ": the preset screen's Done did not apply the edited preset: " + (applied.isPresent() ? "continent scale " + scale + ", set " + expectedScale : "no ReTerraForged preset") + ", screen " + name(mc.screen));
+					fail("round " + round + ": the preset screen's Done did not apply the edited preset: " + (applied.isPresent() ? "continent scale " + scale + ", set " + expectedScale : "no ReTerraForged preset") + ", screen " + name(mc.gui.screen()));
 					round++;
 					step = round == 1 ? 1 : 11;
 					wait = 20;
 				}
 			}
 			case 11 -> {
-				if (!click(mc, (w) -> hasKey(w, "selectWorld.create") && w.active, 0.5)) fail("no Create New World button on " + name(mc.screen));
+				if (!click(mc, (w) -> hasKey(w, "selectWorld.create") && w.active, 0.5)) fail("no Create New World button on " + name(mc.gui.screen()));
 				timeout = 2400;
 				next(20);
 			}
 			case 12 -> {
 				if (mc.player == null) {
 					// a question before the world is made (experimental settings): answered as a player does, logged
-					if (mc.screen instanceof ConfirmScreen confirm && timeout % 20 == 0) {
-						log("{}: {}", name(mc.screen), confirm.getTitle().getString());
-						RTFClientTest.confirm(mc.screen);
+					if (mc.gui.screen() instanceof ConfirmScreen confirm && timeout % 20 == 0) {
+						log("{}: {}", name(mc.gui.screen()), confirm.getTitle().getString());
+						RTFClientTest.confirm(mc.gui.screen());
 					}
 					if (--timeout <= 0) {
-						fail("the new world did not load: " + name(mc.screen));
+						fail("the new world did not load: " + name(mc.gui.screen()));
 						finish(mc);
 					}
 					return;
@@ -214,7 +214,7 @@ public final class RTFGuiTest {
 				command(mc, "time set 6000");
 				command(mc, "weather clear");
 				command(mc, "tp @s ~ ~40 ~ 0 25");
-				mc.options.hideGui = true;
+				if (!mc.gui.hud.isHidden()) mc.gui.hud.toggle();
 				next(500);
 			}
 			case 13 -> {
@@ -266,7 +266,7 @@ public final class RTFGuiTest {
 	}
 
 	static void shoot(Minecraft mc, String name) {
-		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
+		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.gameRenderer.mainRenderTarget(), 1, (message) -> {
 		});
 		shot++;
 	}
@@ -276,16 +276,16 @@ public final class RTFGuiTest {
 	}
 
 	static String page(Minecraft mc) {
-		return mc.screen instanceof LinkedPageScreen screen ? screen.getCurrentPage().getClass().getSimpleName() : name(mc.screen);
+		return mc.gui.screen() instanceof LinkedPageScreen screen ? screen.getCurrentPage().getClass().getSimpleName() : name(mc.gui.screen());
 	}
 
 	static Preset preset(Minecraft mc) {
-		return ((PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage()).getPreset().getPreset();
+		return ((PresetEditorPage) ((LinkedPageScreen) mc.gui.screen()).getCurrentPage()).getPreset().getPreset();
 	}
 
 	// the preset in the worldgen registries the create world screen will make the world with
 	static Optional<Preset> appliedPreset(Minecraft mc) {
-		if (!(mc.screen instanceof CreateWorldScreen screen)) return Optional.empty();
+		if (!(mc.gui.screen() instanceof CreateWorldScreen screen)) return Optional.empty();
 		return screen.getUiState().getSettings().worldgenLoadContext().lookup(RTFRegistries.PRESET).flatMap((registry) -> registry.get(Preset.KEY)).map(Holder::value);
 	}
 
@@ -299,9 +299,9 @@ public final class RTFGuiTest {
 
 	// five mouse wheel steps down over the left column (the settings)
 	private static void scrollDown(Minecraft mc) {
-		for (GuiEventListener child : mc.screen.children()) {
+		for (GuiEventListener child : mc.gui.screen().children()) {
 			if (child instanceof WidgetList<?> list) {
-				mc.screen.mouseScrolled(list.getX() + list.getWidth() / 2.0, list.getY() + list.getHeight() / 2.0, 0, -5);
+				mc.gui.screen().mouseScrolled(list.getX() + list.getWidth() / 2.0, list.getY() + list.getHeight() / 2.0, 0, -5);
 				return;
 			}
 		}
@@ -317,7 +317,7 @@ public final class RTFGuiTest {
 
 	// a mouse click (press and release) at a point of the first visible widget that matches, x at the given fraction
 	static boolean click(Minecraft mc, Predicate<AbstractWidget> predicate, double fraction) {
-		AbstractWidget widget = find(mc.screen, predicate);
+		AbstractWidget widget = find(mc.gui.screen(), predicate);
 		if (widget == null) return false;
 		click(mc, widget, fraction);
 		return true;
@@ -326,8 +326,8 @@ public final class RTFGuiTest {
 	static void click(Minecraft mc, AbstractWidget widget, double fraction) {
 		double x = widget.getX() + widget.getWidth() * fraction;
 		double y = widget.getY() + widget.getHeight() / 2.0;
-		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.screen));
-		Screen screen = mc.screen;
+		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.gui.screen()));
+		Screen screen = mc.gui.screen();
 		MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0));
 		screen.mouseMoved(x, y);
 		screen.mouseClicked(event, false);

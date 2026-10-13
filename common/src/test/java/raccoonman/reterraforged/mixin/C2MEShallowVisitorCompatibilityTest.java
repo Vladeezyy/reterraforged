@@ -158,8 +158,8 @@ class C2MEShallowVisitorCompatibilityTest {
 		}
 
 		@Override
-		public DensityFunction mapAll(Visitor visitor) {
-			return visitor.apply(new ThirdPartyComposite(this.child.mapAll(visitor)));
+		public DensityFunction mapChildren(Visitor visitor) {
+			return new ThirdPartyComposite(visitor.apply(this.child));
 		}
 
 		@Override

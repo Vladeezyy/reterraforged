@@ -37,11 +37,10 @@ public record NoiseFunction(Holder<Noise> noise, int seed) implements MarkerFunc
 		}
 
 		@Override
-		public DensityFunction mapAll(Visitor visitor) {
-			DensityFunction self = visitor instanceof Noise.Visitor noiseVisitor ?
+		public DensityFunction mapChildren(Visitor visitor) {
+			return visitor instanceof Noise.Visitor noiseVisitor ?
 				new Marker(Holder.direct(this.noise.value().mapAll(noiseVisitor))) : 
 				this;
-			return visitor.apply(self);
 		}
 	}
 }

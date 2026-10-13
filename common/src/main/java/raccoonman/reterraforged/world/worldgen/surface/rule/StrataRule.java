@@ -50,8 +50,8 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	}
 
 	@Override
-	public KeyDispatchDataCodec<StrataRule> codec() {
-		return new KeyDispatchDataCodec<>(CODEC);
+	public MapCodec<StrataRule> codec() {
+		return CODEC;
 	}
 	
 	private List<List<Layer>> generateStrata(RandomSource random) {
