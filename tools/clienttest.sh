@@ -24,11 +24,13 @@ fi
 ./gradlew ":$LOADER:runClient" -PrtfClientTest=rtf-test --no-daemon > "$OUT/client.log" 2>&1
 cp "$RUN"/screenshots/rtf-*.png "$OUT/" 2>/dev/null
 grep -h "RTF clienttest" "$OUT/client.log" | sed 's/^.*\[RTF clienttest\]/ /'
-# vanilla large dripstones can reach two chunks away and log "setBlock in a far chunk"; counted apart
+# vanilla large dripstones can reach two chunks away and log "setBlock in a far chunk"; counted apart.
+# Not the mod: Realms without an account in the dev client, NeoForge's note about Loom's dev-only class processor
+noise='far chunk.*large_dripstone|Realms|ClassTransformStatistics'
 dripstone=$(grep -c 'far chunk.*large_dripstone' "$OUT/client.log")
-errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -v 'far chunk.*large_dripstone' | grep -c .)
+errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | grep -c .)
 echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors (+ $dripstone vanilla large_dripstone far-chunk lines)"
-grep -E 'ERROR|Exception' "$OUT/client.log" | grep -v 'far chunk.*large_dripstone' | cut -c1-200 | sort | uniq -c | sort -rn | head -8
+grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | cut -c1-200 | sort | uniq -c | sort -rn | head -8
 grep -q "RTF clienttest\] done" "$OUT/client.log"
 exit $?
 }
