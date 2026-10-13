@@ -54,7 +54,7 @@ stop_server() {
 
 # wait_for <file> <regex> <seconds>
 wait_for() {
-    for i in $(seq 1 "$3"); do grep -q "$2" "$1" && return 0; grep -q 'Crash report\|Failed to start\|Exception in server tick loop\|Error executing task' "$1" && return 1; sleep 1; done
+    for i in $(seq 1 "$3"); do grep -q "$2" "$1" && return 0; grep -q 'Crash report\|Failed to start\|Exception in server tick loop\|Error executing task\|Mixin apply.*failed' "$1" && return 1; sleep 1; done
     return 1
 }
 

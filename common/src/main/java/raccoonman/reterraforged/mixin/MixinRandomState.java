@@ -24,6 +24,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.config.PerformanceConfig;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
@@ -127,6 +128,10 @@ class MixinRandomState {
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
 				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, (int) this.seed, config.tileSize(), config.batchCount(), ThreadPools.availableProcessors() > 4);
+				// where the world spawn is searched from (setInitialSpawn runs after the levels are created)
+				if((Object) this.sampler instanceof RTFClimateSampler rtfClimateSampler) {
+					rtfClimateSampler.setSpawnSearchCenter(this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext));
+				}
 			}
 		}, () -> {
 			if(this.hasContext) {

@@ -13,7 +13,6 @@
 		"MixinBiomeGenerationSettings",
 		"MixinSurfaceSystem",
 		"MixinStructure",
-		"MixinMinecraftServer",
 		"MixinRegistrySetBuilder$EmptyTagLookup",
 		"MixinSpawnFinder",
 		"MixinClimateSampler",
