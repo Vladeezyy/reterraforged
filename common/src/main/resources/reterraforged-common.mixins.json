@@ -11,15 +11,13 @@
 		"MixinChunkMap",
 		"MixinUtil",
 		"MixinBiomeGenerationSettings",
-		"MixinSurfaceSystem",
+		"MixinMaterialSystem",
+		"MaterialRuleContextAccessor",
 		"MixinStructure",
-		"MixinRegistrySetBuilder$EmptyTagLookup",
-		"MixinSpawnFinder",
-		"MixinClimateSampler",
+		"MixinNoiseBasedChunkGenerator",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
-		"terrablender.MixinTargetPoint",
-		"terrablender.MixinNoiseChunk"
+		"terrablender.MixinTargetPoint"
   	],
   	"client": [
 		"ScreenInvoker",

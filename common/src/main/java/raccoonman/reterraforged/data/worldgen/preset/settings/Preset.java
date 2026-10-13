@@ -2,7 +2,6 @@ package raccoonman.reterraforged.data.worldgen.preset.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.core.Cloner;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -11,8 +10,8 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.RegistryDataLoader;
+import net.minecraft.resources.ResourceKey;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetBiomeData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetBiomeModifierData;
@@ -58,10 +57,10 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 		this.addPatch(builder, RTFRegistries.NOISE, PresetNoiseData::bootstrap);
 		this.addPatch(builder, RTFRegistries.BIOME_MODIFIER, PresetBiomeModifierData::bootstrap);
 		this.addPatch(builder, RTFRegistries.STRUCTURE_RULE, PresetStructureRuleData::bootstrap);
-		this.addPatch(builder, Registries.CONFIGURED_FEATURE, (preset, ctx) -> {
+		this.addPatch(builder, Registries.FEATURE, (preset, ctx) -> {
 			PresetConfiguredFeatures.bootstrap(preset, ctx);
 		});
-		this.addPatch(builder, Registries.CONFIGURED_CARVER, (preset, ctx) -> {
+		this.addPatch(builder, Registries.CARVER, (preset, ctx) -> {
 			PresetConfiguredCarvers.bootstrap(preset, ctx);
 		});
 		this.addPatch(builder, Registries.PLACED_FEATURE, PresetPlacedFeatures::bootstrap);
@@ -74,7 +73,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 		this.addPatch(builder, Registries.NOISE_SETTINGS, PresetNoiseGeneratorSettings::bootstrap);
 
 		Cloner.Factory factory = new Cloner.Factory();
-		RegistryDataLoader.WORLDGEN_REGISTRIES.forEach(registryData -> registryData.runWithArguments(factory::addCodec));
+		RegistryDataLoader.WORLD_REGISTRIES.forEach(registryData -> registryData.runWithArguments(factory::addCodec));
 		// 添加其他已加载的注册表，确保所有注册表都有克隆器
 		registries.registries().forEach(entry -> {
 			ResourceKey<? extends Registry<?>> key = entry.key();

@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.HolderSet;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -29,7 +30,7 @@ record AddModifier(Order order, GenerationStep.Decoration step, Optional<Filter>
 	).apply(instance, AddModifier::new));
 	
 	@Override
-	public void modify(Holder<Biome> biome, BiomeModifier.Phase phase, BiomeInfo.Builder builder) {
+	public void modify(RegistryAccess registries, Holder<Biome> biome, BiomeModifier.Phase phase, BiomeInfo.Builder builder) {
 		if(phase == BiomeModifier.Phase.AFTER_EVERYTHING) {
 			if(builder.getGenerationSettings() instanceof MixinBiomeGenerationSettingsPlainsBuilder builderAccessor) {
 				if(this.biomes.isPresent() && !this.biomes.get().test(biome)) {

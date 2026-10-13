@@ -1,5 +1,13 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonWriter;
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.serialization.DataResult.Error;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import io.netty.util.internal.StringUtil;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -10,27 +18,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
-import org.apache.commons.compress.utils.FileNameUtils;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonWriter;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DataResult.Error;
-import com.mojang.serialization.JsonOps;
-
-import io.netty.util.internal.StringUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.util.GsonHelper;
+import org.apache.commons.compress.utils.FileNameUtils;
+import org.jetbrains.annotations.Nullable;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.Toasts;
@@ -38,8 +34,8 @@ import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.client.gui.widget.Label;
-import raccoonman.reterraforged.client.gui.widget.WidgetList;
 import raccoonman.reterraforged.client.gui.widget.WidgetList.Entry;
+import raccoonman.reterraforged.client.gui.widget.WidgetList;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.platform.ConfigUtil;
@@ -109,11 +105,11 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			this.rebuildPresets();
 		});
 		this.openPresetFolder = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_OPEN_PRESET_FOLDER, () -> {
-			Util.getPlatform().openUri(PRESET_PATH.toUri());
+			Blaze3D.openPath(PRESET_PATH);
 			this.rebuildPresets();
 		});
 		this.openExportFolder = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_OPEN_EXPORT_FOLDER, () -> {
-			Util.getPlatform().openUri(EXPORT_PATH.toUri());
+			Blaze3D.openPath(EXPORT_PATH);
 			this.rebuildPresets();
 		});
 		this.exportAsDatapack = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_EXPORT_AS_DATAPACK, () -> {

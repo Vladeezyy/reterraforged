@@ -1,9 +1,9 @@
 package raccoonman.reterraforged.world.worldgen.feature.placement.poisson;
 
 import it.unimi.dsi.fastutil.longs.LongArrays;
-import java.util.Random;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import java.util.Random;
 
 public class LongIterSet {
 	public static long NULL = Long.MAX_VALUE;
