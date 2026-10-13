@@ -15,7 +15,7 @@ import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.TreePlacements;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -271,15 +271,15 @@ public class PresetConfiguredFeatures {
 		return new BushFeature.Config(log.defaultBlockState(), leaves.defaultBlockState(), air, leaf, size);
 	}
 	
-	private static TemplateFeature.Config<?> makeTree(List<ResourceLocation> templates) {
+	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates) {
 		return makeTree(templates, 3);
 	}
 
-	private static TemplateFeature.Config<?> makeTree(List<ResourceLocation> templates, int baseExtension) {
+	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates, int baseExtension) {
 		return makeTree(templates, ImmutableList.of(), baseExtension);
 	}
 	
-	private static TemplateFeature.Config<?> makeTree(List<ResourceLocation> templates, List<TemplateDecorator<TreeContext>> decorators, int baseExtension) {
+	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates, List<TemplateDecorator<TreeContext>> decorators, int baseExtension) {
 		return new TemplateFeature.Config<>(templates, TemplatePlacements.tree(), new PasteConfig(baseExtension, false, true, false, false), new DecoratorConfig<>(decorators, ImmutableMap.of()));
 	}
 	
