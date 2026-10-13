@@ -71,6 +71,7 @@ public class PresetNoiseRouterData {
     	WorldSettings worldSettings = preset.world();
     	WorldSettings.Properties properties = worldSettings.properties;
     	int worldDepth = properties.worldDepth;
+    	int worldHeight = properties.worldHeight;
     	
     	CaveSettings caves = preset.caves();
     	float cheeseCaveDepthOffset = caves.cheeseCaveDepthOffset;
@@ -101,7 +102,14 @@ public class PresetNoiseRouterData {
         DensityFunction oreVeinB = NoiseRouterData.yLimitedInterpolatable(y, DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_VEIN_B), 4.0, 4.0), minY, maxY, 0).abs();
         DensityFunction oreVein = DensityFunctions.add(DensityFunctions.constant(-0.08F), DensityFunctions.max(oreVeinA, oreVeinB));
         DensityFunction oreGap = DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_GAP));
-        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), finalDensity, oreVeininess, oreVein, oreGap);
+        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), preliminarySurfaceLevel(slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), worldDepth, worldHeight), finalDensity, oreVeininess, oreVein, oreGap);
+	}
+
+	// Since 1.21.9 the router has the preliminary surface height itself instead of the density without jaggedness that
+	// NoiseChunk searched: the same search, from the top of the world down by cell height (8 in the preset's noise
+	// settings) to the first point with density above 0.390625.
+	private static DensityFunction preliminarySurfaceLevel(DensityFunction initialDensityWithoutJaggedness, int worldDepth, int worldHeight) {
+		return DensityFunctions.findTopSurface(DensityFunctions.add(initialDensityWithoutJaggedness, DensityFunctions.constant(-0.390625)), DensityFunctions.constant(worldHeight), -worldDepth, 8);
 	}
 
     private static DensityFunction climateDepth(CaveSettings caves, DensityFunction depth, DensityFunction y, int worldDepth) {

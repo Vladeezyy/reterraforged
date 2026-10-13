@@ -285,7 +285,7 @@ public final class RTFSelfTest {
 		// spawn on dry land
 		// (a player appears at a random safe spot within the spawn radius: the spawn block itself and at least a quarter
 		// of the 21 x 21 blocks around it, a beach, must be dry land)
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		for (int cx = (spawn.getX() - 10) >> 4; cx <= (spawn.getX() + 10) >> 4; cx++) for (int cz = (spawn.getZ() - 10) >> 4; cz <= (spawn.getZ() + 10) >> 4; cz++) full(level, cx, cz);
 		int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX(), spawn.getZ());
 		var below = level.getBlockState(new BlockPos(spawn.getX(), sy - 1, spawn.getZ()));

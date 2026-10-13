@@ -17,6 +17,8 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.resources.language.I18n;
@@ -72,7 +74,7 @@ public final class RTFGuiTest {
 		switch (step) {
 			case 0 -> {
 				if (mc.screen instanceof TitleScreen title) {
-					CreateWorldScreen.openFresh(mc, title);
+					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
 					next(60);
 				}
 			}
@@ -325,9 +327,10 @@ public final class RTFGuiTest {
 		double y = widget.getY() + widget.getHeight() / 2.0;
 		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.screen));
 		Screen screen = mc.screen;
+		MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0));
 		screen.mouseMoved(x, y);
-		screen.mouseClicked(x, y, GLFW.GLFW_MOUSE_BUTTON_LEFT);
-		screen.mouseReleased(x, y, GLFW.GLFW_MOUSE_BUTTON_LEFT);
+		screen.mouseClicked(event, false);
+		screen.mouseReleased(event);
 	}
 
 	@Nullable
