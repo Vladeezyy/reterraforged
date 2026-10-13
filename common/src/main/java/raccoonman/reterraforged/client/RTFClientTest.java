@@ -70,21 +70,21 @@ public final class RTFClientTest {
 		}
 		switch (step) {
 			case 0 -> {
-				if (mc.screen instanceof TitleScreen title) {
+				if (mc.gui.screen() instanceof TitleScreen title) {
 					mc.options.renderDistance().set(16);
-					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
+					CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(title));
 					next(60);
 				}
 			}
 			case 1 -> {
-				if (mc.screen instanceof CreateWorldScreen create) {
-					mc.setScreen(new PresetConfigScreen(create));
+				if (mc.gui.screen() instanceof CreateWorldScreen create) {
+					mc.gui.setScreen(new PresetConfigScreen(create));
 					next(40);
 				}
 			}
 			case 2 -> {
 				// select the first preset ("Default") and go to its settings page with the live preview
-				if (mc.screen instanceof PresetConfigScreen screen) {
+				if (mc.gui.screen() instanceof PresetConfigScreen screen) {
 					if (selectFirstPreset(screen)) screen.nextButton.onPress(PRESS);
 					else RTFCommon.LOGGER.warn("[RTF clienttest] no preset in the list");
 				}
@@ -92,7 +92,7 @@ public final class RTFClientTest {
 			}
 			case 3 -> {
 				shoot(mc, "preset-screen");
-				mc.setScreen(new TitleScreen());
+				mc.gui.setScreen(new TitleScreen());
 				next(20);
 			}
 			case 4 -> {
@@ -105,7 +105,7 @@ public final class RTFClientTest {
 			case 5 -> {
 				// "experimental settings" / backup questions when loading the world: answer yes
 				if (mc.player == null) {
-					confirm(mc.screen);
+					confirm(mc.gui.screen());
 					wait = 10;
 					return;
 				}
@@ -120,7 +120,7 @@ public final class RTFClientTest {
 				command(mc, "time set 6000");
 				command(mc, "weather clear");
 				command(mc, "gamerule doDaylightCycle false");
-				mc.options.hideGui = true;
+				if (!mc.gui.hud.isHidden()) mc.gui.hud.toggle();
 				mc.options.cloudStatus().set(CloudStatus.OFF);
 				next(20);
 			}
@@ -151,7 +151,7 @@ public final class RTFClientTest {
 	}
 
 	private static void shoot(Minecraft mc, String name) {
-		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
+		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.gameRenderer.mainRenderTarget(), 1, (message) -> {
 			RTFCommon.LOGGER.info("[RTF clienttest] {}", message.getString());
 		});
 		shot++;
