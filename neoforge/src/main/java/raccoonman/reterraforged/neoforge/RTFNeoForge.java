@@ -28,8 +28,7 @@ public class RTFNeoForge {
     	RegistryUtilImpl.register(modEventBus);
     }
     
-    // the language file is client data (NeoForge 21.4 splits GatherDataEvent into Client and Server)
-    private static void gatherData(GatherDataEvent.Client event) {
+    private static void gatherData(GatherDataEvent event) {
     	boolean includeClient = true; //event.includeClient();
     	DataGenerator generator = event.getGenerator();
     	PackOutput output = generator.getPackOutput();
