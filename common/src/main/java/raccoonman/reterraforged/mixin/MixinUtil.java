@@ -1,9 +1,9 @@
 package raccoonman.reterraforged.mixin;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,8 +21,17 @@ public class MixinUtil {
 		shutdownExecutor(Cache.SCHEDULER);
 	}
 
-	@Shadow
-    private static void shutdownExecutor(ExecutorService executorService) {
-    	throw new UnsupportedOperationException();
-    }
+	// Util.shutdownExecutor(ExecutorService) is gone since 1.21.2; same behavior
+	private static void shutdownExecutor(ExecutorService executorService) {
+		executorService.shutdown();
+		boolean terminated;
+		try {
+			terminated = executorService.awaitTermination(3L, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			terminated = false;
+		}
+		if (!terminated) {
+			executorService.shutdownNow();
+		}
+	}
 }
