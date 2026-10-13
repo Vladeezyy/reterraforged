@@ -8,8 +8,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -28,6 +28,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
+import raccoonman.reterraforged.client.gui.widget.WidgetList;
 
 /**
  * Client check for tools/clienttest.sh, only with -Drtf.clienttest=&lt;world folder name&gt;: opens the preset screen
@@ -78,9 +79,8 @@ public final class RTFClientTest {
 			case 2 -> {
 				// select the first preset ("Default") and go to its settings page with the live preview
 				if (mc.screen instanceof PresetConfigScreen screen) {
-					PresetEntry entry = findPresetEntry(screen);
-					if (entry != null) entry.onPress();
-					screen.nextButton.onPress();
+					if (selectFirstPreset(screen)) screen.nextButton.onPress();
+					else RTFCommon.LOGGER.warn("[RTF clienttest] no preset in the list");
 				}
 				next(200);
 			}
@@ -151,15 +151,23 @@ public final class RTFClientTest {
 		shot++;
 	}
 
-	private static PresetEntry findPresetEntry(ContainerEventHandler parent) {
-		for (GuiEventListener child : parent.children()) {
-			if (child instanceof PresetEntry entry) return entry;
-			if (child instanceof ContainerEventHandler container) {
-				PresetEntry entry = findPresetEntry(container);
-				if (entry != null) return entry;
+	// selects the first preset in the list like a mouse click does (the next page needs the list selection)
+	private static boolean selectFirstPreset(Screen screen) {
+		for (GuiEventListener child : screen.children()) {
+			if (child instanceof WidgetList<?> list && selectFirstPreset(list)) return true;
+		}
+		return false;
+	}
+
+	private static <T extends AbstractWidget> boolean selectFirstPreset(WidgetList<T> list) {
+		for (WidgetList.Entry<T> entry : list.children()) {
+			if (entry.getWidget() instanceof PresetEntry preset) {
+				list.setSelected(entry);
+				preset.onPress();
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
 	private static void confirm(Screen screen) {

@@ -44,7 +44,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.platform.ConfigUtil;
 
-class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry, AbstractWidget> {
+public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry, AbstractWidget> {
 	private static final Path PRESET_PATH = ConfigUtil.rtf("presets");
 	private static final Path EXPORT_PATH = ConfigUtil.rtf("exports");
 	private static final Path LEGACY_PRESET_PATH = ConfigUtil.legacy("presets");
