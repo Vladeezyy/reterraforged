@@ -64,7 +64,7 @@ public abstract class LanguageProvider implements DataProvider {
     }
 
     public void add(ItemStack key, String name) {
-        add(key.getDescriptionId(), name);
+        add(key.getItem().getDescriptionId(), name);
     }
 
     //public void addEnchantment(Supplier<? extends Enchantment> key, String name) {
