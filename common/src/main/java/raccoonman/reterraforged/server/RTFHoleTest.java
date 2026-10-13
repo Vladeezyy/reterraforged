@@ -47,7 +47,7 @@ public final class RTFHoleTest {
 		ServerLevel level = server.overworld();
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		String kind = rtf ? "rtf" : "vanilla";
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		List<String> lines = new ArrayList<>();
 		lines.add("# " + kind + " world, seed " + level.getSeed() + ", " + SQUARES * SQUARES + " squares of " + chunks + " x " + chunks
 			+ " chunks: x z ground water-top rim depth shape(w x l) biome block");

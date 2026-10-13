@@ -249,7 +249,7 @@ public final class RTFSelfTest {
 		check("overworld bedrock floor is whole (holes: " + holes + ")", holes == 0);
 
 		// spawn on dry land
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		ChunkAccess sc = full(level, spawn.getX() >> 4, spawn.getZ() >> 4);
 		int sy = sc.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX() & 15, spawn.getZ() & 15);
 		var below = level.getBlockState(new BlockPos(spawn.getX(), sy - 1, spawn.getZ()));
