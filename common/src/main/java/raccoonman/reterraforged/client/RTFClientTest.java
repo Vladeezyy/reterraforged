@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -44,6 +47,8 @@ public final class RTFClientTest {
 	private static final String WORLD = System.getProperty("rtf.clienttest");
 	// tools/showcase.sh (pictures for the README, with shaders): evening sun and lower cameras
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
+	// a button press as if made with the keyboard (Enter)
+	private static final KeyEvent PRESS = new KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0);
 	// tools/clienttest.sh with BIOMES="biomesoplenty:lavender_field,...": one more screenshot in each of these biomes
 	private static final String BIOMES = System.getProperty("rtf.clientbiomes", "");
 	// SPOTS="3260,1160;3608,922": a screenshot looking down at each of these places (pits found by "rtf holes")
@@ -82,7 +87,7 @@ public final class RTFClientTest {
 			case 0 -> {
 				if (mc.screen instanceof TitleScreen title) {
 					mc.options.renderDistance().set(16);
-					CreateWorldScreen.openFresh(mc, title);
+					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
 					next(60);
 				}
 			}
@@ -95,7 +100,7 @@ public final class RTFClientTest {
 			case 2 -> {
 				// select the first preset ("Default") and go to its settings page with the live preview
 				if (mc.screen instanceof PresetConfigScreen screen) {
-					if (selectFirstPreset(screen)) screen.nextButton.onPress();
+					if (selectFirstPreset(screen)) screen.nextButton.onPress(PRESS);
 					else RTFCommon.LOGGER.warn("[RTF clienttest] no preset in the list");
 				}
 				next(200);
@@ -179,7 +184,7 @@ public final class RTFClientTest {
 		for (WidgetList.Entry<T> entry : list.children()) {
 			if (entry.getWidget() instanceof PresetEntry preset) {
 				list.setSelected(entry);
-				preset.onPress();
+				preset.onPress(PRESS);
 				return true;
 			}
 		}
@@ -191,7 +196,7 @@ public final class RTFClientTest {
 		for (var child : screen.children()) {
 			if (child instanceof Button button && button.getMessage().getContents() instanceof TranslatableContents contents && CONFIRM_KEYS.contains(contents.getKey())) {
 				RTFCommon.LOGGER.info("[RTF clienttest] pressing {} on {}", contents.getKey(), screen.getClass().getSimpleName());
-				button.onPress();
+				button.onPress(PRESS);
 				return;
 			}
 		}
@@ -210,7 +215,7 @@ public final class RTFClientTest {
 		ServerLevel level = server.overworld();
 		var gen = level.getChunkSource().getGenerator();
 		var rs = level.getChunkSource().randomState();
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 
 		int bestX = spawn.getX(), bestZ = spawn.getZ(), bestY = Integer.MIN_VALUE;
 		for (int x = -1536; x <= 1536; x += 64) {
