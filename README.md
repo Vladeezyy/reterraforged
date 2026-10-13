@@ -25,7 +25,7 @@ NeoForge и Fabric. История коммитов авторов сохран�
 | 1.21.11 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | `mc/1.21.11` |
 | 26.1.2 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | `mc/26.1.2` |
 | 26.2 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | `mc/26.2` |
-| 26.3 | в работе | | | |
+| 26.3 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | `mc/26.3` |
 
 В каждом релизе — jar для NeoForge, jar для Fabric и датапак пресета для серверов. 1.21.x — Java 21, 26.x — Java 25.
 Сервер: jar в `mods/`, для нового мира датапак `reterraforged-preset-<версия>.zip` в `world/datapacks/` (без него
@@ -70,7 +70,7 @@ NeoForge и Fabric. История коммитов авторов сохран�
 
 ![ReTerraForged](neoforge/src/main/resources/logo.png)
 
-Terrain generation for Minecraft 1.21.1 – 26.2 on NeoForge and Fabric (see the table above).
+Terrain generation for Minecraft 1.21.1 – 26.3 on NeoForge and Fabric (see the table above).
 
 ## Island generation
 
