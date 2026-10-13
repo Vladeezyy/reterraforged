@@ -28,7 +28,8 @@ read -r url pack < <(curl -fsSL "https://api.modrinth.com/v2/project/complementa
 echo "shaders: $pack"
 printf 'enableShaders=true\nshaderPack=%s\n' "$pack" > "$RUN/config/iris.properties"
 
-bash tools/clienttest.sh fabric
+# evening sun and lower cameras (RTFClientTest), passed to the client through the java launcher
+JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.showcase=true" bash tools/clienttest.sh fabric
 code=$?
 cp run/clienttest-fabric/rtf-*.png "$OUT/" 2>/dev/null
 rm -f "$RUN"/mods/iris-*.jar "$RUN"/mods/sodium-*.jar

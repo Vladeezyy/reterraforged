@@ -37,6 +37,8 @@ import raccoonman.reterraforged.client.gui.widget.WidgetList;
  */
 public final class RTFClientTest {
 	private static final String WORLD = System.getProperty("rtf.clienttest");
+	// tools/showcase.sh (pictures for the README, with shaders): evening sun and lower cameras
+	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;
@@ -111,7 +113,7 @@ public final class RTFClientTest {
 				if (!search.isDone()) return;
 				spots = search.join();
 				command(mc, "gamemode spectator");
-				command(mc, "time set 6000");
+				command(mc, SHOWCASE ? "time set 11800" : "time set 6000");
 				command(mc, "weather clear");
 				command(mc, "gamerule doDaylightCycle false");
 				mc.options.hideGui = true;
@@ -208,11 +210,11 @@ public final class RTFClientTest {
 			}
 		}
 		RTFCommon.LOGGER.info("[RTF clienttest] highest point {} {} {}", bestX, bestY, bestZ);
-		float[] mountains = lookAt(bestX, bestY, bestZ, 160, 25);
+		float[] mountains = SHOWCASE ? lookAt(bestX, bestY, bestZ, 280, 10) : lookAt(bestX, bestY, bestZ, 160, 25);
 		float[] desert = biomeSpot(level, spawn, Biomes.DESERT);
 		float[] river = biomeSpot(level, spawn, Biomes.RIVER);
 		int sy = gen.getBaseHeight(spawn.getX(), spawn.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
-		float[] overview = { spawn.getX(), Math.min(sy + 80, level.getMaxBuildHeight() - 10), spawn.getZ() + 160, 180, 30 };
+		float[] overview = { spawn.getX(), Math.min(sy + (SHOWCASE ? 40 : 80), level.getMaxBuildHeight() - 10), spawn.getZ() + 160, 180, SHOWCASE ? 12 : 30 };
 		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview };
 	}
 
@@ -226,7 +228,7 @@ public final class RTFClientTest {
 		var gen = level.getChunkSource().getGenerator();
 		int y = gen.getBaseHeight(pos.getX(), pos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, level.getChunkSource().randomState());
 		RTFCommon.LOGGER.info("[RTF clienttest] {} at {} {} {}", biome.location(), pos.getX(), y, pos.getZ());
-		return lookAt(pos.getX(), y, pos.getZ(), 70, 35);
+		return SHOWCASE ? lookAt(pos.getX(), y, pos.getZ(), 120, 18) : lookAt(pos.getX(), y, pos.getZ(), 70, 35);
 	}
 
 	// a camera south of the target, raised so it looks down at it at the given angle
