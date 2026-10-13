@@ -263,7 +263,7 @@ public final class RTFGuiTest {
 	}
 
 	static void shoot(Minecraft mc, String name) {
-		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), (message) -> {
+		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
 		});
 		shot++;
 	}
