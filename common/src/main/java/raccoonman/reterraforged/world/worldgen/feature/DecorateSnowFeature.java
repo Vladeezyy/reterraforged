@@ -117,7 +117,9 @@ public class DecorateSnowFeature extends Feature<Config> {
 			}
 	        return true;
 		} else {
-			throw new IllegalStateException();
+			// not a ReTerraForged generator (nether, end, other dimensions get the feature through biome modifiers
+			// without a filter): nothing to do; throwing here left the chunk unfinished and froze the server
+			return false;
 		}
 	}
 
