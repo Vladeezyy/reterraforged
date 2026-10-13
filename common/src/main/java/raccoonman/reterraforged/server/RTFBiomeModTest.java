@@ -131,7 +131,7 @@ public final class RTFBiomeModTest {
 	public static String dump(MinecraftServer server) {
 		try {
 			ServerLevel level = server.overworld();
-			var registry = level.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BIOME);
+			var registry = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BIOME);
 			List<String> regions = new ArrayList<>();
 			List<terrablender.api.Region> list = terrablender.api.Regions.get(terrablender.api.RegionType.OVERWORLD);
 			for (int r = 0; r < list.size(); r++) {
