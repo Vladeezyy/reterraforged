@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.mixin;
 
+import raccoonman.reterraforged.world.worldgen.densityfunction.C2MECompat;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +38,7 @@ class C2MEShallowVisitorCompatibilityTest {
 		ClampToNearestUnit root = new ClampToNearestUnit(holder(sampler), 64);
 		AtomicInteger mapped = new AtomicInteger();
 
-		DensityFunction repaired = MixinNoiseChunk.repairC2MEShallowMapping(root, (cellSampler) -> {
+		DensityFunction repaired = C2MECompat.repairShallowMapping(root, (cellSampler) -> {
 			mapped.incrementAndGet();
 			return cellSampler.new CacheChunk(null, new CellSampler.Cache2d(), 0, 0);
 		});
@@ -62,7 +64,7 @@ class C2MEShallowVisitorCompatibilityTest {
 		ClampToNearestUnit root = new ClampToNearestUnit(holder(spline), 128);
 		AtomicInteger mapped = new AtomicInteger();
 
-		DensityFunction repaired = MixinNoiseChunk.repairC2MEShallowMapping(root, (cellSampler) -> {
+		DensityFunction repaired = C2MECompat.repairShallowMapping(root, (cellSampler) -> {
 			mapped.incrementAndGet();
 			return DensityFunctions.constant(cellSampler.field().ordinal() / 16.0D);
 		});
@@ -82,7 +84,7 @@ class C2MEShallowVisitorCompatibilityTest {
 		);
 		AtomicInteger mapped = new AtomicInteger();
 
-		DensityFunction repaired = MixinNoiseChunk.repairC2MEShallowMapping(vanilla, (cellSampler) -> {
+		DensityFunction repaired = C2MECompat.repairShallowMapping(vanilla, (cellSampler) -> {
 			mapped.incrementAndGet();
 			return DensityFunctions.zero();
 		});
@@ -93,7 +95,7 @@ class C2MEShallowVisitorCompatibilityTest {
 		DensityFunction thirdParty = new ThirdPartyComposite(
 			holder(sampler(CellSampler.Field.EROSION))
 		);
-		DensityFunction thirdPartyRepair = MixinNoiseChunk.repairC2MEShallowMapping(thirdParty, (cellSampler) -> {
+		DensityFunction thirdPartyRepair = C2MECompat.repairShallowMapping(thirdParty, (cellSampler) -> {
 			mapped.incrementAndGet();
 			return DensityFunctions.zero();
 		});
@@ -104,7 +106,7 @@ class C2MEShallowVisitorCompatibilityTest {
 		CellSampler sampler = sampler(CellSampler.Field.HEIGHT);
 		CellSampler.CacheChunk cacheChunk = sampler.new CacheChunk(null, new CellSampler.Cache2d(), 0, 0);
 		ClampToNearestUnit cachedRoot = new ClampToNearestUnit(cacheChunk, 64);
-		DensityFunction cachedRepair = MixinNoiseChunk.repairC2MEShallowMapping(cachedRoot, (cellSampler) -> {
+		DensityFunction cachedRepair = C2MECompat.repairShallowMapping(cachedRoot, (cellSampler) -> {
 			mapped.incrementAndGet();
 			return DensityFunctions.zero();
 		});

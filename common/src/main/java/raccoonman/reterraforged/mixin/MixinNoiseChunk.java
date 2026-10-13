@@ -26,6 +26,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+import raccoonman.reterraforged.world.worldgen.densityfunction.C2MECompat;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 import raccoonman.reterraforged.world.worldgen.densityfunction.ClampToNearestUnit;
 import raccoonman.reterraforged.world.worldgen.densityfunction.ConditionalFlatCache;
@@ -131,7 +132,7 @@ class MixinNoiseChunk {
 				return;
 			}
 			if(C2ME_PRESENT) {
-				DensityFunction repaired = repairC2MEShallowMapping(function, (mapped) -> {
+				DensityFunction repaired = C2MECompat.repairShallowMapping(function, (mapped) -> {
 					return this.wrapCellSampler(mapped, randomState);
 				});
 				if(repaired != function) {
@@ -146,16 +147,5 @@ class MixinNoiseChunk {
 			return sampler.new CacheChunk(this.chunk, this.cache2d, this.chunkX, this.chunkZ);
 		}
 		return DensityFunctions.zero();
-	}
-
-	static DensityFunction repairC2MEShallowMapping(DensityFunction function, Function<CellSampler, DensityFunction> mapper) {
-		if(!(function instanceof ClampToNearestUnit)
-			&& !(function instanceof ConditionalFlatCache)
-			&& !(function instanceof LinearSplineFunction)) {
-			return function;
-		}
-		return function.mapAll((child) -> {
-			return child instanceof CellSampler sampler ? mapper.apply(sampler) : child;
-		});
 	}
 }
