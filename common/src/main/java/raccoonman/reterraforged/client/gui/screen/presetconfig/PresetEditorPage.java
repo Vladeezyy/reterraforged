@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,7 +15,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.ARGB;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.HolderGetter;
@@ -220,7 +220,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        int y = this.getY();
 	        
 	        this.height = this.getWidth(); // ensure height equals width for click area
-	        guiGraphics.blit(RenderType::guiTextured, this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
+	        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
 
 	        this.updateLegend(mx, my);
 
@@ -345,11 +345,11 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 
 	    private void renderLegend(GuiGraphics guiGraphics, int mx, int my, Component[] labels, String[] values, int left, int top, int lineHeight, int color) {
 	        float scale = this.getLegendScale();
-	        PoseStack pose = guiGraphics.pose();
+	        Matrix3x2fStack pose = guiGraphics.pose();
 	        	
-	        pose.pushPose();
-	        pose.translate(left + 3.75F * scale, top - lineHeight * (3.2F * scale), 0);
-	        pose.scale(scale, scale, 1);
+	        pose.pushMatrix();
+	        pose.translate(left + 3.75F * scale, top - lineHeight * (3.2F * scale));
+	        pose.scale(scale, scale);
 	
 	        Minecraft mc = Minecraft.getInstance();
 	        Font renderer = mc.font;
@@ -371,7 +371,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	            guiGraphics.drawString(renderer, value, spacing, i * lineHeight, color);
 	        }
 	
-	        pose.popPose();
+	        pose.popMatrix();
 	
 	        if (!this.hoveredCoords.isEmpty()) {
 	        	guiGraphics.drawCenteredString(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFFFF);
