@@ -18,8 +18,11 @@ public abstract class BisectedPage<S extends Screen, L extends AbstractWidget, R
 	@Override
 	public void init() {
 		ColumnAlignment alignment = new ColumnAlignment(this.screen, 4, 0, 10, 30);
-		this.left = alignment.addColumn(0.7F, this::createAndPositionColumn);
-		this.right = alignment.addColumn(0.3F, this::createAndPositionColumn);
+		// the right column holds buttons like "Open Preset Folder" and the preview: at least 150 px, so they are not
+		// cut off on small windows / large GUI scales
+		float right = Math.min(0.45F, Math.max(0.3F, 150F / Math.max(1, this.screen.width)));
+		this.left = alignment.addColumn(1F - right, this::createAndPositionColumn);
+		this.right = alignment.addColumn(right, this::createAndPositionColumn);
 	}
 
 	private <T extends AbstractWidget> WidgetList<T> createAndPositionColumn(int left, int top, int columnWidth, int height, int horizontalPadding, int verticalPadding) {
