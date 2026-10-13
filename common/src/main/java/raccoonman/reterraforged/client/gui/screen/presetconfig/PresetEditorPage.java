@@ -10,7 +10,7 @@ import org.joml.Matrix3x2fStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.CycleButton;
@@ -216,7 +216,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 	
 	    @Override
-	    public void renderWidget(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
+	    public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mx, int my, float partialTicks) {
 	        int x = this.getX();
 	        int y = this.getY();
 	        
@@ -345,7 +345,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        return LEGEND_SCALES[index];
 	    }
 
-	    private void renderLegend(GuiGraphics guiGraphics, int mx, int my, Component[] labels, String[] values, int left, int top, int lineHeight, int color) {
+	    private void renderLegend(GuiGraphicsExtractor guiGraphics, int mx, int my, Component[] labels, String[] values, int left, int top, int lineHeight, int color) {
 	        float scale = this.getLegendScale();
 	        Matrix3x2fStack pose = guiGraphics.pose();
 	        	
@@ -369,14 +369,14 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	                value = value.substring(0, value.length() - 1);
 	            }
 	
-	            guiGraphics.drawString(renderer, label, 0, i * lineHeight, color);
-	            guiGraphics.drawString(renderer, value, spacing, i * lineHeight, color);
+	            guiGraphics.text(renderer, label, 0, i * lineHeight, color);
+	            guiGraphics.text(renderer, value, spacing, i * lineHeight, color);
 	        }
 	
 	        pose.popMatrix();
 	
 	        if (!this.hoveredCoords.isEmpty()) {
-	        	guiGraphics.drawCenteredString(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFFFF);
+	        	guiGraphics.centeredText(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFFFF);
 	        }
 	    }
 	

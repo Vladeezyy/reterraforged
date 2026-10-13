@@ -32,7 +32,7 @@ public class RegistryUtilImpl {
 	}
 
 	public static <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key) {
-		return FabricRegistryBuilder.createSimple(key).buildAndRegister();
+		return FabricRegistryBuilder.create(key).buildAndRegister();
 	}
 
 	public static <T> void createDataRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, boolean synced) {

@@ -25,7 +25,7 @@ public final class PresetDimensionTypes {
 		// vanilla's overworld (sky, fog, clouds, music, timelines... as environment attributes since 1.21.11) with the
 		// preset's world height
 		DimensionType vanilla = vanillaOverworld(ctx);
-		ctx.register(BuiltinDimensionTypes.OVERWORLD, new DimensionType(vanilla.hasFixedTime(), vanilla.hasSkyLight(), vanilla.hasCeiling(), vanilla.coordinateScale(), -worldDepth, totalHeight, totalHeight, vanilla.infiniburn(), vanilla.ambientLight(), vanilla.monsterSettings(), vanilla.skybox(), vanilla.cardinalLightType(), vanilla.attributes(), vanilla.timelines()));
+		ctx.register(BuiltinDimensionTypes.OVERWORLD, new DimensionType(vanilla.hasFixedTime(), vanilla.hasSkyLight(), vanilla.hasCeiling(), vanilla.hasEnderDragonFight(), vanilla.coordinateScale(), -worldDepth, totalHeight, totalHeight, vanilla.infiniburn(), vanilla.ambientLight(), vanilla.monsterSettings(), vanilla.skybox(), vanilla.cardinalLightType(), vanilla.attributes(), vanilla.timelines(), vanilla.defaultClock()));
 	}
 
 	private static DimensionType vanillaOverworld(BootstrapContext<DimensionType> ctx) {
