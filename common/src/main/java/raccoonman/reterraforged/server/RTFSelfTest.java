@@ -46,7 +46,7 @@ public final class RTFSelfTest {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		if (!enabled()) return;
-		dispatcher.register(Commands.literal("rtf").requires(s -> s.hasPermission(4)).then(Commands.literal("selftest").executes(ctx -> {
+		dispatcher.register(Commands.literal("rtf").requires(Commands.hasPermission(Commands.LEVEL_OWNERS)).then(Commands.literal("selftest").executes(ctx -> {
 			String result = new RTFSelfTest().run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;

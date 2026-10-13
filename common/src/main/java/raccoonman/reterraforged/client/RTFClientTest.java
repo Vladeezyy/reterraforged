@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -194,7 +195,7 @@ public final class RTFClientTest {
 		MinecraftServer server = mc.getSingleplayerServer();
 		server.execute(() -> {
 			ServerPlayer player = server.getPlayerList().getPlayer(mc.player.getUUID());
-			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4), command);
+			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(LevelBasedPermissionSet.OWNER), command);
 		});
 	}
 
@@ -228,13 +229,13 @@ public final class RTFClientTest {
 	private static float[] biomeSpot(ServerLevel level, BlockPos origin, ResourceKey<Biome> biome) {
 		Pair<BlockPos, Holder<Biome>> found = level.findClosestBiome3d((b) -> b.is(biome), origin.atY(level.getSeaLevel() + 8), 2400, 32, 4096);
 		if (found == null) {
-			RTFCommon.LOGGER.warn("[RTF clienttest] no {} found", biome.location());
+			RTFCommon.LOGGER.warn("[RTF clienttest] no {} found", biome.identifier());
 			return null;
 		}
 		BlockPos pos = found.getFirst();
 		var gen = level.getChunkSource().getGenerator();
 		int y = gen.getBaseHeight(pos.getX(), pos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, level.getChunkSource().randomState());
-		RTFCommon.LOGGER.info("[RTF clienttest] {} at {} {} {}", biome.location(), pos.getX(), y, pos.getZ());
+		RTFCommon.LOGGER.info("[RTF clienttest] {} at {} {} {}", biome.identifier(), pos.getX(), y, pos.getZ());
 		return SHOWCASE ? lookAt(pos.getX(), y, pos.getZ(), 120, 18) : lookAt(pos.getX(), y, pos.getZ(), 70, 35);
 	}
 
