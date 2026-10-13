@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 
 record TreeDecorator(net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator decorator, net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator modifiedDecorator) implements TemplateDecorator<TreeContext> {
 	public static final MapCodec<TreeDecorator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -26,12 +27,13 @@ record TreeDecorator(net.minecraft.world.level.levelgen.feature.treedecorators.T
     	Set<BlockPos> logs = buffer.logs();
     	Set<BlockPos> leaves = buffer.leaves();
     	
-        if (logs.isEmpty() || leaves.isEmpty()) {
+        // vanilla tree decorators need the generation level (26.1); features are always placed in one
+        if (logs.isEmpty() || leaves.isEmpty() || !(level instanceof WorldGenLevel worldGenLevel)) {
             return;
         }
         
         net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator.Context ctx = new net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator.Context(
-        	level,
+        	worldGenLevel,
         	(pos, state) -> level.setBlock(pos, state, 19), 
         	random,
         	logs,

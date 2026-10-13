@@ -28,6 +28,7 @@
     "fabric-api": ">=${fabric_api_min}",
     "minecraft": "${minecraft_range_fabric}"
   },
+  "accessWidener": "reterraforged.accesswidener",
   "mixins": [
     "reterraforged-common.mixins.json",
     "reterraforged-fabric.mixins.json"

@@ -29,7 +29,7 @@ record ReplaceModifier(GenerationStep.Decoration step, Optional<HolderSet<Biome>
 
 	@Override
 	public void apply(BiomeSelectionContext selectionContext, BiomeModificationContext modificationContext) {
-		if(this.biomes.isPresent() && !this.biomes.get().contains(selectionContext.getBiomeRegistryEntry())) {
+		if(this.biomes.isPresent() && !this.biomes.get().contains(selectionContext.getBiomeHolder())) {
 			return;
 		}
 		

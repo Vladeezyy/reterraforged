@@ -167,7 +167,7 @@ public final class RTFStructureTest {
 				if (gap >= 4) air++;
 				// terrain (not leaves or another piece) over the piece's top
 				BlockState above = level.getBlockState(new BlockPos(p[0], b.maxY() + 3, p[1]));
-				if (above.is(BlockTags.DIRT) || above.is(BlockTags.BASE_STONE_OVERWORLD) || above.is(BlockTags.SAND) || above.is(Blocks.GRAVEL)) covered++;
+				if (above.is(BlockTags.SUBSTRATE_OVERWORLD) || above.is(BlockTags.BASE_STONE_OVERWORLD) || above.is(BlockTags.SAND) || above.is(Blocks.GRAVEL)) covered++;
 			}
 			// only pieces on the structure's lowest level stand on the ground: under the rooms of a mansion's upper floors
 			// are the rooms below
