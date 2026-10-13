@@ -113,9 +113,11 @@ public final class RTFClientTest {
 				if (!search.isDone()) return;
 				spots = search.join();
 				command(mc, "gamemode spectator");
-				command(mc, SHOWCASE ? "time set 11800" : "time set 6000");
+				command(mc, SHOWCASE ? "time set 10500" : "time set 6000");
 				command(mc, "weather clear");
+				// the time stops: doDaylightCycle up to 1.21.10, advance_time since 1.21.11 (the other one just fails)
 				command(mc, "gamerule doDaylightCycle false");
+				command(mc, "gamerule advance_time false");
 				mc.options.hideGui = true;
 				mc.options.cloudStatus().set(CloudStatus.OFF);
 				next(20);
@@ -210,7 +212,7 @@ public final class RTFClientTest {
 			}
 		}
 		RTFCommon.LOGGER.info("[RTF clienttest] highest point {} {} {}", bestX, bestY, bestZ);
-		float[] mountains = SHOWCASE ? lookAt(bestX, bestY, bestZ, 280, 10) : lookAt(bestX, bestY, bestZ, 160, 25);
+		float[] mountains = SHOWCASE ? lookAt(bestX, bestY, bestZ, 300, 4) : lookAt(bestX, bestY, bestZ, 160, 25);
 		float[] desert = biomeSpot(level, spawn, Biomes.DESERT);
 		float[] river = biomeSpot(level, spawn, Biomes.RIVER);
 		int sy = gen.getBaseHeight(spawn.getX(), spawn.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
