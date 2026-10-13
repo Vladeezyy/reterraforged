@@ -235,7 +235,7 @@ public final class RTFGuiTest {
 			fail("the new world is not built by ReTerraForged (vanilla generator)");
 		}
 		// the preset's trees replace the vanilla ones in the biomes
-		Biome forest = level.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.FOREST);
+		Biome forest = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST);
 		List<String> trees = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream)
 			.map((key) -> key.location().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		log("trees in the forest: {}", trees);
