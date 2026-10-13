@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.ARGB;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -228,7 +229,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 	
 	    @Override
-	    public void onClick(double mouseX, double mouseY) {
+	    public void onClick(MouseButtonEvent event, boolean doubleClick) {
 	        if (Minecraft.getInstance().screen != null) {
 	            Minecraft.getInstance().screen.setFocused(this);
 	        }
@@ -238,7 +239,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 	
 	    @Override
-	    protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+	    protected void onDrag(MouseButtonEvent event, double dragX, double dragY) {
 	        int zoom = getZoom();
 	        double blocksPerPixel = zoom; // preview size = 256
 	        offsetX -= dragX * blocksPerPixel;
@@ -247,7 +248,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 	
 	    @Override
-	    public void onRelease(double mouseX, double mouseY) {
+	    public void onRelease(MouseButtonEvent event) {
+	        double mouseX = event.x(), mouseY = event.y();
 	        if (!clicked) {
 	            return;
 	        }
@@ -266,8 +268,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        // Otherwise, drag already applied in onDrag, nothing more to do
 	    }
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-	    return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+	    return super.mouseDragged(event, dragX, dragY);
 	}
 
 	@Override
@@ -285,13 +287,13 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 
 	
 	    @Override
-	    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-	        boolean over = isMouseOver(mouseX, mouseY);
-	        if (over && button == 0) {
+	    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+	        boolean over = isMouseOver(event.x(), event.y());
+	        if (over && event.button() == 0) {
 	            // Ensure onClick is called even if super.mouseClicked doesn't call it
-	            onClick(mouseX, mouseY);
+	            onClick(event, doubleClick);
 	        }
-	        boolean result = super.mouseClicked(mouseX, mouseY, button);
+	        boolean result = super.mouseClicked(event, doubleClick);
 	        // Always return true if mouse is over to indicate event handled
 	        return over || result;
 	    }
