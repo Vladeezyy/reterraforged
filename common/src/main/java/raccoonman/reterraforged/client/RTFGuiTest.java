@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -325,7 +324,7 @@ public final class RTFGuiTest {
 		double y = widget.getY() + widget.getHeight() / 2.0;
 		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.gui.screen()));
 		Screen screen = mc.gui.screen();
-		MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0));
+		MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(0, 0));
 		screen.mouseMoved(x, y);
 		screen.mouseClicked(event, false);
 		screen.mouseReleased(event);

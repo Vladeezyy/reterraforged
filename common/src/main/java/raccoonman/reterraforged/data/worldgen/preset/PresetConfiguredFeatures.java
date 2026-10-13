@@ -1,47 +1,42 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
-import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.TreePlacements;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.RandomSelectorFeature;
+import net.minecraft.world.level.levelgen.feature.SimpleBlockFeature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedStateProvider;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TemplateDecorators;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
-import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.OffsetPlacement;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.SurfaceSettings;
 import raccoonman.reterraforged.world.worldgen.feature.BushFeature;
 import raccoonman.reterraforged.world.worldgen.feature.DecorateSnowFeature;
+import raccoonman.reterraforged.world.worldgen.feature.DiskFeature;
 import raccoonman.reterraforged.world.worldgen.feature.ErodeFeature;
-import raccoonman.reterraforged.world.worldgen.feature.RTFFeatures;
 import raccoonman.reterraforged.world.worldgen.feature.SwampSurfaceFeature;
 import raccoonman.reterraforged.world.worldgen.feature.chance.ChanceFeature;
 import raccoonman.reterraforged.world.worldgen.feature.chance.ChanceModifier;
@@ -54,77 +49,77 @@ import raccoonman.reterraforged.world.worldgen.feature.template.paste.PasteConfi
 import raccoonman.reterraforged.world.worldgen.feature.template.placement.TemplatePlacements;
 
 public class PresetConfiguredFeatures {
-	public static final ResourceKey<ConfiguredFeature<?, ?>> ERODE = createKey("erode");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> DECORATE_SNOW = createKey("decorate_snow");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SWAMP_SURFACE = createKey("swamp_surface");
+	public static final ResourceKey<Feature> ERODE = createKey("erode");
+	public static final ResourceKey<Feature> DECORATE_SNOW = createKey("decorate_snow");
+	public static final ResourceKey<Feature> SWAMP_SURFACE = createKey("swamp_surface");
 
-	public static final ResourceKey<ConfiguredFeature<?, ?>> OAK_SMALL = createKey("oak/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> OAK_FOREST = createKey("oak/forest");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> OAK_LARGE = createKey("oak/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_SMALL = createKey("birch/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_FOREST = createKey("birch/forest");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_LARGE = createKey("birch/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> ACACIA_BUSH = createKey("acacia/bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> ACACIA_SMALL = createKey("acacia/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> ACACIA_LARGE = createKey("acacia/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> DARK_OAK_SMALL = createKey("dark_oak/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> DARK_OAK_LARGE = createKey("dark_oak/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> HUGE_BROWN_MUSHROOM = createKey("mushrooms/huge_brown_mushroom");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> HUGE_RED_MUSHROOM = createKey("mushrooms/huge_red_mushroom");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> WILLOW_SMALL = createKey("willow/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> WILLOW_LARGE = createKey("willow/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> PINE = createKey("pine");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SPRUCE_SMALL = createKey("spruce/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SPRUCE_LARGE = createKey("spruce/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> REDWOOD_LARGE = createKey("redwood/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> REDWOOD_HUGE = createKey("redwood/huge");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_SMALL = createKey("jungle/small");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_LARGE = createKey("jungle/large");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_HUGE = createKey("jungle/huge");
+	public static final ResourceKey<Feature> OAK_SMALL = createKey("oak/small");
+	public static final ResourceKey<Feature> OAK_FOREST = createKey("oak/forest");
+	public static final ResourceKey<Feature> OAK_LARGE = createKey("oak/large");
+	public static final ResourceKey<Feature> BIRCH_SMALL = createKey("birch/small");
+	public static final ResourceKey<Feature> BIRCH_FOREST = createKey("birch/forest");
+	public static final ResourceKey<Feature> BIRCH_LARGE = createKey("birch/large");
+	public static final ResourceKey<Feature> ACACIA_BUSH = createKey("acacia/bush");
+	public static final ResourceKey<Feature> ACACIA_SMALL = createKey("acacia/small");
+	public static final ResourceKey<Feature> ACACIA_LARGE = createKey("acacia/large");
+	public static final ResourceKey<Feature> DARK_OAK_SMALL = createKey("dark_oak/small");
+	public static final ResourceKey<Feature> DARK_OAK_LARGE = createKey("dark_oak/large");
+	public static final ResourceKey<Feature> HUGE_BROWN_MUSHROOM = createKey("mushrooms/huge_brown_mushroom");
+	public static final ResourceKey<Feature> HUGE_RED_MUSHROOM = createKey("mushrooms/huge_red_mushroom");
+	public static final ResourceKey<Feature> WILLOW_SMALL = createKey("willow/small");
+	public static final ResourceKey<Feature> WILLOW_LARGE = createKey("willow/large");
+	public static final ResourceKey<Feature> PINE = createKey("pine");
+	public static final ResourceKey<Feature> SPRUCE_SMALL = createKey("spruce/small");
+	public static final ResourceKey<Feature> SPRUCE_LARGE = createKey("spruce/large");
+	public static final ResourceKey<Feature> REDWOOD_LARGE = createKey("redwood/large");
+	public static final ResourceKey<Feature> REDWOOD_HUGE = createKey("redwood/huge");
+	public static final ResourceKey<Feature> JUNGLE_SMALL = createKey("jungle/small");
+	public static final ResourceKey<Feature> JUNGLE_LARGE = createKey("jungle/large");
+	public static final ResourceKey<Feature> JUNGLE_HUGE = createKey("jungle/huge");
 
-	public static final ResourceKey<ConfiguredFeature<?, ?>> MARSH_BUSH = createKey("shrubs/marsh_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> PLAINS_BUSH = createKey("shrubs/plains_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> STEPPE_BUSH = createKey("shrubs/steppe_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> COLD_STEPPE_BUSH = createKey("shrubs/cold_steppe_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> TAIGA_SCRUB_BUSH = createKey("shrubs/taiga_scrub_bush");
+	public static final ResourceKey<Feature> MARSH_BUSH = createKey("shrubs/marsh_bush");
+	public static final ResourceKey<Feature> PLAINS_BUSH = createKey("shrubs/plains_bush");
+	public static final ResourceKey<Feature> STEPPE_BUSH = createKey("shrubs/steppe_bush");
+	public static final ResourceKey<Feature> COLD_STEPPE_BUSH = createKey("shrubs/cold_steppe_bush");
+	public static final ResourceKey<Feature> TAIGA_SCRUB_BUSH = createKey("shrubs/taiga_scrub_bush");
 
 	// a meadow's oak with a bee nest, as the vanilla meadow trees always have one
-	public static final ResourceKey<ConfiguredFeature<?, ?>> MEADOW_TREE = createKey("oak/meadow");
+	public static final ResourceKey<Feature> MEADOW_TREE = createKey("oak/meadow");
 
-	public static final ResourceKey<ConfiguredFeature<?, ?>> FOREST_GRASS = createKey("forest_grass");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_FOREST_GRASS = createKey("birch_forest_grass");
+	public static final ResourceKey<Feature> FOREST_GRASS = createKey("forest_grass");
+	public static final ResourceKey<Feature> BIRCH_FOREST_GRASS = createKey("birch_forest_grass");
 	
-	public static final ResourceKey<ConfiguredFeature<?, ?>> PLAINS_TREES = createKey("plains_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> FOREST_TREES = createKey("forest_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> FLOWER_FOREST_TREES = createKey("flower_forest_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_TREES = createKey("birch_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> DARK_FOREST_TREES = createKey("dark_forest_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SAVANNA_TREES = createKey("savanna_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BADLANDS_TREES = createKey("badlands_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> WOODED_BADLANDS_TREES = createKey("wooded_badlands_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SWAMP_TREES = createKey("swamp_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> FIR_TREES = createKey("fir_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SPRUCE_TREES = createKey("spruce_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> SPRUCE_TUNDRA_TREES = createKey("spruce_tundra_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> REDWOOD_TREES = createKey("redwood_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_TREES = createKey("jungle_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_EDGE_TREES = createKey("jungle_edge_trees");
+	public static final ResourceKey<Feature> PLAINS_TREES = createKey("plains_trees");
+	public static final ResourceKey<Feature> FOREST_TREES = createKey("forest_trees");
+	public static final ResourceKey<Feature> FLOWER_FOREST_TREES = createKey("flower_forest_trees");
+	public static final ResourceKey<Feature> BIRCH_TREES = createKey("birch_trees");
+	public static final ResourceKey<Feature> DARK_FOREST_TREES = createKey("dark_forest_trees");
+	public static final ResourceKey<Feature> SAVANNA_TREES = createKey("savanna_trees");
+	public static final ResourceKey<Feature> BADLANDS_TREES = createKey("badlands_trees");
+	public static final ResourceKey<Feature> WOODED_BADLANDS_TREES = createKey("wooded_badlands_trees");
+	public static final ResourceKey<Feature> SWAMP_TREES = createKey("swamp_trees");
+	public static final ResourceKey<Feature> FIR_TREES = createKey("fir_trees");
+	public static final ResourceKey<Feature> SPRUCE_TREES = createKey("spruce_trees");
+	public static final ResourceKey<Feature> SPRUCE_TUNDRA_TREES = createKey("spruce_tundra_trees");
+	public static final ResourceKey<Feature> REDWOOD_TREES = createKey("redwood_trees");
+	public static final ResourceKey<Feature> JUNGLE_TREES = createKey("jungle_trees");
+	public static final ResourceKey<Feature> JUNGLE_EDGE_TREES = createKey("jungle_edge_trees");
 	
-	public static void bootstrap(Preset preset, BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	public static void bootstrap(Preset preset, BootstrapContext<Feature> ctx) {
 		MiscellaneousSettings miscellaneous = preset.miscellaneous();
 		SurfaceSettings surface = preset.surface();
 		SurfaceSettings.Erosion erosion = surface.erosion();
 		
 		ErodeFeature.Config erodeConfig = new ErodeFeature.Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F);
 		if(miscellaneous.erosionDecorator) {
-			FeatureUtils.register(ctx, ERODE, RTFFeatures.ERODE, erodeConfig);
+			ctx.register(ERODE, new ErodeFeature(erodeConfig));
 		}
 		
 		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator) {
-			FeatureUtils.register(ctx, DECORATE_SNOW, RTFFeatures.DECORATE_SNOW, new DecorateSnowFeature.Config(miscellaneous.naturalSnowDecorator, miscellaneous.smoothLayerDecorator, erodeConfig));
+			ctx.register(DECORATE_SNOW, new DecorateSnowFeature(new DecorateSnowFeature.Config(miscellaneous.naturalSnowDecorator, miscellaneous.smoothLayerDecorator, erodeConfig)));
 		}
 		
-		FeatureUtils.register(ctx, SWAMP_SURFACE, RTFFeatures.SWAMP_SURFACE, new SwampSurfaceFeature.Config(Blocks.CLAY.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
+		ctx.register(SWAMP_SURFACE, new SwampSurfaceFeature(new SwampSurfaceFeature.Config(Blocks.CLAY.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(), Blocks.DIRT.defaultBlockState())));
 		
 		if(miscellaneous.customBiomeFeatures) {
 			HolderGetter<PlacedFeature> placedFeatures = ctx.lookup(Registries.PLACED_FEATURE);
@@ -152,65 +147,65 @@ public class PresetConfiguredFeatures {
 			Holder<PlacedFeature> jungleHuge = placedFeatures.getOrThrow(PresetPlacedFeatures.JUNGLE_HUGE);
 			Holder<PlacedFeature> jungleBush = placedFeatures.getOrThrow(TreePlacements.JUNGLE_BUSH);
 
-			FeatureUtils.register(ctx, OAK_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_SMALL));
-			FeatureUtils.register(ctx, MEADOW_TREE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_SMALL, beeNest(1.0F), 3));
-			FeatureUtils.register(ctx, OAK_FOREST, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_FOREST));
-			FeatureUtils.register(ctx, OAK_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_LARGE));
-			FeatureUtils.register(ctx, BIRCH_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.BIRCH_SMALL));
-			FeatureUtils.register(ctx, BIRCH_FOREST, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.BIRCH_FOREST));
-			FeatureUtils.register(ctx, BIRCH_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.BIRCH_LARGE));
-			FeatureUtils.register(ctx, ACACIA_BUSH, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.ACACIA_BUSH, 2));
-			FeatureUtils.register(ctx, ACACIA_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.ACACIA_SMALL));
-			FeatureUtils.register(ctx, ACACIA_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.ACACIA_LARGE));
-			FeatureUtils.register(ctx, DARK_OAK_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.DARK_OAK_SMALL));
-			FeatureUtils.register(ctx, DARK_OAK_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.DARK_OAK_LARGE));
-			FeatureUtils.register(ctx, HUGE_BROWN_MUSHROOM, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.BROWN_MUSHROOM, 0));
-			FeatureUtils.register(ctx, HUGE_RED_MUSHROOM, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.RED_MUSHROOM));
-			FeatureUtils.register(ctx, WILLOW_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.WILLOW_SMALL));
-			FeatureUtils.register(ctx, WILLOW_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.WILLOW_LARGE));
-			FeatureUtils.register(ctx, PINE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.PINE));
-			FeatureUtils.register(ctx, SPRUCE_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.SPRUCE_SMALL));
-			FeatureUtils.register(ctx, SPRUCE_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.SPRUCE_LARGE));
-			FeatureUtils.register(ctx, REDWOOD_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.REDWOOD_LARGE));
-			FeatureUtils.register(ctx, REDWOOD_HUGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.REDWOOD_HUGE));
-			FeatureUtils.register(ctx, JUNGLE_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.JUNGLE_SMALL));
-			FeatureUtils.register(ctx, JUNGLE_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.JUNGLE_LARGE));
-			FeatureUtils.register(ctx, JUNGLE_HUGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.JUNGLE_HUGE));
+			ctx.register(OAK_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.OAK_SMALL)));
+			ctx.register(MEADOW_TREE, new TemplateFeature(makeTree(PresetTemplatePaths.OAK_SMALL, beeNest(1.0F), 3)));
+			ctx.register(OAK_FOREST, new TemplateFeature(makeTree(PresetTemplatePaths.OAK_FOREST)));
+			ctx.register(OAK_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.OAK_LARGE)));
+			ctx.register(BIRCH_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.BIRCH_SMALL)));
+			ctx.register(BIRCH_FOREST, new TemplateFeature(makeTree(PresetTemplatePaths.BIRCH_FOREST)));
+			ctx.register(BIRCH_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.BIRCH_LARGE)));
+			ctx.register(ACACIA_BUSH, new TemplateFeature(makeTree(PresetTemplatePaths.ACACIA_BUSH, 2)));
+			ctx.register(ACACIA_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.ACACIA_SMALL)));
+			ctx.register(ACACIA_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.ACACIA_LARGE)));
+			ctx.register(DARK_OAK_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.DARK_OAK_SMALL)));
+			ctx.register(DARK_OAK_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.DARK_OAK_LARGE)));
+			ctx.register(HUGE_BROWN_MUSHROOM, new TemplateFeature(makeTree(PresetTemplatePaths.BROWN_MUSHROOM, 0)));
+			ctx.register(HUGE_RED_MUSHROOM, new TemplateFeature(makeTree(PresetTemplatePaths.RED_MUSHROOM)));
+			ctx.register(WILLOW_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.WILLOW_SMALL)));
+			ctx.register(WILLOW_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.WILLOW_LARGE)));
+			ctx.register(PINE, new TemplateFeature(makeTree(PresetTemplatePaths.PINE)));
+			ctx.register(SPRUCE_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.SPRUCE_SMALL)));
+			ctx.register(SPRUCE_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.SPRUCE_LARGE)));
+			ctx.register(REDWOOD_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.REDWOOD_LARGE)));
+			ctx.register(REDWOOD_HUGE, new TemplateFeature(makeTree(PresetTemplatePaths.REDWOOD_HUGE)));
+			ctx.register(JUNGLE_SMALL, new TemplateFeature(makeTree(PresetTemplatePaths.JUNGLE_SMALL)));
+			ctx.register(JUNGLE_LARGE, new TemplateFeature(makeTree(PresetTemplatePaths.JUNGLE_LARGE)));
+			ctx.register(JUNGLE_HUGE, new TemplateFeature(makeTree(PresetTemplatePaths.JUNGLE_HUGE)));
 			
-			FeatureUtils.register(ctx, MARSH_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F));
-			FeatureUtils.register(ctx, PLAINS_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F));
-			FeatureUtils.register(ctx, STEPPE_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.ACACIA_LOG, Blocks.ACACIA_LEAVES, 0.06F, 0.08F, 0.7F));
-			FeatureUtils.register(ctx, COLD_STEPPE_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.OAK_LEAVES, 0.05F, 0.075F, 0.6F));
-			FeatureUtils.register(ctx, TAIGA_SCRUB_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.SPRUCE_LEAVES, 0.05F, 0.075F, 0.6F));
+			ctx.register(MARSH_BUSH, new BushFeature(makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F)));
+			ctx.register(PLAINS_BUSH, new BushFeature(makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F)));
+			ctx.register(STEPPE_BUSH, new BushFeature(makeSmallBush(Blocks.ACACIA_LOG, Blocks.ACACIA_LEAVES, 0.06F, 0.08F, 0.7F)));
+			ctx.register(COLD_STEPPE_BUSH, new BushFeature(makeSmallBush(Blocks.SPRUCE_LOG, Blocks.OAK_LEAVES, 0.05F, 0.075F, 0.6F)));
+			ctx.register(TAIGA_SCRUB_BUSH, new BushFeature(makeSmallBush(Blocks.SPRUCE_LOG, Blocks.SPRUCE_LEAVES, 0.05F, 0.075F, 0.6F)));
 			
 			// bee nests, as on the vanilla trees these replace (plains 5 %, flower forests 2 %, forests and birch
 			// forests 0.2 %): the decorator was there but never used, not in 0.0.6 either, and those biomes had no bees
 			Holder<PlacedFeature> oakForestBees005 = makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.05F, Blocks.OAK_SAPLING);
 			Holder<PlacedFeature> oakLargeBees005 = makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.05F, Blocks.OAK_SAPLING);
-			FeatureUtils.register(ctx, PLAINS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForestBees005, List.of(
+			ctx.register(PLAINS_TREES, makeRandom(oakForestBees005, List.of(
 				makeWeighted(0.2F, oakForestBees005), 
 				makeWeighted(0.3F, oakLargeBees005)
 			)));
 			Holder<PlacedFeature> oakForestBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.002F, Blocks.OAK_SAPLING);
 			Holder<PlacedFeature> oakLargeBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.002F, Blocks.OAK_SAPLING);
-			FeatureUtils.register(ctx, FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForestBees0002, List.of(
+			ctx.register(FOREST_TREES, makeRandom(oakForestBees0002, List.of(
 				makeWeighted(0.2F, oakForestBees0002), 
 				makeWeighted(0.3F, oakLargeBees0002)
 			)));
 			Holder<PlacedFeature> birchForestBees002 = makeTreeWithBees(PresetTemplatePaths.BIRCH_FOREST, 0.02F, Blocks.BIRCH_SAPLING);
-			FeatureUtils.register(ctx, FLOWER_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(birchForestBees002, List.of(
+			ctx.register(FLOWER_FOREST_TREES, makeRandom(birchForestBees002, List.of(
 				makeWeighted(0.2F, birchForestBees002), 
 				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.BIRCH_LARGE, 0.02F, Blocks.BIRCH_SAPLING)), 
 				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.02F, Blocks.OAK_SAPLING)), 
 				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.02F, Blocks.OAK_SAPLING))
 			)));
-			FeatureUtils.register(ctx, BIRCH_TREES, RTFFeatures.CHANCE, makeChance(
+			ctx.register(BIRCH_TREES, new ChanceFeature(makeChance(
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_LARGE, 0.002F, Blocks.BIRCH_SAPLING), 0.2F, RTFChanceModifiers.elevation(0.25F, 0.0F), RTFChanceModifiers.biomeEdge(0.1F, 0.3F)),
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_FOREST, 0.002F, Blocks.BIRCH_SAPLING), 0.2F, RTFChanceModifiers.elevation(0.3F, 0.0F), RTFChanceModifiers.biomeEdge(0.05F, 0.2F)),
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.biomeEdge(0.25F, 0.0F)),
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.elevation(0.25F, 0.65F))
-			));
-			FeatureUtils.register(ctx, DARK_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(darkOakLarge, List.of(
+			)));
+			ctx.register(DARK_FOREST_TREES, makeRandom(darkOakLarge, List.of(
 				makeWeighted(0.025F, hugeBrownMushroom),
 				makeWeighted(0.05F, hugeRedMushroom),
 				makeWeighted(0.3F, darkOakLarge),
@@ -218,44 +213,44 @@ public class PresetConfiguredFeatures {
 				makeWeighted(0.05F, birchForest),
 				makeWeighted(0.025F, oakForest)
 			)));
-			FeatureUtils.register(ctx, SAVANNA_TREES, Feature.RANDOM_SELECTOR, makeRandom(acaciaLarge, List.of(
+			ctx.register(SAVANNA_TREES, makeRandom(acaciaLarge, List.of(
 				makeWeighted(0.4F, acaciaLarge), 
 				makeWeighted(0.15F, acaciaSmall)
 			)));
-			FeatureUtils.register(ctx, BADLANDS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakSmall, List.of(
+			ctx.register(BADLANDS_TREES, makeRandom(oakSmall, List.of(
 				makeWeighted(0.2F, oakSmall), 
 				makeWeighted(0.1F, acaciaBush)
 			)));
-			FeatureUtils.register(ctx, WOODED_BADLANDS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakSmall, List.of(
+			ctx.register(WOODED_BADLANDS_TREES, makeRandom(oakSmall, List.of(
 				makeWeighted(0.3F, oakSmall), 
 				makeWeighted(0.2F, acaciaBush)
 			)));
-			FeatureUtils.register(ctx, SWAMP_TREES, Feature.RANDOM_SELECTOR, makeRandom(willowLarge, List.of(
+			ctx.register(SWAMP_TREES, makeRandom(willowLarge, List.of(
 				makeWeighted(0.2F, willowSmall), 
 				makeWeighted(0.35F, willowLarge)
 			)));
-			FeatureUtils.register(ctx, FIR_TREES, RTFFeatures.CHANCE, makeChance(
+			ctx.register(FIR_TREES, new ChanceFeature(makeChance(
 				makeChanceEntry(spruceSmall, 0.1F, RTFChanceModifiers.elevation(0.55F, 0.2F)),
 				makeChanceEntry(spruceLarge, 0.25F, RTFChanceModifiers.elevation(0.3F, 0.0F))
-			));
-			FeatureUtils.register(ctx, REDWOOD_TREES, RTFFeatures.CHANCE, makeChance(
+			)));
+			ctx.register(REDWOOD_TREES, new ChanceFeature(makeChance(
 				makeChanceEntry(redwoodHuge, 0.4F, RTFChanceModifiers.elevation(0.15F, 0.0F), RTFChanceModifiers.biomeEdge(0.1F, 0.3F)),
 				makeChanceEntry(redwoodLarge, 0.2F, RTFChanceModifiers.elevation(0.25F, 0.0F), RTFChanceModifiers.biomeEdge(0.05F, 0.25F)),
 				makeChanceEntry(spruceLarge, 0.4F, RTFChanceModifiers.elevation(0.35F, 0.15F)),
 				makeChanceEntry(spruceSmall, 0.2F, RTFChanceModifiers.elevation(0.5F, 0.2F))
-			));
-			FeatureUtils.register(ctx, JUNGLE_TREES, Feature.RANDOM_SELECTOR, makeRandom(jungleSmall, List.of(
+			)));
+			ctx.register(JUNGLE_TREES, makeRandom(jungleSmall, List.of(
 				makeWeighted(0.2F, jungleSmall), 
 				makeWeighted(0.3F, jungleLarge),
 				makeWeighted(0.4F, jungleHuge),
 				makeWeighted(0.5F, jungleBush)
 			)));
-			FeatureUtils.register(ctx, JUNGLE_EDGE_TREES, Feature.RANDOM_SELECTOR, makeRandom(jungleSmall, List.of(
+			ctx.register(JUNGLE_EDGE_TREES, makeRandom(jungleSmall, List.of(
 				makeWeighted(0.2F, jungleSmall), 
 				makeWeighted(0.3F, jungleLarge),
 				makeWeighted(0.4F, jungleBush)
 			)));
-			FeatureUtils.register(ctx, FOREST_GRASS, Feature.RANDOM_SELECTOR, makeRandom(
+			ctx.register(FOREST_GRASS, makeRandom(
 				makePatch(Blocks.SHORT_GRASS, 48),
 				List.of(
 					makeWeighted(0.5F, makePatch(Blocks.SHORT_GRASS, 56)),
@@ -264,7 +259,7 @@ public class PresetConfiguredFeatures {
 					makeWeighted(0.2F, makePatch(Blocks.FERN, 24))
 				)
 			));
-			FeatureUtils.register(ctx, BIRCH_FOREST_GRASS, Feature.RANDOM_SELECTOR, makeRandom(
+			ctx.register(BIRCH_FOREST_GRASS, makeRandom(
 				makePatch(Blocks.TALL_GRASS, 48),
 				List.of(
 					makeWeighted(0.8F, makePatch(Blocks.TALL_GRASS, 56)),
@@ -275,9 +270,9 @@ public class PresetConfiguredFeatures {
 				)
 			));
 
-	        FeatureUtils.register(ctx, MiscOverworldFeatures.DISK_CLAY, RTFFeatures.DISK, new DiskConfiguration(RuleBasedStateProvider.simple(Blocks.CLAY), BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.CLAY)), UniformInt.of(2, 3), 1));
-	        FeatureUtils.register(ctx, MiscOverworldFeatures.DISK_GRAVEL, RTFFeatures.DISK, new DiskConfiguration(RuleBasedStateProvider.simple(Blocks.GRAVEL), BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)), UniformInt.of(2, 5), 2));
-	        FeatureUtils.register(ctx, MiscOverworldFeatures.DISK_SAND, RTFFeatures.DISK, new DiskConfiguration(new RuleBasedStateProvider(BlockStateProvider.simple(Blocks.SAND), List.of(new RuleBasedStateProvider.Rule(BlockPredicate.matchesBlocks(Direction.DOWN.getUnitVec3i(), Blocks.AIR), BlockStateProvider.simple(Blocks.SANDSTONE)))), BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)), UniformInt.of(2, 6), 2));
+	        ctx.register(MiscOverworldFeatures.DISK_CLAY, new DiskFeature(BlockStateProvider.holderOf(Blocks.CLAY), BlockPredicate.matchesBlocks(Blocks.DIRT, Blocks.CLAY), UniformInt.of(2, 3), 1));
+	        ctx.register(MiscOverworldFeatures.DISK_GRAVEL, new DiskFeature(BlockStateProvider.holderOf(Blocks.GRAVEL), BlockPredicate.matchesBlocks(Blocks.DIRT, Blocks.GRASS_BLOCK), UniformInt.of(2, 5), 2));
+	        ctx.register(MiscOverworldFeatures.DISK_SAND, new DiskFeature(Holder.direct(new RuleBasedStateProvider(BlockStateProvider.holderOf(Blocks.SAND), List.of(new RuleBasedStateProvider.Rule(BlockPredicate.matchesBlocks(Direction.DOWN.getUnitVec3i(), List.of(Blocks.AIR)), BlockStateProvider.holderOf(Blocks.SANDSTONE))))), BlockPredicate.matchesBlocks(Blocks.DIRT, Blocks.GRASS_BLOCK), UniformInt.of(2, 6), 2));
 	    }
 	}
 
@@ -299,7 +294,7 @@ public class PresetConfiguredFeatures {
 
 	// a tree of a biome's trees with its chance of a bee nest, placed where its sapling would grow
 	private static Holder<PlacedFeature> makeTreeWithBees(List<Identifier> templates, float chance, Block sapling) {
-		return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(RTFFeatures.TEMPLATE, makeTree(templates, beeNest(chance), 3))), ImmutableList.of(PlacementUtils.filteredByBlockSurvival(sapling))));
+		return Holder.direct(new PlacedFeature(Holder.direct(new TemplateFeature(makeTree(templates, beeNest(chance), 3))), ImmutableList.of(PlacementUtils.filteredByBlockSurvival(sapling))));
 	}
 
 	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates, List<TemplateDecorator<TreeContext>> decorators, int baseExtension) {
@@ -314,8 +309,8 @@ public class PresetConfiguredFeatures {
 		return new ChanceFeature.Entry(feature, chance, ImmutableList.copyOf(modifiers));
 	}
 	
-	private static RandomFeatureConfiguration makeRandom(Holder<PlacedFeature> defaultFeature, List<WeightedPlacedFeature> entries) {
-		return new RandomFeatureConfiguration(entries, defaultFeature);
+	private static RandomSelectorFeature makeRandom(Holder<PlacedFeature> defaultFeature, List<WeightedPlacedFeature> entries) {
+		return new RandomSelectorFeature(entries, defaultFeature);
 	}
 
     private static WeightedPlacedFeature makeWeighted(float weight, Holder<PlacedFeature> feature) {
@@ -325,18 +320,14 @@ public class PresetConfiguredFeatures {
     // 26.1 has no random patch feature: the block with the same tries, spread (7 / 3, triangular) and "only in air"
     // as placement modifiers, as vanilla's patches are now
     private static Holder<PlacedFeature> makePatch(Block state, int tries) {
-        return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(state.defaultBlockState())))), List.of(
+        return Holder.direct(new PlacedFeature(Holder.direct(new SimpleBlockFeature(BlockStateProvider.of(state))), List.of(
             CountPlacement.of(tries),
-            RandomOffsetPlacement.ofTriangle(7, 3),
+            OffsetPlacement.ofTriangle(7, 3),
             BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE)
         )));
     }
     
-	private static <FC extends FeatureConfiguration, F extends Feature<FC>> Holder<PlacedFeature> makeInlined(F feature, FC featureConfiguration) {
-		return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(feature, featureConfiguration)), ImmutableList.of()));
-	}
-
-	protected static ResourceKey<ConfiguredFeature<?, ?>> createKey(String name) {
-        return ResourceKey.create(Registries.CONFIGURED_FEATURE, RTFCommon.location(name));
+	protected static ResourceKey<Feature> createKey(String name) {
+        return ResourceKey.create(Registries.FEATURE, RTFCommon.location(name));
 	}
 }

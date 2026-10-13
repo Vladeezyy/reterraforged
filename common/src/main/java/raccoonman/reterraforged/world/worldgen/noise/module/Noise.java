@@ -4,12 +4,12 @@ import com.mojang.serialization.Codec;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.core.registries.codec.RegistryFileCodec;
 import raccoonman.reterraforged.registries.RTFRegistries;
 
 public interface Noise {
     public static final Codec<Noise> DIRECT_CODEC = Noises.DIRECT_CODEC;
-    public static final Codec<Holder<Noise>> CODEC = RegistryFileCodec.create(RTFRegistries.NOISE, DIRECT_CODEC);
+    public static final Codec<Holder<Noise>> CODEC = RegistryFileCodec.create(RTFRegistries.NOISE, DIRECT_CODEC, true);
     public static final Codec<Noise> HOLDER_HELPER_CODEC = CODEC.xmap(Noises.HolderHolder::new, noise -> {
         if (noise instanceof Noises.HolderHolder holderHolder) {
             return holderHolder.holder();

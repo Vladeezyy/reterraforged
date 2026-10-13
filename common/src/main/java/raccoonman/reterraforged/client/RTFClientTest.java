@@ -1,15 +1,11 @@
 package raccoonman.reterraforged.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-
-import org.lwjgl.glfw.GLFW;
-
-import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -17,6 +13,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -45,7 +42,7 @@ public final class RTFClientTest {
 	// tools/showcase.sh (pictures for the README, with shaders): evening sun and lower cameras
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
 	// a button press as if made with the keyboard (Enter)
-	private static final KeyEvent PRESS = new KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0);
+	private static final KeyEvent PRESS = new KeyEvent(InputConstants.KEY_RETURN, 0, 0);
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;

@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import raccoonman.reterraforged.RTFCommon;
@@ -226,7 +226,7 @@ public final class RTFSelfTest {
 
 		// bee nests grow on the mod's trees (their decorator was never used, those biomes had no bees): a meadow tree,
 		// which always has one, grown on a grass block near the spawn (the spawn may be in a desert)
-		Holder<ConfiguredFeature<?, ?>> meadowTree = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).getOrThrow(PresetConfiguredFeatures.MEADOW_TREE);
+		Holder<Feature> meadowTree = level.registryAccess().lookupOrThrow(Registries.FEATURE).getOrThrow(PresetConfiguredFeatures.MEADOW_TREE);
 		boolean nest = false;
 		for (int i = 0; i < 12 && !nest; i++) {
 			int x = spawn.getX() + 32 + i * 24, z = spawn.getZ() + 32;
