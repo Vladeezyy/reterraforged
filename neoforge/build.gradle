@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -18,15 +18,6 @@ loom {
                 vmArg "-Drtf.clienttest=${project.rtfClientTest}"
                 programArgs "--width", "1600", "--height", "900"
             }
-        }
-    }
-
-    runs {
-        data {
-            data()
-            programArgs "--all", "--mod", "reterraforged"
-            programArgs "--output", file('src/generated/resources').absolutePath
-            programArgs "--existing", file('src/generated/resources').absolutePath
         }
     }
 }
@@ -49,8 +40,9 @@ dependencies {
 //	compileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 //  modImplementation("com.github.glitchfiend:TerraBlender-forge:${rootProject.minecraft_version}-${rootProject.terrablender_version}")
     
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive false }
+    // no remapping on 26.1+: the plain common project (no namedElements / transformProduction configurations)
+    common(project(path: ":common")) { transitive false }
+    shadowCommon(project(path: ":common")) { transitive false }
 }
 
 sourceSets {
@@ -85,12 +77,25 @@ shadowJar {
     archiveClassifier.set("shadow")
 }
 
-remapJar {
-    atAccessWideners.add('reterraforged.accesswidener')
+// without remapJar Architectury does not convert the access widener to NeoForge's access transformer: done on
+// the shaded jar with Loom's own converter
+dev.architectury.loom.accesstransformer.Aw2At.addToTask(project, tasks.named("shadowJar")) { settings ->
+    settings.accessWideners.add(loom.accessWidenerPath.get().asFile.name)
+}
 
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set("neoforge-${rootProject.minecraft_version}")
+// ... nor apply @ExpectPlatform (the platform implementations in platform/neoforge): the production transform,
+// run on the shaded jar; this is the mod jar
+tasks.register("transformShadowJar", dev.architectury.plugin.TransformingTask) {
+    platform = "neoforge"
+    input.set(tasks.named("shadowJar").flatMap { it.archiveFile })
+    archiveClassifier = "neoforge-${rootProject.minecraft_version}"
+    destinationDirectory = layout.buildDirectory.dir("libs")
+    plusAssign(new dev.architectury.transformer.transformers.TransformExpectPlatform())
+    dependsOn tasks.named("shadowJar")
+}
+
+tasks.named("assemble") {
+    dependsOn tasks.named("transformShadowJar")
 }
 
 jar {
@@ -98,11 +103,11 @@ jar {
 }
 
 processResources {
-    duplicatesStrategy "exclude"
+    duplicatesStrategy = "exclude"
 }
 
 sourcesJar {
-    duplicatesStrategy "exclude"
+    duplicatesStrategy = "exclude"
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }

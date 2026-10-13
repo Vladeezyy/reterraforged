@@ -14,7 +14,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 public class BlockUtils {
 
     public static boolean isSoil(LevelAccessor world, BlockPos pos) {
-        return TreeFeature.isDirt(world.getBlockState(pos));
+        return world.getBlockState(pos).is(BlockTags.DIRT);
     }
 
     public static boolean isLeavesOrLogs(BlockState state) {
@@ -41,7 +41,7 @@ public class BlockUtils {
 
     public static boolean isSoilOrRock(LevelAccessor world, BlockPos pos) {
         BlockState block = world.getBlockState(pos);
-        return TreeFeature.isDirt(block) || block.is(BlockTags.BASE_STONE_OVERWORLD);
+        return block.is(BlockTags.DIRT) || block.is(BlockTags.BASE_STONE_OVERWORLD);
     }
 
     public static boolean isClearOverhead(LevelAccessor world, BlockPos pos, int height, BiPredicate<LevelAccessor, BlockPos> predicate) {
