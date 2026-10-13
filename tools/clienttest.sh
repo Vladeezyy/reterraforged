@@ -26,8 +26,8 @@ cp "$RUN"/screenshots/rtf-*.png "$OUT/" 2>/dev/null
 grep -h "RTF clienttest" "$OUT/client.log" | sed 's/^.*\[RTF clienttest\]/ /'
 # vanilla large dripstones can reach two chunks away and log "setBlock in a far chunk"; counted apart.
 # Not the mod: Realms without an account in the dev client, NeoForge's note about Loom's dev-only class processor,
-# OSHI system info on Windows with broken performance counters (26.2+)
-noise='far chunk.*large_dripstone|Realms|ClassTransformStatistics|oshi.|Win32Exception|Perflib'
+# OSHI system info on Windows with broken performance counters (26.2+), player certificates without an account
+noise='far chunk.*large_dripstone|Realms|ClassTransformStatistics|oshi.|Win32Exception|Perflib|player/certificates|MinecraftClientHttpException|authlib.minecraft.client'
 dripstone=$(grep -c 'far chunk.*large_dripstone' "$OUT/client.log")
 errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | grep -c .)
 echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors (+ $dripstone vanilla large_dripstone far-chunk lines)"
