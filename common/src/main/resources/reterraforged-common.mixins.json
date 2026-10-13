@@ -23,7 +23,8 @@
 		"terrablender.MixinNoiseChunk"
   	],
   	"client": [
-		"ScreenInvoker"
+		"ScreenInvoker",
+		"MixinMinecraft"
   	],
   	"injectors": {
 		"defaultRequire": 1

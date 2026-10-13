@@ -11,6 +11,13 @@ loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
     
     runs {
+        client {
+            // tools/clienttest.sh: -PrtfClientTest=<world> runs the client check (RTFClientTest)
+            if (project.hasProperty("rtfClientTest")) {
+                vmArg "-Drtf.clienttest=${project.rtfClientTest}"
+                programArgs "--width", "1600", "--height", "900"
+            }
+        }
 	    data {
             inherit client
             
