@@ -1,19 +1,27 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
-import java.util.function.Supplier;
-
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.KeyDispatchCodec;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.util.KeyDispatchDataCodec;
+import net.minecraft.util.Interval;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
+import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
+import net.minecraft.world.level.levelgen.densityfunction.DfRewriteRule;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+
+
+
 import raccoonman.reterraforged.world.worldgen.biome.Continentalness;
 import raccoonman.reterraforged.world.worldgen.biome.Erosion;
 import raccoonman.reterraforged.world.worldgen.biome.Humidity;
@@ -30,36 +38,108 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
-public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) implements MarkerFunction.Mapped {
+public final class CellSampler {
 	private static final ThreadLocal<Cache2d> CELL = ThreadLocal.withInitial(Cache2d::new);
-	
+
+	private CellSampler() {
+	}
+
 	public static void clearThreadLocalCache() {
 		CELL.remove();
-	}
-	
-	@Override
-	public double compute(FunctionContext ctx) {
-		WorldLookup worldLookup = this.deferredLookup.get();
-		if(worldLookup == null) {
-			return 0.0D;
-		}
-		Cell cell = CELL.get().getAndUpdate(worldLookup, ctx.blockX(), ctx.blockZ(), true);
-		return this.field.read(cell, worldLookup.getHeightmap());
-	}
-
-	@Override
-	public double minValue() {
-		return 0.0F;
-	}
-
-	@Override
-	public double maxValue() {
-		return 1.0F;
 	}
 
 	private static FakeWaterBiomeTarget refreshFakeWaterBiome(Cell cell, Heightmap heightmap) {
 		heightmap.fakeWaterBiomeResolver().apply(cell);
 		return cell.fakeWaterBiome;
+	}
+
+	// a field of the preset's cells (height, climate, ...); 2D, the engine samples it once per column
+	public record Marker(Field field) implements DensityFunction {
+		public static final MapCodec<Marker> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Field.CODEC.fieldOf("field").forGetter(Marker::field)
+		).apply(instance, Marker::new));
+
+		@Override
+		public DensitySampler compileSampler(CompileContext context) {
+			return new Sampler(RTFCompileContext.randomState(context), this.field);
+		}
+
+		@Override
+		public DensityFunction rewriteChildren(DfRewriteRule rule) {
+			return this;
+		}
+
+		@Override
+		public Interval range() {
+			// covers every field (height 0..1, climate -1..1, region, gradient): since 26.3 the compiler drops MIN/MAX
+			// branches by the ranges of their inputs, so the range has to hold every value (before 26.3 it was 0..1 and
+			// only made the old engine log a warning)
+			return Interval.of(-2.0F, 2.0F);
+		}
+
+		@Override
+		public int domainAxes() {
+			return AXIS_X | AXIS_Z;
+		}
+
+		@Override
+		public MapCodec<Marker> codec() {
+			return CODEC;
+		}
+	}
+
+	/**
+	 * The GeneratorContext is read when sampling: samplers are compiled once per RandomState, possibly before
+	 * RTFRandomState.initialize sets the context. A volume inside one chunk (chunk generation, base height queries)
+	 * reads that chunk's tile cells at block resolution, like the per-chunk cache attached in NoiseChunk before 26.3;
+	 * other positions use the quart-resolution Cache2d.
+	 */
+	public record Sampler(@Nullable RTFRandomState randomState, Field field) implements DensitySampler {
+
+		@Override
+		public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
+			GeneratorContext generatorContext = this.randomState != null ? this.randomState.generatorContext() : null;
+			if(generatorContext == null) {
+				outputBuffer.fill(0.0F);
+				return;
+			}
+			WorldLookup worldLookup = generatorContext.lookup;
+			Heightmap heightmap = worldLookup.getHeightmap();
+			int chunkX = SectionPos.blockToSectionCoord(volume.minBlockX());
+			int chunkZ = SectionPos.blockToSectionCoord(volume.minBlockZ());
+			// A single column is a base height or base column query. The 1.21.1 port gives it the tile of its chunk too
+			// (heights with erosion, as the chunk gets them); that is a whole tile for every place asked about, and
+			// /locate, explorer maps and dolphins (thousands of places) took minutes. ReTerraForged 0.0.6 reads the cells
+			// of those places directly.
+			boolean column = volume.sizeX() == 1 && volume.sizeZ() == 1;
+			Tile.Chunk chunk = column && worldLookup.isOriginal() ? null : generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
+			Cache2d cache2d = CELL.get();
+			int sizeY = volume.sizeY();
+			int index = 0;
+			for(int z = 0; z < volume.sizeZ(); z++) {
+				int blockZ = volume.blockZ(z);
+				for(int x = 0; x < volume.sizeX(); x++) {
+					int blockX = volume.blockX(x);
+					Cell cell = chunk != null && SectionPos.blockToSectionCoord(blockX) == chunkX && SectionPos.blockToSectionCoord(blockZ) == chunkZ ?
+						chunk.getCell(blockX, blockZ) :
+						cache2d.getAndUpdate(worldLookup, blockX, blockZ, true);
+					float value = this.field.read(cell, heightmap);
+					outputBuffer.setRange(index, sizeY, value);
+					index += sizeY;
+				}
+			}
+		}
+
+		@Override
+		public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
+			GeneratorContext generatorContext = this.randomState != null ? this.randomState.generatorContext() : null;
+			if(generatorContext == null) {
+				return 0.0F;
+			}
+			WorldLookup worldLookup = generatorContext.lookup;
+			Cell cell = CELL.get().getAndUpdate(worldLookup, blockX, blockZ, true);
+			return this.field.read(cell, worldLookup.getHeightmap());
+		}
 	}
 
 	public static class Cache2d {
@@ -96,57 +176,7 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 		}
 	}
 	
-	public class CacheChunk implements MarkerFunction.Mapped {
-		@Nullable
-		private Tile.Chunk chunk;
-		private Cache2d cache2d;
-		private int chunkX, chunkZ;
-		
-		public CacheChunk(@Nullable Tile.Chunk chunk, @Nullable Cache2d cache2d, int chunkX, int chunkZ) {
-			this.chunk = chunk;
-			this.cache2d = cache2d != null ? cache2d : new Cache2d();
-			this.chunkX = chunkX;
-			this.chunkZ = chunkZ;
-		}
 
-		@Override
-		public double compute(FunctionContext ctx) {
-			int blockX = ctx.blockX();
-			int blockZ = ctx.blockZ();
-			int chunkX = SectionPos.blockToSectionCoord(blockX);
-			int chunkZ = SectionPos.blockToSectionCoord(blockZ);
-			WorldLookup worldLookup = CellSampler.this.deferredLookup.get();
-			if(worldLookup == null) {
-				return 0.0D;
-			}
-			Cell cell = (this.chunk != null && this.chunkX == chunkX && this.chunkZ == chunkZ) ? 
-				this.chunk.getCell(blockX, blockZ) :
-				this.cache2d.getAndUpdate(worldLookup, blockX, blockZ, false);
-			return CellSampler.this.field.read(cell, worldLookup.getHeightmap());
-		}
-
-		@Override
-		public double minValue() {
-			return CellSampler.this.minValue();
-		}
-
-		@Override
-		public double maxValue() {
-			return CellSampler.this.maxValue();
-		}
-	}
-	
-	public record Marker(Field field) implements MarkerFunction {
-		public static final MapCodec<Marker> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Field.CODEC.fieldOf("field").forGetter(Marker::field)
-		).apply(instance, Marker::new));
-		
-		@Override
-		public KeyDispatchDataCodec<Marker> codec() {
-			return new KeyDispatchDataCodec<>(CODEC);
-		}
-	}
-	
 	public enum Field implements StringRepresentable {
 		HEIGHT("height") {
 			

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.joml.Matrix3x2fStack;
 
@@ -289,7 +290,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    @Override
 	    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 	        boolean over = isMouseOver(event.x(), event.y());
-	        if (over && event.button() == 0) {
+	        if (over && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 	            // Ensure onClick is called even if super.mouseClicked doesn't call it
 	            onClick(event, doubleClick);
 	        }

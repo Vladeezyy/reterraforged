@@ -1,33 +1,40 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
 import com.mojang.serialization.Codec;
-
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
-public class DiskFeature extends Feature<DiskConfiguration> {
+// a disk with a noisy edge; the fields are vanilla's disk configuration (the radius is the mod's own)
+public record DiskFeature(Holder<BlockStateProvider> stateProvider, BlockPredicate target, IntProvider radius, int halfHeight) implements Feature {
+	public static final MapCodec<DiskFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+		BlockStateProvider.CODEC.fieldOf("state_provider").forGetter(DiskFeature::stateProvider),
+		BlockPredicate.CODEC.fieldOf("target").forGetter(DiskFeature::target),
+		IntProviders.codec(0, 8).fieldOf("radius").forGetter(DiskFeature::radius),
+		Codec.intRange(0, 4).fieldOf("half_height").forGetter(DiskFeature::halfHeight)
+	).apply(instance, DiskFeature::new));
     private static final Noise DOMAIN = Noises.simplex(1, 6, 3);
 
-    public DiskFeature(Codec<DiskConfiguration> codec) {
-		super(codec);
-	}
-    
 	@Override
-	public boolean place(FeaturePlaceContext<DiskConfiguration> ctx) {
-		WorldGenLevel level = ctx.level();
-		RandomSource random = ctx.random();
-		BlockPos pos = ctx.origin();
-		DiskConfiguration config = ctx.config();
-		ChunkGenerator generator = ctx.chunkGenerator();
-		
+	public MapCodec<DiskFeature> codec() {
+		return CODEC;
+	}
+
+	@Override
+	public boolean place(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos pos) {
         if (!level.getFluidState(pos).is(FluidTags.WATER)) {
             return false;
         } else {
@@ -48,9 +55,12 @@ public class DiskFeature extends Feature<DiskConfiguration> {
                         for(int y = pos.getY() - ySize; y <= pos.getY() + ySize && y + 1 < generator.getGenDepth(); ++y) {
                             blockPos.set(x, y, z);
                             
-                            if(config.target().test(level, blockPos)) {
-                                level.setBlock(blockPos, config.stateProvider().getState(level, random, blockPos), 2);
-                                ++i;
+                            if(this.target.test(level, blockPos)) {
+                                BlockState state = this.stateProvider.value().getOptionalState(level, random, blockPos);
+                                if(state != null) {
+                                    level.setBlock(blockPos, state, 2);
+                                    ++i;
+                                }
                             }
                         }
                     }

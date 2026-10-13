@@ -317,11 +317,25 @@ public class FeatureTemplate {
         }
     }
 
+    // the templates keep a block's name and properties as "Name" and "Properties"; since 26.3 Minecraft reads "id" and
+    // "properties" and makes every block it finds no name for air: the mod's trees were pasted as nothing
+    private static CompoundTag renamedKeys(CompoundTag tag) {
+        if (tag.contains("id") || !tag.contains("Name")) {
+            return tag;
+        }
+        CompoundTag renamed = new CompoundTag();
+        renamed.put("id", tag.get("Name"));
+        if (tag.contains("Properties")) {
+            renamed.put("properties", tag.get("Properties"));
+        }
+        return renamed;
+    }
+
     private static BlockState[] readPalette(ListTag list) {
         BlockState[] palette = new BlockState[list.size()];
         for (int i = 0; i < list.size(); i++) {
             try {
-                palette[i] = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, list.getCompoundOrEmpty(i));
+                palette[i] = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, renamedKeys(list.getCompoundOrEmpty(i)));
             } catch (Throwable t) {
                 palette[i] = Blocks.AIR.defaultBlockState();
             }

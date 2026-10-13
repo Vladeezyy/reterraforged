@@ -1,20 +1,14 @@
 package raccoonman.reterraforged.platform.fabric;
 
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
 import com.mojang.serialization.JsonOps;
-
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -22,11 +16,11 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
-import raccoonman.reterraforged.mixin.MixinRegistrySetBuilder$EmptyTagLookup;
+import org.slf4j.Logger;
 
 public class DataGenUtilImpl {
 
@@ -48,30 +42,9 @@ public class DataGenUtilImpl {
 	    @Override
 	    public CompletableFuture<?> run(CachedOutput arg) {
 	        return this.registries.thenCompose(provider -> {
-				@SuppressWarnings("unchecked")
-				class HolderLookupAdapterButWithCursedPatchForOwnerJuggling implements RegistryOps.RegistryInfoLookup {
-					private final HolderLookup.Provider lookupProvider;
-					private final Map<ResourceKey<? extends Registry<?>>, Optional<? extends RegistryOps.RegistryInfo<?>>> lookups = new ConcurrentHashMap();
-
-					public HolderLookupAdapterButWithCursedPatchForOwnerJuggling(HolderLookup.Provider provider) {
-						this.lookupProvider = provider;
-					}
-					public <E> Optional<RegistryOps.RegistryInfo<E>> lookup(ResourceKey<? extends Registry<? extends E>> resourceKey) {
-						return (Optional<RegistryOps.RegistryInfo<E>>) this.lookups.computeIfAbsent(resourceKey, this::createLookup);
-					}
-
-					private Optional<RegistryOps.RegistryInfo<Object>> createLookup(ResourceKey<? extends Registry<?>> resourceKey) {
-						return this.lookupProvider.lookup(resourceKey).map(l -> {
-							if (l instanceof MixinRegistrySetBuilder$EmptyTagLookup<?> e) {
-								return new RegistryOps.RegistryInfo(e.getOwner(), l, l.registryLifecycle());
-							} else {
-								return RegistryOps.RegistryInfo.fromRegistryLookup(l);
-							}
-						});
-					}
-				}
-	            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, new HolderLookupAdapterButWithCursedPatchForOwnerJuggling(provider));
-	            return CompletableFuture.allOf(DynamicRegistries.getDynamicRegistries().stream().flatMap(arg3 -> this.dumpRegistryCap(arg, provider, ops, arg3).stream()).toArray(CompletableFuture[]::new));
+				// 26.3: the empty tag lookups of a registry patch check the holder owner against their registry themselves
+	            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, provider);
+	            return CompletableFuture.allOf(DynamicRegistries.getWorldRegistries().stream().flatMap(arg3 -> this.dumpRegistryCap(arg, provider, ops, arg3).stream()).toArray(CompletableFuture[]::new));
 	        });
 	    }
 

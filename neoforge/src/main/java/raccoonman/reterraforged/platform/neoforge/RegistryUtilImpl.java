@@ -1,20 +1,21 @@
 package raccoonman.reterraforged.platform.neoforge;
 
+import com.mojang.serialization.Codec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.mojang.serialization.Codec;
-
+import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryDataLoader.RegistryData;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DataPackRegistriesHooks;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import raccoonman.reterraforged.RTFCommon;
@@ -31,7 +32,7 @@ public static void register(IEventBus bus) {
 		BUILTIN_REGISTRIES.forEach(event::register);
 	});
 
-	bus.addListener((DataPackRegistryEvent.NewRegistry event) -> {
+	bus.addListener((NewDatapackRegistryEvent event) -> {
 		DATA_REGISTRIES.forEach((registry) -> registry.register(event));
 	});
 
@@ -54,7 +55,10 @@ public static void register(IEventBus bus) {
 	}
 
 	public static List<RegistryData<?>> getDynamicRegistries() {
-		return DataPackRegistriesHooks.getDataPackRegistries();
+		// the world registries with the ones mods add. NeoForge 26.3.0.89 removed getWorldRegistries(); the stream
+		// with the dimension registries exists in every 26.3 build, so drop those from it
+		Set<ResourceKey<? extends Registry<?>>> dimensions = RegistryDataLoader.DIMENSION_REGISTRIES.stream().map(RegistryData::key).collect(Collectors.toSet());
+		return DataPackRegistriesHooks.getWorldRegistriesWithDimensions().filter((data) -> !dimensions.contains(data.key())).toList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,8 +68,12 @@ public static void register(IEventBus bus) {
 
 	private record DataRegistry<T>(ResourceKey<Registry<T>> key, Codec<T> codec, boolean synced) {
 
-		public void register(DataPackRegistryEvent.NewRegistry event) {
-			event.dataPackRegistry(this.key, this.codec, this.synced ? this.codec : null);
+		public void register(NewDatapackRegistryEvent event) {
+			if(this.synced) {
+				event.worldRegistry(this.key, this.codec, this.codec);
+			} else {
+				event.worldRegistry(this.key, this.codec);
+			}
 		}
 	}
 }

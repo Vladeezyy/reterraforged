@@ -1,7 +1,6 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
-import com.mojang.serialization.Lifecycle;
-
+import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
@@ -33,7 +32,7 @@ public final class PresetDimensionTypes {
 		DimensionTypes.bootstrap(new BootstrapContext<DimensionType>() {
 
 			@Override
-			public Holder.Reference<DimensionType> register(ResourceKey<DimensionType> key, DimensionType value, Lifecycle lifecycle) {
+			public Holder.Reference<DimensionType> register(ResourceKey<DimensionType> key, DimensionType value) {
 				if (key == BuiltinDimensionTypes.OVERWORLD) overworld[0] = value;
 				return null;
 			}
@@ -41,6 +40,12 @@ public final class PresetDimensionTypes {
 			@Override
 			public <S> HolderGetter<S> lookup(ResourceKey<? extends Registry<? extends S>> registry) {
 				return ctx.lookup(registry);
+			}
+
+			@Deprecated
+			@Override
+			public <S> Stream<Holder.Reference<S>> listContextElements(ResourceKey<? extends Registry<? extends S>> registry) {
+				return ctx.listContextElements(registry);
 			}
 		});
 		return overworld[0];

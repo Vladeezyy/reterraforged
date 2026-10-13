@@ -6,7 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseRouterData;
 import raccoonman.reterraforged.tags.RTFDensityFunctionTags;

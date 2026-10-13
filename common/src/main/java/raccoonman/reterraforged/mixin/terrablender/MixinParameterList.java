@@ -125,19 +125,28 @@ class MixinParameterList<T> {
 	// the region of the point findValuePositional looks up: the preset's biome region at the surface, TerraBlender's
 	// own choice underground and for points without one (null when not one of findValuePositional's)
 	private Integer presetRegion(Climate.TargetPoint targetPoint, int x, int y, int z) {
-		if(!((Object) targetPoint instanceof TBTargetPoint tbTargetPoint) || Double.isNaN(tbTargetPoint.getUniqueness())) {
+		if(!((Object) targetPoint instanceof TBTargetPoint tbTargetPoint)) {
 			return null;
+		}
+		double uniqueness = tbTargetPoint.getUniqueness();
+		if(Double.isNaN(uniqueness)) {
+			// a point of a chunk's climate volumes: the region its resolver sampled (MixinMultiNoiseBiomeSource)
+			Float chunkUniqueness = TBCompat.CHUNK_UNIQUENESS.get();
+			if(chunkUniqueness == null) {
+				return null;
+			}
+			uniqueness = chunkUniqueness;
 		}
 		float depth = Climate.unquantizeCoord(targetPoint.depth());
 		if(depth >= UNDERGROUND_DEPTH_THRESHOLD || (hasUndergroundBiomeCompatTarget() && QuartPos.toBlock(y) < CAVE_BIOME_COMPAT_Y_MAX)) {
 			return null;
 		}
-		int selected = NoiseUtil.round(this.maxIndex * (float) tbTargetPoint.getUniqueness());
+		int selected = NoiseUtil.round(this.maxIndex * (float) uniqueness);
 		this.recordDiagnosticSelection(selected, false, false);
 		if(selected != 0 && this.regionTemperatureNoise != null && !TBCompat.probing) {
 			double bx = QuartPos.toBlock(x) * REGION_CLIMATE_SCALE, bz = QuartPos.toBlock(z) * REGION_CLIMATE_SCALE;
-			float temperature = Climate.unquantizeCoord(targetPoint.temperature()) + REGION_CLIMATE_SHIFT * (float) this.regionTemperatureNoise.getValue(bx, bz);
-			float humidity = Climate.unquantizeCoord(targetPoint.humidity()) + REGION_CLIMATE_SHIFT * (float) this.regionHumidityNoise.getValue(bx, bz);
+			float temperature = Climate.unquantizeCoord(targetPoint.temperature()) + REGION_CLIMATE_SHIFT * (float) this.regionTemperatureNoise.get(bx, bz);
+			float humidity = Climate.unquantizeCoord(targetPoint.humidity()) + REGION_CLIMATE_SHIFT * (float) this.regionHumidityNoise.get(bx, bz);
 			tbTargetPoint.setRegionClimate(Climate.quantizeCoord(Math.max(-1.0F, Math.min(1.0F, temperature))), Climate.quantizeCoord(Math.max(-1.0F, Math.min(1.0F, humidity))));
 		}
 		return selected;
