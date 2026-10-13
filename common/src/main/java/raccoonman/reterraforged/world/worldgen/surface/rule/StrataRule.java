@@ -1,34 +1,33 @@
 package raccoonman.reterraforged.world.worldgen.surface.rule;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.Nullable;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.SurfaceRules;
-import net.minecraft.world.level.levelgen.SurfaceRules.Context;
+import net.minecraft.world.level.levelgen.material.MaterialRuleContext;
+import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
+import net.minecraft.world.level.levelgen.material.rule.RuleEvaluator;
+import org.jetbrains.annotations.Nullable;
+import raccoonman.reterraforged.mixin.MaterialRuleContextAccessor;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.surface.RTFSurfaceSystem;
 
-public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> strata, int iterations) implements SurfaceRules.RuleSource {
+public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> strata, int iterations) implements MaterialRule {
 	public static final MapCodec<StrataRule> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Identifier.CODEC.fieldOf("name").forGetter(StrataRule::name),
 		Noise.CODEC.fieldOf("selector").forGetter(StrataRule::selector),
@@ -41,9 +40,11 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	}
 	
 	@Override
-	public SurfaceRules.SurfaceRule apply(Context ctx) {
-		if(ctx.system instanceof RTFSurfaceSystem rtfSurfaceSystem && (Object) ctx.randomState instanceof RTFRandomState rtfRandomState && rtfRandomState.generatorContext() != null) {
-			return new Source(ctx, rtfRandomState.seed(this.selector.value()), rtfSurfaceSystem.getOrCreateStrata(this.name, this::generateStrata));
+	public RuleEvaluator compile(MaterialRuleContext ctx) {
+		MaterialRuleContextAccessor accessor = (MaterialRuleContextAccessor) (Object) ctx;
+		ChunkAccess chunk = RTFSurfaceSystem.BUILDING_CHUNK.get();
+		if(chunk != null && accessor.reterraforged$system() instanceof RTFSurfaceSystem rtfSurfaceSystem && (Object) accessor.reterraforged$randomState() instanceof RTFRandomState rtfRandomState && rtfRandomState.generatorContext() != null) {
+			return new Source(chunk, rtfRandomState.seed(this.selector.value()), rtfSurfaceSystem.getOrCreateStrata(this.name, this::generateStrata));
 		} else {
 			return (x, y, z) -> null;
 		}
@@ -110,27 +111,29 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 		}
 	}
 	
-	private class Source implements SurfaceRules.SurfaceRule {
-		private Context surfaceContext;
+	private class Source implements RuleEvaluator {
+		private ChunkAccess chunk;
 		private Noise selector;
 		private List<List<Layer>> strata;
 		private List<Layer> layers;
 		private float[] depthBuffer;
-		private long lastUpdateXZ;
+		private int lastX, lastZ;
+		private boolean initialized;
 		
-		public Source(Context surfaceContext, Noise selector, List<List<Layer>> strata) {
-			this.surfaceContext = surfaceContext;
+		public Source(ChunkAccess chunk, Noise selector, List<List<Layer>> strata) {
+			this.chunk = chunk;
 			this.selector = selector;
 			this.strata = strata;
-			this.lastUpdateXZ = Long.MIN_VALUE;
 		}
 		
         @Nullable
 		@Override
 		public BlockState tryApply(int x, int y, int z) {
-        	if(this.lastUpdateXZ != this.surfaceContext.lastUpdateXZ) {
+        	if(!this.initialized || this.lastX != x || this.lastZ != z) {
         		this.initBuffer(x, z);
-        		this.lastUpdateXZ = this.surfaceContext.lastUpdateXZ;
+        		this.lastX = x;
+        		this.lastZ = z;
+        		this.initialized = true;
         	}
         	
         	Layer last = null;
@@ -152,9 +155,9 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	            this.depthBuffer = new float[layerCount];
 	        }
 	        
-            int localX = this.surfaceContext.blockX & 0xF;
-            int localZ = this.surfaceContext.blockZ & 0xF;
-            int height = this.surfaceContext.chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, localX, localZ);
+            int localX = x & 0xF;
+            int localZ = z & 0xF;
+            int height = this.chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, localX, localZ);
 
             float sum = 0.0F;
             for(int i = 0; i < layerCount; i++) {

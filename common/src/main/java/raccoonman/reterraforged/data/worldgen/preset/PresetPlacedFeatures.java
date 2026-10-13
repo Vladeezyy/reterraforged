@@ -1,7 +1,6 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
 import java.util.List;
-
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -14,7 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
@@ -79,7 +78,7 @@ public class PresetPlacedFeatures {
 	public static final ResourceKey<PlacedFeature> JUNGLE_EDGE_TREES = createKey("jungle_edge_trees");
     
 	public static void bootstrap(Preset preset, BootstrapContext<PlacedFeature> ctx) {
-		HolderGetter<ConfiguredFeature<?, ?>> features = ctx.lookup(Registries.CONFIGURED_FEATURE);
+		HolderGetter<Feature> features = ctx.lookup(Registries.FEATURE);
 		MiscellaneousSettings miscellaneous = preset.miscellaneous();
 
 		PlacementModifier blacklistOverworld = RTFPlacementModifiers.blacklistDimensions(LevelStem.OVERWORLD);

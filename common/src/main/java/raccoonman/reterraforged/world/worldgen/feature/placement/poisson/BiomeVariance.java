@@ -24,8 +24,6 @@
 
 package raccoonman.reterraforged.world.worldgen.feature.placement.poisson;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;

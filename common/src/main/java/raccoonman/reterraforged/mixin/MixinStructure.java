@@ -14,7 +14,8 @@ import net.minecraft.world.level.levelgen.structure.Structure.GenerationStub;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.structure.rule.StructureRule;
 
-@Mixin(Structure.class)
+// 26.3: the biome check of a structure start is GenerationContext.isValidBiome
+@Mixin(Structure.GenerationContext.class)
 public class MixinStructure {
 
 	@Inject(
@@ -22,7 +23,8 @@ public class MixinStructure {
 		method = "isValidBiome",
 		cancellable = true
 	)
-    private static void isValidBiome(GenerationStub generationStub, GenerationContext generationContext, CallbackInfoReturnable<Boolean> callback) {
+    private void isValidBiome(GenerationStub generationStub, CallbackInfoReturnable<Boolean> callback) {
+		GenerationContext generationContext = (GenerationContext) (Object) this;
 		RegistryAccess registry = generationContext.registryAccess();
 		RegistryLookup<StructureRule> structureRules = registry.lookupOrThrow(RTFRegistries.STRUCTURE_RULE);
 		for(StructureRule structureRule : structureRules.listElements().map(Holder::value).toList()) {

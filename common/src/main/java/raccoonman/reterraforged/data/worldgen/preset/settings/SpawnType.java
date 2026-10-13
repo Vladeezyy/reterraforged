@@ -1,21 +1,21 @@
 package raccoonman.reterraforged.data.worldgen.preset.settings;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-
+import java.util.List;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.biome.Climate.ParameterPoint;
+import net.minecraft.world.level.levelgen.SpawnTargetPoint;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public enum SpawnType implements StringRepresentable {
     CONTINENT_CENTER("CONTINENT_CENTER") {
         private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0F, 1.0F);
-        private static final Climate.Parameter SURFACE_DEPTH = Climate.Parameter.point(0.0F);
         private static final Climate.Parameter INLAND_CONTINENTALNESS = Climate.Parameter.span(-0.11F, 0.55F);
 
 		@Override
@@ -25,8 +25,9 @@ public enum SpawnType implements StringRepresentable {
     	}
     	
 		@Override
-		public List<ParameterPoint> getParameterPoints() {
-			return List.of(new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE, Climate.Parameter.span(INLAND_CONTINENTALNESS, FULL_RANGE), FULL_RANGE, SURFACE_DEPTH, FULL_RANGE, 0L), new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE, Climate.Parameter.span(INLAND_CONTINENTALNESS, FULL_RANGE), FULL_RANGE, SURFACE_DEPTH, FULL_RANGE, 0L));
+		public List<SpawnTargetPoint> getSpawnTarget(Holder<DensityFunction> temperature, Holder<DensityFunction> vegetation, Holder<DensityFunction> continents, Holder<DensityFunction> erosion, Holder<DensityFunction> weirdness) {
+			// the depth (surface) was never part of the fitness: the spawn finder sampled at depth 0
+			return List.of(new SpawnTargetPoint(Map.of(temperature, FULL_RANGE, vegetation, FULL_RANGE, continents, Climate.Parameter.span(INLAND_CONTINENTALNESS, FULL_RANGE), erosion, FULL_RANGE, weirdness, FULL_RANGE)));
 		}
 	}, 
     ISLANDS("ISLANDS") {
@@ -37,7 +38,7 @@ public enum SpawnType implements StringRepresentable {
 		}
 
 		@Override
-		public List<ParameterPoint> getParameterPoints() {
+		public List<SpawnTargetPoint> getSpawnTarget(Holder<DensityFunction> temperature, Holder<DensityFunction> vegetation, Holder<DensityFunction> continents, Holder<DensityFunction> erosion, Holder<DensityFunction> weirdness) {
 			return ImmutableList.of();
 		}
 	},
@@ -49,7 +50,7 @@ public enum SpawnType implements StringRepresentable {
 		}
 
 		@Override
-		public List<ParameterPoint> getParameterPoints() {
+		public List<SpawnTargetPoint> getSpawnTarget(Holder<DensityFunction> temperature, Holder<DensityFunction> vegetation, Holder<DensityFunction> continents, Holder<DensityFunction> erosion, Holder<DensityFunction> weirdness) {
 			return ImmutableList.of();
 		}
 	};
@@ -69,5 +70,5 @@ public enum SpawnType implements StringRepresentable {
 	
 	public abstract BlockPos getSearchCenter(GeneratorContext ctx);
 	
-	public abstract List<ParameterPoint> getParameterPoints();
+	public abstract List<SpawnTargetPoint> getSpawnTarget(Holder<DensityFunction> temperature, Holder<DensityFunction> vegetation, Holder<DensityFunction> continents, Holder<DensityFunction> erosion, Holder<DensityFunction> weirdness);
 }

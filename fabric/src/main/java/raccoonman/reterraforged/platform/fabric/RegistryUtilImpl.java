@@ -44,6 +44,6 @@ public class RegistryUtilImpl {
 	}
 
 	public static List<RegistryDataLoader.RegistryData<?>> getDynamicRegistries() {
-		return DynamicRegistries.getDynamicRegistries();
+		return DynamicRegistries.getWorldRegistries();
 	}
 }

@@ -171,9 +171,10 @@ public final class RTFWorldChecks {
 		List<String> empty = new ArrayList<>();
 		var biomes = level.registryAccess().lookupOrThrow(Registries.BIOME);
 		for (var key : List.of(Biomes.PLAINS, Biomes.FOREST, Biomes.TAIGA, Biomes.DESERT)) {
-			Biome biome = biomes.getOrThrow(key).value();
-			if (biome.getMobSettings().getMobs(MobCategory.MONSTER).isEmpty()) empty.add(key.toString() + " monsters");
-			if (key != Biomes.DESERT && biome.getMobSettings().getMobs(MobCategory.CREATURE).isEmpty()) empty.add(key.toString() + " animals");
+			// 26.3: a biome's mobs are an environment attribute
+			var mobs = biomes.getOrThrow(key).value().getAttributes().applyModifier(net.minecraft.world.attribute.EnvironmentAttributes.NATURAL_MOB_SPAWNS, net.minecraft.world.attribute.EnvironmentAttributes.NATURAL_MOB_SPAWNS.defaultValue());
+			if (mobs.getMobsInCategory(MobCategory.MONSTER).isEmpty()) empty.add(key.toString() + " monsters");
+			if (key != Biomes.DESERT && mobs.getMobsInCategory(MobCategory.CREATURE).isEmpty()) empty.add(key.toString() + " animals");
 		}
 		check.accept("the preset's biomes keep their mobs " + empty, empty.isEmpty());
 	}
