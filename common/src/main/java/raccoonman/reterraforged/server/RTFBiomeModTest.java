@@ -89,6 +89,7 @@ public final class RTFBiomeModTest {
 		try {
 			ServerLevel level = server.overworld();
 			var source = level.getChunkSource().getGenerator().getBiomeSource();
+			var randomState = level.getChunkSource().randomState();
 			int regions = terrablender.api.Regions.getCount(terrablender.api.RegionType.OVERWORLD);
 			float[] t = { -0.6F, -0.3F, 0.0F, 0.37F, 0.8F }, h = { -0.6F, -0.22F, 0.0F, 0.2F, 0.6F };
 			float[] c = { -0.15F, -0.04F, 0.16F, 0.65F }, e = { -0.9F, -0.55F, -0.3F, -0.08F, 0.25F, 0.5F, 0.8F };
@@ -98,9 +99,9 @@ public final class RTFBiomeModTest {
 			for (int r = 1; r < regions; r++) for (int ti = 0; ti < t.length; ti++) for (int hi = 0; hi < h.length; hi++) for (int ci = 0; ci < c.length; ci++) for (int ei = 0; ei < e.length; ei++) for (int wi = 0; wi < w.length; wi++) {
 				// a sampler of constants; the region is chosen by the uniqueness ReTerraForged gives the points it samples
 				// (MixinClimateSampler, MixinParameterList)
-				Climate.Sampler sampler = new Climate.Sampler(constant(t[ti]), constant(h[hi]), constant(c[ci]), constant(e[ei]), constant(0.0F), constant(w[wi]), List.of());
-				((raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler) (Object) sampler).setUniqueness(constant(r / (float) (regions - 1)));
-				Holder<Biome> biome = source.getNoiseBiome(0, QuartPos.fromBlock(level.getSeaLevel() + 8), 0, sampler);
+				Climate.Sampler sampler = new Climate.Sampler(constant(randomState, t[ti]), constant(randomState, h[hi]), constant(randomState, c[ci]), constant(randomState, e[ei]), constant(randomState, 0.0F), constant(randomState, w[wi]));
+				((raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler) (Object) sampler).setUniqueness(constant(randomState, r / (float) (regions - 1)));
+				Holder<Biome> biome = source.createResolver(sampler).getNoiseBiome(0, QuartPos.fromBlock(level.getSeaLevel() + 8), 0);
 				if (!modded(biome)) continue;
 				where.computeIfAbsent(name(biome), (k) -> new ArrayList<>()).add("r" + r + " t" + ti + " h" + hi + " c" + (ci + 3) + " e" + ei + " w" + wi);
 			}
@@ -147,12 +148,13 @@ public final class RTFBiomeModTest {
 			var gen = level.getChunkSource().getGenerator();
 			var rs = level.getChunkSource().randomState();
 			boolean rtf = (Object) rs instanceof RTFRandomState s && s.generatorContext() != null;
+			Climate.Sampler climate = rs.createClimateSampler(net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
 			List<String> points = new ArrayList<>();
 			for (int x = -RADIUS; x <= RADIUS; x += STEP) {
 				for (int z = -RADIUS; z <= RADIUS; z += STEP) {
 					int ground = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
 					int top = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
-					Climate.TargetPoint p = rs.sampler().sample(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
+					Climate.TargetPoint p = climate.sample(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
 					double u = ((raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint) (Object) p).getUniqueness();
 					points.add((Double.isNaN(u) ? -1 : Math.round((list.size() - 1) * u)) + " " + p.temperature() + " " + p.humidity() + " " + p.continentalness() + " " + p.erosion() + " " + p.depth() + " " + p.weirdness() + " " + x + " " + z + " " + ground + " " + top);
 				}
@@ -165,32 +167,36 @@ public final class RTFBiomeModTest {
 		}
 	}
 
-	// "rtf biomemods match": the biome of 289 grid points from the biome source with the world's sampler and from the
-	// chunk itself (built to the biomes status), how often they agree
+	// "rtf biomemods match": the biome of 300 grid points from this test's resolver, from the biome source's own uncached
+	// resolver and from the chunk itself (built to the biomes status), how often they agree
 	public static String match(MinecraftServer server) {
 		ServerLevel level = server.overworld();
 		var gen = level.getChunkSource().getGenerator();
 		var rs = level.getChunkSource().randomState();
 		var source = gen.getBiomeSource();
-		int n = 0, ok = 0;
+		Climate.Sampler climate = rs.createClimateSampler(net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+		var mine = source.createResolver(climate);
+		var own = source.createUncachedResolver(rs);
+		int n = 0, mineOk = 0, ownOk = 0;
 		List<String> diffs = new ArrayList<>();
-		for (int x = -4096; x <= 4096; x += 512) {
-			for (int z = -4096; z <= 4096; z += 512) {
+		for (int x = -4096; x <= 4096 && n < 300; x += 512) {
+			for (int z = -4096; z <= 4096 && n < 300; z += 512) {
 				int top = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
 				int qx = QuartPos.fromBlock(x), qy = QuartPos.fromBlock(top), qz = QuartPos.fromBlock(z);
-				String a = name(source.getNoiseBiome(qx, qy, qz, rs.sampler()));
+				String a = name(mine.getNoiseBiome(qx, qy, qz)), b = name(own.getNoiseBiome(qx, qy, qz));
 				String c = name(level.getChunk(x >> 4, z >> 4, ChunkStatus.BIOMES, true).getNoiseBiome(qx, qy, qz));
 				n++;
-				if (a.equals(c)) ok++;
-				else if (diffs.size() < 12) diffs.add(x + "," + z + ": source " + a + " chunk " + c);
+				if (a.equals(c)) mineOk++;
+				if (b.equals(c)) ownOk++;
+				if (diffs.size() < 12 && !a.equals(c)) diffs.add(x + "," + z + ": test " + a + " own " + b + " chunk " + c);
 			}
 		}
 		RTFCommon.LOGGER.info("[RTF biomemods] match differences: {}", diffs);
-		return "[RTF biomemods] rtf match " + ok + "/" + n + " agree with the chunks";
+		return "[RTF biomemods] rtf match " + mineOk + "/" + n + " (test resolver), " + ownOk + "/" + n + " (uncached resolver) agree with the chunks";
 	}
 
-	private static net.minecraft.world.level.levelgen.DensityFunction constant(float value) {
-		return net.minecraft.world.level.levelgen.DensityFunctions.constant(value);
+	private static net.minecraft.world.level.levelgen.densityfunction.DensitySampler.Bound constant(net.minecraft.world.level.levelgen.RandomState rs, float value) {
+		return new net.minecraft.world.level.levelgen.densityfunction.DensitySampler.Bound(rs.getSampler(net.minecraft.world.level.levelgen.densityfunction.DensityFunctions.constant(value)), net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
 	}
 
 	public static String run(MinecraftServer server) {
@@ -209,6 +215,9 @@ public final class RTFBiomeModTest {
 		var source = gen.getBiomeSource();
 		boolean rtf = (Object) rs instanceof RTFRandomState s && s.generatorContext() != null;
 		String kind = rtf ? "rtf" : "vanilla";
+		// one uncached climate sampler and biome resolver for the whole grid (26.3: RandomState has no shared sampler)
+		Climate.Sampler climate = rs.createClimateSampler(net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED);
+		var resolver = source.createResolver(climate);
 		Set<Holder<Biome>> possible = source.possibleBiomes().stream().filter(RTFBiomeModTest::modded).collect(Collectors.toSet());
 
 		// biomes at the surface over the grid
@@ -224,8 +233,8 @@ public final class RTFBiomeModTest {
 			for (int z = -RADIUS; z <= RADIUS; z += STEP) {
 				int ground = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
 				int top = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
-				Holder<Biome> biome = source.getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z), rs.sampler());
-				Climate.TargetPoint point = rs.sampler().sample(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
+				Holder<Biome> biome = resolver.getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
+				Climate.TargetPoint point = climate.sample(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
 				int[] b = bands(point);
 				fine[0][Math.max(0, Math.min(40, Math.round((Climate.unquantizeCoord(point.temperature()) + 1.0F) * 20.0F)))]++;
 				fine[1][Math.max(0, Math.min(40, Math.round((Climate.unquantizeCoord(point.humidity()) + 1.0F) * 20.0F)))]++;

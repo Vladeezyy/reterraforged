@@ -1,12 +1,11 @@
 package raccoonman.reterraforged.world.worldgen.feature.placement.poisson;
 
-import java.util.Random;
-import java.util.stream.Stream;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -15,15 +14,13 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.placement.PlacementContext;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
-import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
-import raccoonman.reterraforged.world.worldgen.feature.placement.RTFPlacementModifiers;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
-public class FastPoissonModifier extends PlacementModifier {
+public class FastPoissonModifier implements PlacementModifier {
 	public static final MapCodec<FastPoissonModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.fieldOf("radius").forGetter((p) -> p.radius),
 		Codec.FLOAT.fieldOf("scale").forGetter((p) -> p.scale),
@@ -57,7 +54,11 @@ public class FastPoissonModifier extends PlacementModifier {
 	}
 	
 	@Override
-	public Stream<BlockPos> getPositions(PlacementContext ctx, RandomSource random, BlockPos pos) {
+	public void modify(PlacementContext ctx, RandomSource random, BlockPos pos, Consumer<BlockPos> output) {
+		this.getPositions(ctx, random, pos).forEach(output);
+	}
+
+	private Stream<BlockPos> getPositions(PlacementContext ctx, RandomSource random, BlockPos pos) {
 		WorldGenLevel level = ctx.getLevel();
 		ChunkAccess chunk = ctx.getLevel().getChunk(pos);
 		long levelSeed = level.getSeed();
@@ -76,8 +77,8 @@ public class FastPoissonModifier extends PlacementModifier {
     }
 
 	@Override
-	public PlacementModifierType<FastPoissonModifier> type() {
-		return RTFPlacementModifiers.FAST_POISSON;
+	public MapCodec<FastPoissonModifier> codec() {
+		return CODEC;
 	}
 
 	private DensityNoise getDensityNoise(int seed, ChunkPos chunkPos, RandomState randomState) {

@@ -2,8 +2,8 @@ package raccoonman.reterraforged.world.worldgen;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
@@ -15,8 +15,10 @@ public interface RTFRandomState {
 
 	@Nullable
 	GeneratorContext generatorContext();
-	
-	DensityFunction wrap(DensityFunction function);
+
+	// where the world spawn is searched from, null without a generator context
+	@Nullable
+	BlockPos spawnSearchCenter();
 
 	Noise seed(Noise noise);
 }

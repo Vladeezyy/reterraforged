@@ -247,6 +247,15 @@ public final class RTFStressTest {
 	 * (every setting at its maximum) or "random:N" (the stress test's random combination number N).
 	 */
 	public static Preset makePreset(String spec) {
+		// the README screenshots (tools/showcase.sh): Default, with a taller world (higher mountains) and larger biomes
+		if (spec.equals("showcase")) {
+			Preset showcase = Presets.makeDefault();
+			showcase.world().properties.worldHeight = 384;
+			showcase.climate().biomeShape.biomeSize = 300;
+			showcase.terrain().mountains.verticalScale = 1.15F;
+			RTFCommon.LOGGER.info("[RTF] showcase preset: Default, world height 384, biome size 300, mountain vertical scale 1.15");
+			return showcase;
+		}
 		// "set:caves().cheeseCaveProbability=0;caves().entranceCaveProbability=1": "Default" with these numeric settings
 		// changed (tools/servertest.sh PRESET=..., to see which setting a generation problem comes from)
 		if (spec.startsWith("set:")) {
