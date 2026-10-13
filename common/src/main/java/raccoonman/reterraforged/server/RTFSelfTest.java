@@ -119,13 +119,13 @@ public final class RTFSelfTest {
 		check("terrain has relief (ground " + min + " .. " + max + ")", max - min >= 40);
 		check("terrain reaches above sea level", max > level.getSeaLevel() + 20);
 		check("there is water (" + water + "/" + samples + ")", water > 0 && water < samples);
-		check("terrain stays inside the world height", min > level.getMinBuildHeight() + 5 && max < level.getMaxBuildHeight() - 5);
+		check("terrain stays inside the world height", min > level.getMinY() + 5 && max < level.getMaxY() - 4);
 
 		// bedrock floor of the overworld is whole
 		ChunkAccess spawnChunk = full(level, 0, 0);
 		int holes = 0;
 		for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
-			if (!spawnChunk.getBlockState(new BlockPos(x, level.getMinBuildHeight(), z)).is(Blocks.BEDROCK)) holes++;
+			if (!spawnChunk.getBlockState(new BlockPos(x, level.getMinY(), z)).is(Blocks.BEDROCK)) holes++;
 		}
 		check("overworld bedrock floor is whole (holes: " + holes + ")", holes == 0);
 
@@ -152,7 +152,7 @@ public final class RTFSelfTest {
 	private void nether(ServerLevel level) {
 		if (level == null) return;
 		int floorHoles = 0, roofHoles = 0;
-		int floorY = level.getMinBuildHeight(), roofY = floorY + level.dimensionType().logicalHeight() - 1;
+		int floorY = level.getMinY(), roofY = floorY + level.dimensionType().logicalHeight() - 1;
 		for (int cx = -3; cx <= 3; cx++) for (int cz = -3; cz <= 3; cz++) {
 			ChunkAccess c = full(level, cx, cz);
 			for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
