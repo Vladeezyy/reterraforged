@@ -1,12 +1,12 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
 import net.minecraft.util.CubicSpline;
-import net.minecraft.util.ToFloatFunction;
+import net.minecraft.util.BoundedFloatFunction;
 
 // this is only for reference because the original is impossible to read
 class TerrainProvider {
 
-    public static <C, I extends ToFloatFunction<C>> CubicSpline<C, I> overworldFactor(I continentalness, I erosion, I ridges, I peaksAndValleys) {
+    public static <C, I extends BoundedFloatFunction<C>> CubicSpline<C, I> overworldFactor(I continentalness, I erosion, I ridges, I peaksAndValleys) {
         return CubicSpline.builder(continentalness)
         	.addPoint(-0.19F, 3.95F)
         	.addPoint(-0.15F, TerrainProvider.getErosionFactor(erosion, ridges, peaksAndValleys, 6.25F, true))
@@ -15,7 +15,7 @@ class TerrainProvider {
         	.addPoint(0.06F, TerrainProvider.getErosionFactor(erosion, ridges, peaksAndValleys, 4.69F, false)).build();
     }
 
-    private static <C, I extends ToFloatFunction<C>> CubicSpline<C, I> getErosionFactor(I erosion, I ridges, I peaksAndValleys, float baseFactor, boolean hasRivers) {
+    private static <C, I extends BoundedFloatFunction<C>> CubicSpline<C, I> getErosionFactor(I erosion, I ridges, I peaksAndValleys, float baseFactor, boolean hasRivers) {
         CubicSpline<C, I> cubicSpline = CubicSpline.builder(ridges)
         	.addPoint(-0.2F, 6.3F)
         	.addPoint(0.2F, baseFactor)
