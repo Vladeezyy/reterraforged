@@ -15,7 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 /**
  * A bee nest on the trunk of a template tree, as Minecraft's BeehiveDecorator puts one on its trees: facing south, next
@@ -61,7 +61,7 @@ record BeeNestDecorator(float probability) implements TemplateDecorator<TreeCont
 		for (BlockPos spot : spots) {
 			if (level.isEmptyBlock(spot) && level.isEmptyBlock(spot.relative(FACING))) {
 				level.setBlock(spot, Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, FACING), 19);
-				level.getBlockEntity(spot, BlockEntityType.BEEHIVE).ifPresent((nest) -> {
+				level.getBlockEntity(spot, BlockEntityTypes.BEEHIVE).ifPresent((nest) -> {
 					int bees = 2 + random.nextInt(2);
 					for (int i = 0; i < bees; i++) {
 						nest.storeBee(BeehiveBlockEntity.Occupant.create(random.nextInt(599)));
