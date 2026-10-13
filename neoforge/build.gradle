@@ -90,6 +90,7 @@ remapJar {
 
     input.set shadowJar.archiveFile
     dependsOn shadowJar
+    archiveClassifier.set("neoforge-${rootProject.minecraft_version}")
 }
 
 jar {

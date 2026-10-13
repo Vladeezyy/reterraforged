@@ -68,14 +68,14 @@ for loader in $LOADERS; do
                 curl -fsSL -o run/neoforge-installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEOFORGE/neoforge-$NEOFORGE-installer.jar"
                 (cd "$dir" && "$JAVA" -jar ../neoforge-installer.jar --installServer > installer.log 2>&1)
             fi
-            jar=$(ls neoforge/build/libs/reterraforged-*.jar | grep -v "sources\|shadow\|dev" | head -1)
+            jar=$(ls -t neoforge/build/libs/reterraforged-*-neoforge-*.jar | head -1)
             start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx3G @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
         fabric)
             if [ ! -f "$dir/fabric-server-launch.jar" ]; then
                 curl -fsSL -o "$dir/fabric-server-launch.jar" "https://meta.fabricmc.net/v2/versions/loader/$MC/$FABRIC_LOADER/1.0.1/server/jar"
                 curl -fsSL -o "$dir/mods/fabric-api.jar" "https://cdn.modrinth.com/data/P7dR8mSH/versions/$(curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22fabric%22%5D" | $PY -c 'import json,sys; v=[x for x in json.load(sys.stdin) if x["version_number"]=="'$FABRIC_API'"]; print(v[0]["id"]+"/"+v[0]["files"][0]["filename"])')"
             fi
-            jar=$(ls fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)
+            jar=$(ls -t fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)
             start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx3G -jar fabric-server-launch.jar nogui) ;;
     esac
     rm -f "$dir"/mods/reterraforged-*.jar
