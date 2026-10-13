@@ -18,6 +18,7 @@ import raccoonman.reterraforged.world.worldgen.feature.template.template.Feature
 public class MixinMinecraftServer {
 	private FeatureTemplateManager templateManager;
 
+	// only the callback: the constructor's parameters change between Minecraft versions
 	@Inject(
 		method = "<init>",
 		at = @At("TAIL")
@@ -26,18 +27,9 @@ public class MixinMinecraftServer {
 		this.templateManager = new FeatureTemplateManager(this.getResourceManager());
 	}
 	
+	// reloads (/reload, datapacks) are picked up here: the server's resource manager is replaced on every reload
 	public FeatureTemplateManager reterraforged$RTFMinecraftServer$getFeatureTemplateManager() {
-		return this.templateManager;
-	}
-	
-	@Inject(
-		method = { "method_29440" },
-		require = 0,
-		at = @At("TAIL"),
-		remap = false
-	)
-	private void method_29440(CallbackInfo callback) {
-		this.templateManager.onReload(this.getResourceManager());
+		return this.templateManager.forResources(this.getResourceManager());
 	}
 
 	@Shadow
