@@ -27,7 +27,7 @@ public abstract class BisectedPage<S extends Screen, L extends AbstractWidget, R
 
 	@Override
 	public double getScroll() {
-		return this.left != null ? this.left.scrollAmount() : 0.0;
+		return this.left != null ? this.left.getScrollAmount() : 0.0;
 	}
 
 	@Override
