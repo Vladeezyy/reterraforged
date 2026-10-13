@@ -13,6 +13,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -126,9 +127,9 @@ public class ErodeFeature extends Feature<Config> {
                 if (cell.gradient > 0.975) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 } else if (cell.gradient > 0.85) {
-                    state = Blocks.BROWN_TERRACOTTA.defaultBlockState();
+                    state = Blocks.DYED_TERRACOTTA.pick(DyeColor.BROWN).defaultBlockState();
                 } else if (cell.gradient > 0.75) {
-                    state = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
+                    state = Blocks.DYED_TERRACOTTA.pick(DyeColor.ORANGE).defaultBlockState();
                 } else if (cell.gradient > 0.65) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 }
