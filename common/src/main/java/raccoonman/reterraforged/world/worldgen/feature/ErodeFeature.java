@@ -48,9 +48,9 @@ public class ErodeFeature extends Feature<Config> {
 		@Nullable
 		GeneratorContext generatorContext;
 		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
-			ChunkPos chunkPos = new ChunkPos(placeContext.origin());
-			int chunkX = chunkPos.x;
-			int chunkZ = chunkPos.z;
+			ChunkPos chunkPos = ChunkPos.containing(placeContext.origin());
+			int chunkX = chunkPos.x();
+			int chunkZ = chunkPos.z();
 			ChunkGenerator generator = placeContext.chunkGenerator();
 			ChunkAccess chunk = level.getChunk(chunkX, chunkZ);
 			Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
