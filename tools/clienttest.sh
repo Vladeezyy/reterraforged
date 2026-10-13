@@ -24,9 +24,11 @@ fi
 ./gradlew ":$LOADER:runClient" -PrtfClientTest=rtf-test --no-daemon > "$OUT/client.log" 2>&1
 cp "$RUN"/screenshots/rtf-*.png "$OUT/" 2>/dev/null
 grep -h "RTF clienttest" "$OUT/client.log" | sed 's/^.*\[RTF clienttest\]/ /'
-errors=$(grep -cE '/ERROR\]|Exception' "$OUT/client.log")
-echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors"
-grep -E '/ERROR\]|Exception' "$OUT/client.log" | cut -c1-200 | sort | uniq -c | sort -rn | head -8
+# vanilla large dripstones can reach two chunks away and log "setBlock in a far chunk"; counted apart
+dripstone=$(grep -c 'far chunk.*large_dripstone' "$OUT/client.log")
+errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -v 'far chunk.*large_dripstone' | grep -c .)
+echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors (+ $dripstone vanilla large_dripstone far-chunk lines)"
+grep -E 'ERROR|Exception' "$OUT/client.log" | grep -v 'far chunk.*large_dripstone' | cut -c1-200 | sort | uniq -c | sort -rn | head -8
 grep -q "RTF clienttest\] done" "$OUT/client.log"
 exit $?
 }
