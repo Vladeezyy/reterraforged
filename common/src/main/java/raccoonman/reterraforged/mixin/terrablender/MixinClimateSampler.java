@@ -7,36 +7,36 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.Climate.TargetPoint;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint;
 
+// the preset's biome region goes with every climate sample, for TerraBlender's region choice (MixinParameterList)
 @Mixin(Climate.Sampler.class)
 @Implements(@Interface(iface = TBClimateSampler.class, prefix = "reterraforged$TBClimateSampler$"))
 class MixinClimateSampler {
 	@Nullable
-	private DensityFunction uniqueness;
+	private DensitySampler.Bound uniqueness;
 	
 	@Inject(
 		at = @At("RETURN"), 
-		method = "sample",
-		locals = LocalCapture.CAPTURE_FAILHARD
+		method = "sample"
 	)
-	public void sample(int i, int j, int k, CallbackInfoReturnable<TargetPoint> callback, int l, int m, int n, DensityFunction.SinglePointContext ctx) {
+	public void sample(int quartX, int quartY, int quartZ, CallbackInfoReturnable<TargetPoint> callback) {
 		if(this.uniqueness != null && (Object) callback.getReturnValue() instanceof TBTargetPoint tbTargetPoint) {
-			tbTargetPoint.setUniqueness(this.uniqueness.compute(ctx));
+			tbTargetPoint.setUniqueness(this.uniqueness.sampleValue(QuartPos.toBlock(quartX), QuartPos.toBlock(quartY), QuartPos.toBlock(quartZ)));
 		}
 	}
 	
-	public void reterraforged$TBClimateSampler$setUniqueness(DensityFunction uniqueness) {
+	public void reterraforged$TBClimateSampler$setUniqueness(DensitySampler.Bound uniqueness) {
 		this.uniqueness = uniqueness;
 	}
 	
-	public DensityFunction reterraforged$TBClimateSampler$getUniqueness() {
+	public DensitySampler.Bound reterraforged$TBClimateSampler$getUniqueness() {
 		return this.uniqueness;
 	}
 }

@@ -2,7 +2,7 @@ package raccoonman.reterraforged.tags;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import raccoonman.reterraforged.RTFCommon;
 
 public final class RTFDensityFunctionTags {

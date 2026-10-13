@@ -1,11 +1,8 @@
 package raccoonman.reterraforged.world.worldgen.feature.placement;
 
-import java.util.List;
-
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -16,9 +13,8 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.placement.PlacementContext;
 import net.minecraft.world.level.levelgen.placement.PlacementFilter;
-import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 
-class BlacklistDimensionFilter extends PlacementFilter {
+class BlacklistDimensionFilter implements PlacementFilter {
 	public static final MapCodec<BlacklistDimensionFilter> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		ResourceKey.codec(Registries.LEVEL_STEM).listOf().fieldOf("blacklist").forGetter((filter) -> filter.blacklist)
 	).apply(instance, BlacklistDimensionFilter::new));
@@ -32,7 +28,7 @@ class BlacklistDimensionFilter extends PlacementFilter {
 	}
 	
 	@Override
-	protected boolean shouldPlace(PlacementContext ctx, RandomSource rand, BlockPos pos) {
+	public boolean shouldPlace(PlacementContext ctx, RandomSource rand, BlockPos pos) {
 		WorldGenLevel level = ctx.getLevel();
 		MinecraftServer server = level.getServer();
 		
@@ -45,7 +41,7 @@ class BlacklistDimensionFilter extends PlacementFilter {
 	}	
 
 	@Override
-	public PlacementModifierType<BlacklistDimensionFilter> type() {
-		return RTFPlacementModifiers.BLACKLIST_DIMENSION;
+	public MapCodec<BlacklistDimensionFilter> codec() {
+		return CODEC;
 	}
 }

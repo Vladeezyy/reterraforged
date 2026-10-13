@@ -2,14 +2,12 @@ package raccoonman.reterraforged.world.worldgen.terrablender;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 
 public interface TBClimateSampler {
-	void setSpawnSearchCenter(BlockPos center);
 	
-	void setUniqueness(DensityFunction function);
+	void setUniqueness(DensitySampler.Bound uniqueness);
 	
 	@Nullable
-	DensityFunction getUniqueness();
+	DensitySampler.Bound getUniqueness();
 }

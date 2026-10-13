@@ -1,20 +1,18 @@
 package raccoonman.reterraforged.world.worldgen.feature.template;
 
-import java.util.List;
-
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.server.RTFMinecraftServer;
 import raccoonman.reterraforged.world.worldgen.feature.template.TemplateFeature.Config;
@@ -27,15 +25,23 @@ import raccoonman.reterraforged.world.worldgen.feature.template.placement.Templa
 import raccoonman.reterraforged.world.worldgen.feature.template.template.Dimensions;
 import raccoonman.reterraforged.world.worldgen.feature.template.template.FeatureTemplate;
 import raccoonman.reterraforged.world.worldgen.feature.template.template.TemplateContext;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 
-public class TemplateFeature extends Feature<Config<?>> {
+public record TemplateFeature(Config<?> config) implements Feature {
+	public static final MapCodec<TemplateFeature> CODEC = Config.CODEC.fieldOf("config").xmap(TemplateFeature::new, TemplateFeature::config);
 
-	public TemplateFeature(Codec<Config<?>> codec) {
-		super(codec);
+
+	@Override
+	public MapCodec<TemplateFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config<?>> ctx) {
+	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+		return this.place(new PlaceContext<>(this.config, level, chunkGenerator, random, origin));
+	}
+
+	private boolean place(PlaceContext<Config<?>> ctx) {
 		RandomSource random = ctx.random();
 		Config<?> config = ctx.config();
 		
@@ -94,7 +100,7 @@ public class TemplateFeature extends Feature<Config<?>> {
         return Rotation.values()[random.nextInt(Rotation.values().length)];
     }
     
-	public record Config<T extends TemplateContext>(List<Identifier> templates, TemplatePlacement<T> placement, PasteConfig paste, DecoratorConfig<T> decorator) implements FeatureConfiguration {
+	public record Config<T extends TemplateContext>(List<Identifier> templates, TemplatePlacement<T> placement, PasteConfig paste, DecoratorConfig<T> decorator) {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public static final Codec<Config<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Identifier.CODEC.listOf().fieldOf("templates").forGetter(Config::templates),

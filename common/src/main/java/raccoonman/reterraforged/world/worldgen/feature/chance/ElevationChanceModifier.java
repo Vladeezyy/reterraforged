@@ -1,17 +1,15 @@
 package raccoonman.reterraforged.world.worldgen.feature.chance;
 
-import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import org.jetbrains.annotations.Nullable;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 
 class ElevationChanceModifier extends RangeChanceModifier {
 	public static final MapCodec<ElevationChanceModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -30,7 +28,7 @@ class ElevationChanceModifier extends RangeChanceModifier {
 	}
 
 	@Override
-	protected float getValue(ChanceContext chanceCtx, FeaturePlaceContext<?> placeCtx) {
+	protected float getValue(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
 		BlockPos pos = placeCtx.origin();
 		@Nullable
 		GeneratorContext generatorContext;
