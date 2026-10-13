@@ -23,7 +23,8 @@ fi
 
 ./gradlew ":$LOADER:runClient" -PrtfClientTest=rtf-test --no-daemon > "$OUT/client.log" 2>&1 &
 gradle=$!
-# the NeoForge 26.2 dev launcher leaves non-daemon thread pools behind, so its client does not exit after "done":
+# in dev runs Architectury's TransformerRuntime leaves non-daemon thread pools behind (seen with 26.2; not in the
+# released jars), and the client then does not exit after "done" (NeoForge: never, Fabric: shutdown watchdog crash):
 # a minute after the test is done, this checkout's client process is stopped
 done_at=
 while kill -0 $gradle 2>/dev/null; do
