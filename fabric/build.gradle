@@ -51,10 +51,16 @@ sourceSets {
 }
 
 processResources {
-    inputs.property "version", project.version
+    def props = [
+        "version": project.version,
+        "minecraft_version": rootProject.minecraft_version,
+        "minecraft_range_fabric": rootProject.minecraft_range_fabric,
+        "fabric_api_min": rootProject.fabric_api_min
+    ]
+    inputs.properties props
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand props
     }
 }
 

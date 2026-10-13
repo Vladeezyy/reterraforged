@@ -11,24 +11,24 @@ license="MIT"
 [[mods]]
     modId="reterraforged"
     displayName="ReTerraForged"
-    version="0.0.6"
+    version="${version}"
     authors="dags,Won-Ton,raccoonman"
     credits="dags,Won-Ton,raccoonman"
     logoFile="logo.png"
-    displayURL="https://github.com/Campione01/ReterraForged"
-    issueTrackerURL="https://github.com/Campione01/ReterraForged/issues"
-    description="Terrain generation for Minecraft 1.21.1 with configurable archipelagos, island mountains and volcanoes, adjustable island coasts and beaches, and corrected island biome routing."
+    displayURL="https://github.com/Vladeezyy/reterraforged"
+    issueTrackerURL="https://github.com/Vladeezyy/reterraforged/issues"
+    description="Terrain generation for Minecraft ${minecraft_version} with configurable archipelagos, island mountains and volcanoes, adjustable island coasts and beaches, and corrected island biome routing."
 
 [[dependencies.reterraforged]]
     modId="neoforge"
     mandatory=true
-    versionRange="[21.1,21.2)"
+    versionRange="${neoforge_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.reterraforged]]
 	modId = "minecraft"
 	mandatory = true
-	versionRange = "[1.21.1,1.21.2)"
+	versionRange = "${minecraft_range_neoforge}"
 	ordering = "NONE"
 	side = "BOTH"
