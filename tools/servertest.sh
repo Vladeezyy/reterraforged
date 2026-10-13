@@ -58,6 +58,14 @@ wait_for() {
     return 1
 }
 
+# one run per checkout: a second run would start its servers in the same folders
+mkdir -p run
+if ! mkdir run/.servertest.lock 2>/dev/null; then
+    if kill -0 "$(cat run/.servertest.lock/pid 2>/dev/null)" 2>/dev/null; then echo "servertest.sh is already running in this checkout"; exit 1; fi
+fi
+echo $$ > run/.servertest.lock/pid
+trap 'rm -rf run/.servertest.lock' EXIT
+
 kill_servers
 for loader in $LOADERS; do
     dir=run/server-$loader
