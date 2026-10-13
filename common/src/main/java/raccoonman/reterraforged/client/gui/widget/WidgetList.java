@@ -2,7 +2,6 @@ package raccoonman.reterraforged.client.gui.widget;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
@@ -36,7 +36,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     public void reveal(T widget) {
     	for(Entry<T> entry : this.children()) {
     		if(entry.widget == widget) {
-    			this.ensureVisible(entry);
+    			this.scrollToEntry(entry);
     			return;
     		}
     	}
@@ -65,32 +65,32 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         // First check preview widgets
         for (Entry<T> entry : this.children()) {
             T widget = entry.getWidget();
-            if (widget instanceof PresetEditorPage.Preview preview && widget.isMouseOver(mouseX, mouseY)) {
-                if (preview.mouseClicked(mouseX, mouseY, button)) {
+            if (widget instanceof PresetEditorPage.Preview preview && widget.isMouseOver(event.x(), event.y())) {
+                if (preview.mouseClicked(event, doubleClick)) {
                     return true;
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         // Forward drag events to any preview widget (assuming only one)
         for (Entry<T> entry : this.children()) {
             T widget = entry.getWidget();
             if (widget instanceof PresetEditorPage.Preview preview) {
                 // Always forward drag events to preview, regardless of mouse position
-                if (preview.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+                if (preview.mouseDragged(event, dragX, dragY)) {
                     return true;
                 }
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
@@ -110,8 +110,8 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
 
     // ContainerObjectSelectionList never draws its selection, so the preset list did not show which preset was picked
     @Override
-    protected boolean isSelectedItem(int i) {
-        return this.renderSelected && Objects.equals(this.getSelected(), this.children().get(i));
+    protected boolean entriesCanBeSelected() {
+        return this.renderSelected;
     }
 
     // and it drops the selection with the focus, on a click on any button next to the list
@@ -151,7 +151,8 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+            int top = this.getContentY(), left = this.getContentX(), width = this.getContentWidth(), height = this.getContentHeight();
             int optionWidth = Math.min(450, width);
             int padding = (width - optionWidth) / 2;
             widget.setX(left + padding);

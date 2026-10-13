@@ -91,7 +91,7 @@ public final class RTFStructureTest {
 
 	public static String run(MinecraftServer server) {
 		ServerLevel level = server.overworld();
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		List<String> failures = new ArrayList<>();
 		List<String> missing = new ArrayList<>();
 		int found = 0, villages = 0;
