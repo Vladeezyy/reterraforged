@@ -14,7 +14,7 @@ mkdir -p "$RUN/mods" "$RUN/shaderpacks" "$RUN/config" "$OUT"
 # latest version file of a Modrinth project for this Minecraft version and loader -> "url filename"
 latest() {
     curl -fsSL "https://api.modrinth.com/v2/project/$1/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22$2%22%5D" \
-        | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])'
+        | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])' | tr -d '\r'  # Windows python: \r\n
 }
 
 for mod in iris sodium; do
@@ -23,7 +23,7 @@ for mod in iris sodium; do
     echo "$mod: $file"
 done
 read -r url pack < <(curl -fsSL "https://api.modrinth.com/v2/project/complementary-reimagined/version" \
-    | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])')
+    | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])' | tr -d '\r')
 [ -f "$RUN/shaderpacks/$pack" ] || curl -fsSL -o "$RUN/shaderpacks/$pack" "$url"
 echo "shaders: $pack"
 printf 'enableShaders=true\nshaderPack=%s\n' "$pack" > "$RUN/config/iris.properties"
