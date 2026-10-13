@@ -21,6 +21,7 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 		RTFCommon.bootstrap();
 
 		RegistryUtil.createDataRegistry(RTFRegistries.BIOME_MODIFIER, BiomeModifier.CODEC, false);
+		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> raccoonman.reterraforged.server.RTFSelfTest.register(dispatcher));
 	}
 
 	//TODO merge this with forge's datagen since they're the same now
