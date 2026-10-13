@@ -67,12 +67,6 @@ public abstract class LinkedPageScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		super.renderBackground(guiGraphics, mouseY, mouseY, partialTicks);
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
-	}
-	
-	@Override
 	public void onClose() {
 		this.currentPage.onClose();
 	}
