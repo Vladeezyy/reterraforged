@@ -228,7 +228,7 @@ public final class RTFClientTest {
 		float[] desert = biomeSpot(level, spawn, Biomes.DESERT);
 		float[] river = biomeSpot(level, spawn, Biomes.RIVER);
 		int sy = gen.getBaseHeight(spawn.getX(), spawn.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
-		float[] overview = { spawn.getX(), Math.min(sy + (SHOWCASE ? 40 : 80), level.getMaxBuildHeight() - 10), spawn.getZ() + 160, 180, SHOWCASE ? 12 : 30 };
+		float[] overview = { spawn.getX(), Math.min(sy + (SHOWCASE ? 40 : 80), level.getMaxY() - 9), spawn.getZ() + 160, 180, SHOWCASE ? 12 : 30 };
 		// the nearest village, from above: its houses on the terrain and its streets
 		float[] village = overview;
 		BlockPos villagePos = level.findNearestMapStructure(StructureTags.VILLAGE, spawn, 100, false);

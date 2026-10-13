@@ -17,6 +17,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.ARGB;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
@@ -126,9 +128,16 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    public static final int SIZE = (1 << 4) << FACTOR;
 	    private static final float[] LEGEND_SCALES = { 1, 0.9F, 0.75F, 0.6F };
 	    private DynamicTexture texture = new DynamicTexture(new NativeImage(SIZE, SIZE, false));
-	    private ResourceLocation textureId = Minecraft.getInstance().getTextureManager().register(RTFCommon.MOD_ID + "-preview-framebuffer", this.texture); 
+	    private ResourceLocation textureId = registerTexture(this.texture);
 	    private Tile tile;
 	    private int centerX, centerZ;
+
+	    // one preview is open at a time: registering again under the same id closes the previous texture
+	    private static ResourceLocation registerTexture(DynamicTexture texture) {
+	    	ResourceLocation id = RTFCommon.location("preview_framebuffer");
+	    	Minecraft.getInstance().getTextureManager().register(id, texture);
+	    	return id;
+	    }
 	    
 	    private String hoveredCoords = "";
 	    //TODO maybe make this a map or something instead?
@@ -181,10 +190,10 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        int[] hash = { 1 };
 	        this.tile.iterate((cell, x, z) -> {
 	            if (x < stroke || z < stroke || x >= width - stroke || z >= width - stroke) {
-	                pixels.setPixelRGBA(x, z, Color.BLACK.getRGB());
+	                pixels.setPixel(x, z, Color.BLACK.getRGB());
 	            } else {
-	                int color = renderMode.getColor(cell, levels);
-	                pixels.setPixelRGBA(x, z, color);
+	                int color = ARGB.fromABGR(renderMode.getColor(cell, levels));
+	                pixels.setPixel(x, z, color);
 	                hash[0] = hash[0] * 31 + color;
 	            }
 	        });
@@ -216,7 +225,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        RenderSystem.enableBlend();
 	        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 	        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-	        guiGraphics.blit(this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
+	        guiGraphics.blit(RenderType::guiTextured, this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
 
 	        this.updateLegend(mx, my);
 
