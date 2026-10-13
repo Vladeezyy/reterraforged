@@ -1,7 +1,7 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.TerrainSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
@@ -18,6 +18,6 @@ public class PresetTerrainProvider {
 //		return LinearSplineFunction.builder(ridge)
 //			.addPoint(-1.0D, -0.4D)
 //			.build();
-		return DensityFunctions.constant(0.0D);
+		return DensityFunctions.constant(0.0F);
 	}
 }

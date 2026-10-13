@@ -1,13 +1,11 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
-import java.util.function.Predicate;
-
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -21,8 +19,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import org.jetbrains.annotations.Nullable;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
@@ -30,22 +27,30 @@ import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.feature.DecorateSnowFeature.Config;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
-public class DecorateSnowFeature extends Feature<Config> {
+public record DecorateSnowFeature(Config config) implements Feature {
+	public static final MapCodec<DecorateSnowFeature> CODEC = Config.CODEC.fieldOf("config").xmap(DecorateSnowFeature::new, DecorateSnowFeature::config);
     private static final float SNOW_ROCK_STEEPNESS = 0.45F;
     private static final float SNOW_ROCK_HEIGHT = 95.0F / 255.0F;
     private static final float MIN = min(SnowLayerBlock.LAYERS);
     private static final float MAX = max(SnowLayerBlock.LAYERS);
 
-	public DecorateSnowFeature(Codec<Config> codec) {
-		super(codec);
+
+	@Override
+	public MapCodec<DecorateSnowFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> placeContext) {
+	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+		return this.place(new PlaceContext<>(this.config, level, chunkGenerator, random, origin));
+	}
+
+	private boolean place(PlaceContext<Config> placeContext) {
 		WorldGenLevel level = placeContext.level();
 		RandomState randomState = level.getLevel().getChunkSource().randomState();
 		
@@ -198,7 +203,7 @@ public class DecorateSnowFeature extends Feature<Config> {
         return property.getPossibleValues().stream().max(Integer::compareTo).orElse(0);
     }
 
-	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig) implements FeatureConfiguration {
+	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig) {
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("erode").forGetter(Config::erode),
 			Codec.BOOL.fieldOf("smooth").forGetter(Config::smooth),

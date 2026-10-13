@@ -1,8 +1,8 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -11,12 +11,13 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import raccoonman.reterraforged.world.worldgen.feature.template.BlockUtils;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 
-public class BushFeature extends Feature<BushFeature.Config> {
+public record BushFeature(BushFeature.Config config) implements Feature {
+	public static final MapCodec<BushFeature> CODEC = BushFeature.Config.CODEC.fieldOf("config").xmap(BushFeature::new, BushFeature::config);
     private static final Vec3i[] LOG_POSITIONS = {
     	new Vec3i(+1, 0, +1),
     	new Vec3i(+1, 0, -1),
@@ -42,12 +43,18 @@ public class BushFeature extends Feature<BushFeature.Config> {
     	new Vec3i(0, 1, 0),
     };
     
-    public BushFeature(Codec<Config> codec) {
-		super(codec);
+
+	@Override
+	public MapCodec<BushFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> ctx) {
+	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+		return this.place(new PlaceContext<>(this.config, level, chunkGenerator, random, origin));
+	}
+
+	private boolean place(PlaceContext<Config> ctx) {
         BlockPos.MutableBlockPos log = new BlockPos.MutableBlockPos();
         BlockPos.MutableBlockPos leaf = new BlockPos.MutableBlockPos();
         WorldGenLevel level = ctx.level();
@@ -123,7 +130,7 @@ public class BushFeature extends Feature<BushFeature.Config> {
         pos.set(pos.getX() + add.getX(), pos.getY() + add.getY(), pos.getZ() + add.getZ());
     }
 
-    public record Config(BlockState trunk, BlockState leaves, float airChance, float leafChance, float sizeChance) implements FeatureConfiguration {
+    public record Config(BlockState trunk, BlockState leaves, float airChance, float leafChance, float sizeChance) {
         public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         	BlockState.CODEC.fieldOf("trunk").forGetter(Config::trunk),
         	BlockState.CODEC.fieldOf("leaves").forGetter(Config::leaves),

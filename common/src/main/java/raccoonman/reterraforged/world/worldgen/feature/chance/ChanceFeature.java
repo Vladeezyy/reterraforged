@@ -1,26 +1,34 @@
 package raccoonman.reterraforged.world.worldgen.feature.chance;
 
-import java.util.List;
-
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
+import java.util.List;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raccoonman.reterraforged.world.worldgen.feature.chance.ChanceFeature.Config;
+import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 
-public class ChanceFeature extends Feature<Config> {
+public record ChanceFeature(Config config) implements Feature {
+	public static final MapCodec<ChanceFeature> CODEC = Config.CODEC.fieldOf("config").xmap(ChanceFeature::new, ChanceFeature::config);
 
-	public ChanceFeature(Codec<Config> codec) {
-		super(codec);
+
+	@Override
+	public MapCodec<ChanceFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<Config> ctx) {
+	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+		return this.place(new PlaceContext<>(this.config, level, chunkGenerator, random, origin));
+	}
+
+	private boolean place(PlaceContext<Config> ctx) {
 		RandomSource random = ctx.random();
 		Config config = ctx.config();
 		
@@ -46,7 +54,7 @@ public class ChanceFeature extends Feature<Config> {
 			ChanceModifier.CODEC.listOf().fieldOf("modifiers").forGetter(Entry::modifiers)
 		).apply(instance, Entry::new));
 		
-		public float getChance(ChanceContext chanceCtx, FeaturePlaceContext<?> placeCtx) {
+		public float getChance(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
 			float chance = this.chance;
 			for (ChanceModifier modifier : this.modifiers) {
 				chance *= modifier.getChance(chanceCtx, placeCtx);
@@ -55,7 +63,7 @@ public class ChanceFeature extends Feature<Config> {
 		}
 	}
 	
-	public record Config(List<Entry> entries) implements FeatureConfiguration {
+	public record Config(List<Entry> entries) {
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Entry.CODEC.listOf().fieldOf("entries").forGetter(Config::entries)
 		).apply(instance, Config::new));
