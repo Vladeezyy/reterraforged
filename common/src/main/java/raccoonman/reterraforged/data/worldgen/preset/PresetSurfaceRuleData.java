@@ -3,6 +3,7 @@ package raccoonman.reterraforged.data.worldgen.preset;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.SurfaceRuleData;
@@ -19,13 +20,13 @@ import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
 // maybe have a custom meadow or cherry forest surface ?
 public class PresetSurfaceRuleData {
     
-    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Noise> noise) {
+    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Noise> noise, HolderGetter<Biome> biomes) {
 		// the strata only with the strata decorator on, as in ReTerraForged 0.0.6 (the 1.21.1 port always added them)
 		if(!preset.miscellaneous().strataDecorator) {
-			return SurfaceRuleData.overworld();
+			return SurfaceRuleData.overworld(biomes);
 		}
 		return SurfaceRules.sequence(
-				SurfaceRuleData.overworld(),
+				SurfaceRuleData.overworld(biomes),
 				makeStrataRule(noise)
 		);
     }

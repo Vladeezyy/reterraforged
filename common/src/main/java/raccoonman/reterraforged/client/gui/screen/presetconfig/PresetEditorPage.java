@@ -230,8 +230,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	
 	    @Override
 	    public void onClick(MouseButtonEvent event, boolean doubleClick) {
-	        if (Minecraft.getInstance().screen != null) {
-	            Minecraft.getInstance().screen.setFocused(this);
+	        if (Minecraft.getInstance().gui.screen() != null) {
+	            Minecraft.getInstance().gui.screen().setFocused(this);
 	        }
 	        clicked = true;
 	        clickOffsetX = offsetX;

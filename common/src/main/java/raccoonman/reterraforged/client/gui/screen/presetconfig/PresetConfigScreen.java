@@ -37,7 +37,7 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	public void onClose() {
 		super.onClose();
 
-		this.minecraft.setScreen(this.parent);
+		this.minecraft.gui.setScreen(this.parent);
 	}
 	
 	// a built-in preset is edited as a copy: the same copy until the create world screen is closed, so the changes
