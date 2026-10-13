@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.server;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.Level;
@@ -18,6 +20,8 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.data.worldgen.PresetExport;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 
 /**
@@ -43,7 +47,24 @@ public final class RTFSelfTest {
 			String result = new RTFSelfTest().run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("exportpreset").executes(ctx -> {
+			String result = exportPreset(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})));
+	}
+
+	// the "Default" preset as a datapack in the server folder, the same pack the preset screen writes: a dedicated
+	// server only uses ReTerraForged with this pack in a new world's datapacks folder
+	private static String exportPreset(MinecraftServer server) {
+		Path out = server.getServerDirectory().resolve("reterraforged-preset.zip").toAbsolutePath();
+		try {
+			PresetExport.toZip(Presets.makeRTFDefault(), "Default", server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS), out);
+			return "[RTF] exported preset to " + out;
+		} catch (Throwable t) {
+			RTFCommon.LOGGER.error("[RTF] preset export failed", t);
+			return "[RTF] preset export failed: " + t;
+		}
 	}
 
 	private void check(String name, boolean ok) {

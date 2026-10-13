@@ -1,31 +1,17 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Map;
 
-import org.apache.commons.io.file.PathUtils;
-
-import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.levelgen.WorldOptions;
-import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
-import raccoonman.reterraforged.data.worldgen.Datapacks;
-import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
+import raccoonman.reterraforged.data.worldgen.PresetExport;
 
 //FIXME pressing the create world screen before the pack is copied will fuck the game up (surprisingly noone seems to have run into this?)
 public class PresetConfigScreen extends LinkedPageScreen {
@@ -67,29 +53,6 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	}
 	
 	public void exportAsDatapack(Path outputPath, PresetEntry presetEntry) throws IOException {
-		Path datagenPath = Files.createTempDirectory("datagen-target-");
-		Path datagenOutputPath = datagenPath.resolve("output");
-		
-		RegistryAccess registryAccess = this.getSettings().worldgenLoadContext();
-
-		Preset preset = presetEntry.getPreset();
-		Component presetName = presetEntry.getName();
-		
-		DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName.getString());
-		dataGenerator.run();
-		copyToZip(datagenOutputPath, outputPath);
-		PathUtils.deleteDirectory(datagenPath);
-		
-		RTFCommon.LOGGER.info("Exported datapack to {}", outputPath);
-	}
-	
-	private static void copyToZip(Path input, Path output) {
-		Map<String, String> env = ImmutableMap.of("create", "true");
-	    URI uri = URI.create("jar:" + output.toUri());
-	    try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
-	        PathUtils.copyDirectory(input, fs.getPath("/"), StandardCopyOption.REPLACE_EXISTING);
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
+		PresetExport.toZip(presetEntry.getPreset(), presetEntry.getName().getString(), this.getSettings().worldgenLoadContext(), outputPath);
 	}
 }
