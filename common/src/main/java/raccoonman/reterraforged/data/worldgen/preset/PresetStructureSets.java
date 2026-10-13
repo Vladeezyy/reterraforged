@@ -11,8 +11,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.StructureSettings;
 import raccoonman.reterraforged.mixin.StructurePlacementAccessor;
@@ -43,8 +43,8 @@ public final class PresetStructureSets {
 				return;
 			}
 			StructurePlacementAccessor accessor = (StructurePlacementAccessor) (Object) placement;
-			Optional<StructurePlacement.ExclusionZone> exclusion = accessor.reterraforged$exclusionZone().map((zone) -> {
-				return new StructurePlacement.ExclusionZone(sets.getOrThrow(zone.otherSet().unwrapKey().orElseThrow()), zone.chunkCount());
+			Optional<AbstractSpreadingStructurePlacement.ExclusionZone> exclusion = accessor.reterraforged$exclusionZone().map((zone) -> {
+				return new AbstractSpreadingStructurePlacement.ExclusionZone(sets.getOrThrow(zone.otherSet().unwrapKey().orElseThrow()), zone.chunkCount());
 			});
 			// disabled: the set is still there (other sets may refer to it), with a frequency of 0 it places nothing
 			RandomSpreadStructurePlacement changed = new RandomSpreadStructurePlacement(accessor.reterraforged$locateOffset(), accessor.reterraforged$frequencyReductionMethod(), entry.disabled ? 0.0F : accessor.reterraforged$frequency(), salt, exclusion, entry.spacing, entry.separation, placement.spreadType());

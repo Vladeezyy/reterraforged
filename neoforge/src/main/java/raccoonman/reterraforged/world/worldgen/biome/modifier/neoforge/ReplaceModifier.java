@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -29,7 +30,7 @@ record ReplaceModifier(GenerationStep.Decoration step, Optional<HolderSet<Biome>
 	).apply(instance, ReplaceModifier::new));
 	
 	@Override
-	public void modify(Holder<Biome> biome, BiomeModifier.Phase phase, BiomeInfo.Builder builder) {
+	public void modify(RegistryAccess registries, Holder<Biome> biome, BiomeModifier.Phase phase, BiomeInfo.Builder builder) {
 		if(phase == BiomeModifier.Phase.AFTER_EVERYTHING) {
 			if(builder.getGenerationSettings() instanceof MixinBiomeGenerationSettingsPlainsBuilder builderAccessor) {
 				if(this.biomes.isPresent() && !this.biomes.get().contains(biome)) {

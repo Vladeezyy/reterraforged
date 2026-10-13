@@ -1,27 +1,26 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.world.worldgen.feature.chance.ChanceFeature;
 import raccoonman.reterraforged.world.worldgen.feature.template.TemplateFeature;
 
+// 26.3: a feature is its own configuration, these are the feature types
 public class RTFFeatures {
-	public static final Feature<TemplateFeature.Config<?>> TEMPLATE = register("template", new TemplateFeature(TemplateFeature.Config.CODEC));
-	public static final Feature<BushFeature.Config> BUSH = register("bush", new BushFeature(BushFeature.Config.CODEC));
-	public static final Feature<DiskConfiguration> DISK = register("disk", new DiskFeature(DiskConfiguration.CODEC));
-	public static final Feature<ChanceFeature.Config> CHANCE = register("chance", new ChanceFeature(ChanceFeature.Config.CODEC));
-	public static final Feature<ErodeFeature.Config> ERODE = register("erode", new ErodeFeature(ErodeFeature.Config.CODEC));
-	public static final Feature<DecorateSnowFeature.Config> DECORATE_SNOW = register("decorate_snow", new DecorateSnowFeature(DecorateSnowFeature.Config.CODEC));
-	public static final Feature<SwampSurfaceFeature.Config> SWAMP_SURFACE = register("swamp_surface", new SwampSurfaceFeature(SwampSurfaceFeature.Config.CODEC));
 	
 	public static void bootstrap() {
+		register("template", TemplateFeature.CODEC);
+		register("bush", BushFeature.CODEC);
+		register("disk", DiskFeature.CODEC);
+		register("chance", ChanceFeature.CODEC);
+		register("erode", ErodeFeature.CODEC);
+		register("decorate_snow", DecorateSnowFeature.CODEC);
+		register("swamp_surface", SwampSurfaceFeature.CODEC);
 	}
 	
-	private static <T extends FeatureConfiguration> Feature<T> register(String name, Feature<T> feature) {
-		RegistryUtil.register(BuiltInRegistries.FEATURE, name, feature);
-		return feature;
+	private static void register(String name, MapCodec<? extends Feature> type) {
+		RegistryUtil.register(BuiltInRegistries.FEATURE_TYPE, name, type);
 	}
 }

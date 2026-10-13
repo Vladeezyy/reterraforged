@@ -1,12 +1,11 @@
 package raccoonman.reterraforged.world.worldgen.surface.rule;
 
-import java.util.List;
-
 import com.mojang.serialization.MapCodec;
+import java.util.List;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
@@ -21,7 +20,7 @@ public class RTFSurfaceRules {
 		return new StrataRule(name, selector, strata, iterations);
 	}
 	
-	public static void register(String name, MapCodec<? extends SurfaceRules.RuleSource> value) {
-		RegistryUtil.register(BuiltInRegistries.MATERIAL_RULE, name, value); //TODO: Convert to MapCodec
+	public static void register(String name, MapCodec<? extends MaterialRule> value) {
+		RegistryUtil.register(BuiltInRegistries.MATERIAL_RULE_TYPE, name, value);
 	}
 }

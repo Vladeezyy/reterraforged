@@ -1,26 +1,20 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraft.util.valueproviders.TrapezoidFloat;
 import net.minecraft.util.valueproviders.UniformFloat;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.util.valueproviders.VeryBiasedToBottomInt;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.carver.CanyonCarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
-import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.CanyonWorldCarver;
+import net.minecraft.world.level.levelgen.carver.CaveWorldCarver;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
-import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings.CompatibilityMode;
+import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.platform.ModLoaderUtil;
 import raccoonman.reterraforged.world.worldgen.floatproviders.LegacyCanyonYScale;
@@ -28,17 +22,16 @@ import raccoonman.reterraforged.world.worldgen.heightproviders.LegacyCarverHeigh
 
 public class PresetConfiguredCarvers {
 
-	//TODO make lava level configurable
-	public static void bootstrap(Preset preset, BootstrapContext<ConfiguredWorldCarver<?>> ctx) {
+	// 26.3: a carver is its own configuration; the lava level, debug settings and replaceable blocks are gone from it, and
+	// what the cave carver used to hard-code (count, thickness, start radius) is configured as in vanilla's carvers
+	public static void bootstrap(Preset preset, BootstrapContext<WorldCarver> ctx) {
 		CaveSettings caveSettings = preset.caves();
 		if(preserveVanillaCarvers(caveSettings.compatibilityMode)) {
 			return;
 		}
-        HolderGetter<Block> blocks = ctx.lookup(Registries.BLOCK);
-        
-        ctx.register(Carvers.CAVE, WorldCarver.CAVE.configured(new CaveCarverConfiguration(caveSettings.caveCarverProbability, modifiedCaveY(caveSettings), modifiedCaveYScale(caveSettings), VerticalAnchor.aboveBottom(8), CarverDebugSettings.of(false, Blocks.CRIMSON_BUTTON.defaultBlockState()), blocks.getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES), modifiedCaveHorizontalRadiusMultiplier(caveSettings), modifiedCaveVerticalRadiusMultiplier(caveSettings), modifiedCaveFloorLevel(caveSettings))));
-        ctx.register(Carvers.CAVE_EXTRA_UNDERGROUND, WorldCarver.CAVE.configured(new CaveCarverConfiguration(modifiedDeepCaveProbability(caveSettings), UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(47)), UniformFloat.of(0.1F, 0.9F), VerticalAnchor.aboveBottom(8), CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()), blocks.getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES), UniformFloat.of(0.7F, 1.4F), UniformFloat.of(0.8F, 1.3F), UniformFloat.of(-1.0F, -0.4F))));
-        ctx.register(Carvers.CANYON, WorldCarver.CANYON.configured(new CanyonCarverConfiguration(caveSettings.ravineCarverProbability, modifiedRavineY(caveSettings), ConstantFloat.of(3.0F), VerticalAnchor.aboveBottom(8), CarverDebugSettings.of(false, Blocks.WARPED_BUTTON.defaultBlockState()), blocks.getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES), modifiedRavineYScale(caveSettings), new CanyonCarverConfiguration.CanyonShapeConfiguration(UniformFloat.of(0.75F, 1.0F), TrapezoidFloat.of(0.0F, 6.0F, 2.0F), 3, UniformFloat.of(0.75F, 1.0F), 1.0F, 0.0F))));
+        ctx.register(Carvers.CAVE, new CaveWorldCarver(caveSettings.caveCarverProbability, modifiedCaveY(caveSettings), VeryBiasedToBottomInt.of(0, 14), TrapezoidFloat.of(0.0F, 3.0F, 1.0F), true, modifiedCaveYScale(caveSettings), modifiedCaveHorizontalRadiusMultiplier(caveSettings), modifiedCaveVerticalRadiusMultiplier(caveSettings), ConstantFloat.of(1.0F), modifiedCaveFloorLevel(caveSettings)));
+        ctx.register(Carvers.CAVE_EXTRA_UNDERGROUND, new CaveWorldCarver(modifiedDeepCaveProbability(caveSettings), UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(47)), VeryBiasedToBottomInt.of(0, 14), TrapezoidFloat.of(0.0F, 3.0F, 1.0F), true, UniformFloat.of(0.1F, 0.9F), UniformFloat.of(0.7F, 1.4F), UniformFloat.of(0.8F, 1.3F), ConstantFloat.of(1.0F), UniformFloat.of(-1.0F, -0.4F)));
+        ctx.register(Carvers.CANYON, new CanyonWorldCarver(caveSettings.ravineCarverProbability, modifiedRavineY(caveSettings), modifiedRavineYScale(caveSettings), new CanyonWorldCarver.Shape(UniformFloat.of(0.75F, 1.0F), TrapezoidFloat.of(0.0F, 6.0F, 2.0F), 3, UniformFloat.of(0.75F, 1.0F), 1.0F, 0.0F, ConstantFloat.of(3.0F))));
 	}
 
 	private static boolean preserveVanillaCarvers(CompatibilityMode mode) {

@@ -1,15 +1,11 @@
 package raccoonman.reterraforged.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-
-import org.lwjgl.glfw.GLFW;
-
-import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -17,6 +13,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -45,7 +42,7 @@ public final class RTFClientTest {
 	// tools/showcase.sh (pictures for the README, with shaders): evening sun and lower cameras
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
 	// a button press as if made with the keyboard (Enter)
-	private static final KeyEvent PRESS = new KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0);
+	private static final KeyEvent PRESS = new KeyEvent(InputConstants.KEY_RETURN, 0, 0);
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;
@@ -139,9 +136,9 @@ public final class RTFClientTest {
 					float[] spot = spots[i / 2];
 					if (i % 2 == 0) {
 						command(mc, String.format(java.util.Locale.ROOT, "tp @s %.1f %.1f %.1f %.1f %.1f", spot[0], spot[1], spot[2], spot[3], spot[4]));
-						next(500); // chunks around the new place are generated and rendered
+						next(Integer.getInteger("rtf.showcase.wait", 500)); // chunks around the new place are generated and rendered (far ones too, with Distant Horizons)
 					} else {
-						shoot(mc, NAMES[i / 2]);
+						shoot(mc, names[i / 2]);
 						next(20);
 					}
 				} else {
@@ -152,7 +149,7 @@ public final class RTFClientTest {
 		}
 	}
 
-	private static final String[] NAMES = { "mountains", "desert", "river", "overview", "village" };
+	private static String[] names = { "mountains", "desert", "river", "overview", "village" };
 
 	private static void next(int ticks) {
 		step++;
@@ -236,7 +233,67 @@ public final class RTFClientTest {
 			RTFCommon.LOGGER.info("[RTF clienttest] village at {} {} {}", villagePos.getX(), vy, villagePos.getZ());
 			village = lookAt(villagePos.getX(), vy, villagePos.getZ(), 70, 40);
 		}
+		if (SHOWCASE) {
+			return showcaseSpots(level, spawn, mountains, overview, village);
+		}
 		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village };
+	}
+
+	// the README pictures: the landscapes of the world, each where it is nearest to the spawn
+	private static float[][] showcaseSpots(ServerLevel level, BlockPos spawn, float[] mountains, float[] overview, float[] village) {
+		java.util.List<String> shotNames = new java.util.ArrayList<>();
+		java.util.List<float[]> shots = new java.util.ArrayList<>();
+		shotNames.add("mountains");
+		shots.add(mountains);
+		Object[][] biomes = {
+			{ "valley", Biomes.MEADOW }, { "cherry-grove", Biomes.CHERRY_GROVE }, { "flower-forest", Biomes.FLOWER_FOREST },
+			{ "jungle", Biomes.JUNGLE }, { "badlands", Biomes.WOODED_BADLANDS }, { "snowy-taiga", Biomes.SNOWY_TAIGA },
+			{ "swamp", Biomes.SWAMP }, { "desert", Biomes.DESERT }, { "coast", Biomes.BEACH }, { "river", Biomes.RIVER }
+		};
+		for (Object[] biome : biomes) {
+			@SuppressWarnings("unchecked")
+			float[] spot = biomeSpot(level, spawn, (ResourceKey<Biome>) biome[1]);
+			if (spot != null) {
+				shotNames.add((String) biome[0]);
+				shots.add(spot);
+			}
+		}
+		float[] lake = lakeSpot(level, spawn);
+		if (lake != null) {
+			shotNames.add("lake");
+			shots.add(lake);
+		}
+		shotNames.add("overview");
+		shots.add(overview);
+		shotNames.add("village");
+		shots.add(village);
+		names = shotNames.toArray(String[]::new);
+		return shots.toArray(float[][]::new);
+	}
+
+	// the nearest lake of the mod's rivermaps (lakes have no biome of their own)
+	private static float[] lakeSpot(ServerLevel level, BlockPos spawn) {
+		if (!((Object) level.getChunkSource().randomState() instanceof raccoonman.reterraforged.world.worldgen.RTFRandomState state) || state.generatorContext() == null) {
+			return null;
+		}
+		var lookup = state.generatorContext().lookup;
+		raccoonman.reterraforged.world.worldgen.cell.Cell cell = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+		for (int r = 0; r <= 3000; r += 48) {
+			for (int dx = -r; dx <= r; dx += 48) {
+				for (int dz = -r; dz <= r; dz += 48) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r) continue;
+					int x = spawn.getX() + dx, z = spawn.getZ() + dz;
+					lookup.applyCell(cell.reset(), x, z, false);
+					if (cell.terrain == raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType.LAKE) {
+						int y = level.getSeaLevel();
+						RTFCommon.LOGGER.info("[RTF clienttest] lake at {} {} {}", x, y, z);
+						return lookAt(x, y, z, 110, 22);
+					}
+				}
+			}
+		}
+		RTFCommon.LOGGER.warn("[RTF clienttest] no lake found");
+		return null;
 	}
 
 	private static float[] biomeSpot(ServerLevel level, BlockPos origin, ResourceKey<Biome> biome) {
