@@ -206,7 +206,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 
 	        this.updateLegend(mx, my);
 
-	        this.renderLegend(guiGraphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFF);
+	        this.renderLegend(guiGraphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFFFF);
 	    }
 	
 	    @Override
@@ -356,7 +356,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        pose.popPose();
 	
 	        if (!this.hoveredCoords.isEmpty()) {
-	        	guiGraphics.drawCenteredString(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFF);
+	        	guiGraphics.drawCenteredString(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFFFF);
 	        }
 	    }
 	
