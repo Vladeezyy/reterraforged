@@ -130,12 +130,12 @@ public final class RTFSelfTest {
 	private void overworld(ServerLevel level) {
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		check("overworld uses the ReTerraForged generator", rtf);
-		// the preset's biome modifiers are applied: the forest has the mod's oak and birch trees instead of vanilla's
-		// (on NeoForge they were left out of the preset datapack, and every tree was vanilla)
+		// the preset's biome modifiers are applied: the forest has the mod's trees instead of vanilla's (on NeoForge
+		// they were left out of the preset datapack, and every tree was vanilla)
 		List<String> trees = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST).getGenerationSettings().features().stream()
 			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
-			.filter((id) -> id.startsWith(RTFCommon.MOD_ID + ":oak/") || id.startsWith(RTFCommon.MOD_ID + ":birch/")).toList();
-		check("the forest grows ReTerraForged trees " + trees, !trees.isEmpty());
+			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
+		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
 
 		// relief: surface heights over a 6 x 6 km area from the generator itself (no chunks are built for this)
 		var gen = level.getChunkSource().getGenerator();
