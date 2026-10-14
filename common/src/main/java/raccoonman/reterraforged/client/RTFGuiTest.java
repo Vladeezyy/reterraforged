@@ -234,11 +234,12 @@ public final class RTFGuiTest {
 		} else {
 			fail("the new world is not built by ReTerraForged (vanilla generator)");
 		}
-		// the preset's trees and other features are in the biomes
+		// the preset's trees replace the vanilla ones in the biomes
 		Biome forest = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST);
-		long features = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).filter((key) -> key.toString().contains("reterraforged:")).count();
-		log("ReTerraForged features in the forest: {}", features);
-		if (features == 0) fail("no ReTerraForged features (trees) in the forest of the new world");
+		List<String> trees = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream)
+			.map((key) -> key.identifier().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
+		log("trees in the forest: {}", trees);
+		if (!trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees"))) fail("the forest of the new world does not grow ReTerraForged trees: " + trees);
 	}
 
 	private static void finish(Minecraft mc) {
