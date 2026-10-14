@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.client.gui.screen.page;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,12 +17,19 @@ public abstract class LinkedPageScreen extends Screen {
 				  cancelButton,
 				  doneButton;
 	protected Page currentPage;
+	// how far each page was scrolled when it was left, so "<<" and ">>" come back to the same place on it
+	private final Map<Class<?>, Double> scrolls = new HashMap<>();
 	
 	protected LinkedPageScreen() {
 		super(CommonComponents.EMPTY);
 	}
 	
+	public Page getCurrentPage() {
+		return this.currentPage;
+	}
+
 	public void setPage(Page page) {
+		this.scrolls.put(this.currentPage.getClass(), this.currentPage.getScroll());
 		this.currentPage.onClose();
 		this.currentPage = page;
 		this.rebuildWidgets();
@@ -56,6 +65,7 @@ public abstract class LinkedPageScreen extends Screen {
 		}).bounds(buttonsCenter + buttonPad, buttonsRow, buttonWidth, buttonHeight).build();
 		
 		this.currentPage.init();
+		this.currentPage.setScroll(this.scrolls.getOrDefault(this.currentPage.getClass(), 0.0));
 
 		// these must be overlayed onto the current page
 		this.addRenderableOnly(new Label(16, 10, 20, 20, this.currentPage.title()));
@@ -88,6 +98,13 @@ public abstract class LinkedPageScreen extends Screen {
 		}
 		
 		default void onDone() {
+		}
+
+		default double getScroll() {
+			return 0.0;
+		}
+
+		default void setScroll(double scroll) {
 		}
 	}
 }

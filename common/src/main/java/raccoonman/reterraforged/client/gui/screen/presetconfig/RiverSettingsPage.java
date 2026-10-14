@@ -230,7 +230,8 @@ class RiverSettingsPage extends PresetEditorPage {
 
 	@Override
 	public Optional<Page> previous() {
-		return Optional.of(new TerrainSettingsPage(this.screen, this.preset));
+		// the page before is the islands page (">>" goes terrain, fake water biomes, islands, rivers); "<<" skipped two
+		return Optional.of(new IslandSettingsPage(this.screen, this.preset));
 	}
 
 	@Override

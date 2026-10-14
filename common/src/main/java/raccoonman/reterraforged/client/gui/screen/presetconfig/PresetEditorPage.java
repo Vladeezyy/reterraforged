@@ -59,6 +59,10 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		this.preset = preset;
 	}
 	
+	public PresetEntry getPreset() {
+		return this.preset;
+	}
+
 	protected void regenerate() {
 		this.preview.regenerate();
 	}
