@@ -97,7 +97,7 @@ public final class RTFStructureTest {
 		int found = 0, villages = 0;
 		long start = System.nanoTime();
 		for (Target target : TARGETS) {
-			String name = target.key().location().getPath();
+			String name = target.key().identifier().getPath();
 			Optional<Holder.Reference<Structure>> holder = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(target.key());
 			if (holder.isEmpty()) {
 				missing.add(name);
