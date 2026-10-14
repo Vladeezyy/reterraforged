@@ -3,6 +3,7 @@ package raccoonman.reterraforged.server;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -11,12 +12,16 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -125,6 +130,12 @@ public final class RTFSelfTest {
 	private void overworld(ServerLevel level) {
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		check("overworld uses the ReTerraForged generator", rtf);
+		// the preset's biome modifiers are applied: the forest has the mod's oak and birch trees instead of vanilla's
+		// (on NeoForge they were left out of the preset datapack, and every tree was vanilla)
+		List<String> trees = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST).getGenerationSettings().features().stream()
+			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
+			.filter((id) -> id.startsWith(RTFCommon.MOD_ID + ":oak/") || id.startsWith(RTFCommon.MOD_ID + ":birch/")).toList();
+		check("the forest grows ReTerraForged trees " + trees, !trees.isEmpty());
 
 		// relief: surface heights over a 6 x 6 km area from the generator itself (no chunks are built for this)
 		var gen = level.getChunkSource().getGenerator();

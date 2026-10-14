@@ -10,6 +10,7 @@ import com.mojang.serialization.MapCodec;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -21,6 +22,20 @@ public class BiomeModifiers {
 	
 	@ExpectPlatform
 	public static void bootstrap() {
+		throw new UnsupportedOperationException();
+	}
+
+	// the namespace of the registries the modifiers are kept in: "neoforge" on NeoForge, whose own registries they go
+	// in (NeoForge applies them to the biomes), "forge" on Fabric, where the mod makes them (as in the 1.20 Forge
+	// version; MixinBiomeModificationImpl applies them)
+	@ExpectPlatform
+	public static String registryNamespace() {
+		throw new UnsupportedOperationException();
+	}
+
+	// the registry of the modifier types: NeoForge's on NeoForge, a new one on Fabric
+	@ExpectPlatform
+	public static Registry<MapCodec<? extends BiomeModifier>> typeRegistry() {
 		throw new UnsupportedOperationException();
 	}
 
