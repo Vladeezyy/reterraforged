@@ -54,7 +54,7 @@ import raccoonman.reterraforged.world.worldgen.RTFRandomState;
  */
 public final class RTFGuiTest {
 	private static final List<String> EXPECTED_PAGES = List.of("WorldSettingsPage", "SurfaceSettingsPage", "CaveSettingsPage", "ClimateSettingsPage", "TerrainSettingsPage", "FakeWaterBiomeSettingsPage", "IslandSettingsPage", "RiverSettingsPage", "FilterSettingsPage", "StructureSettingsPage", "MiscellaneousPage");
-	private static final List<String> FAILURES = new ArrayList<>();
+	static final List<String> FAILURES = new ArrayList<>();
 	private static final List<String> PAGES = new ArrayList<>();
 	private static final Map<String, Double> SCROLLS = new HashMap<>();
 	private static int step;
@@ -253,35 +253,35 @@ public final class RTFGuiTest {
 		wait = ticks;
 	}
 
-	private static void fail(String message) {
+	static void fail(String message) {
 		FAILURES.add(message);
 		RTFCommon.LOGGER.error("[RTF clienttest] FAIL {}", message);
 	}
 
-	private static void log(String message, Object... args) {
+	static void log(String message, Object... args) {
 		RTFCommon.LOGGER.info("[RTF clienttest] " + message, args);
 	}
 
-	private static void shoot(Minecraft mc, String name) {
+	static void shoot(Minecraft mc, String name) {
 		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
 		});
 		shot++;
 	}
 
-	private static String name(@Nullable Screen screen) {
+	static String name(@Nullable Screen screen) {
 		return screen == null ? "none" : screen.getClass().getSimpleName();
 	}
 
-	private static String page(Minecraft mc) {
+	static String page(Minecraft mc) {
 		return mc.screen instanceof LinkedPageScreen screen ? screen.getCurrentPage().getClass().getSimpleName() : name(mc.screen);
 	}
 
-	private static Preset preset(Minecraft mc) {
+	static Preset preset(Minecraft mc) {
 		return ((PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage()).getPreset().getPreset();
 	}
 
 	// the preset in the worldgen registries the create world screen will make the world with
-	private static Optional<Preset> appliedPreset(Minecraft mc) {
+	static Optional<Preset> appliedPreset(Minecraft mc) {
 		if (!(mc.screen instanceof CreateWorldScreen screen)) return Optional.empty();
 		return screen.getUiState().getSettings().worldgenLoadContext().lookup(RTFRegistries.PRESET).flatMap((registry) -> registry.get(Preset.KEY)).map(Holder::value);
 	}
@@ -304,23 +304,23 @@ public final class RTFGuiTest {
 		}
 	}
 
-	private static boolean hasKey(AbstractWidget widget, String key) {
+	static boolean hasKey(AbstractWidget widget, String key) {
 		return widget.getMessage().getContents() instanceof TranslatableContents contents && contents.getKey().equals(key);
 	}
 
-	private static boolean startsWith(AbstractWidget widget, String key) {
+	static boolean startsWith(AbstractWidget widget, String key) {
 		return widget.getMessage().getString().startsWith(I18n.get(key));
 	}
 
 	// a mouse click (press and release) at a point of the first visible widget that matches, x at the given fraction
-	private static boolean click(Minecraft mc, Predicate<AbstractWidget> predicate, double fraction) {
+	static boolean click(Minecraft mc, Predicate<AbstractWidget> predicate, double fraction) {
 		AbstractWidget widget = find(mc.screen, predicate);
 		if (widget == null) return false;
 		click(mc, widget, fraction);
 		return true;
 	}
 
-	private static void click(Minecraft mc, AbstractWidget widget, double fraction) {
+	static void click(Minecraft mc, AbstractWidget widget, double fraction) {
 		double x = widget.getX() + widget.getWidth() * fraction;
 		double y = widget.getY() + widget.getHeight() / 2.0;
 		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.screen));
@@ -332,7 +332,7 @@ public final class RTFGuiTest {
 	}
 
 	@Nullable
-	private static AbstractWidget find(@Nullable GuiEventListener parent, Predicate<AbstractWidget> predicate) {
+	static AbstractWidget find(@Nullable GuiEventListener parent, Predicate<AbstractWidget> predicate) {
 		if (parent instanceof ContainerEventHandler container) {
 			for (GuiEventListener child : container.children()) {
 				if (child instanceof AbstractWidget widget && widget.visible && predicate.test(widget)) return widget;
@@ -343,7 +343,7 @@ public final class RTFGuiTest {
 		return null;
 	}
 
-	private static void command(Minecraft mc, String command) {
+	static void command(Minecraft mc, String command) {
 		MinecraftServer server = mc.getSingleplayerServer();
 		server.execute(() -> {
 			ServerPlayer player = server.getPlayerList().getPlayer(mc.player.getUUID());

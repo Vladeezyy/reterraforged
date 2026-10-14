@@ -58,8 +58,10 @@ public final class RTFClientTest {
 	public static void tick(Minecraft mc) {
 		if (WORLD == null || WORLD.isEmpty()) return;
 		try {
-			// tools/clienttest.sh <loader> gui: a world made through the screens with mouse clicks (RTFGuiTest)
+			// tools/clienttest.sh <loader> gui|widgets: a world made through the screens with mouse clicks (RTFGuiTest),
+			// every widget of the settings pages used (RTFWidgetTest)
 			if (WORLD.equals("gui")) RTFGuiTest.tick(mc);
+			else if (WORLD.equals("widgets")) RTFWidgetTest.tick(mc);
 			else run(mc);
 		} catch (Throwable t) {
 			RTFCommon.LOGGER.error("[RTF clienttest] failed", t);

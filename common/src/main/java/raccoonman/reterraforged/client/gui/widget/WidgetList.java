@@ -32,6 +32,16 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     	}
     }
     
+    // scrolls the list so the widget is shown (its position is set when it is drawn next)
+    public void reveal(T widget) {
+    	for(Entry<T> entry : this.children()) {
+    		if(entry.widget == widget) {
+    			this.scrollToEntry(entry);
+    			return;
+    		}
+    	}
+    }
+
     public <W extends T> W addWidget(W widget) {
         super.addEntry(new Entry<>(widget));
         return widget;
