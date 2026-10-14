@@ -73,9 +73,12 @@ class MixinNoiseChunk {
 		this.chunkX = SectionPos.blockToSectionCoord(minBlockX);
 		this.chunkZ = SectionPos.blockToSectionCoord(minBlockZ);
 		GeneratorContext generatorContext;
-		// Base-height and base-column queries use a one-cell NoiseChunk but still
-		// require the same block-resolution Tile data as full chunk generation.
-		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
+		// Base-height and base-column queries use a one-cell NoiseChunk. The 1.21.1 port gives them the tile of the
+		// chunk too (heights with erosion, as the chunk gets them); that is a whole tile for every place asked about,
+		// and /locate, explorer maps and dolphins (thousands of places) took minutes. ReTerraForged 0.0.6 reads the
+		// cells of those places directly (CellSampler.Cache2d).
+		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null
+			&& (cellCountXZ > 1 || !generatorContext.preset.miscellaneous().originalGeneration)) {
 			if(C2ME_PRESENT) {
 				generatorContext.cache.queueAtChunk(this.chunkX, this.chunkZ);
 			}
