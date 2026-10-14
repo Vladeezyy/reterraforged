@@ -24,9 +24,12 @@ public class AdvancedContinentGenerator extends AbstractContinent implements Sim
     protected Domain warp;
     protected Noise cliffNoise;
     protected Noise bayNoise;
-    
+    // the generation of ReTerraForged 0.0.6 (MiscellaneousSettings.originalGeneration)
+    protected boolean original;
+
     public AdvancedContinentGenerator(Seed seed, GeneratorContext context) {
         super(seed, context);
+        this.original = context.preset.miscellaneous().originalGeneration;
         WorldSettings settings = context.preset.world();
         int tectonicScale = settings.continent.continentScale * 4;
         this.frequency = 1.0F / tectonicScale;
@@ -96,13 +99,21 @@ public class AdvancedContinentGenerator extends AbstractContinent implements Sim
             }
         }
         cell.continentDistance = NoiseUtil.sqrt(nearest);
-        cell.continentX = this.getCorrectedContinentCenter(cellPointX, sumX / 8.0F);
-        cell.continentZ = this.getCorrectedContinentCenter(cellPointY, sumY / 8.0F);
+        // the 1.21.1 port gives the cells of skipped continents (open ocean) their continent's center too, and with it
+        // that continent's rivermap; ReTerraForged 0.0.6 leaves them at 0, 0
+        if (!this.original) {
+            cell.continentX = this.getCorrectedContinentCenter(cellPointX, sumX / 8.0F);
+            cell.continentZ = this.getCorrectedContinentCenter(cellPointY, sumY / 8.0F);
+        }
         if (this.shouldSkip(cellX, cellY)) {
             return;
         }
         cell.continentId = AbstractContinent.getCellValue(this.seed, cellX, cellY);
         cell.continentEdge = this.getDistanceValue(x, y, cellX, cellY, nearest);
+        if (this.original) {
+            cell.continentX = this.getCorrectedContinentCenter(cellPointX, sumX / 8.0F);
+            cell.continentZ = this.getCorrectedContinentCenter(cellPointY, sumY / 8.0F);
+        }
     }
     
     @Override

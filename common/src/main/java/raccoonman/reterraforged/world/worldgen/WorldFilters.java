@@ -26,7 +26,7 @@ public class WorldFilters {
         this.settings = context.preset.filters();
         this.beach = BeachDetect.make(context);
         this.smoothing = Smoothing.make(context.preset.filters().smoothing, context.levels);
-        this.steepness = Steepness.make(1, 10.0F, context.levels);
+        this.steepness = Steepness.make(1, 10.0F, context.levels, context.preset.miscellaneous().originalGeneration);
         this.corrections = new NoiseCorrection(context.levels);
         this.erosion = new WorldErosion<>(factory, (e, size) -> e.getSize() == size);
         this.erosionIterations = context.preset.filters().erosion.dropletsPerChunk;
