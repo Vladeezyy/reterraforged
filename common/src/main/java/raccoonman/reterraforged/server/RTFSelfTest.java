@@ -26,9 +26,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
+import raccoonman.reterraforged.data.worldgen.preset.PresetStructureSets;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
+import raccoonman.reterraforged.data.worldgen.preset.settings.StructureSettings;
 import raccoonman.reterraforged.server.stress.RTFEffectTest;
 import raccoonman.reterraforged.server.stress.RTFStressTest;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -54,6 +59,10 @@ public final class RTFSelfTest {
 		if (!enabled()) return;
 		dispatcher.register(Commands.literal("rtf").requires(s -> s.hasPermission(4)).then(Commands.literal("selftest").executes(ctx -> {
 			String result = new RTFSelfTest().run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("structures").executes(ctx -> {
+			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
 		})).then(Commands.literal("exportpreset").executes(ctx -> {
@@ -141,6 +150,13 @@ public final class RTFSelfTest {
 			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
 			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
+		// the structure page reaches the world: a preset with other village spacing, separation and salt makes a
+		// datapack whose villages have them
+		Preset spaced = Presets.makeDefault();
+		StructureSettings.StructureSetEntry villages = new StructureSettings.StructureSetEntry(21, 9, -12345, false);
+		spaced.structures().entries.put(BuiltinStructureSets.VILLAGES, villages);
+		StructureSet set = spaced.buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS)).lookupOrThrow(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES).value();
+		check("the structure page sets the villages' spacing, separation and salt", PresetStructureSets.matches(set, villages));
 
 		// relief: surface heights over a 6 x 6 km area from the generator itself (no chunks are built for this)
 		var gen = level.getChunkSource().getGenerator();

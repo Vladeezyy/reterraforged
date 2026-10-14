@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -145,7 +146,7 @@ public final class RTFClientTest {
 		}
 	}
 
-	private static final String[] NAMES = { "mountains", "desert", "river", "overview" };
+	private static final String[] NAMES = { "mountains", "desert", "river", "overview", "village" };
 
 	private static void next(int ticks) {
 		step++;
@@ -221,7 +222,15 @@ public final class RTFClientTest {
 		float[] river = biomeSpot(level, spawn, Biomes.RIVER);
 		int sy = gen.getBaseHeight(spawn.getX(), spawn.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
 		float[] overview = { spawn.getX(), Math.min(sy + (SHOWCASE ? 40 : 80), level.getMaxBuildHeight() - 10), spawn.getZ() + 160, 180, SHOWCASE ? 12 : 30 };
-		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview };
+		// the nearest village, from above: its houses on the terrain and its streets
+		float[] village = overview;
+		BlockPos villagePos = level.findNearestMapStructure(StructureTags.VILLAGE, spawn, 100, false);
+		if (villagePos != null) {
+			int vy = gen.getBaseHeight(villagePos.getX(), villagePos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, level, rs);
+			RTFCommon.LOGGER.info("[RTF clienttest] village at {} {} {}", villagePos.getX(), vy, villagePos.getZ());
+			village = lookAt(villagePos.getX(), vy, villagePos.getZ(), 70, 40);
+		}
+		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village };
 	}
 
 	private static float[] biomeSpot(ServerLevel level, BlockPos origin, ResourceKey<Biome> biome) {
