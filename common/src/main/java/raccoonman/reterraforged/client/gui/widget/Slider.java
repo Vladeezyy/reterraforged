@@ -27,10 +27,8 @@ public class Slider extends AbstractSliderButton {
         this.updateMessage();
     }
     
-    public void setValue(double value) {
-    	this.value = value;
-    }
-    
+    // no setValue here: since 1.21.11 that overrides AbstractSliderButton's (no longer private), which the mouse and
+    // the arrow keys go through, and then the slider moved without applyValue, so no setting changed at all
     public double getValue() {
     	return this.value;
     }
@@ -68,19 +66,20 @@ public class Slider extends AbstractSliderButton {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(CommonComponents.optionNameValue(this.name, Component.literal(this.format.getMessage(this.scaleValue((float) this.value)))));
+        this.setMessage(CommonComponents.optionNameValue(this.name, Component.literal(this.format.getMessage(this.scaleValue(this.value)))));
     }
     
     public static enum Format {
     	INT {
 			@Override
+			// rounded: the slider position of 3000 on 100 .. 10000 lerps back to 2999.99..., which was cut to 2999
 			public double scale(double input) {
-				return (int) input;
+				return Math.round(input);
 			}
 
 			@Override
 			public String getMessage(double input) {
-				return String.valueOf((int) input);
+				return String.valueOf(Math.round(input));
 			}
 		},
     	FLOAT {

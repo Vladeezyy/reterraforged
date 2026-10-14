@@ -2,6 +2,9 @@ package raccoonman.reterraforged.client.gui.widget;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,6 +16,8 @@ import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
 
 public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelectionList<WidgetList.Entry<T>> {
 	private boolean renderSelected;
+	@Nullable
+	private Consumer<T> onSelect;
 	
     public WidgetList(Minecraft minecraft, int i, int j, int k, int l) {
         super(minecraft, i, j, k, l);
@@ -34,6 +39,19 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
 
     public void setRenderSelected(boolean renderSelected) {
     	this.renderSelected = renderSelected;
+    }
+
+    // called with the selected widget (or null) on every selection change: a click, the arrow keys, from code
+    public void onSelect(Consumer<T> onSelect) {
+    	this.onSelect = onSelect;
+    }
+
+    @Override
+    public void setSelected(@Nullable Entry<T> entry) {
+        super.setSelected(entry);
+        if (this.onSelect != null) {
+            this.onSelect.accept(entry != null ? entry.getWidget() : null);
+        }
     }
 
     @Override
@@ -80,10 +98,19 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
+    // ContainerObjectSelectionList never draws its selection, so the preset list did not show which preset was picked
     @Override
-    protected void renderSelection(GuiGraphics guiGraphics, Entry<T> entry, int color) {
-        if (this.renderSelected) {
-            super.renderSelection(guiGraphics, entry, color);
+    protected boolean entriesCanBeSelected() {
+        return this.renderSelected;
+    }
+
+    // and it drops the selection with the focus, on a click on any button next to the list
+    @Override
+    public void setFocused(@Nullable GuiEventListener listener) {
+        Entry<T> selected = this.getSelected();
+        super.setFocused(listener);
+        if (listener == null && this.renderSelected) {
+            this.setSelected(selected);
         }
     }
 

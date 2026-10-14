@@ -58,9 +58,19 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private Button copyPreset;
 	private Button openPresetFolder;
 	private Button openExportFolder;
+	// selected when the list is shown: the preset whose settings pages "<<" came back from
+	@Nullable
+	private String selectName;
+	@Nullable
+	private PresetEntry selected;
 	
 	public PresetListPage(PresetConfigScreen screen) {
+		this(screen, null);
+	}
+
+	public PresetListPage(PresetConfigScreen screen, @Nullable String selectName) {
 		super(screen);
+		this.selectName = selectName;
 		
 		try {
 			if(!Files.exists(PRESET_PATH)) Files.createDirectory(PRESET_PATH);
@@ -93,7 +103,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		});
 		this.createPreset.active = this.isValidPresetName(this.input.getValue());
 		this.copyPreset = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_COPY, () -> {
-			PresetEntry preset = this.left.getSelected().getWidget();
+			PresetEntry preset = this.screen.editable(this.left.getSelected().getWidget());
 			String name = preset.getName().getString();
 			int counter = 1;
 			String uniqueName;
@@ -117,7 +127,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			this.rebuildPresets();
 		});
 		this.exportAsDatapack = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_EXPORT_AS_DATAPACK, () -> {
-			PresetEntry preset = this.left.getSelected().getWidget();
+			PresetEntry preset = this.screen.editable(this.left.getSelected().getWidget());
 			Path path = EXPORT_PATH.resolve(preset.getName().getString() + ".zip");
 			this.screen.exportAsDatapack(path, preset);
 			this.rebuildPresets();
@@ -134,6 +144,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		this.right.addWidget(this.exportAsDatapack);
 		
 		this.left.setRenderSelected(true);
+		this.left.onSelect(this::selectPreset);
 		
 		try {
 			this.rebuildPresets();
@@ -150,11 +161,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	@Override
 	public Optional<Page> next() {
 		return Optional.ofNullable(this.left).map(WidgetList::getSelected).map((e) -> {
-			PresetEntry entry = e.getWidget();
-			if(entry.isBuiltin()) {
-				entry = new PresetEntry(entry.name, entry.preset.copy(), true, (b) -> {});
-			}
-			return new WorldSettingsPage(this.screen, entry);
+			return new WorldSettingsPage(this.screen, this.screen.editable(e.getWidget()));
 		});
 	}
 	
@@ -165,7 +172,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		Entry<PresetEntry> selected = this.left.getSelected();
 		if(selected != null) {
 			try {
-				this.screen.applyPreset(selected.getWidget());
+				this.screen.applyPreset(this.screen.editable(selected.getWidget()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -173,6 +180,14 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	}
 	
 	private void selectPreset(@Nullable PresetEntry entry) {
+		// the selected preset is drawn yellow with a marker (and framed by the list): nothing showed which one it was
+		if(this.selected != null) {
+			this.selected.setMessage(this.selected.getName());
+		}
+		this.selected = entry;
+		if(entry != null) {
+			entry.setMessage(Component.literal("» ").append(entry.getName().copy().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.YELLOW));
+		}
 		boolean active = entry != null;
 		
 		this.screen.doneButton.active = active;
@@ -196,6 +211,15 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LITE_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyLite(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_VANILLAISH_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyVanillaish(), true, this));
 		this.left.replaceEntries(entries.stream().map(WidgetList.Entry::new).toList());
+		if(this.selectName != null) {
+			for(Entry<PresetEntry> entry : this.left.children()) {
+				if(entry.getWidget().getName().getString().equals(this.selectName)) {
+					this.left.setSelected(entry);
+					this.selectPreset(entry.getWidget());
+					break;
+				}
+			}
+		}
 	}
 	
 	private boolean isValidPresetName(String text) {
