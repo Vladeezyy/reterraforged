@@ -7,6 +7,9 @@ public class Terrain implements ITerrain.Delegate {
     private String name;
     private TerrainCategory type;
     private ITerrain delegate;
+    // the delegate's erosion modifier, fixed once the terrain is made: the erosion filter asks for it at every step of
+    // every droplet, and following the delegate there each time was a noticeable part of the generation time
+    private final float erosionModifier;
     
     Terrain(int id, String name, Terrain terrain) {
         this(id, name, terrain.getCategory(), terrain);
@@ -21,6 +24,7 @@ public class Terrain implements ITerrain.Delegate {
         this.name = name;
         this.type = type;
         this.delegate = delegate;
+        this.erosionModifier = delegate.erosionModifier();
     }
     
     public int getId() {
@@ -37,6 +41,11 @@ public class Terrain implements ITerrain.Delegate {
     
     public float getRenderHue() {
         return NoiseUtil.valCoord2D(this.name.hashCode(), 0, 0);
+    }
+    
+    @Override
+    public float erosionModifier() {
+        return this.erosionModifier;
     }
     
     @Override

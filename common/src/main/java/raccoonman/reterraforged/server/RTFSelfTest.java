@@ -68,7 +68,15 @@ public final class RTFSelfTest {
 			String result = new RTFSelfTest().run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})).then(Commands.literal("structures").executes(ctx -> {
+		})).then(Commands.literal("bench").executes(ctx -> {
+			String result = RTFBench.start(ctx.getSource().getServer(), 32);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("size", IntegerArgumentType.integer(1, 128)).executes(ctx -> {
+			String result = RTFBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "size"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("structures").executes(ctx -> {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
