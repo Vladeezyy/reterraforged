@@ -20,16 +20,20 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
+import raccoonman.reterraforged.data.worldgen.preset.PresetConfiguredFeatures;
 import raccoonman.reterraforged.data.worldgen.preset.PresetStructureSets;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
@@ -199,6 +203,38 @@ public final class RTFSelfTest {
 		var below = level.getBlockState(new BlockPos(spawn.getX(), sy - 1, spawn.getZ()));
 		check("spawn is on dry land (" + spawn.getX() + ", " + sy + ", " + spawn.getZ() + ": " + below.getBlock().getName().getString() + ")",
 				below.getFluidState().isEmpty() && !below.isAir());
+
+		// bee nests grow on the mod's trees (their decorator was never used, those biomes had no bees): a meadow tree,
+		// which always has one, grown on a grass block near the spawn (the spawn may be in a desert)
+		Holder<ConfiguredFeature<?, ?>> meadowTree = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).getOrThrow(PresetConfiguredFeatures.MEADOW_TREE);
+		boolean nest = false;
+		for (int i = 0; i < 12 && !nest; i++) {
+			int x = spawn.getX() + 32 + i * 24, z = spawn.getZ() + 32;
+			for (int cx = (x >> 4) - 1; cx <= (x >> 4) + 1; cx++) for (int cz = (z >> 4) - 1; cz <= (z >> 4) + 1; cz++) full(level, cx, cz);
+			BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+			level.setBlock(ground.below(), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			if (meadowTree.value().place(level, level.getChunkSource().getGenerator(), RandomSource.create(i), ground)) {
+				nest = BlockPos.betweenClosedStream(ground.offset(-8, 0, -8), ground.offset(8, 20, 8)).anyMatch((p) -> level.getBlockState(p).is(Blocks.BEE_NEST));
+			}
+		}
+		check("bee nests grow on the mod's trees", nest);
+		// and saplings grown with bone meal next to flowers are Minecraft's own trees, with its 5 % chance of a nest: 200
+		// oak saplings, each with a poppy beside it, on grass blocks east of the spawn
+		int grown = 0, nests = 0;
+		for (int i = 0; i < 200; i++) {
+			int x = spawn.getX() + 400 + (i % 20) * 7, z = spawn.getZ() + (i / 20) * 7;
+			full(level, x >> 4, z >> 4);
+			BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+			level.setBlock(ground.below(), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			level.setBlock(ground.east(), Blocks.POPPY.defaultBlockState(), 3);
+			level.setBlock(ground.east().below(), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			level.setBlock(ground, Blocks.OAK_SAPLING.defaultBlockState(), 3);
+			if (TreeGrower.OAK.growTree(level, level.getChunkSource().getGenerator(), ground, level.getBlockState(ground), RandomSource.create(i))) {
+				grown++;
+				if (BlockPos.betweenClosedStream(ground.offset(-2, 0, -2), ground.offset(2, 12, 2)).anyMatch((p) -> level.getBlockState(p).is(Blocks.BEE_NEST))) nests++;
+			}
+		}
+		check("saplings grown next to flowers get bee nests (" + nests + " of " + grown + ")", grown >= 50 && nests > 0);
 
 		// a village exists and its start sits on the terrain, not floating or buried
 		BlockPos village = level.findNearestMapStructure(StructureTags.VILLAGE, BlockPos.ZERO, 100, false);

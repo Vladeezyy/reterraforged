@@ -31,6 +31,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TemplateDecorators;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
@@ -84,6 +85,9 @@ public class PresetConfiguredFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> STEPPE_BUSH = createKey("shrubs/steppe_bush");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> COLD_STEPPE_BUSH = createKey("shrubs/cold_steppe_bush");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> TAIGA_SCRUB_BUSH = createKey("shrubs/taiga_scrub_bush");
+
+	// a meadow's oak with a bee nest, as the vanilla meadow trees always have one
+	public static final ResourceKey<ConfiguredFeature<?, ?>> MEADOW_TREE = createKey("oak/meadow");
 
 	public static final ResourceKey<ConfiguredFeature<?, ?>> FOREST_GRASS = createKey("forest_grass");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_FOREST_GRASS = createKey("birch_forest_grass");
@@ -147,6 +151,7 @@ public class PresetConfiguredFeatures {
 			Holder<PlacedFeature> jungleBush = placedFeatures.getOrThrow(TreePlacements.JUNGLE_BUSH);
 
 			FeatureUtils.register(ctx, OAK_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_SMALL));
+			FeatureUtils.register(ctx, MEADOW_TREE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_SMALL, beeNest(1.0F), 3));
 			FeatureUtils.register(ctx, OAK_FOREST, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_FOREST));
 			FeatureUtils.register(ctx, OAK_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.OAK_LARGE));
 			FeatureUtils.register(ctx, BIRCH_SMALL, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.BIRCH_SMALL));
@@ -176,25 +181,32 @@ public class PresetConfiguredFeatures {
 			FeatureUtils.register(ctx, COLD_STEPPE_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.OAK_LEAVES, 0.05F, 0.075F, 0.6F));
 			FeatureUtils.register(ctx, TAIGA_SCRUB_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.SPRUCE_LEAVES, 0.05F, 0.075F, 0.6F));
 			
-			FeatureUtils.register(ctx, PLAINS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForest, List.of(
-				makeWeighted(0.2F, oakForest), 
-				makeWeighted(0.3F, oakLarge)
+			// bee nests, as on the vanilla trees these replace (plains 5 %, flower forests 2 %, forests and birch
+			// forests 0.2 %): the decorator was there but never used, not in 0.0.6 either, and those biomes had no bees
+			Holder<PlacedFeature> oakForestBees005 = makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.05F, Blocks.OAK_SAPLING);
+			Holder<PlacedFeature> oakLargeBees005 = makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.05F, Blocks.OAK_SAPLING);
+			FeatureUtils.register(ctx, PLAINS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForestBees005, List.of(
+				makeWeighted(0.2F, oakForestBees005), 
+				makeWeighted(0.3F, oakLargeBees005)
 			)));
-			FeatureUtils.register(ctx, FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForest, List.of(
-				makeWeighted(0.2F, oakForest), 
-				makeWeighted(0.3F, oakLarge)
+			Holder<PlacedFeature> oakForestBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.002F, Blocks.OAK_SAPLING);
+			Holder<PlacedFeature> oakLargeBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.002F, Blocks.OAK_SAPLING);
+			FeatureUtils.register(ctx, FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForestBees0002, List.of(
+				makeWeighted(0.2F, oakForestBees0002), 
+				makeWeighted(0.3F, oakLargeBees0002)
 			)));
-			FeatureUtils.register(ctx, FLOWER_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(birchForest, List.of(
-				makeWeighted(0.2F, birchForest), 
-				makeWeighted(0.2F, birchLarge), 
-				makeWeighted(0.2F, oakForest), 
-				makeWeighted(0.2F, oakLarge)
+			Holder<PlacedFeature> birchForestBees002 = makeTreeWithBees(PresetTemplatePaths.BIRCH_FOREST, 0.02F, Blocks.BIRCH_SAPLING);
+			FeatureUtils.register(ctx, FLOWER_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(birchForestBees002, List.of(
+				makeWeighted(0.2F, birchForestBees002), 
+				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.BIRCH_LARGE, 0.02F, Blocks.BIRCH_SAPLING)), 
+				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.02F, Blocks.OAK_SAPLING)), 
+				makeWeighted(0.2F, makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.02F, Blocks.OAK_SAPLING))
 			)));
 			FeatureUtils.register(ctx, BIRCH_TREES, RTFFeatures.CHANCE, makeChance(
-				makeChanceEntry(birchLarge, 0.2F, RTFChanceModifiers.elevation(0.25F, 0.0F), RTFChanceModifiers.biomeEdge(0.1F, 0.3F)),
-				makeChanceEntry(birchForest, 0.2F, RTFChanceModifiers.elevation(0.3F, 0.0F), RTFChanceModifiers.biomeEdge(0.05F, 0.2F)),
-				makeChanceEntry(birchSmall, 0.1F, RTFChanceModifiers.biomeEdge(0.25F, 0.0F)),
-				makeChanceEntry(birchSmall, 0.1F, RTFChanceModifiers.elevation(0.25F, 0.65F))
+				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_LARGE, 0.002F, Blocks.BIRCH_SAPLING), 0.2F, RTFChanceModifiers.elevation(0.25F, 0.0F), RTFChanceModifiers.biomeEdge(0.1F, 0.3F)),
+				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_FOREST, 0.002F, Blocks.BIRCH_SAPLING), 0.2F, RTFChanceModifiers.elevation(0.3F, 0.0F), RTFChanceModifiers.biomeEdge(0.05F, 0.2F)),
+				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.biomeEdge(0.25F, 0.0F)),
+				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.elevation(0.25F, 0.65F))
 			));
 			FeatureUtils.register(ctx, DARK_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(darkOakLarge, List.of(
 				makeWeighted(0.025F, hugeBrownMushroom),
@@ -279,6 +291,15 @@ public class PresetConfiguredFeatures {
 		return makeTree(templates, ImmutableList.of(), baseExtension);
 	}
 	
+	private static List<TemplateDecorator<TreeContext>> beeNest(float chance) {
+		return ImmutableList.of(TemplateDecorators.beeNest(chance));
+	}
+
+	// a tree of a biome's trees with its chance of a bee nest, placed where its sapling would grow
+	private static Holder<PlacedFeature> makeTreeWithBees(List<Identifier> templates, float chance, Block sapling) {
+		return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(RTFFeatures.TEMPLATE, makeTree(templates, beeNest(chance), 3))), ImmutableList.of(PlacementUtils.filteredByBlockSurvival(sapling))));
+	}
+
 	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates, List<TemplateDecorator<TreeContext>> decorators, int baseExtension) {
 		return new TemplateFeature.Config<>(templates, TemplatePlacements.tree(), new PasteConfig(baseExtension, false, true, false, false), new DecoratorConfig<>(decorators, ImmutableMap.of()));
 	}
