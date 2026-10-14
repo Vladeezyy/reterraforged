@@ -1,10 +1,11 @@
 #!/bin/bash
-# Stress test of the presets on a real dedicated server: tools/stresstest.sh [neoforge|fabric] [random variants]
+# Stress test of the presets on a real dedicated server: tools/stresstest.sh [neoforge|fabric] [random variants|abuse]
 # (after tools/servertest.sh for that loader, which installs the server). Starts the server with a throwaway world
 # and runs "rtf stress" (server/stress/RTFStressTest): every preset screen setting at both ends of its slider, every
 # built-in preset, all at minimum, all at maximum and random combinations, each through the preset codec, the
 # datapack registries of a new world, the preview and world tiles with every filter, with a time limit. Prints the
-# summary, the failures and the hangs. Settings table: tools/stresstable.py.
+# summary, the failures and the hangs. "abuse" instead: every number setting at values no slider gives (NaN,
+# infinities, negative, huge), as a broken preset file holds them. Settings table: tools/stresstable.py.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}

@@ -78,9 +78,25 @@ public final class RTFStressTest {
 	}
 
 	public static String run(MinecraftServer server, int randomCount) {
+		return run(server, variants(randomCount), TIME_LIMIT_SECONDS);
+	}
+
+	// "rtf stress abuse": every number setting at values no slider gives (NaN, infinities, negative, huge), as a
+	// broken or edited preset file can hold them; they must not crash, hang or leave NaN in the terrain
+	public static String runAbuse(MinecraftServer server) {
+		List<Variant> variants = new ArrayList<>();
+		for (Setting<?> setting : PresetStressTable.SETTINGS) {
+			for (Object value : setting.abuse()) {
+				Change change = new Change(setting, value);
+				variants.add(new Variant(change.toString(), Presets::makeRTFDefault, List.of(change)));
+			}
+		}
+		return run(server, variants, 30);
+	}
+
+	private static String run(MinecraftServer server, List<Variant> variants, long timeLimitSeconds) {
 		RegistryAccess registries = server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS);
-		List<Variant> variants = variants(randomCount);
-		RTFCommon.LOGGER.info("[RTF stress] {} variants, {} settings, time limit {} s each", variants.size(), PresetStressTable.SETTINGS.size(), TIME_LIMIT_SECONDS);
+		RTFCommon.LOGGER.info("[RTF stress] {} variants, {} settings, time limit {} s each", variants.size(), PresetStressTable.SETTINGS.size(), timeLimitSeconds);
 		Map<String, Integer> failures = new LinkedHashMap<>();
 		List<String> hangs = new ArrayList<>();
 		String slowest = "";
@@ -90,10 +106,10 @@ public final class RTFStressTest {
 		for (int i = 0; i < variants.size(); i++) {
 			Variant variant = variants.get(i);
 			long t0 = System.nanoTime();
-			Outcome outcome = runner.run(variant, TIME_LIMIT_SECONDS);
+			Outcome outcome = runner.run(variant, timeLimitSeconds);
 			if (outcome.hung()) {
 				hangs.add(variant.name());
-				RTFCommon.LOGGER.error("[RTF stress] HANG {} (over {} s)", variant.name(), TIME_LIMIT_SECONDS);
+				RTFCommon.LOGGER.error("[RTF stress] HANG {} (over {} s)", variant.name(), timeLimitSeconds);
 			} else if (outcome.problem() != null) {
 				fail(failures, variant, outcome.problem(), outcome.cause());
 				culprits(runner, variant);
