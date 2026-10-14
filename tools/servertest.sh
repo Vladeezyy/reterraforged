@@ -4,7 +4,8 @@
 # For each loader: installs the server (NeoForge installer / Fabric launcher, cached in run/) and copies the mod jar.
 # Pass 1: a throwaway world, "rtf exportpreset" writes the "Default" preset datapack (the same pack the in-game preset
 # screen exports). Pass 2: a fresh world with that datapack in world/datapacks, "rtf selftest" (the mod's test command,
-# enabled by -Drtf.selftest=true). Prints the result line and every error / exception the log contains.
+# enabled by -Drtf.selftest=true), then "rtf structures" (every overworld structure near the spawn, built and checked).
+# Prints the result lines and every error / exception the log contains.
 # PRESET=min|max|random:N exports a stress test preset instead of "Default" (tools/stressworld.sh).
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
@@ -117,14 +118,19 @@ for loader in $LOADERS; do
     echo "rtf selftest" >> "$dir/console.in"
     wait_for "$dir/console.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
     line=$(grep -o 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\).*' "$dir/console.log" | tail -1)
+    # every overworld structure near the spawn, built and checked (RTFStructureTest)
+    echo "rtf structures" >> "$dir/console.in"
+    wait_for "$dir/console.log" 'RTF structures\] \(PASS\|FAIL\)' 1200
+    structures=$(grep -o 'RTF structures\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-400)
     stop_server "$dir" console.log
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
     noise='io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
+    echo "  ${structures:-RTF structures] no result}"
     grep -E '/ERROR\]|Exception' "$dir/console.log" | grep -vE "$noise" | sed 's/^\[[0-9:]*\] //' | cut -c1-160 | sort | uniq -c | sort -rn | head -8
-    [[ "$line" == *"PASS all"* && "$errors" == 0 ]] || FAILS=$((FAILS+1))
+    [[ "$line" == *"PASS all"* && "$errors" == 0 && "$structures" == *"PASS"* ]] || FAILS=$((FAILS+1))
 done
 echo; [ $FAILS = 0 ] && echo "ALL PASS" || { echo "$FAILS FAILED"; exit 1; }
 exit 0
