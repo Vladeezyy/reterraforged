@@ -99,6 +99,232 @@ The structure page and the sliders that did nothing before now work (horizontal 
 badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) are shown as inactive. Presets read
 from files are held to valid values, and a broken file in the presets folder no longer crashes the game.
 
+## Problems and fixes in detail
+
+<details>
+<summary><b>Bee nests on the mod's trees</b> (0.0.12)</summary>
+
+**Problem.** ReTerraForged trees never had bee nests, neither in the port nor in the original 0.0.6. Plains, flower
+forests and meadows, where vanilla trees carry nests, had no bees at all.
+
+**Cause.** The mod's trees are templates, not vanilla trees. The vanilla bee nest decorator only places a nest just
+below the lowest leaves, and the templates have leaves all around the trunk there, so it never found a spot. On top of
+that, per-biome decorators were looked up by the registry name instead of the biome name.
+
+**Fix.** A bee nest decorator of its own for templates: the nest goes on the trunk, facing south, wherever there is
+room, with 2–3 bees. The chances are vanilla's: plains 5 %, flower forests 2 %, forests and birch forests 0.2 %,
+meadow trees always. Saplings next to flowers (bone-mealed ones too) get nests as usual. The self test checks both.
+
+</details>
+
+<details>
+<summary><b>26.x: the mod's trees did not grow</b> (0.0.12)</summary>
+
+**Problem.** On 26.1.2, 26.2 and 26.3 ReTerraForged trees almost never appeared and forests stood empty. On 26.x the
+erosion did not touch grassy slopes either.
+
+**Cause.** Two separate reasons. Since 26.1 Minecraft moved grass, podzol and mycelium out of the `#dirt` tag into
+`#grass_blocks`: the mod checked the soil with `#dirt`, so it did not place trees on grass, and the erosion did not
+consider grass erodible. Since 26.3 Minecraft reads blocks from NBT by the keys `id` and `properties` instead of `Name`
+and `Properties`: every block of the tree templates became air, and pasting a tree placed nothing.
+
+**Fix.** On 26.x the soil is checked with `#substrate_overworld`, which is exactly the old `#dirt`. The template
+palette is converted to the new format when read. The self test now checks that trunks really stand in the forest, not
+only that the biome lists the mod's trees: the old check passed while there were no trees.
+
+</details>
+
+<details>
+<summary><b>The generation differed from the original 0.0.6</b> (0.0.11–0.0.12)</summary>
+
+**Problem.** Worlds did not look like ReTerraForged: snowy peaks next to deserts, warm oceans right against deserts,
+different rivers and lakes, villages on mountains.
+
+**Cause.** The 1.21.1 port this fork started from changed the generation beyond what porting needed:
+- "Default" was replaced by an unfinished second preset;
+- a mountain region took a single biome from the climate at the region's center;
+- plains and hills had another weirdness (it picks biome variants);
+- rivers, lakes and wetlands faded out on high ground and in mountains;
+- structures were placed on mountains;
+- desert slopes turned into sandstone and terracotta;
+- bushes were added to several biomes;
+- cave biomes sat higher;
+- the surface used another random source.
+
+Comparing every class with the 0.0.6 source found two more: the slope gradient was no longer capped at 1 (rock and
+snow lay differently), and skipped continents in the open ocean got another continent's rivermap.
+
+**Fix.** All of it is back as in 0.0.6. The port's variant remains as the "Original Generation (0.0.6)" switch in
+Miscellaneous and as a separate preset at the end of the list. Worlds made with earlier versions of the fork keep their
+generation, with no seams between old and new chunks.
+
+</details>
+
+<details>
+<summary><b>NeoForge: the preset's trees did not appear</b> (0.0.10)</summary>
+
+**Problem.** On NeoForge a world with the preset grew vanilla trees instead of the mod's.
+
+**Cause.** The biome modifiers (tree replacement, forest grass, removing vanilla springs) were in the
+`forge:biome_modifier` registry. Forge had it, NeoForge does not, so the modifiers were silently never applied.
+
+**Fix.** On NeoForge the modifiers are in its own `neoforge:biome_modifier` registry.
+
+</details>
+
+<details>
+<summary><b>Preset screen: sliders, highlight, edits</b> (0.0.10)</summary>
+
+**Problem.**
+- On 1.21.11 and later no slider changed anything.
+- The selected preset was not highlighted.
+- A re-applied preset and edits of a built-in preset were lost.
+- "<<" on the rivers page skipped a page, and on the world page it went back to the top of the list.
+
+**Cause.**
+- In 1.21.11 the vanilla slider's `setValue` became protected, and the mod's method of the same name overrode it, so
+  values no longer reached the settings.
+- The preset list did not draw its selection and dropped it on a click on any button.
+- The create world screen did not apply a datapack with the same name a second time.
+
+**Fix.**
+- The sliders work on every version.
+- The selected preset is highlighted with a yellow "»".
+- Every applied preset gets its own datapack name, and edits of built-in presets are kept.
+- "Back" goes exactly one page back and returns to the selected preset.
+
+</details>
+
+<details>
+<summary><b>Sliders and pages that did nothing</b> (0.0.11)</summary>
+
+**Problem.** The structure page (spacing, separation, salt, disabled) had no effect, neither in the port nor in 0.0.6.
+The horizontal scale of hills, dales, plateaus, badlands and torridonian, and the base and vertical scale of volcanoes
+changed nothing.
+
+**Cause.** The structure settings never reached the world's datapack. Those terrains had their noise sizes hard-coded.
+
+**Fix.** Changed structure sets are written into the preset datapack. The terrain and volcano scales work, and at 1 the
+terrain is as before. Settings the generation does not use (nor did 0.0.6) are shown as inactive, with a tooltip.
+
+</details>
+
+<details>
+<summary><b>/locate, explorer maps and dolphins froze the server</b> (0.0.11)</summary>
+
+**Problem.** Finding a witch hut with `/locate` took more than 10 minutes. Explorer maps and dolphins froze the server.
+
+**Cause.** For every place checked (thousands of them) the port built a whole terrain tile with erosion, when a single
+height was needed.
+
+**Fix.** The height of a place is read straight from its cell, as in 0.0.6. Finding every vanilla structure around the
+spawn now takes about 40 seconds.
+
+</details>
+
+<details>
+<summary><b>A new world could not be created</b></summary>
+
+**Problem.** The game crashed right when creating a world with the preset.
+
+**Cause.** The upstream's last commit added a non-`private` static method to the `MixinNoiseChunk` mixin, which Mixin
+does not allow.
+
+**Fix.** The method moved to a separate class, `C2MECompat`.
+
+</details>
+
+<details>
+<summary><b>Fabric: hangs in the Nether, the End and on new chunks</b></summary>
+
+**Problem.** A Fabric server hung while generating the Nether and the End. Fabric singleplayer hung on new chunks with
+`Index -1 out of bounds`.
+
+**Cause.** The mod's erosion and snow features got into the biomes of other dimensions and threw an exception there,
+so the chunk never finished. Separately, Fabric did not rebuild the generator's feature list after the mod changed the
+biomes.
+
+**Fix.** Outside the ReTerraForged generator these features do nothing. The feature list is rebuilt after the biomes
+change.
+
+</details>
+
+<details>
+<summary><b>The preset screen crashed the game on 1.21.6+</b></summary>
+
+**Problem.** On 1.21.6 and later the preset screen crashed with `Can only blur once per frame` and lost all its text. In
+a small window the buttons were cut off.
+
+**Cause.** The screen drew its background again on top of the one Minecraft had already drawn, so the blur ran twice
+per frame, which 1.21.6 forbids. In a narrow window the right column shrank until the buttons did not fit.
+
+**Fix.** The background is drawn once, and the right column is at least 150 pixels wide.
+
+</details>
+
+<details>
+<summary><b>/reload did not reload the tree templates</b></summary>
+
+**Problem.** After `/reload` or a datapack change the tree templates stayed the old ones, everywhere except
+NeoForge 1.21.1.
+
+**Cause.** The reload hooked the internal name of a compiled Minecraft lambda, which changes from version to version.
+
+**Fix.** The templates are read again whenever the server's resource manager changes. Mixins tied to full constructor
+signatures were replaced by version-independent ones.
+
+</details>
+
+<details>
+<summary><b>The mod loaded on any Minecraft version</b></summary>
+
+**Problem.** A jar for one version loaded on another and crashed there with an unclear error. `neoforge.mods.toml` said
+the mod was version 0.0.6 instead of the real one.
+
+**Fix.** The metadata has exact Minecraft and loader version ranges. A wrong version is rejected at once with a clear
+message.
+
+</details>
+
+<details>
+<summary><b>Broken preset files and extreme values</b> (0.0.9–0.0.10)</summary>
+
+**Problem.** A foreign or damaged file in the presets folder crashed the game when the preset screen opened. Values no
+slider gives (for example, edited by hand) broke the world.
+
+**Fix.** A broken file is skipped with a message in the log, and the other presets load. Values from files are held to
+the slider ranges, while the built-in presets stay as they are.
+
+</details>
+
+<details>
+<summary><b>NaN terrain</b> (0.0.9)</summary>
+
+**Problem.** Some settings broke the terrain: holes down to bedrock or a flat world at sea level.
+
+**Cause.** A division by zero somewhere, and the resulting NaN spread through all later calculations. This happened
+with a horizontal scale of zero, equal ocean/land transition points, rivers of zero length on tiny continents, and the
+smallest global scale near the world border.
+
+**Fix.** All of these are guarded, and a last check turns a height that is not a number into sea level. The stress test
+runs every setting at its extremes and hundreds of random combinations.
+
+</details>
+
+<details>
+<summary><b>Memory leak</b> (0.0.9)</summary>
+
+**Problem.** The game's memory grew with every preview rebuild and every world joined. With heavy settings the game
+ran out of memory.
+
+**Cause.** The generator's caches (terrain tiles, rivermaps) were registered in a global list and in the cleanup
+scheduler and were never freed until the game closed.
+
+**Fix.** The scheduler holds the caches by a weak reference. A cache nobody needs any more (an old preview, a world
+that was left) is garbage collected, and its cleanup stops.
+
+</details>
+
 ## Compatibility
 
 - Works with **Distant Horizons**, **Iris** and **Sodium**; the screenshots above were taken with them.
@@ -216,6 +442,232 @@ TerraForged by dags; ReTerraForged by racoonman2; the 1.21.1 port by Campione01;
 Ещё заработали страница структур и ползунки, которые раньше ничего не делали (горизонтальный масштаб холмов, долин,
 плато, бесплодных земель, масштабы вулканов). Настройки, которые генерация не использует (и в 0.0.6 тоже), показаны
 неактивными. Пресеты из файлов приводятся к допустимым значениям, сломанный файл в папке пресетов больше не роняет игру.
+
+## Проблемы и исправления подробно
+
+<details>
+<summary><b>Ульи на деревьях мода</b> (0.0.12)</summary>
+
+**Что было.** На деревьях ReTerraForged никогда не было ульев — ни в порте, ни в оригинальном 0.0.6. В равнинах,
+цветочных лесах и на лугах, где у ванильных деревьев ульи есть, пчёл не было вообще.
+
+**Почему.** Деревья мода — это шаблоны, а не ванильные деревья. Ванильный декоратор ульев ставит улей только под самыми
+нижними листьями, а у шаблонов там вокруг ствола сплошные листья — места не находилось. Вдобавок декораторы для
+отдельных биомов искались по имени реестра вместо имени биома.
+
+**Как исправлено.** Свой декоратор ульев для шаблонов: улей ставится у ствола, лицом на юг, там, где есть место, с 2–3
+пчёлами. Шансы как в ванилле: равнины 5 %, цветочные леса 2 %, леса и березняки 0,2 %, деревья на лугах — всегда.
+Саженцы рядом с цветами (в том числе выращенные костной мукой) дают ульи как обычно. Самотест проверяет и то, и другое.
+
+</details>
+
+<details>
+<summary><b>26.x: деревья мода не росли</b> (0.0.12)</summary>
+
+**Что было.** На 26.1.2, 26.2 и 26.3 деревья ReTerraForged почти не появлялись, леса стояли пустыми. На 26.x
+эрозия не трогала травяные склоны.
+
+**Почему.** Две разные причины. С 26.1 Minecraft вынес траву, подзол и мицелий из тега `#dirt` в отдельный
+`#grass_blocks` — мод проверял почву по `#dirt` и не ставил деревья на траву, а эрозия не считала траву размываемой.
+С 26.3 Minecraft читает блоки из NBT по ключам `id` и `properties` вместо `Name` и `Properties`: каждый блок шаблонов
+деревьев превращался в воздух, и вставка дерева ничего не ставила.
+
+**Как исправлено.** Почва на 26.x проверяется по `#substrate_overworld` — он совпадает со старым `#dirt`. Палитра
+шаблонов переводится в новый формат при чтении. Самотест теперь проверяет, что в лесу реально стоят стволы, а не только
+что в биоме записаны деревья мода: прежняя проверка проходила, хотя деревьев не было.
+
+</details>
+
+<details>
+<summary><b>Генерация отличалась от оригинального 0.0.6</b> (0.0.11–0.0.12)</summary>
+
+**Что было.** Миры не были похожи на ReTerraForged: ледяные пики рядом с пустыней, тёплый океан вплотную к пустыне,
+другие реки и озёра, деревни на горах.
+
+**Почему.** Порт на 1.21.1, с которого начинался форк, менял генерацию сверх нужного для переноса:
+- «Default» был заменён недоделанным вторым пресетом;
+- горный регион брал один биом из климата центра региона;
+- у равнин и холмов был другой weirdness (от него зависят варианты биомов);
+- реки, озёра и болота затухали на высоте и в горах;
+- структуры ставились на горы;
+- склоны пустынь превращались в песчаник и терракоту;
+- в некоторые биомы добавлялись кусты;
+- пещерные биомы были выше;
+- был другой генератор случайности поверхности.
+
+Сверка каждого класса с исходником 0.0.6 нашла ещё два отличия: крутизна склонов не ограничивалась единицей (камень и
+снег ложились иначе), а пропущенные материки в открытом океане получали чужую карту рек.
+
+**Как исправлено.** Всё возвращено как в 0.0.6. Вариант порта остался переключателем «Оригинальная генерация (0.0.6)» в
+разделе «Прочее» и отдельным пресетом в конце списка. Миры прошлых версий форка сохраняют свою генерацию — без швов на
+границе старых и новых чанков.
+
+</details>
+
+<details>
+<summary><b>NeoForge: деревья пресета не появлялись</b> (0.0.10)</summary>
+
+**Что было.** На NeoForge в мире с пресетом росли ванильные деревья, а не деревья мода.
+
+**Почему.** Модификаторы биомов (замена деревьев, трава в лесах, отключение ванильных источников) лежали в реестре
+`forge:biome_modifier`. Такой реестр был в Forge, в NeoForge его нет, и модификаторы молча не применялись.
+
+**Как исправлено.** На NeoForge модификаторы лежат в его собственном реестре `neoforge:biome_modifier`.
+
+</details>
+
+<details>
+<summary><b>Экран пресетов: ползунки, подсветка, правки</b> (0.0.10)</summary>
+
+**Что было.**
+- На 1.21.11 и новее ни один ползунок ничего не менял.
+- Выбранный пресет никак не подсвечивался.
+- Повторно применённый пресет и правки встроенного пресета терялись.
+- «<<» со страницы рек перескакивал через страницу, а со страницы мира уводил в начало списка.
+
+**Почему.**
+- В 1.21.11 метод ванильного ползунка `setValue` стал protected, и одноимённый метод мода его подменил — значения
+  перестали доходить до настроек.
+- Список пресетов не рисовал выделение и сбрасывал его при клике по любой кнопке.
+- Экран создания мира не применял датапак с тем же именем второй раз.
+
+**Как исправлено.**
+- Ползунки работают на всех версиях.
+- Выбранный пресет подсвечен жёлтым «»».
+- Каждое применение пресета получает своё имя датапака, правки встроенных пресетов сохраняются.
+- «Назад» ведёт ровно на страницу назад и возвращает к выбранному пресету.
+
+</details>
+
+<details>
+<summary><b>Ползунки и страницы, которые ничего не делали</b> (0.0.11)</summary>
+
+**Что было.** Страница структур (расстояние, разнос, salt, отключение) не действовала — ни в порте, ни в 0.0.6.
+Горизонтальный масштаб холмов, долин, плато, бесплодных земель и торридона, базовый и вертикальный масштаб вулканов не
+меняли ничего.
+
+**Почему.** Настройки структур не попадали в датапак мира. У этих рельефов размеры шумов были зашиты в код.
+
+**Как исправлено.** Изменённые наборы структур записываются в датапак пресета. Масштабы рельефов и вулканов работают, а
+при значении 1 рельеф прежний. Настройки, которые генерация не использует (и в 0.0.6 тоже), показаны неактивными, с
+подсказкой.
+
+</details>
+
+<details>
+<summary><b>/locate, карты картографа и дельфины вешали сервер</b> (0.0.11)</summary>
+
+**Что было.** Поиск хижины ведьмы командой `/locate` шёл больше 10 минут. Карты картографа и дельфины подвешивали сервер.
+
+**Почему.** Для каждой проверяемой точки (а их тысячи) порт строил целый тайл рельефа с эрозией, хотя нужна была одна
+высота.
+
+**Как исправлено.** Высота точки читается напрямую из ячейки, как в 0.0.6. Поиск всех ванильных структур вокруг спавна
+теперь занимает около 40 секунд.
+
+</details>
+
+<details>
+<summary><b>Новый мир не создавался</b></summary>
+
+**Что было.** Игра падала сразу при создании мира с пресетом.
+
+**Почему.** В последнем коммите апстрима в миксин `MixinNoiseChunk` добавили не-`private` статический метод, а Mixin
+такое запрещает.
+
+**Как исправлено.** Метод вынесен в отдельный класс `C2MECompat`.
+
+</details>
+
+<details>
+<summary><b>Fabric: зависания в Незере, Энде и на новых чанках</b></summary>
+
+**Что было.** Сервер на Fabric зависал при генерации Незера и Энда. Одиночная игра на Fabric зависала на новых чанках с
+ошибкой `Index -1 out of bounds`.
+
+**Почему.** Фичи эрозии и снега мода попадали в биомы других измерений и бросали исключение — чанк так и не
+догенерировался. Отдельно Fabric не пересчитывал у генератора список фич после того, как мод менял биомы.
+
+**Как исправлено.** Вне генератора ReTerraForged эти фичи ничего не делают. Список фич пересчитывается после изменения
+биомов.
+
+</details>
+
+<details>
+<summary><b>Экран пресетов ронял игру на 1.21.6+</b></summary>
+
+**Что было.** На 1.21.6 и новее экран пресетов падал с `Can only blur once per frame` и терял все надписи. В маленьком
+окне кнопки обрезались.
+
+**Почему.** Экран рисовал фон ещё раз поверх того, что уже нарисовал Minecraft, и размытие срабатывало дважды за кадр —
+с 1.21.6 это запрещено. Правая колонка в узком окне сжималась так, что кнопки не помещались.
+
+**Как исправлено.** Фон рисуется один раз, правая колонка не уже 150 пикселей.
+
+</details>
+
+<details>
+<summary><b>/reload не перезагружал шаблоны деревьев</b></summary>
+
+**Что было.** После `/reload` или смены датапаков шаблоны деревьев оставались старыми — везде, кроме NeoForge 1.21.1.
+
+**Почему.** Перезагрузка держалась на внутреннем имени скомпилированной лямбды Minecraft, которое меняется от версии к
+версии.
+
+**Как исправлено.** Шаблоны перечитываются, когда меняется менеджер ресурсов сервера. Миксины, завязанные на полные
+сигнатуры конструкторов, заменены устойчивыми.
+
+</details>
+
+<details>
+<summary><b>Мод грузился на любой версии Minecraft</b></summary>
+
+**Что было.** Jar для одной версии загружался на другой и падал там с непонятной ошибкой. В `neoforge.mods.toml` версия
+мода была 0.0.6 вместо настоящей.
+
+**Как исправлено.** В метаданных точные диапазоны версий Minecraft и загрузчика. Неподходящая версия сразу отклоняется
+с понятным сообщением.
+
+</details>
+
+<details>
+<summary><b>Сломанные файлы пресетов и крайние значения</b> (0.0.9–0.0.10)</summary>
+
+**Что было.** Чужой или повреждённый файл в папке пресетов ронял игру при открытии экрана. Значения, которые не даёт
+ни один ползунок (например, отредактированные вручную), ломали мир.
+
+**Как исправлено.** Сломанный файл пропускается с сообщением в логе, остальные пресеты загружаются. Значения из файлов
+приводятся к диапазонам ползунков, а встроенные пресеты при этом не меняются.
+
+</details>
+
+<details>
+<summary><b>NaN в рельефе</b> (0.0.9)</summary>
+
+**Что было.** При некоторых настройках рельеф ломался: дыры до бедрока или плоский мир на уровне моря.
+
+**Почему.** В расчётах появлялось деление на ноль, а дальше по всем расчётам расползался NaN. Так было при нулевом
+горизонтальном масштабе, совпадающих точках перехода «океан — суша», реках нулевой длины на крошечных материках и
+минимальном глобальном масштабе у границы мира.
+
+**Как исправлено.** Все эти места защищены, а последний рубеж заменяет нечисловую высоту уровнем моря. Стресс-тест
+прогоняет каждую настройку на крайних значениях и сотни случайных комбинаций.
+
+</details>
+
+<details>
+<summary><b>Утечка памяти</b> (0.0.9)</summary>
+
+**Что было.** Память игры росла с каждым перестроением превью и каждым входом в мир. С тяжёлыми настройками игра
+вылетала по нехватке памяти.
+
+**Почему.** Кэши генератора (тайлы рельефа, карты рек) регистрировались в глобальном списке и в планировщике очистки и
+не освобождались никогда — до закрытия игры.
+
+**Как исправлено.** Планировщик держит кэши по слабой ссылке. Кэш, который больше никому не нужен (старое превью,
+покинутый мир), собирается сборщиком мусора, и его очистка останавливается.
+
+</details>
 
 ## Совместимость
 
