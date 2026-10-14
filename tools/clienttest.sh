@@ -1,11 +1,12 @@
 #!/bin/bash
-# Client check after tools/servertest.sh: tools/clienttest.sh [neoforge|fabric] [gui]
+# Client check after tools/servertest.sh: tools/clienttest.sh [neoforge|fabric] [gui|widgets]
 # Copies the server test world (made with the "Default" preset) into the dev client's saves, starts the dev client
 # with -Drtf.clienttest (RTFClientTest): screenshot of the preset screen with its live preview, then the world is
 # loaded and screenshots are taken at the highest mountain, a desert, a river and from above the spawn. The game
 # quits by itself; screenshots are copied to run/clienttest-<loader>/.
 # "gui" instead makes a new world through the screens with mouse clicks, as a player does (RTFGuiTest): the preset
 # list, the settings pages, Done twice, Create New World; checks the world is built with the edited preset.
+# "widgets" uses every slider, switch and button of the settings pages (RTFWidgetTest), table in rtf-widgets.txt.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
@@ -14,14 +15,14 @@ WORLD=run/server-$LOADER/world
 RUN=$LOADER/run
 OUT=run/clienttest-$LOADER
 TEST=rtf-test
-if [ "$MODE" = gui ]; then
-    OUT=run/guitest-$LOADER
-    TEST=gui
+if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then
+    OUT=run/${MODE}test-$LOADER
+    TEST=$MODE
 elif [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh $LOADER first"; exit 1; fi
 
 mkdir -p "$RUN/saves" "$OUT"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
-if [ "$MODE" = gui ]; then rm -rf "$RUN/saves/New World"*; else
+if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then rm -rf "$RUN/saves/New World"* "$RUN/rtf-widgets.txt"; else
     cp -r "$WORLD" "$RUN/saves/rtf-test"
     rm -f "$RUN/saves/rtf-test/session.lock"
 fi
@@ -51,6 +52,7 @@ while kill -0 $gradle 2>/dev/null; do
 done
 wait $gradle 2>/dev/null
 cp "$RUN"/screenshots/rtf-*.png "$OUT/" 2>/dev/null
+cp "$RUN/rtf-widgets.txt" "$OUT/" 2>/dev/null
 grep -h "RTF clienttest" "$OUT/client.log" | sed 's/^.*\[RTF clienttest\]/ /'
 # vanilla large dripstones can reach two chunks away and log "setBlock in a far chunk"; counted apart.
 # Not the mod: Realms without an account in the dev client, NeoForge's note about Loom's dev-only class processor,

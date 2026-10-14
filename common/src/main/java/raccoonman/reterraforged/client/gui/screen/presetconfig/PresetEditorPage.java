@@ -63,6 +63,15 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		return this.preset;
 	}
 
+	// for the widget test (RTFGuiTest): how often the preview was drawn, and a hash of its last picture
+	public int previewGeneration() {
+		return this.preview.generation;
+	}
+
+	public int previewHash() {
+		return this.preview.hash;
+	}
+
 	protected void regenerate() {
 		this.preview.regenerate();
 	}
@@ -136,6 +145,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    private boolean clicked = false;
 	    private int clickOffsetX, clickOffsetZ;
 	    private int zoomValue = 68; // default zoom value
+	    private int generation;
+	    private int hash;
 	
 	    public Preview() {
 	        super(-1, -1, -1, -1, CommonComponents.EMPTY);
@@ -173,14 +184,19 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        int width = this.tile.getBlockSize().size();
 
 	        NativeImage pixels = this.texture.getPixels();
+	        int[] hash = { 1 };
 	        this.tile.iterate((cell, x, z) -> {
 	            if (x < stroke || z < stroke || x >= width - stroke || z >= width - stroke) {
 	                pixels.setPixelRGBA(x, z, Color.BLACK.getRGB());
 	            } else {
-	                pixels.setPixelRGBA(x, z, renderMode.getColor(cell, levels));
+	                int color = renderMode.getColor(cell, levels);
+	                pixels.setPixelRGBA(x, z, color);
+	                hash[0] = hash[0] * 31 + color;
 	            }
 	        });
 	        this.texture.upload();
+	        this.generation++;
+	        this.hash = hash[0];
 	    }
 	    
 	    public void close() throws Exception {

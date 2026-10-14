@@ -29,6 +29,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
+import raccoonman.reterraforged.server.stress.RTFEffectTest;
 import raccoonman.reterraforged.server.stress.RTFStressTest;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 
@@ -69,6 +70,10 @@ public final class RTFSelfTest {
 			return 1;
 		}).then(Commands.literal("abuse").executes(ctx -> {
 			String result = RTFStressTest.runAbuse(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("effects").executes(ctx -> {
+			String result = RTFEffectTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
 		})).then(Commands.argument("random", IntegerArgumentType.integer(0)).executes(ctx -> {
