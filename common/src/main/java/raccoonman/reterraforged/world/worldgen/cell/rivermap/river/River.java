@@ -2,7 +2,6 @@ package raccoonman.reterraforged.world.worldgen.cell.rivermap.river;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2i;
 import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Variance;
@@ -122,24 +121,8 @@ public class River {
         return this.overlaps(minX, minY, maxX, maxY);
     }
     
-    public River shorten(int distance) {
-        if (this.length == 0.0F) {
-            return this;
-        }
-        float factor = distance / this.length();
-        float dx = this.x2 - this.x1;
-        float dy = this.z2 - this.z1;
-        float x = NoiseUtil.round(this.x1 + dx * factor);
-        float y = NoiseUtil.round(this.z1 + dy * factor);
-        return new River(x, y, this.x2, this.z2);
-    }
-    
     @Override
     public String toString() {
         return "RiverBounds{x1=" + this.x1 + ", y1=" + this.z1 + ", x2=" + this.x2 + ", y2=" + this.z2 + ", length=" + this.length + ", length2=" + this.length2 + '}';
-    }
-    
-    public static River fromNodes(Vec2i p1, Vec2i p2) {
-        return new River(p1.x(), p1.y(), p2.x(), p2.y(), 300.0F);
     }
 }

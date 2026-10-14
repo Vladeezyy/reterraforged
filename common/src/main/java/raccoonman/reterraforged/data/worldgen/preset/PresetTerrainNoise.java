@@ -6,7 +6,6 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
-import raccoonman.reterraforged.world.worldgen.noise.module.Cache2d;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
@@ -37,10 +36,6 @@ public class PresetTerrainNoise {
         mountainShape = Noises.map(mountainShape, 0.0F, 1.0F);
         return mountainShape;
 	}
-
-    private static Noise peaksAndValleys(Noise noise) {
-        return Noises.mul(Noises.add(Noises.abs(Noises.add(Noises.abs(noise), Noises.constant(-0.6666666666666666F))), Noises.constant(-0.3333333333333333F)), Noises.constant(-3.0F));
-    }
     
 	private static Noise makeErosion(Noise mountainChainAlpha) {
 		return Noises.mul(Noises.perlin(0, 1, 200), Noises.worley(0, 200));

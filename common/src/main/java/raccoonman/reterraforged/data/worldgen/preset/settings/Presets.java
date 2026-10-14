@@ -295,8 +295,4 @@ public class Presets {
 			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F, true)
 		);
 	}
-	
-	public static Preset makeLegacy1_18() {
-		throw new UnsupportedOperationException("TODO");
-	}
 }

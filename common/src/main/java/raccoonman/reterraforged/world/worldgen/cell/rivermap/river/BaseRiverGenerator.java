@@ -109,26 +109,6 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
         this.addLake(parent, random, warp);
     }
     
-    public void generateAdditionalLakes(int x, int z, Random random, List<Network.Builder> roots, List<RiverCarver> rivers, List<Lake> lakes) {
-        float size = 150.0f;
-        Variance sizeVariance = Variance.of(1.0F, 0.25F);
-        Variance distanceVariance = Variance.of(0.6000000238418579F, 0.30000001192092896F);
-        for (int i = 1; i < roots.size(); ++i) {
-            Network.Builder a = roots.get(i - 1);
-            float angle = 0.0F;
-            float dx = NoiseUtil.sin(angle);
-            float dz = NoiseUtil.cos(angle);
-            float distance = distanceVariance.next(random);
-            float lx = x + dx * a.carver.river.length * distance;
-            float lz = z + dz * a.carver.river.length * distance;
-            float variance = sizeVariance.next(random);
-            Vec2f center = new Vec2f(lx, lz);
-            if (!this.lakeOverlaps(center, size, rivers)) {
-                lakes.add(new Lake(center, size, variance, this.lake));
-            }
-        }
-    }
-    
     public void generateWetlands(Network.Builder builder, Random random) {
         int skip = random.nextInt(this.wetland.skipSize);
         if (skip == 0) {
@@ -165,15 +145,6 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
     public boolean riverOverlaps(River river, Network.Builder parent, List<Network.Builder> rivers) {
         for (Network.Builder other : rivers) {
             if (other.overlaps(river, parent, 250.0f)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public boolean lakeOverlaps(Vec2f lake, float size, List<RiverCarver> rivers) {
-        for (RiverCarver other : rivers) {
-            if (!other.main && other.river.overlaps(lake, size)) {
                 return true;
             }
         }

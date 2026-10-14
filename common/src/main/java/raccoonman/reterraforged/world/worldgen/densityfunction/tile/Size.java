@@ -14,10 +14,6 @@ public record Size(int size, int mask, int border, int total, int lowerBorder, i
         return i << 4;
     }
     
-    public static int blockToChunk(int i) {
-        return i >> 4;
-    }
-    
     public static int count(int minX, int minZ, int maxX, int maxZ) {
         int dx = maxX - minX;
         int dz = maxZ - minZ;

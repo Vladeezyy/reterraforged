@@ -144,14 +144,6 @@ public class Tile implements SafeCloseable, Filterable, CellLookup {
             this.blockX = this.chunkX << 4;
             this.blockZ = this.chunkZ << 4;
 		}
-		
-        public int getChunkX() {
-            return this.chunkX;
-        }
-        
-        public int getChunkZ() {
-            return this.chunkZ;
-        }
         
         public int getBlockX() {
             return this.blockX;

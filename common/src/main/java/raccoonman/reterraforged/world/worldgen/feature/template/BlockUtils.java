@@ -17,10 +17,6 @@ public class BlockUtils {
         return TreeFeature.isDirt(world.getBlockState(pos));
     }
 
-    public static boolean isLeavesOrLogs(BlockState state) {
-        return state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES);
-    }
-
     public static boolean isVegetation(LevelAccessor world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         return state.is(BlockTags.SAPLINGS) || state.is(BlockTags.FLOWERS) || state.is(Blocks.VINE);

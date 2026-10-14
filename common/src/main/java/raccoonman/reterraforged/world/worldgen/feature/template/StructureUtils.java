@@ -22,9 +22,4 @@ public class StructureUtils {
         }
         return false;
     }
-
-    public static boolean hasStructure(ChunkAccess chunk, Structure structure) {
-        LongSet refs = chunk.getAllReferences().get(structure);
-        return refs != null && refs.size() > 0;
-    }
 }

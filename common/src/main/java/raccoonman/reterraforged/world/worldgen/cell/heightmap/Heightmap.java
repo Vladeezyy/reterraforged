@@ -23,7 +23,6 @@ import raccoonman.reterraforged.world.worldgen.cell.terrain.Populators;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.fakewater.FakeWaterBiomeResolver;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.ArchipelagoPopulator;
-import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.IslandPopulator;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.VolcanoPopulator;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.provider.TerrainProvider;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.RegionLerper;
@@ -170,10 +169,6 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         beachNoise = Noises.mul(beachNoise, ctx.levels.scale(5));
         FakeWaterBiomeResolver fakeWaterBiomeResolver = new FakeWaterBiomeResolver(ctx.preset.fakeWaterBiomes(), ctx.levels);
         return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver);
-	}
-	
-	private static CellPopulator makeIslandPopulator(GeneratorContext ctx, ControlPoints controlPoints, CellPopulator oceans) {
-        return new IslandPopulator(ctx.levels, oceans, controlPoints.islandCoast, controlPoints.islandInland);
 	}
 
 	private static boolean isIslandTerrain(Cell cell) {

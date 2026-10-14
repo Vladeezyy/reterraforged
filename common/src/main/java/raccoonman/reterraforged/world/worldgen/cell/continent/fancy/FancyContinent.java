@@ -29,10 +29,6 @@ public class FancyContinent implements RiverGenerator {
 		return process(value);
 	}
 
-	public Island getMain() {
-		return this.islands[0];
-	}
-
 	public Island[] getIslands() {
 		return this.islands;
 	}

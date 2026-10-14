@@ -45,10 +45,6 @@ public class Slider extends AbstractSliderButton {
     	return (Mth.clamp(value, this.min, this.max) - this.min) / (this.max - this.min);
     }
     
-    public double getLerpedValue() {
-    	return this.lerpValue(this.value);
-    }
-    
     public double lerpValue(double value) {
     	return Mth.lerp(value, this.min, this.max);
     }

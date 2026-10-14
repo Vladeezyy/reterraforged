@@ -62,21 +62,12 @@ public class NoiseUtil {
         return dx * dx + dy * dy;
     }
     
-    public static float dot(float x0, float y0, float x1, float y1) {
-        return x0 * x1 + y0 * y1;
-    }
-    
     public static float div(int num, int denom) {
         return num / (float) denom;
     }
     
     public static int floor(float f) {
         return (f >= 0.0F) ? ((int) f) : ((int) f - 1);
-    }
-    
-    public static int toInt(float f) {
-        int i = Float.floatToRawIntBits(f);
-        return i ^ i >> 16;
     }
     
     public static int round(float f) {

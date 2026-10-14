@@ -39,11 +39,6 @@ public class BufferBitSet {
         this.bitSet.set(index);
     }
 
-    public void unset(int x, int y, int z) {
-        int index = this.indexOf(x - this.minX, y - this.minY, z - this.minZ);
-        this.bitSet.set(index, false);
-    }
-
     public boolean test(int x, int y, int z) {
         int index = this.indexOf(x - this.minX, y - this.minY, z - this.minZ);
         if (index < 0 || index >= this.bitSet.length()) {

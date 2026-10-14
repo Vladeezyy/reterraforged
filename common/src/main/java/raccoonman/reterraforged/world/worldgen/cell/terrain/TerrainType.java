@@ -47,17 +47,6 @@ public class TerrainType {
         return TerrainType.REGISTRY.stream().filter(filter).findFirst();
     }
     
-    public static Terrain getOrCreate(String name, Terrain parent) {
-        if (parent == null || parent == TerrainType.NONE) {
-            return TerrainType.NONE;
-        }
-        Terrain current = get(name);
-        if (current != null) {
-            return current;
-        }
-        return register(new Terrain(0, name, parent));
-    }
-    
     public static Terrain get(String name) {
         for (Terrain terrain : TerrainType.REGISTRY) {
             if (terrain.getName().equalsIgnoreCase(name)) {

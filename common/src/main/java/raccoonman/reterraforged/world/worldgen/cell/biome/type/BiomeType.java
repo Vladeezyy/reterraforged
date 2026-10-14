@@ -63,14 +63,6 @@ public enum BiomeType {
     	int maxIndex = this.noisePairs.size() - 1;
     	return this.noisePairs.get(NoiseUtil.round(identity * maxIndex));
     }
-
-    public float mapTemperature(float value) {
-        return (value - this.minTemp) / (this.maxTemp - this.minTemp);
-    }
-    
-    public float mapMoisture(float value) {
-        return (value - this.minMoist) / (this.maxMoist - this.minMoist);
-    }
     
     public Color getColor() {
         return this.color;
@@ -82,12 +74,6 @@ public enum BiomeType {
     
     public static BiomeType get(float temperature, float moisture) {
         return getCurve(temperature, moisture);
-    }
-    
-    public static BiomeType getLinear(float temperature, float moisture) {
-        int x = NoiseUtil.round(255.0f * temperature);
-        int y = getYLinear(x, temperature, moisture);
-        return getType(x, y);
     }
     
     public static BiomeType getCurve(float temperature, float moisture) {
@@ -110,13 +96,6 @@ public enum BiomeType {
     
     private static BiomeType getType(int x, int y) {
         return BiomeTypeLoader.getInstance().getTypeMap()[y][x];
-    }
-    
-    private static int getYLinear(int x, float temperature, float moisture) {
-        if (moisture > temperature) {
-            return x;
-        }
-        return NoiseUtil.round(255.0F * moisture);
     }
     
     private static int getYCurve(int x, float temperature, float moisture) {
