@@ -1,24 +1,146 @@
 # ReTerraForged
 
-Генерация мира в духе TerraForged для Minecraft **1.21.1 – 26.3** на **NeoForge** и **Fabric**: материки и океаны,
-горные хребты, речные сети с притоками, озёра, болота, эрозия склонов, пласты горных пород — и редактор пресетов с
-живой картой будущего мира.
+TerraForged-style world generation for Minecraft **1.21.1 – 26.3** · **NeoForge** & **Fabric** · the generation of
+ReTerraForged 0.0.6, fixed and ported.
 
-Это рабочий форк [ReterraForged](https://github.com/Campione01/ReterraForged) (Campione01, поверх racoonman2 и
-TerraForged). Генерация — как в оригинальном **ReTerraForged 0.0.6** для 1.20.1, только без его ошибок и на новых
-версиях игры.
+![Mountains and a view to the horizon](docs/showcase-mountains.jpg)
 
-![Горы и даль до горизонта](docs/showcase-mountains.jpg)
-
-| ![Вишнёвая роща над морем](docs/showcase-cherry-grove.jpg) | ![Долина у подножия гор](docs/showcase-valley.jpg) |
+| ![Cherry grove above the sea](docs/showcase-cherry-grove.jpg) | ![Valley at the foot of the mountains](docs/showcase-valley.jpg) |
 |---|---|
-| ![Побережье](docs/showcase-coast.jpg) | ![Озеро в лесу](docs/showcase-lake.jpg) |
-| ![Цветочный лес на склонах](docs/showcase-flower-forest.jpg) | ![Болото и река](docs/showcase-swamp.jpg) |
-| ![Лесистые бесплодные земли](docs/showcase-badlands.jpg) | ![Экран пресетов с картой-превью](docs/preset-screen.jpg) |
+| ![Coast](docs/showcase-coast.jpg) | ![Lake in a forest](docs/showcase-lake.jpg) |
+| ![Flower forest on the slopes](docs/showcase-flower-forest.jpg) | ![Swamp and river](docs/showcase-swamp.jpg) |
+| ![Wooded badlands](docs/showcase-badlands.jpg) | ![Preset screen with the preview map](docs/preset-screen.jpg) |
+
+<details>
+<summary><b>🇬🇧 English — click to open</b></summary>
+
+<sub>Minecraft 26.3, ReTerraForged 0.0.12, the "Default" preset with world height 384, biome size 300 and mountains
+×1.15. Complementary Reimagined shaders (Iris) and Distant Horizons with a 256 chunk view, just for the looks: the mod
+does not depend on them.</sub>
+
+TerraForged-style world generation: continents and oceans, mountain ranges, river networks with tributaries, lakes,
+wetlands, slope erosion, rock strata, and a preset editor with a live map of the world to be. This is a working fork of
+[ReterraForged](https://github.com/Campione01/ReterraForged) (Campione01, built on racoonman2 and TerraForged). The
+generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without its bugs and on new game versions.
+
+## Download
+
+| Minecraft | Release | NeoForge | Fabric Loader / API | Java |
+|---|---|---|---|---|
+| 26.3 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.12](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.12-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+
+Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
+
+## Installation
+
+**Singleplayer.** Put the jar into the `mods` folder. When creating a world: World tab → Customize → pick a preset →
+Done. Without this step the world will be vanilla. The experimental settings warning is expected, press Proceed.
+
+**Server.** Put the jar into `mods/`. For a new world, put the datapack `reterraforged-preset-<version>.zip` into
+`world/datapacks/` before the first start. Your own preset can be exported with the "Export As Datapack" button on the
+preset screen.
+
+The mod only affects new worlds created with its preset. It does not change an existing world.
+
+## Features
+
+- **TerraForged terrain:** continents with coastlines, shallows and bays, mountain chains, plateaus, hills, dales,
+  steppes, badlands, volcanoes.
+- **Water:** river networks with main rivers and tributaries, lakes on rivers, wetlands; riverbed depth and width are
+  configurable.
+- **Surface:** water droplet erosion simulation, rock and scree on steep slopes, rock strata, snow only where it would
+  settle naturally.
+- **The mod's own trees** from templates (oak, birch, spruce, redwood, willow, acacia, jungle), with bee nests like the
+  vanilla ones.
+- **Preset editor:** more than 160 settings on eleven pages (world, surface, caves, climate, terrain, islands, rivers,
+  filters, structures and more) with a preview map that redraws on every change. Presets can be saved, copied and
+  exported as a datapack.
+- **Structures:** spacing, separation and salt for every structure set, or disable it. Villages and other surface
+  structures are not placed on mountains, as in 0.0.6.
+- **Presets:** the "Default" of ReTerraForged 0.0.6 and the classic TerraForged presets (Beautiful, Huge Biomes, Lite,
+  Vanilla-ish). The 1.21.1 port's variant is there too, as the last entry of the list.
+- **10 languages:** English, Russian, Chinese, German, French, Spanish, Portuguese (Brazil), Japanese, Korean, Polish.
+
+## What this fork fixes
+
+**Generation as in 0.0.6.** The 1.21.1 port this fork started from changed the generation beyond what porting needed:
+"Default", mountain climate (snowy peaks next to deserts), rivers, lakes, wetlands, structures on mountains, desert
+slopes, bushes, cave biome depth. Every class of the mod was compared with the 0.0.6 source, and all of it is back. The
+port's variant remains as the "Original Generation (0.0.6)" switch in Miscellaneous. Worlds created with earlier
+versions of the fork keep their generation.
+
+**Bugs that broke the world:**
+- a new world could not be created: generation crashed on a mixin error;
+- on NeoForge the preset's trees and other features did not appear: the biome modifiers were in a registry that does
+  not exist;
+- on 26.x the mod's trees did not grow: since 26.1 grass is no longer in the `#dirt` tag, and since 26.3 the tree
+  templates were read as air;
+- a Fabric server hung while generating the Nether and the End, Fabric singleplayer hung on new chunks;
+- `/locate`, explorer maps and dolphins froze the server for minutes;
+- a memory leak: the generator's caches were never freed until the game was closed;
+- extreme settings produced NaN terrain.
+
+**Preset screen:**
+- on 1.21.11+ the sliders changed nothing;
+- the selected preset was not highlighted, edits and a re-applied preset were lost;
+- "back" skipped a page;
+- on 1.21.6+ the screen crashed the game.
+
+The structure page and the sliders that did nothing before now work (horizontal scale of hills, dales, plateaus,
+badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) are shown as inactive. Presets read
+from files are held to valid values, and a broken file in the presets folder no longer crashes the game.
+
+## Compatibility
+
+- Works with **Distant Horizons**, **Iris** and **Sodium**; the screenshots above were taken with them.
+- **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map.
+- For cave biome mods there is a cave compatibility mode on the Caves page.
+
+## Testing
+
+Every version is tested on real NeoForge and Fabric servers (`tools/servertest.sh`). A world is created with the
+"Default" preset, and `rtf selftest` checks 18 points:
+- terrain, sea and a spawn on dry land;
+- the mod's trees stand in the forest and have bee nests;
+- bedrock, the Nether and the End;
+- the structure page reaches the world.
+
+`rtf structures` finds and builds every vanilla structure near the spawn and checks that villages stand on the ground
+and have streets. The client tests (`tools/clienttest.sh`) create a world through the preset screen with real mouse
+clicks and go through every slider and switch. The stress test (`tools/stresstest.sh`) runs every setting at its
+extremes and hundreds of random combinations.
+
+## Source
+
+The `main` branch is Minecraft 1.21.1, the other versions are `mc/<version>` branches, one port commit each on top of
+the previous one. Build: `./gradlew build` (Java 21 for 1.21.x, Java 25 for 26.x).
+
+## Credits and license
+
+TerraForged by dags; ReTerraForged by racoonman2; the 1.21.1 port by Campione01; this fork by Vladeezyy. MIT license.
+
+</details>
+
+<details>
+<summary><b>🇷🇺 Русский — нажмите, чтобы открыть</b></summary>
 
 <sub>Minecraft 26.3, ReTerraForged 0.0.12, пресет «По умолчанию» с высотой мира 384, размером биомов 300 и горами ×1.15.
 Шейдеры Complementary Reimagined (Iris) и Distant Horizons с прорисовкой 256 чанков — только для красоты, мод от них
 не зависит.</sub>
+
+Генерация мира в духе TerraForged: материки и океаны, горные хребты, речные сети с притоками, озёра, болота, эрозия
+склонов, пласты горных пород — и редактор пресетов с живой картой будущего мира. Это рабочий форк
+[ReterraForged](https://github.com/Campione01/ReterraForged) (Campione01, поверх racoonman2 и TerraForged). Генерация —
+как в оригинальном **ReTerraForged 0.0.6** для 1.20.1, только без его ошибок и на новых версиях игры.
 
 ## Скачать
 
@@ -66,8 +188,7 @@ TerraForged). Генерация — как в оригинальном **ReTerr
 - **10 языков:** русский, английский, китайский, немецкий, французский, испанский, португальский (Бразилия),
   японский, корейский, польский.
 
-| ![Экран пресетов на русском](docs/preset-screen-ru.jpg) |
-|---|
+![Экран пресетов на русском](docs/preset-screen-ru.jpg)
 
 ## Что исправлено в форке
 
@@ -125,16 +246,4 @@ TerraForged). Генерация — как в оригинальном **ReTerr
 
 TerraForged — dags; ReTerraForged — racoonman2; порт на 1.21.1 — Campione01; этот форк — Vladeezyy. Лицензия MIT.
 
----
-
-## English
-
-**ReTerraForged** brings TerraForged-style world generation to Minecraft **1.21.1 – 26.3** on **NeoForge** and
-**Fabric**: continents, mountain ranges, river networks with lakes and wetlands, simulated erosion, rock strata, and a
-preset editor with a live preview map. This fork restores the generation of the original **ReTerraForged 0.0.6**
-(1.20.1) without its bugs, and is translated into 10 languages.
-
-Downloads for every version are in the table above (NeoForge jar, Fabric jar and a preset datapack for servers).
-Singleplayer: Create World → World tab → Customize → pick a preset → Done. Servers: put the jar in `mods/` and the preset
-datapack in `world/datapacks/` before the first start. Works with Distant Horizons, Iris, Sodium and TerraBlender.
-License: MIT.
+</details>
