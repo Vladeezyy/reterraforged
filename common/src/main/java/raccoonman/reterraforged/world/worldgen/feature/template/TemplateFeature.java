@@ -69,7 +69,7 @@ public class TemplateFeature extends Feature<Config<?>> {
 	        Paste paste = pasteType.get(template);
 	        T buffer = placement.createContext();
 	        if (paste.apply(world, buffer, pos, mirror, rotation, placement, config.paste())) {
-	            ResourceLocation biome = world.getBiome(pos).unwrapKey().map(ResourceKey::registry).orElse(null);
+	            ResourceLocation biome = world.getBiome(pos).unwrapKey().map(ResourceKey::location).orElse(null);
 	            for (TemplateDecorator<T> decorator : decoratorConfig.getDecorators(biome)) {
 	                decorator.apply(world, buffer, rand, modified);
 	            }
