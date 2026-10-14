@@ -157,7 +157,7 @@ public final class RTFHoleTest {
 			int w = Math.min(maxX - minX, maxZ - minZ) + 1, l = Math.max(maxX - minX, maxZ - minZ) + 1;
 			String shape = l > 3 * w ? "trench" : "funnel";
 			int x = (cx0 << 4) + p.x(), z = (cz0 << 4) + p.z();
-			String biome = level.getBiome(new BlockPos(x, p.ground(), z)).unwrapKey().map((k) -> k.location().toString()).orElse("?");
+			String biome = level.getBiome(new BlockPos(x, p.ground(), z)).unwrapKey().map((k) -> k.identifier().toString()).orElse("?");
 			String block = BuiltInRegistries.BLOCK.getKey(level.getBlockState(new BlockPos(x, p.ground(), z)).getBlock()).toString();
 			lines.add(x + " " + z + " " + p.ground() + " " + p.water() + " " + p.rim() + " " + p.depth() + " " + shape + " " + w + "x" + l + " " + biome + " " + block);
 		}

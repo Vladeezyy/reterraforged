@@ -81,8 +81,7 @@ public class CaveSettingsPage extends PresetEditorPage {
 		this.legacyCarverDistribution = PresetWidgets.createToggle(caves.legacyCarverDistribution, RTFTranslationKeys.GUI_BUTTON_LEGACY_CARVER_DISTRIBUTION, (button, value) -> {
 			caves.legacyCarverDistribution = value;
 		});
-		this.compatibilityMode = CycleButton.<CaveSettings.CompatibilityMode>builder(CaveSettingsPage::compatibilityModeName)
-			.withInitialValue(caves.compatibilityMode)
+		this.compatibilityMode = CycleButton.<CaveSettings.CompatibilityMode>builder(CaveSettingsPage::compatibilityModeName, caves.compatibilityMode)
 			.withValues(Arrays.asList(CaveSettings.CompatibilityMode.values()))
 			.create(-1, -1, -1, -1, Component.translatable(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE), (button, value) -> {
 				caves.compatibilityMode = value;

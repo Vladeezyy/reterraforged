@@ -17,10 +17,10 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -29,6 +29,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import raccoonman.reterraforged.RTFCommon;
@@ -239,7 +240,7 @@ public final class RTFGuiTest {
 		// the preset's trees replace the vanilla ones in the biomes
 		Biome forest = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST);
 		List<String> trees = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream)
-			.map((key) -> key.location().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
+			.map((key) -> key.identifier().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		log("trees in the forest: {}", trees);
 		if (!trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees"))) fail("the forest of the new world does not grow ReTerraForged trees: " + trees);
 	}
@@ -349,7 +350,7 @@ public final class RTFGuiTest {
 		MinecraftServer server = mc.getSingleplayerServer();
 		server.execute(() -> {
 			ServerPlayer player = server.getPlayerList().getPlayer(mc.player.getUUID());
-			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4), command);
+			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(LevelBasedPermissionSet.OWNER), command);
 		});
 	}
 }
