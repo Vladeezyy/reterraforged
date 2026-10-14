@@ -11,7 +11,6 @@ public class ContinentLerper2 implements CellPopulator {
     private Interpolation interpolation;
     private float blendLower;
     private float blendUpper;
-    private float blendRange;
     
     public ContinentLerper2(CellPopulator lower, CellPopulator upper, float min, float max) {
         this(lower, upper, min, max, Interpolation.LINEAR);
@@ -23,7 +22,6 @@ public class ContinentLerper2 implements CellPopulator {
         this.interpolation = interpolation;
         this.blendLower = min;
         this.blendUpper = max;
-        this.blendRange = this.blendUpper - this.blendLower;
     }
     
     @Override
@@ -36,7 +34,7 @@ public class ContinentLerper2 implements CellPopulator {
             this.upper.apply(cell, x, y);
             return;
         }
-        float alpha = this.interpolation.apply((cell.continentEdge - this.blendLower) / this.blendRange);
+        float alpha = this.interpolation.apply(NoiseUtil.alpha(cell.continentEdge, this.blendLower, this.blendUpper));
         this.lower.apply(cell, x, y);
         float lowerHeight = cell.height;
         this.upper.apply(cell, x, y);

@@ -29,8 +29,18 @@ public class NoiseUtil {
     }
     
     public static float map(float value, float from, float to, float min, float max) {
-        float alpha = (value - min) / (max - min);
+        float alpha = alpha(value, min, max);
         return from + alpha * (to - from);
+    }
+
+    // where value is between min and max (0 at min, 1 at max); with min == max (control points or settings set to the
+    // same value) 1 from max on, 0 below, instead of a division by zero (NaN)
+    public static float alpha(float value, float min, float max) {
+        float range = max - min;
+        if (range == 0.0F) {
+            return value >= max ? 1.0F : 0.0F;
+        }
+        return (value - min) / range;
     }
     
     public static double map(double value, double from, double to, double min, double max) {
@@ -82,7 +92,7 @@ public class NoiseUtil {
     }
     
     public static float lerp(float alphaValue, float alphaMin, float alphaMax, float from, float to) {
-		float alpha = (alphaValue - alphaMin) / (alphaMax - alphaMin);
+		float alpha = alpha(alphaValue, alphaMin, alphaMax);
         return from + alpha * (to - from);
 	}
     

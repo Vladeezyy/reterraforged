@@ -13,8 +13,6 @@ public class ContinentLerper3 implements CellPopulator {
     private float midpoint;
     private float blendLower;
     private float blendUpper;
-    private float lowerRange;
-    private float upperRange;
     
     public ContinentLerper3(CellPopulator lower, CellPopulator middle, CellPopulator upper, float min, float mid, float max) {
         this(lower, middle, upper, min, mid, max, Interpolation.CURVE3);
@@ -28,8 +26,6 @@ public class ContinentLerper3 implements CellPopulator {
         this.midpoint = mid;
         this.blendLower = min;
         this.blendUpper = max;
-        this.lowerRange = this.midpoint - this.blendLower;
-        this.upperRange = this.blendUpper - this.midpoint;
     }
     
     @Override
@@ -44,13 +40,13 @@ public class ContinentLerper3 implements CellPopulator {
             return;
         }
         if (select < this.midpoint) {
-            float alpha = this.interpolation.apply((select - this.blendLower) / this.lowerRange);
+            float alpha = this.interpolation.apply(NoiseUtil.alpha(select, this.blendLower, this.midpoint));
             this.lower.apply(cell, x, y);
             float lowerHeight = cell.height;
             this.middle.apply(cell, x, y);
             cell.height = NoiseUtil.lerp(lowerHeight, cell.height, alpha);
         } else {
-            float alpha = this.interpolation.apply((select - this.midpoint) / this.upperRange);
+            float alpha = this.interpolation.apply(NoiseUtil.alpha(select, this.midpoint, this.blendUpper));
             this.middle.apply(cell, x, y);
             float lowerHeight = cell.height;
             this.upper.apply(cell, x, y);

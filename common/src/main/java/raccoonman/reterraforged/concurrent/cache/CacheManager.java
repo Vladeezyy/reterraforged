@@ -1,8 +1,10 @@
 package raccoonman.reterraforged.concurrent.cache;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 
@@ -11,7 +13,8 @@ import raccoonman.reterraforged.concurrent.cache.map.StampedBoundLongMap;
 
 @Deprecated
 public class CacheManager {
-	private static final List<Cache<?>> CACHES = Collections.synchronizedList(new LinkedList<>());
+	// weakly: the manager must not keep caches alive (see Cache.Poller)
+	private static final Set<Cache<?>> CACHES = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 	
     public static <V extends ExpiringEntry> Cache<V> createCache(long expireTime, long pollInterval, TimeUnit unit) {
     	return createCache(256, expireTime, pollInterval, unit);
@@ -28,7 +31,12 @@ public class CacheManager {
 	}
 	
 	public static void clear() throws Exception {
-		for(Cache<?> cache : CACHES) {
+		List<Cache<?>> caches;
+		synchronized(CACHES) {
+			caches = new ArrayList<>(CACHES);
+			CACHES.clear();
+		}
+		for(Cache<?> cache : caches) {
 			cache.close();
 		}
 	}

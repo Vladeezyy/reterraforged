@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
+import raccoonman.reterraforged.server.stress.RTFStressTest;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 
 /**
@@ -51,7 +53,15 @@ public final class RTFSelfTest {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})));
+		})).then(Commands.literal("stress").executes(ctx -> {
+			String result = RTFStressTest.run(ctx.getSource().getServer(), 40);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("random", IntegerArgumentType.integer(0)).executes(ctx -> {
+			String result = RTFStressTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "random"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))));
 	}
 
 	// the "Default" preset as a datapack in the server folder, the same pack the preset screen writes: a dedicated

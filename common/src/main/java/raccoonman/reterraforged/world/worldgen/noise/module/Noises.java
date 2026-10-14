@@ -18,6 +18,13 @@ import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
 public class Noises {
+
+	// a scale of 0 (a terrain's horizontal scale slider at its minimum, or what scales derive from small ones) is the
+	// finest scale instead of an infinite frequency, which made every noise using it NaN
+	private static float frequencyOf(int scale) {
+		return 1.0F / Math.max(1, scale);
+	}
+
     private static final Codec<Noise> CODEC = RTFBuiltInRegistries.NOISE_TYPE.byNameCodec().dispatch(Noise::codec, Function.identity());
     public static final float MAX_REASONABLE_NOISE_VALUE = 1000000.0F;
     public static final Codec<Float> NOISE_VALUE_CODEC = Codec.floatRange(-MAX_REASONABLE_NOISE_VALUE, MAX_REASONABLE_NOISE_VALUE);
@@ -94,7 +101,7 @@ public class Noises {
 	}
 	
 	public static Noise white(int seed, int scale) {
-		return shiftSeed(new White(1.0F / scale), seed);
+		return shiftSeed(new White(frequencyOf(scale)), seed);
 	}
 	
 	public static Noise perlin(int seed, int scale, int octaves) {
@@ -106,7 +113,7 @@ public class Noises {
 	}
 	
 	public static Noise perlin(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return new Perlin(seed, 1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3);
+		return new Perlin(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3);
 	}
 	
 	public static Noise perlin2(int seed, int scale, int octaves) {
@@ -118,7 +125,7 @@ public class Noises {
 	}
 	
 	public static Noise perlin2(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return new Perlin2(seed, 1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3);
+		return new Perlin2(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3);
 	}
 	
 	public static Noise perlinRidge(int seed, int scale, int octaves) {
@@ -130,7 +137,7 @@ public class Noises {
 	}
 	
 	public static Noise perlinRidge(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new PerlinRidge(1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3), seed);
+		return shiftSeed(new PerlinRidge(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
 	public static Noise simplex(int seed, int scale, int octaves) {
@@ -142,7 +149,7 @@ public class Noises {
 	}
 	
 	public static Noise simplex(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new Simplex(1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3), seed);
+		return shiftSeed(new Simplex(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
 	public static Noise simplex2(int seed, int scale, int octaves) {
@@ -154,7 +161,7 @@ public class Noises {
 	}
 	
 	public static Noise simplex2(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new Simplex2(1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3), seed);
+		return shiftSeed(new Simplex2(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
 	public static Noise simplexRidge(int seed, int scale, int octaves) {
@@ -166,7 +173,7 @@ public class Noises {
 	}
 	
 	public static Noise simplexRidge(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new SimplexRidge(1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3), seed);
+		return shiftSeed(new SimplexRidge(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
 	public static Noise worley(int seed, int scale) {
@@ -174,7 +181,7 @@ public class Noises {
 	}
 	
 	public static Noise worley(int seed, int scale, CellFunction cellFunction, DistanceFunction distanceFunction, Noise lookup) {
-		return shiftSeed(new Worley(1.0F / scale, 1.0F, cellFunction, distanceFunction, lookup), seed);
+		return shiftSeed(new Worley(frequencyOf(scale), 1.0F, cellFunction, distanceFunction, lookup), seed);
 	}
 	
 	public static Noise worleyEdge(int seed, int scale) {
@@ -182,7 +189,7 @@ public class Noises {
 	}
 	
 	public static Noise worleyEdge(int seed, int scale, EdgeFunction edgeFunction, DistanceFunction distanceFunction) {
-		return shiftSeed(new WorleyEdge(1.0F / scale, 1.0F, edgeFunction, distanceFunction), seed);
+		return shiftSeed(new WorleyEdge(frequencyOf(scale), 1.0F, edgeFunction, distanceFunction), seed);
 	}
 	
 	public static Noise billow(int seed, int scale, int octaves) {
@@ -194,7 +201,7 @@ public class Noises {
 	}
 	
 	public static Noise billow(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new Billow(1.0F / scale, octaves, lacunarity, gain, Interpolation.CURVE3), seed);
+		return shiftSeed(new Billow(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
 	public static Noise cubic(int seed, int scale, int octaves) {
@@ -206,7 +213,7 @@ public class Noises {
 	}
 	
 	public static Noise cubic(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new Cubic(1.0F / scale, octaves, lacunarity, gain), seed);
+		return shiftSeed(new Cubic(frequencyOf(scale), octaves, lacunarity, gain), seed);
 	}
 	
 	public static Noise line(float x1, float z1, float x2, float z2, Noise radiusSq, Noise fadeIn, Noise fadeOut, float feather) {
