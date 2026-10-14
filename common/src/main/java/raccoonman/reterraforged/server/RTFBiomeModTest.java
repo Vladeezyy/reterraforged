@@ -51,7 +51,7 @@ public final class RTFBiomeModTest {
 	}
 
 	private static String namespace(Holder<Biome> biome) {
-		return biome.unwrapKey().map((key) -> key.location().getNamespace()).orElse("minecraft");
+		return biome.unwrapKey().map((key) -> key.identifier().getNamespace()).orElse("minecraft");
 	}
 
 	private static boolean modded(Holder<Biome> biome) {
@@ -60,7 +60,7 @@ public final class RTFBiomeModTest {
 	}
 
 	private static String name(Holder<Biome> biome) {
-		return biome.unwrapKey().map((key) -> key.location().toString()).orElse("?");
+		return biome.unwrapKey().map((key) -> key.identifier().toString()).orElse("?");
 	}
 
 	// the vanilla biome table bands of a climate point: temperature 0-4, humidity 0-4, continentalness 0-6 (mushroom
@@ -138,7 +138,7 @@ public final class RTFBiomeModTest {
 				final int index = r;
 				list.get(r).addBiomes(registry, (pair) -> {
 					Climate.ParameterPoint p = pair.getFirst();
-					StringBuilder line = new StringBuilder(index + " " + pair.getSecond().location());
+					StringBuilder line = new StringBuilder(index + " " + pair.getSecond().identifier());
 					for (Climate.Parameter q : List.of(p.temperature(), p.humidity(), p.continentalness(), p.erosion(), p.depth(), p.weirdness())) line.append(' ').append(q.min()).append(' ').append(q.max());
 					regions.add(line.append(' ').append(p.offset()).toString());
 				});

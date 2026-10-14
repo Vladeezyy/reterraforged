@@ -2,6 +2,7 @@ package raccoonman.reterraforged.client.gui.widget;
 
 import java.util.function.Supplier;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -32,5 +33,12 @@ public class ValueButton<T> extends Button {
 	
 	public T getValue() {
 		return this.value;
+	}
+
+	// a plain button (Button is abstract since 1.21.11)
+	@Override
+	protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		this.renderDefaultSprite(guiGraphics);
+		this.renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
 	}
 }

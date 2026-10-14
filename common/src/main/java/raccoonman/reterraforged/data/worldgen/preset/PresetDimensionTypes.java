@@ -1,25 +1,48 @@
 package raccoonman.reterraforged.data.worldgen.preset;
 
-import java.util.Optional;
-import java.util.OptionalLong;
+import com.mojang.serialization.Lifecycle;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.data.worldgen.DimensionTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 
 public final class PresetDimensionTypes {
-	
+
 	public static void bootstrap(Preset preset, BootstrapContext<DimensionType> ctx) {
 		WorldSettings worldSettings = preset.world();
 		WorldSettings.Properties properties = worldSettings.properties;
 		int worldHeight = properties.worldHeight;
 		int worldDepth = properties.worldDepth;
 		int totalHeight = worldDepth + worldHeight;
-		
-        ctx.register(BuiltinDimensionTypes.OVERWORLD, new DimensionType(OptionalLong.empty(), true, false, false, true, 1.0, true, false, -worldDepth, totalHeight, totalHeight, BlockTags.INFINIBURN_OVERWORLD, BuiltinDimensionTypes.OVERWORLD_EFFECTS, 0.0f, Optional.of(192), new DimensionType.MonsterSettings(false, true, UniformInt.of(0, 7), 0)));
+
+		// vanilla's overworld (sky, fog, clouds, music, timelines... as environment attributes since 1.21.11) with the
+		// preset's world height
+		DimensionType vanilla = vanillaOverworld(ctx);
+		ctx.register(BuiltinDimensionTypes.OVERWORLD, new DimensionType(vanilla.hasFixedTime(), vanilla.hasSkyLight(), vanilla.hasCeiling(), vanilla.coordinateScale(), -worldDepth, totalHeight, totalHeight, vanilla.infiniburn(), vanilla.ambientLight(), vanilla.monsterSettings(), vanilla.skybox(), vanilla.cardinalLightType(), vanilla.attributes(), vanilla.timelines()));
+	}
+
+	private static DimensionType vanillaOverworld(BootstrapContext<DimensionType> ctx) {
+		DimensionType[] overworld = new DimensionType[1];
+		DimensionTypes.bootstrap(new BootstrapContext<DimensionType>() {
+
+			@Override
+			public Holder.Reference<DimensionType> register(ResourceKey<DimensionType> key, DimensionType value, Lifecycle lifecycle) {
+				if (key == BuiltinDimensionTypes.OVERWORLD) overworld[0] = value;
+				return null;
+			}
+
+			@Override
+			public <S> HolderGetter<S> lookup(ResourceKey<? extends Registry<? extends S>> registry) {
+				return ctx.lookup(registry);
+			}
+		});
+		return overworld[0];
 	}
 }

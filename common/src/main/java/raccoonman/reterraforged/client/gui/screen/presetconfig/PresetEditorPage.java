@@ -24,7 +24,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
@@ -127,13 +127,13 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    public static final int SIZE = (1 << 4) << FACTOR;
 	    private static final float[] LEGEND_SCALES = { 1, 0.9F, 0.75F, 0.6F };
 	    private DynamicTexture texture = new DynamicTexture(() -> "ReTerraForged preset preview", new NativeImage(SIZE, SIZE, false));
-	    private ResourceLocation textureId = registerTexture(this.texture);
+	    private Identifier textureId = registerTexture(this.texture);
 	    private Tile tile;
 	    private int centerX, centerZ;
 
 	    // one preview is open at a time: registering again under the same id closes the previous texture
-	    private static ResourceLocation registerTexture(DynamicTexture texture) {
-	    	ResourceLocation id = RTFCommon.location("preview_framebuffer");
+	    private static Identifier registerTexture(DynamicTexture texture) {
+	    	Identifier id = RTFCommon.location("preview_framebuffer");
 	    	Minecraft.getInstance().getTextureManager().register(id, texture);
 	    	return id;
 	    }
