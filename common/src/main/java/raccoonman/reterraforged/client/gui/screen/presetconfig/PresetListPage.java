@@ -239,16 +239,20 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 				.filter(Files::isRegularFile)
 				.toList()
 			) {
+				// a broken or foreign file in the presets folder (not JSON, another encoding, not a preset) is skipped:
+				// the JSON parser throws for it, which used to crash the game when the preset screen opened
 				try(Reader reader = Files.newBufferedReader(presetPath)) {
 					String base = FileNameUtils.getBaseName(presetPath.toString());
 					DataResult<Preset> result = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
 					Optional<Error<Preset>> error = result.error();
 					if(error.isPresent()) {
-						RTFCommon.LOGGER.error(error.get().message());
+						RTFCommon.LOGGER.error("Skipping preset {}: {}", presetPath.getFileName(), error.get().message());
 						continue;
 					}
 					Preset preset = result.result().get();
 					presets.add(new PresetEntry(Component.literal(base), preset, false, this));
+				} catch(IOException | RuntimeException e) {
+					RTFCommon.LOGGER.error("Skipping preset {}: {}", presetPath.getFileName(), e.toString());
 				}
 			}
 		}
