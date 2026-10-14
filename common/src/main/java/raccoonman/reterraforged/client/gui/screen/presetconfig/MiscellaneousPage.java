@@ -12,6 +12,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSetti
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
 public class MiscellaneousPage extends PresetEditorPage {
+	private CycleButton<Boolean> originalGeneration;
 	private CycleButton<Boolean> smoothLayerDecorator;
 	private Slider strataRegionSize;
 	private CycleButton<Boolean> strataDecorator;
@@ -80,24 +81,28 @@ public class MiscellaneousPage extends PresetEditorPage {
 			miscellaneous.mountainBiomeUsage = (float) slider.scaleValue(value);
 			return value;
 		});
+		this.originalGeneration = PresetWidgets.createToggle(miscellaneous.originalGeneration, RTFTranslationKeys.GUI_BUTTON_ORIGINAL_GENERATION, (button, value) -> {
+			miscellaneous.originalGeneration = value;
+		});
 		this.volcanoBiomeUsage = PresetWidgets.createFloatSlider(miscellaneous.volcanoBiomeUsage, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE, (slider, value) -> {
 			miscellaneous.volcanoBiomeUsage = (float) slider.scaleValue(value);
 			return value;
 		});
 		
+		this.left.addWidget(this.originalGeneration);
 		this.left.addWidget(this.smoothLayerDecorator);
 		this.left.addWidget(this.strataRegionSize);
 		this.left.addWidget(this.strataDecorator);
-		this.left.addWidget(this.oreCompatibleStoneOnly);
+		this.left.addWidget(PresetWidgets.unused(this.oreCompatibleStoneOnly));
 		this.left.addWidget(this.erosionDecorator);
-		this.left.addWidget(this.plainStoneErosion);
+		this.left.addWidget(PresetWidgets.unused(this.plainStoneErosion));
 		this.left.addWidget(this.naturalSnowDecorator);
 		this.left.addWidget(this.customBiomeFeatures);
 		this.left.addWidget(this.vanillaSprings);
 		this.left.addWidget(this.vanillaLavaLakes);
 		this.left.addWidget(this.vanillaLavaSprings);
-		this.left.addWidget(this.mountainBiomeUsage);
-		this.left.addWidget(this.volcanoBiomeUsage);
+		this.left.addWidget(PresetWidgets.unused(this.mountainBiomeUsage));
+		this.left.addWidget(PresetWidgets.unused(this.volcanoBiomeUsage));
 	}
 	
 	@Override

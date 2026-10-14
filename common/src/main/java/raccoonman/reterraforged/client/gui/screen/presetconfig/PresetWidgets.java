@@ -9,6 +9,7 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -82,6 +83,13 @@ final class PresetWidgets {
 		return button;
 	}
 	
+	// a setting the world generation does not use (it did nothing in ReTerraForged 0.0.6 either): shown, not usable
+	public static <T extends AbstractWidget> T unused(T widget) {
+		widget.active = false;
+		widget.setTooltip(Tooltips.create(RTFTranslationKeys.GUI_TOOLTIP_NOT_USED));
+		return widget;
+	}
+
 	public static Button createThrowingButton(String text, Toasts.ThrowingRunnable run) {
 		return Button.builder(Component.translatable(text), (b) -> {
 			Toasts.tryOrToast(Tooltips.failTranslationKey(text), run);

@@ -58,6 +58,7 @@ public class ErodeFeature extends Feature<Config> {
 			Levels levels = heightmap.levels();
 			Noise rand = Noises.white(heightmap.climate().randomSeed(), 1);
 			Noise desertErosionVariance = makeDesertErosionVariance(levels);
+			boolean original = generatorContext.preset.miscellaneous().originalGeneration;
 			BlockPos.MutableBlockPos pos = new MutableBlockPos();
 			Config config = placeContext.config();
 			for(int x = 0; x < 16; x++) {
@@ -72,7 +73,9 @@ public class ErodeFeature extends Feature<Config> {
 					
 					pos.set(worldX, surfaceY, worldZ);
 					
-					if(biome.is(Biomes.DESERT)) {
+					// the 1.21.1 port: sandstone and terracotta on desert slopes instead of the rock and dirt of the
+					// erosion; ReTerraForged 0.0.6 erodes deserts like any other biome
+					if(!original && biome.is(Biomes.DESERT)) {
 						erodeDesert(desertErosionVariance, levels, chunk, cell, pos, surfaceY);
 						continue;
 					}

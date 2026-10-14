@@ -88,7 +88,7 @@ public final class RTFStressTest {
 		for (Setting<?> setting : PresetStressTable.SETTINGS) {
 			for (Object value : setting.abuse()) {
 				Change change = new Change(setting, value);
-				variants.add(new Variant(change.toString(), Presets::makeRTFDefault, List.of(change)));
+				variants.add(new Variant(change.toString(), Presets::makeDefault, List.of(change)));
 			}
 		}
 		return run(server, variants, 30);
@@ -263,8 +263,8 @@ public final class RTFStressTest {
 
 	private static List<Variant> variants(int randomCount) {
 		List<Variant> variants = new ArrayList<>();
-		variants.add(new Variant("preset Default", Presets::makeRTFDefault, List.of()));
-		variants.add(new Variant("preset Legacy Default", Presets::makeLegacyDefault, List.of()));
+		variants.add(new Variant("preset Default", Presets::makeDefault, List.of()));
+		variants.add(new Variant("preset Default (1.21.1 port)", Presets::makePortDefault, List.of()));
 		variants.add(new Variant("preset Legacy Vanillaish", Presets::makeLegacyVanillaish, List.of()));
 		variants.add(new Variant("preset Legacy Beautiful", Presets::makeLegacyBeautiful, List.of()));
 		variants.add(new Variant("preset Legacy Lite", Presets::makeLegacyLite, List.of()));
@@ -272,17 +272,17 @@ public final class RTFStressTest {
 		for (Setting<?> setting : PresetStressTable.SETTINGS) {
 			for (Object value : setting.extremes()) {
 				Change change = new Change(setting, value);
-				variants.add(new Variant(change.toString(), Presets::makeRTFDefault, List.of(change)));
+				variants.add(new Variant(change.toString(), Presets::makeDefault, List.of(change)));
 			}
 		}
-		variants.add(new Variant("every setting at its minimum", Presets::makeRTFDefault, PresetStressTable.SETTINGS.stream().map((s) -> new Change(s, s.min())).toList()));
-		variants.add(new Variant("every setting at its maximum", Presets::makeRTFDefault, PresetStressTable.SETTINGS.stream().map((s) -> new Change(s, s.max())).toList()));
+		variants.add(new Variant("every setting at its minimum", Presets::makeDefault, PresetStressTable.SETTINGS.stream().map((s) -> new Change(s, s.min())).toList()));
+		variants.add(new Variant("every setting at its maximum", Presets::makeDefault, PresetStressTable.SETTINGS.stream().map((s) -> new Change(s, s.max())).toList()));
 		RandomSource random = RandomSource.create(SEED);
 		for (int i = 0; i < randomCount; i++) {
 			long seed = random.nextLong();
 			RandomSource values = RandomSource.create(seed);
 			List<Change> changes = PresetStressTable.SETTINGS.stream().map((s) -> new Change(s, s.random().next(values))).toList();
-			variants.add(new Variant("random #" + i + " (seed " + seed + ")", Presets::makeRTFDefault, changes));
+			variants.add(new Variant("random #" + i + " (seed " + seed + ")", Presets::makeDefault, changes));
 		}
 		return variants;
 	}

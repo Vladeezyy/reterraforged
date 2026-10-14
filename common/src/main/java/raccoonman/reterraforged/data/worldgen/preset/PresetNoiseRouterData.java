@@ -102,7 +102,7 @@ public class PresetNoiseRouterData {
         DensityFunction oreVeinB = NoiseRouterData.yLimitedInterpolatable(y, DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_VEIN_B), 4.0, 4.0), minY, maxY, 0).abs();
         DensityFunction oreVein = DensityFunctions.add(DensityFunctions.constant(-0.08F), DensityFunctions.max(oreVeinA, oreVeinB));
         DensityFunction oreGap = DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_GAP));
-        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), preliminarySurfaceLevel(slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), worldDepth, worldHeight), finalDensity, oreVeininess, oreVein, oreGap);
+        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth, preset.miscellaneous().originalGeneration), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), preliminarySurfaceLevel(slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), worldDepth, worldHeight), finalDensity, oreVeininess, oreVein, oreGap);
 	}
 
 	// Since 1.21.9 the router has the preliminary surface height itself instead of the density without jaggedness that
@@ -112,10 +112,12 @@ public class PresetNoiseRouterData {
 		return DensityFunctions.findTopSurface(DensityFunctions.add(initialDensityWithoutJaggedness, DensityFunctions.constant(-0.390625)), DensityFunctions.constant(worldHeight), -worldDepth, 8);
 	}
 
-    private static DensityFunction climateDepth(CaveSettings caves, DensityFunction depth, DensityFunction y, int worldDepth) {
-        DensityFunction climateDepth = DensityFunctions.add(depth, DensityFunctions.constant(-0.205D));
+    private static DensityFunction climateDepth(CaveSettings caves, DensityFunction depth, DensityFunction y, int worldDepth, boolean original) {
+        // ReTerraForged 0.0.6: depth - 0.275, the cave biomes as deep as there; the 1.21.1 port moved them up (- 0.205)
+        // and clamps the depth for TerraBlender (kept with 0.0.6's depth only when a cave biome mod needs it)
+        DensityFunction climateDepth = DensityFunctions.add(depth, DensityFunctions.constant(original ? -0.275D : -0.205D));
         CompatibilityMode mode = caves.compatibilityMode;
-        if(mode == CompatibilityMode.RTF || (mode == CompatibilityMode.AUTO && !TBCompat.isEnabled())) {
+        if(mode == CompatibilityMode.RTF || (mode == CompatibilityMode.AUTO && !TBCompat.isEnabled()) || (original && mode == CompatibilityMode.AUTO && !hasUndergroundBiomeCompatTarget())) {
             return climateDepth;
         }
         DensityFunction terraBlenderDepth = climateDepth.clamp(-1.0D, terraBlenderClimateDepthMax(mode));

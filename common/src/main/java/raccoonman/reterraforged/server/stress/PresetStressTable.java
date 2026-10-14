@@ -81,6 +81,7 @@ final class PresetStressTable {
 		Setting.ofBoolean("miscellaneous().vanillaLavaLakes", (p, v) -> p.miscellaneous().vanillaLavaLakes = v),
 		Setting.ofBoolean("miscellaneous().vanillaLavaSprings", (p, v) -> p.miscellaneous().vanillaLavaSprings = v),
 		Setting.ofFloat("miscellaneous().mountainBiomeUsage", 0.0F, 1.0F, (p, v) -> p.miscellaneous().mountainBiomeUsage = v),
+		Setting.ofBoolean("miscellaneous().originalGeneration", (p, v) -> p.miscellaneous().originalGeneration = v),
 		Setting.ofFloat("miscellaneous().volcanoBiomeUsage", 0.0F, 1.0F, (p, v) -> p.miscellaneous().volcanoBiomeUsage = v),
 		Setting.ofSeed("rivers().seedOffset", (p, v) -> p.rivers().seedOffset = v),
 		Setting.ofInt("rivers().riverCount", 0, 30, (p, v) -> p.rivers().riverCount = v),

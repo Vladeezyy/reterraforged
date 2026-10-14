@@ -88,7 +88,7 @@ public final class RTFSelfTest {
 	private static String exportPreset(MinecraftServer server) {
 		Path out = server.getServerDirectory().resolve("reterraforged-preset.zip").toAbsolutePath();
 		try {
-			PresetExport.toZip(Presets.makeRTFDefault(), "Default", server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS), out);
+			PresetExport.toZip(Presets.makeDefault(), "Default", server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS), out);
 			return "[RTF] exported preset to " + out;
 		} catch (Throwable t) {
 			RTFCommon.LOGGER.error("[RTF] preset export failed", t);

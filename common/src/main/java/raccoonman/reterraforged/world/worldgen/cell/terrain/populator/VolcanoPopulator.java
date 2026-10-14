@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.cell.terrain.populator;
 
+import raccoonman.reterraforged.data.worldgen.preset.settings.TerrainSettings;
 import raccoonman.reterraforged.world.worldgen.biome.Erosion;
 import raccoonman.reterraforged.world.worldgen.biome.Weirdness;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
@@ -29,8 +30,15 @@ public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
     private Terrain outer;
     
     private float weight;
+    private float baseScale;
+    private float verticalScale;
     
-    public VolcanoPopulator(Seed seed, RegionConfig region, Levels levels, float weight) {
+    // the volcano terrain settings: weight, and since they did nothing before, base scale (the ground under it),
+    // vertical scale (the cone's height) and horizontal scale (the cone's and the lowlands' size); at 1 a volcano is
+    // the same as before
+    public VolcanoPopulator(Seed seed, RegionConfig region, Levels levels, TerrainSettings.Terrain settings) {
+        float h = Math.max(0.01F, settings.horizontalScale);
+        boolean scaled = settings.horizontalScale != 1.0F;
         float midpoint = 0.3F;
         float range = 0.3F;
         Noise heightLookup = Noises.perlin(seed.next(), 2, 1);
@@ -41,19 +49,23 @@ public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
         this.height = heightNoise;
         
         Noise cone = Noises.worleyEdge(region.seed(), region.scale(), EdgeFunction.DISTANCE_2_DIV, DistanceFunction.EUCLIDEAN);
+        if (scaled) {
+            // the distance ratio to the region's center, shrunk or stretched: a wider or narrower cone in its region
+            cone = Noises.clamp(Noises.mul(cone, 1.0F / h), 0.0F, 1.0F);
+        }
         cone = Noises.invert(cone);
         cone = Noises.warp(cone, region.warpX(), region.warpZ(), region.warpStrength());
         cone = Noises.powCurve(cone, 11.0F);
         cone = Noises.clamp(cone, 0.475F, 1.0F);
         cone = Noises.map(cone, 0.0F, 1.0F);
         cone = Noises.gradient(cone, 0.0F, 0.5F, 0.5F);
-        cone = Noises.warpPerlin(cone, seed.next(), 15, 2, 10.0F);
+        cone = scaled ? Noises.warpPerlin(cone, seed.next(), Math.max(1, Math.round(15 * h)), 2, 10.0F * h) : Noises.warpPerlin(cone, seed.next(), 15, 2, 10.0F);
         cone = Noises.mul(cone, this.height);
         
         this.cone = cone;
         
-        Noise lowlands = Noises.perlinRidge(seed.next(), 150, 3);
-        lowlands = Noises.warpPerlin(lowlands, seed.next(), 30, 1, 30.0F);
+        Noise lowlands = scaled ? Noises.perlinRidge(seed.next(), Math.max(1, Math.round(150 * h)), 3) : Noises.perlinRidge(seed.next(), 150, 3);
+        lowlands = scaled ? Noises.warpPerlin(lowlands, seed.next(), Math.max(1, Math.round(30 * h)), 1, 30.0F * h) : Noises.warpPerlin(lowlands, seed.next(), 30, 1, 30.0F);
         lowlands = Noises.mul(lowlands, 0.1F);
         
         this.lowlands = lowlands;
@@ -65,7 +77,9 @@ public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
         this.inner = TerrainType.VOLCANO_PIPE;
         this.bias = levels.ground;
         
-        this.weight = weight;
+        this.weight = settings.weight;
+        this.baseScale = settings.baseScale;
+        this.verticalScale = settings.verticalScale;
     }
     
     public float weight() {
@@ -96,7 +110,7 @@ public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
             value += this.lowlands.compute(x, z, 0) * alpha2;
             cell.terrain = this.outer;
         }
-        cell.height = this.bias + value;
+        cell.height = this.bias * this.baseScale + value * this.verticalScale;
     }
     
     public static void modifyVolcanoType(Cell cell, Levels levels) {
