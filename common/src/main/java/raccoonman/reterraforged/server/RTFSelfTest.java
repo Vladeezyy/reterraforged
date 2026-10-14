@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -53,7 +54,11 @@ public final class RTFSelfTest {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})).then(Commands.literal("stress").executes(ctx -> {
+		}).then(Commands.argument("stress", StringArgumentType.greedyString()).executes(ctx -> {
+			String result = exportStressPreset(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "stress"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("stress").executes(ctx -> {
 			String result = RTFStressTest.run(ctx.getSource().getServer(), 40);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
@@ -70,6 +75,18 @@ public final class RTFSelfTest {
 		Path out = server.getServerDirectory().resolve("reterraforged-preset.zip").toAbsolutePath();
 		try {
 			PresetExport.toZip(Presets.makeRTFDefault(), "Default", server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS), out);
+			return "[RTF] exported preset to " + out;
+		} catch (Throwable t) {
+			RTFCommon.LOGGER.error("[RTF] preset export failed", t);
+			return "[RTF] preset export failed: " + t;
+		}
+	}
+
+	// a stress test preset (min, max, random:N) as a datapack, for a real world with it (tools/stressworld.sh)
+	private static String exportStressPreset(MinecraftServer server, String spec) {
+		Path out = server.getServerDirectory().resolve("reterraforged-preset.zip").toAbsolutePath();
+		try {
+			PresetExport.toZip(RTFStressTest.makePreset(spec), "Stress " + spec, server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS), out);
 			return "[RTF] exported preset to " + out;
 		} catch (Throwable t) {
 			RTFCommon.LOGGER.error("[RTF] preset export failed", t);

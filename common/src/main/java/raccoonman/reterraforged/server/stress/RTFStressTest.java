@@ -226,6 +226,25 @@ public final class RTFStressTest {
 		RTFCommon.LOGGER.error("[RTF stress]   {} fails with: {}", variant.name(), reduced.changes());
 	}
 
+	/**
+	 * A stress preset by name, for a real world (tools/stressworld.sh): "min" (every setting at its minimum), "max"
+	 * (every setting at its maximum) or "random:N" (the stress test's random combination number N).
+	 */
+	public static Preset makePreset(String spec) {
+		List<Variant> variants = variants(spec.startsWith("random:") ? Integer.parseInt(spec.substring(7)) + 1 : 0);
+		String name = switch (spec) {
+			case "min" -> "every setting at its minimum";
+			case "max" -> "every setting at its maximum";
+			default -> spec.startsWith("random:") ? "random #" + spec.substring(7) + " " : null;
+		};
+		if (name == null) {
+			throw new IllegalArgumentException("unknown stress preset " + spec + " (min, max, random:N)");
+		}
+		Variant variant = variants.stream().filter((v) -> v.name().startsWith(name) || v.name().equals(name.trim())).findFirst().orElseThrow();
+		RTFCommon.LOGGER.info("[RTF] stress preset {}: {}", spec, variant.changes());
+		return variant.build();
+	}
+
 	private static List<Variant> variants(int randomCount) {
 		List<Variant> variants = new ArrayList<>();
 		variants.add(new Variant("preset Default", Presets::makeRTFDefault, List.of()));

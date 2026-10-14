@@ -5,6 +5,7 @@
 # Pass 1: a throwaway world, "rtf exportpreset" writes the "Default" preset datapack (the same pack the in-game preset
 # screen exports). Pass 2: a fresh world with that datapack in world/datapacks, "rtf selftest" (the mod's test command,
 # enabled by -Drtf.selftest=true). Prints the result line and every error / exception the log contains.
+# PRESET=min|max|random:N exports a stress test preset instead of "Default" (tools/stressworld.sh).
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -96,7 +97,7 @@ for loader in $LOADERS; do
     printf "${props}level-name=world-export\n" > "$dir/server.properties"
     start_server "$dir" export.log
     if wait_for "$dir/export.log" 'Done (' 600; then
-        echo "rtf exportpreset" >> "$dir/console.in"
+        echo "rtf exportpreset${PRESET:+ $PRESET}" >> "$dir/console.in"
         wait_for "$dir/export.log" '\[RTF\] \(exported\|preset export failed\)' 300
     fi
     stop_server "$dir" export.log
