@@ -13,7 +13,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.RandomSource;
@@ -28,9 +28,9 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.surface.RTFSurfaceSystem;
 
-public record StrataRule(ResourceLocation name, Holder<Noise> selector, List<Strata> strata, int iterations) implements SurfaceRules.RuleSource {
+public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> strata, int iterations) implements SurfaceRules.RuleSource {
 	public static final MapCodec<StrataRule> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		ResourceLocation.CODEC.fieldOf("name").forGetter(StrataRule::name),
+		Identifier.CODEC.fieldOf("name").forGetter(StrataRule::name),
 		Noise.CODEC.fieldOf("selector").forGetter(StrataRule::selector),
 		Strata.CODEC.listOf().fieldOf("strata").forGetter(StrataRule::strata),
 		Codec.INT.fieldOf("iterations").forGetter(StrataRule::iterations)
