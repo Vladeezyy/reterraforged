@@ -4,7 +4,9 @@ import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Filter.Visitor;
 
-public record Steepness(int radius, float scaler, float waterLevel) implements Filter, Visitor {
+// clamp: ReTerraForged 0.0.6 keeps the gradient at 1 at most (MiscellaneousSettings.originalGeneration); the 1.21.1
+// port lets it grow on steep slopes, which the erosion and the snow then read as steeper still
+public record Steepness(int radius, float scaler, float waterLevel, boolean clamp) implements Filter, Visitor {
 
 	@Override
 	public void apply(Filterable cellMap, int seedX, int seedZ, int iterations) {
@@ -27,10 +29,10 @@ public record Steepness(int radius, float scaler, float waterLevel) implements F
 				}
 			}
 		}
-		cell.gradient = totalHeightDif * this.scaler;
+		cell.gradient = this.clamp ? Math.min(1.0F, totalHeightDif * this.scaler) : totalHeightDif * this.scaler;
 	}
 	
-	public static Steepness make(int radius, float scaler, Levels levels) {
-		return new Steepness(radius, scaler, levels.water);
+	public static Steepness make(int radius, float scaler, Levels levels, boolean clamp) {
+		return new Steepness(radius, scaler, levels.water, clamp);
 	}
 }
