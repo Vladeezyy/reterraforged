@@ -16,16 +16,16 @@ NeoForge и Fabric. История коммитов авторов сохран�
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Ветка |
 |---|---|---|---|---|
-| 1.21.1 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | `main` |
-| 1.21.3 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | `mc/1.21.3` |
-| 1.21.4 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | `mc/1.21.4` |
-| 1.21.5 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | `mc/1.21.5` |
-| 1.21.8 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | `mc/1.21.8` |
-| 1.21.10 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | `mc/1.21.10` |
-| 1.21.11 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | `mc/1.21.11` |
-| 26.1.2 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | `mc/26.1.2` |
-| 26.2 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | `mc/26.2` |
-| 26.3 | [0.0.8](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.8-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | `mc/26.3` |
+| 1.21.1 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | `main` |
+| 1.21.3 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | `mc/1.21.3` |
+| 1.21.4 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | `mc/1.21.4` |
+| 1.21.5 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | `mc/1.21.5` |
+| 1.21.8 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | `mc/1.21.8` |
+| 1.21.10 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | `mc/1.21.10` |
+| 1.21.11 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | `mc/1.21.11` |
+| 26.1.2 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | `mc/26.1.2` |
+| 26.2 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | `mc/26.2` |
+| 26.3 | [0.0.9](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.9-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | `mc/26.3` |
 
 В каждом релизе — jar для NeoForge, jar для Fabric и датапак пресета для серверов. 1.21.x — Java 21, 26.x — Java 25.
 Сервер: jar в `mods/`, для нового мира датапак `reterraforged-preset-<версия>.zip` в `world/datapacks/` (без него
@@ -45,8 +45,18 @@ NeoForge и Fabric. История коммитов авторов сохран�
 - **Мод грузился на любой версии Minecraft** и падал на чужой — теперь в метаданных точные диапазоны версий; версия мода в
   `neoforge.mods.toml` была 0.0.6 вместо настоящей.
 - **Обрезанные кнопки** на экране пресетов в маленьком окне.
+- **Утечка памяти** (0.0.9): кэши генератора (тайлы, карты рек) не освобождались никогда — каждое перестроение превью и
+  каждый вход в мир оставляли их в памяти до закрытия игры, с тяжёлыми настройками — вылет по нехватке памяти.
+- **NaN в рельефе** (0.0.9): горизонтальный масштаб рельефа 0, совпадающие контрольные точки океан/суша, реки нулевой
+  длины на крошечных континентах, минимальный глобальный масштаб у границы мира.
 
 ## Проверка
+
+Стресс-тест настроек: `tools/stresstest.sh` (команда `rtf stress`) — каждый из 166 параметров экрана пресетов на
+минимуме и максимуме ползунка, все встроенные пресеты, всё на минимуме, всё на максимуме и случайные комбинации; каждый
+вариант проходит кодек пресета, сборку датапака мира, превью и тайлы мира с эрозией (562 варианта, все проходят).
+`tools/stressworld.sh` — настоящие миры с экстремальными пресетами. Таблица параметров генерируется из страниц экрана
+пресетов (`tools/stresstable.py`).
 
 Каждая версия проверяется двумя скриптами (работают и в Git Bash на Windows):
 
