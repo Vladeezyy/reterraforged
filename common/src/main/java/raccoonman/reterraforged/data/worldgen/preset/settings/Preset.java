@@ -24,6 +24,7 @@ import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseGeneratorSetting
 import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetPlacedFeatures;
 import raccoonman.reterraforged.data.worldgen.preset.PresetStructureRuleData;
+import raccoonman.reterraforged.data.worldgen.preset.PresetStructureSets;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
@@ -74,6 +75,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 			TBNoiseRouterData.bootstrap(ctx);
 		});
 		this.addPatch(builder, Registries.NOISE_SETTINGS, PresetNoiseGeneratorSettings::bootstrap);
+		this.addPatch(builder, Registries.STRUCTURE_SET, (preset, ctx) -> PresetStructureSets.bootstrap(preset, ctx, registries));
 
 		Cloner.Factory factory = new Cloner.Factory();
 		RegistryDataLoader.WORLDGEN_REGISTRIES.forEach(registryData -> registryData.runWithArguments(factory::addCodec));
