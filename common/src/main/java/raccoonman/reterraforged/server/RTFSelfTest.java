@@ -3,6 +3,7 @@ package raccoonman.reterraforged.server;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -22,6 +23,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -154,6 +157,23 @@ public final class RTFSelfTest {
 			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.location().toString())
 			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
+		// and they stand in the world: trunks in the nearest forest (the feature list above holds even when every tree
+		// fails to place, as on 26.1 with the soil tag and 26.3 with the template block names)
+		Pair<BlockPos, Holder<Biome>> forest = level.findClosestBiome3d((biome) -> biome.is(Biomes.FOREST), BlockPos.ZERO.atY(level.getSeaLevel() + 8), 2400, 32, 64);
+		if (forest == null) {
+			RTFCommon.LOGGER.info("[RTF selftest] no forest within 2400 blocks, its trees not checked");
+		} else {
+			BlockPos center = forest.getFirst();
+			for (int cx = (center.getX() >> 4) - 2; cx <= (center.getX() >> 4) + 2; cx++) for (int cz = (center.getZ() >> 4) - 2; cz <= (center.getZ() >> 4) + 2; cz++) full(level, cx, cz);
+			int trunks = 0;
+			for (int x = center.getX() - 24; x < center.getX() + 24; x++) {
+				for (int z = center.getZ() - 24; z < center.getZ() + 24; z++) {
+					int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+					if (level.getBlockState(new BlockPos(x, ground - 1, z)).is(BlockTags.LOGS)) trunks++;
+				}
+			}
+			check("trees stand in the forest at " + center.getX() + ", " + center.getZ() + " (" + trunks + " trunk columns)", trunks >= 5);
+		}
 		// the structure page reaches the world: a preset with other village spacing, separation and salt makes a
 		// datapack whose villages have them
 		Preset spaced = Presets.makeDefault();
