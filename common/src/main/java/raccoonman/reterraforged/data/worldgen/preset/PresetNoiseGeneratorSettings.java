@@ -38,7 +38,8 @@ public class PresetNoiseGeneratorSettings {
 			false, 
 			true, 
 			caveSettings.largeOreVeins, 
-			false
+			// the legacy random source of ReTerraForged 0.0.6 (surface, aquifers, ore veins); the 1.21.1 port's is the new one
+			preset.miscellaneous().originalGeneration
 		));
     }
 }

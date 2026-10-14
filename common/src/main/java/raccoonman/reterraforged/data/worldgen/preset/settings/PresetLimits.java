@@ -51,7 +51,7 @@ public final class PresetLimits {
 	}
 
 	public static Preset clamp(Preset preset) {
-		Preset defaults = Presets.makeRTFDefault();
+		Preset defaults = Presets.makeDefault();
 		List<String> changed = new ArrayList<>();
 		for (Limit<?> limit : PresetLimitTable.LIMITS) {
 			fix(limit, preset, defaults, changed);

@@ -20,6 +20,10 @@ import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
 public class PresetSurfaceRuleData {
     
     public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Noise> noise) {
+		// the strata only with the strata decorator on, as in ReTerraForged 0.0.6 (the 1.21.1 port always added them)
+		if(!preset.miscellaneous().strataDecorator) {
+			return SurfaceRuleData.overworld();
+		}
 		return SurfaceRules.sequence(
 				SurfaceRuleData.overworld(),
 				makeStrataRule(noise)

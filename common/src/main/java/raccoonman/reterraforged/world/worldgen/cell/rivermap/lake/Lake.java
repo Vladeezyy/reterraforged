@@ -18,11 +18,13 @@ public class Lake {
     private float bankMin;
     private float bankMax;
     protected Vec2f center;
+    private boolean original;
     
     public Lake(Vec2f center, float radius, float multiplier, LakeConfig config) {
+        this.original = config.original;
         float lake = radius * multiplier;
         float smoothRange = Math.max(50.0F, config.sizeRange * 2.0F);
-        float valley = lake + smoothRange * multiplier;
+        float valley = config.original ? 275.0F * multiplier : lake + smoothRange * multiplier;
         // 确保 valley 不小于 lake
         if (valley < lake) {
             valley = lake;
@@ -76,7 +78,9 @@ public class Lake {
             valleyAlpha = 1.0F;
         }
         // 动态平滑：距离越远平滑强度越小（二次衰减）
-        valleyAlpha = valleyAlpha * valleyAlpha;
+        if (!this.original) {
+            valleyAlpha = valleyAlpha * valleyAlpha;
+        }
         cell.height = NoiseUtil.lerp(cell.height, bankHeight, valleyAlpha);
         cell.riverMask *= 1.0F - valleyAlpha;
         cell.riverMask = Math.min(cell.riverMask, 1.0F - valleyAlpha);

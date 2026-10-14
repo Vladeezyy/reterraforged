@@ -81,7 +81,7 @@ public final class RTFEffectTest {
 	public static String run(MinecraftServer server) {
 		RegistryAccess registries = server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS);
 		long start = System.nanoTime();
-		Preset defaults = Presets.makeRTFDefault();
+		Preset defaults = Presets.makeDefault();
 		String defaultJson = json(defaults);
 		anchors = anchors(defaults, registries);
 		Print base = print(defaults, registries);
@@ -94,7 +94,7 @@ public final class RTFEffectTest {
 			boolean any = false;
 			report.add(setting.name());
 			for (Object value : setting.extremes()) {
-				Preset preset = Presets.makeRTFDefault();
+				Preset preset = Presets.makeDefault();
 				setting.set(preset, value);
 				if (json(preset).equals(defaultJson)) {
 					report.add("    = " + value + ": Default's value");
@@ -112,11 +112,11 @@ public final class RTFEffectTest {
 				String context = CONTEXTS.keySet().stream().filter(setting.name()::startsWith).findFirst().orElse(null);
 				if (effect.isEmpty() && context != null) {
 					Print contextBase = contextBases.computeIfAbsent(context, (c) -> {
-						Preset p = Presets.makeRTFDefault();
+						Preset p = Presets.makeDefault();
 						CONTEXTS.get(c).accept(p);
 						return print(p, registries);
 					});
-					Preset withContext = Presets.makeRTFDefault();
+					Preset withContext = Presets.makeDefault();
 					CONTEXTS.get(context).accept(withContext);
 					setting.set(withContext, value);
 					effect = compare(contextBase, print(withContext, registries));

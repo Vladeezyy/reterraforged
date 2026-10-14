@@ -67,8 +67,11 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 		private Cell cell = new Cell();
 		
 		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate) {
-			blockX = QuartPos.toBlock(QuartPos.fromBlock(blockX));
-			blockZ = QuartPos.toBlock(QuartPos.fromBlock(blockZ));
+			// the 1.21.1 port samples on the 4 block grid of the biomes; ReTerraForged 0.0.6 at the block itself
+			if(!lookup.isOriginal()) {
+				blockX = QuartPos.toBlock(QuartPos.fromBlock(blockX));
+				blockZ = QuartPos.toBlock(QuartPos.fromBlock(blockZ));
+			}
 			
 			long packedPos = PosUtil.pack(blockX, blockZ);
 			if(this.lastPos != packedPos) {

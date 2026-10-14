@@ -18,7 +18,14 @@ import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 
 public class Presets {
 
-	public static Preset makeRTFDefault() {
+	// the "Default" of ReTerraForged 0.0.6: TerraForged's default settings with the original generation
+	public static Preset makeDefault() {
+		return makeLegacyDefault();
+	}
+
+	// the 1.21.1 port's default (Campione01): made from 0.0.6's unfinished second default (world height 384, the
+	// new mountain scaling, fewer caves...), with the port's generation
+	public static Preset makePortDefault() {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI_IMPROVED, DistanceFunction.EUCLIDEAN, 3000, 0.7F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
@@ -104,7 +111,7 @@ public class Presets {
 				new Smoothing(1, 1.8F, 0.9F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 0.4F, 0.4F)
+			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 0.4F, 0.4F, true)
 		); 
 	}
 	
@@ -149,7 +156,7 @@ public class Presets {
 				new Smoothing(2, 1.8F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.75F)
+			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.75F, true)
 		); 
 	}
 	
@@ -195,7 +202,7 @@ public class Presets {
 				new Smoothing(1, 1.855F, 0.916F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 0.853F, 0.855F)
+			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 0.853F, 0.855F, true)
 		); 
 	}
 	
@@ -240,7 +247,7 @@ public class Presets {
 				new Smoothing(2, 1.799F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.75F)
+			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.75F, true)
 		);
 	}
 	
@@ -285,7 +292,7 @@ public class Presets {
 				new Smoothing(1, 1.799F, 0.898F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F)
+			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F, true)
 		);
 	}
 	

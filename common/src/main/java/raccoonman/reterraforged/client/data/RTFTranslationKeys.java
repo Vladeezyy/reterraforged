@@ -14,6 +14,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SELECT_PRESET_TITLE = resolve("gui.selectPreset.title");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
+	public static final String GUI_PORT_DEFAULT_PRESET_NAME = resolve("gui.preset.portDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
 	public static final String GUI_HUGE_BIOMES_PRESET_NAME = resolve("gui.preset.hugeBiomes.name");
 	public static final String GUI_LITE_PRESET_NAME = resolve("gui.preset.lite.name");
@@ -64,6 +65,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_VANILLA_SPRINGS = resolve("gui.button.vanillaSprings");
 	public static final String GUI_BUTTON_VANILLA_LAVA_LAKES = resolve("gui.button.vanillaLavaLakes");
 	public static final String GUI_BUTTON_VANILLA_LAVA_SPRINGS = resolve("gui.button.vanillaLavaSprings");
+	public static final String GUI_BUTTON_ORIGINAL_GENERATION = resolve("gui.button.originalGeneration");
+	public static final String GUI_TOOLTIP_NOT_USED = resolve("gui.tooltip.notUsed");
 	public static final String GUI_BUTTON_ENABLE_ARCHIPELAGO = resolve("gui.button.enableArchipelago");
 	public static final String GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES = resolve("gui.button.enableFakeWaterBiomes");
 	public static final String GUI_BUTTON_STEPPE_FAKE_RIVERS = resolve("gui.button.steppeFakeRivers");

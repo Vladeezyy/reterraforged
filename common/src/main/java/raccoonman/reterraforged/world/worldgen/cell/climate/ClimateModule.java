@@ -33,8 +33,10 @@ public class ClimateModule {
 	private Continent continent;
 	private ControlPoints controlPoints;
 	private Levels levels;
+	private boolean original;
 	
-	public ClimateModule(Seed seed, Continent continent, WorldSettings.ControlPoints controlPoints, ClimateSettings climateSettings, Levels levels) {
+	public ClimateModule(Seed seed, Continent continent, WorldSettings.ControlPoints controlPoints, ClimateSettings climateSettings, Levels levels, boolean original) {
+		this.original = original;
 		int biomeSize = climateSettings.biomeShape.biomeSize;
 		
 		float tempScaler = (float) climateSettings.temperature.scale;
@@ -145,7 +147,9 @@ public class ClimateModule {
         cell.temperature = cell.biome.getTemperature(cell.biomeRegionId);
         cell.moisture = cell.biome.getMoisture(cell.biomeRegionId);
 
-		if (cell.terrain != null && cell.terrain.getCategory() == TerrainCategory.HIGHLAND) {
+		// the 1.21.1 port: a mountain region takes one biome type, from the climate at the region's center, which can
+		// differ from the biome cells around it (snowy peaks next to a desert); 0.0.6 keeps the biome cell's climate
+		if (!this.original && cell.terrain != null && cell.terrain.getCategory() == TerrainCategory.HIGHLAND) {
 			float mtnFreqX = cell.terrainRegionCenterX * this.biomeFreq;
 			float mtnFreqZ = cell.terrainRegionCenterZ * this.biomeFreq;
 
