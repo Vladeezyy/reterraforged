@@ -1,27 +1,36 @@
 #!/bin/bash
-# Client check after tools/servertest.sh: tools/clienttest.sh [neoforge|fabric]
+# Client check after tools/servertest.sh: tools/clienttest.sh [neoforge|fabric] [gui]
 # Copies the server test world (made with the "Default" preset) into the dev client's saves, starts the dev client
 # with -Drtf.clienttest (RTFClientTest): screenshot of the preset screen with its live preview, then the world is
 # loaded and screenshots are taken at the highest mountain, a desert, a river and from above the spawn. The game
 # quits by itself; screenshots are copied to run/clienttest-<loader>/.
+# "gui" instead makes a new world through the screens with mouse clicks, as a player does (RTFGuiTest): the preset
+# list, the settings pages, Done twice, Create New World; checks the world is built with the edited preset.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
+MODE=${2:-world}
 WORLD=run/server-$LOADER/world
 RUN=$LOADER/run
 OUT=run/clienttest-$LOADER
-if [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh $LOADER first"; exit 1; fi
+TEST=rtf-test
+if [ "$MODE" = gui ]; then
+    OUT=run/guitest-$LOADER
+    TEST=gui
+elif [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh $LOADER first"; exit 1; fi
 
 mkdir -p "$RUN/saves" "$OUT"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
-cp -r "$WORLD" "$RUN/saves/rtf-test"
-rm -f "$RUN/saves/rtf-test/session.lock"
+if [ "$MODE" = gui ]; then rm -rf "$RUN/saves/New World"*; else
+    cp -r "$WORLD" "$RUN/saves/rtf-test"
+    rm -f "$RUN/saves/rtf-test/session.lock"
+fi
 # no accessibility onboarding screen on the first start, and no pause when the window loses focus
 if [ ! -f "$RUN/options.txt" ]; then
     printf 'onboardAccessibility:false\ntutorialStep:none\npauseOnLostFocus:false\nguiScale:2\n' > "$RUN/options.txt"
 fi
 
-./gradlew ":$LOADER:runClient" -PrtfClientTest=rtf-test --no-daemon > "$OUT/client.log" 2>&1 &
+./gradlew ":$LOADER:runClient" -PrtfClientTest=$TEST --no-daemon > "$OUT/client.log" 2>&1 &
 gradle=$!
 # in dev runs Architectury's TransformerRuntime leaves non-daemon thread pools behind (seen with 26.2; not in the
 # released jars), and the client then does not exit after "done" (NeoForge: never, Fabric: shutdown watchdog crash):

@@ -58,7 +58,9 @@ public final class RTFClientTest {
 	public static void tick(Minecraft mc) {
 		if (WORLD == null || WORLD.isEmpty()) return;
 		try {
-			run(mc);
+			// tools/clienttest.sh <loader> gui: a world made through the screens with mouse clicks (RTFGuiTest)
+			if (WORLD.equals("gui")) RTFGuiTest.tick(mc);
+			else run(mc);
 		} catch (Throwable t) {
 			RTFCommon.LOGGER.error("[RTF clienttest] failed", t);
 			mc.stop();
@@ -180,7 +182,7 @@ public final class RTFClientTest {
 		return false;
 	}
 
-	private static void confirm(Screen screen) {
+	static void confirm(Screen screen) {
 		if (screen == null) return;
 		for (var child : screen.children()) {
 			if (child instanceof Button button && button.getMessage().getContents() instanceof TranslatableContents contents && CONFIRM_KEYS.contains(contents.getKey())) {
