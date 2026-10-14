@@ -36,7 +36,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     public void reveal(T widget) {
     	for(Entry<T> entry : this.children()) {
     		if(entry.widget == widget) {
-    			this.scrollToEntry(entry);
+    			this.ensureVisible(entry);
     			return;
     		}
     	}

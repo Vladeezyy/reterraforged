@@ -72,7 +72,7 @@ public final class RTFWidgetTest {
 		switch (step) {
 			case 0 -> {
 				if (mc.screen instanceof TitleScreen title) {
-					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
+					CreateWorldScreen.openFresh(mc, title);
 					next(60);
 				}
 			}

@@ -19,8 +19,6 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -29,7 +27,6 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import raccoonman.reterraforged.RTFCommon;
@@ -75,7 +72,7 @@ public final class RTFGuiTest {
 		switch (step) {
 			case 0 -> {
 				if (mc.screen instanceof TitleScreen title) {
-					CreateWorldScreen.openFresh(mc, () -> mc.setScreen(title));
+					CreateWorldScreen.openFresh(mc, title);
 					next(60);
 				}
 			}
@@ -235,9 +232,9 @@ public final class RTFGuiTest {
 			fail("the new world is not built by ReTerraForged (vanilla generator)");
 		}
 		// the preset's trees replace the vanilla ones in the biomes
-		Biome forest = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST);
+		Biome forest = level.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.FOREST);
 		List<String> trees = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream)
-			.map((key) -> key.identifier().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
+			.map((key) -> key.location().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		log("trees in the forest: {}", trees);
 		if (!trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees"))) fail("the forest of the new world does not grow ReTerraForged trees: " + trees);
 	}
@@ -263,7 +260,7 @@ public final class RTFGuiTest {
 	}
 
 	static void shoot(Minecraft mc, String name) {
-		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), 1, (message) -> {
+		Screenshot.grab(mc.gameDirectory, "rtf-" + name + ".png", mc.getMainRenderTarget(), (message) -> {
 		});
 		shot++;
 	}
@@ -325,10 +322,9 @@ public final class RTFGuiTest {
 		double y = widget.getY() + widget.getHeight() / 2.0;
 		log("click {} '{}' at {} {} on {}", widget.getClass().getSimpleName(), widget.getMessage().getString(), (int) x, (int) y, name(mc.screen));
 		Screen screen = mc.screen;
-		MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0));
 		screen.mouseMoved(x, y);
-		screen.mouseClicked(event, false);
-		screen.mouseReleased(event);
+		screen.mouseClicked(x, y, GLFW.GLFW_MOUSE_BUTTON_LEFT);
+		screen.mouseReleased(x, y, GLFW.GLFW_MOUSE_BUTTON_LEFT);
 	}
 
 	@Nullable
@@ -347,7 +343,7 @@ public final class RTFGuiTest {
 		MinecraftServer server = mc.getSingleplayerServer();
 		server.execute(() -> {
 			ServerPlayer player = server.getPlayerList().getPlayer(mc.player.getUUID());
-			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(LevelBasedPermissionSet.OWNER), command);
+			server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4), command);
 		});
 	}
 }

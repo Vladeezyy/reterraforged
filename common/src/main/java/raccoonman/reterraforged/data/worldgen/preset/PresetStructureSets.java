@@ -31,9 +31,9 @@ public final class PresetStructureSets {
 	public static void bootstrap(Preset preset, BootstrapContext<StructureSet> ctx, RegistryAccess registries) {
 		HolderGetter<Structure> structures = ctx.lookup(Registries.STRUCTURE);
 		HolderGetter<StructureSet> sets = ctx.lookup(Registries.STRUCTURE_SET);
-		Registry<StructureSet> current = registries.lookupOrThrow(Registries.STRUCTURE_SET);
+		Registry<StructureSet> current = registries.registryOrThrow(Registries.STRUCTURE_SET);
 		preset.structures().entries.forEach((key, entry) -> {
-			Optional<Holder.Reference<StructureSet>> holder = current.get(key);
+			Optional<Holder.Reference<StructureSet>> holder = current.getHolder(key);
 			if (holder.isEmpty() || !(holder.get().value().placement() instanceof RandomSpreadStructurePlacement placement)) {
 				return;
 			}

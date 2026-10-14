@@ -91,13 +91,13 @@ public final class RTFStructureTest {
 
 	public static String run(MinecraftServer server) {
 		ServerLevel level = server.overworld();
-		BlockPos spawn = level.getRespawnData().pos();
+		BlockPos spawn = level.getSharedSpawnPos();
 		List<String> failures = new ArrayList<>();
 		List<String> missing = new ArrayList<>();
 		int found = 0, villages = 0;
 		long start = System.nanoTime();
 		for (Target target : TARGETS) {
-			String name = target.key().identifier().getPath();
+			String name = target.key().location().getPath();
 			Optional<Holder.Reference<Structure>> holder = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(target.key());
 			if (holder.isEmpty()) {
 				missing.add(name);

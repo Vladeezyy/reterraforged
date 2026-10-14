@@ -150,8 +150,8 @@ public final class RTFSelfTest {
 		check("overworld uses the ReTerraForged generator", rtf);
 		// the preset's biome modifiers are applied: the forest has the mod's trees instead of vanilla's (on NeoForge
 		// they were left out of the preset datapack, and every tree was vanilla)
-		List<String> trees = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST).getGenerationSettings().features().stream()
-			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
+		List<String> trees = level.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.FOREST).getGenerationSettings().features().stream()
+			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.location().toString())
 			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
 		// the structure page reaches the world: a preset with other village spacing, separation and salt makes a
