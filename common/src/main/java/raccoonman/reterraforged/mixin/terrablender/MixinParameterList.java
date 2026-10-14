@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -37,8 +37,8 @@ class MixinParameterList<T> {
 	private static final int CAVE_BIOME_COMPAT_Y_MAX = 48;
 	private static final int UNDERGROUND_COMPAT_REGION_SCALE = 20;
 	private static final int UNDERGROUND_COMPAT_REGION_WEIGHT = 4;
-	private static final ResourceLocation DARKER_DEPTHS_REGION = ResourceLocation.fromNamespaceAndPath("darkerdepths", "overworld");
-	private static final ResourceLocation DEEPER_DARKER_REGION = ResourceLocation.fromNamespaceAndPath("deeperdarker", "overworld");
+	private static final Identifier DARKER_DEPTHS_REGION = Identifier.fromNamespaceAndPath("darkerdepths", "overworld");
+	private static final Identifier DEEPER_DARKER_REGION = Identifier.fromNamespaceAndPath("deeperdarker", "overworld");
 
 	// ReTerraForged gives the biome tables a temperature and humidity of its own biome types (cell.biome.type.BiomeType),
 	// the middle of one vanilla band each and only some of the pairs: none on land is warm (level 3) and neutral (level
@@ -197,7 +197,7 @@ class MixinParameterList<T> {
 		}).orElse(CompatibilityMode.AUTO);
 	}
 
-	private static int getRegionIndex(RegionType regionType, ResourceLocation region) {
+	private static int getRegionIndex(RegionType regionType, Identifier region) {
 		try {
 			return Regions.getIndex(regionType, region);
 		} catch(RuntimeException exception) {
