@@ -101,7 +101,9 @@ public record Line(float x1, float z1, float x2, float z2, Noise radiusSq, Noise
         float dx = bx - ax;
         float dy = by - ay;
         float v = (x - ax) * dx + (y - ay) * dy;
-        return v / (dx * dx + dy * dy);
+        float length2 = dx * dx + dy * dy;
+        // a line of no length (a river whose ends meet, on very small continents): every point is at its start
+        return length2 == 0.0F ? 0.0F : v / length2;
     }
 	
 	public static float distSq(float x1, float y1, float x2, float y2) {

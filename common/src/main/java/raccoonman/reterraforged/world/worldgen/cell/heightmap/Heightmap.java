@@ -53,11 +53,31 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         this.continent.apply(cell, x, z);
         this.region.apply(cell, x, z);
         this.terrain.apply(cell, x * this.terrainFrequency, z * this.terrainFrequency);
+        this.keepFinite(cell);
 	}
 	
 	public void applyRivers(Cell cell, float x, float z, Rivermap rivermap) {
         rivermap.apply(cell, x, z);
         VolcanoPopulator.modifyVolcanoType(cell, this.levels);
+        this.keepFinite(cell);
+	}
+
+	// The last guard: a height that is not a number would reach the noise router and the features. With the smallest
+	// global horizontal scale the noise coordinates pass the int range near the world border, where the noises give
+	// infinities; such a point is sea level with a neutral erosion and weirdness.
+	private void keepFinite(Cell cell) {
+		if (!Float.isFinite(cell.height)) {
+			cell.height = this.levels.water;
+		}
+		if (!Float.isFinite(cell.riverMask)) {
+			cell.riverMask = 1.0F;
+		}
+		if (!Float.isFinite(cell.erosion)) {
+			cell.erosion = 0.0F;
+		}
+		if (!Float.isFinite(cell.weirdness)) {
+			cell.weirdness = 0.0F;
+		}
 	}
 	
 	public void applyClimate(Cell cell, float x, float z, boolean applyClimate) {

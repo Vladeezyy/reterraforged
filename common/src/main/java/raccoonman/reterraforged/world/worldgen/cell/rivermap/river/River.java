@@ -46,8 +46,9 @@ public class River {
         this.dz = z2 - z1;
         this.length = (float) Math.sqrt(this.dx * this.dx + this.dz * this.dz);
         this.length2 = this.length * this.length;
-        this.ndx = this.dx / this.length;
-        this.ndz = this.dz / this.length;
+        // a river whose ends meet has no direction (instead of NaN)
+        this.ndx = this.length == 0.0F ? 0.0F : this.dx / this.length;
+        this.ndz = this.length == 0.0F ? 0.0F : this.dz / this.length;
         this.normX = this.ndz;
         this.normZ = -this.ndx;
         this.minX = Math.min(x1, x2) - radius;
@@ -84,8 +85,8 @@ public class River {
     }
     
     public boolean intersects(River other, float extend) {
-        float extendA = NoiseUtil.clamp(extend / this.length, 0.0F, 1.0F);
-        float extendB = NoiseUtil.clamp(extend / other.length, 0.0F, 1.0F);
+        float extendA = this.length == 0.0F ? 0.0F : NoiseUtil.clamp(extend / this.length, 0.0F, 1.0F);
+        float extendB = other.length == 0.0F ? 0.0F : NoiseUtil.clamp(extend / other.length, 0.0F, 1.0F);
         float deltaAX = this.x2 - this.x1;
         float deltaAY = this.z2 - this.z1;
         float deltaBX = other.x2 - other.x1;
@@ -122,6 +123,9 @@ public class River {
     }
     
     public River shorten(int distance) {
+        if (this.length == 0.0F) {
+            return this;
+        }
         float factor = distance / this.length();
         float dx = this.x2 - this.x1;
         float dy = this.z2 - this.z1;
