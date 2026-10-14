@@ -1,6 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.biome.modifier.neoforge;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,8 +39,9 @@ record AddModifier(Order order, GenerationStep.Decoration step, Optional<Filter>
 				List<List<Holder<PlacedFeature>>> featureSteps = builderAccessor.getFeatures();
 				int index = this.step.ordinal();
 	
+				// mutable, other mods' modifiers may add to the step afterwards
 				while (index >= featureSteps.size()) {
-					featureSteps.add(Collections.emptyList());
+					featureSteps.add(new ArrayList<>());
 				}
 	
 				featureSteps.set(index, this.add(featureSteps.get(index)));
