@@ -11,6 +11,13 @@ PAGES = os.path.join(ROOT, 'common/src/main/java/raccoonman/reterraforged/client
 OUT = os.path.join(ROOT, 'common/src/main/java/raccoonman/reterraforged/server/stress/PresetStressTable.java')
 LIMITS_OUT = os.path.join(ROOT, 'common/src/main/java/raccoonman/reterraforged/data/worldgen/preset/settings/PresetLimitTable.java')
 
+# limits wider than the slider: values built-in presets use (Legacy Lite and Legacy Huge Biomes have -1 for the
+# island control points), so holding presets to the limits never changes a built-in one
+LIMIT_OVERRIDES = {
+    'world().controlPoints.islandInland': ('-1.0F', None),
+    'world().controlPoints.islandCoast': ('-1.0F', None),
+}
+
 CALL = re.compile(r'PresetWidgets\.(createFloatSlider|createIntSlider|createToggle|createCycle|createRandomButton)\(')
 
 
@@ -92,7 +99,8 @@ def main():
             getter = 'p -> ' + path
             if kind == 'createFloatSlider':
                 entries.append('Setting.ofFloat("%s", %s, %s, %s)' % (label, number(args[1], 'F'), number(args[2], 'F'), setter))
-                limits.append('Limit.ofFloat("%s", %s, %s, %s, %s)' % (label, number(args[1], 'F'), number(args[2], 'F'), getter, setter))
+                low, high = LIMIT_OVERRIDES.get(label, (None, None))
+                limits.append('Limit.ofFloat("%s", %s, %s, %s, %s)' % (label, low or number(args[1], 'F'), high or number(args[2], 'F'), getter, setter))
             elif kind == 'createIntSlider':
                 low, high = number(args[1], ''), number(args[2], '')
                 step = re.search(r'getNearestMultiple\([^,]+,[^,]+,\s*(\d+)\)', lam)
