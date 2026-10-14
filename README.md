@@ -4,13 +4,21 @@
 лицензия **MIT**) — той же сборки, что лежит на CurseForge как «ReTerraforged Unofficial» (автор пометил её брошенной).
 NeoForge и Fabric. История коммитов авторов сохранена.
 
-![Горы ReTerraForged](docs/showcase-mountains.jpg)
+Генерация мира как в оригинальном ReTerraForged 0.0.6 (1.20.1) — с исправленными ошибками, на Minecraft 1.21.1 – 26.3,
+на 10 языках (русский, английский, китайский, немецкий, французский, испанский, португальский, японский, корейский,
+польский).
 
-| ![Река между саванной и пустыней](docs/showcase-river.jpg) | ![Дюны](docs/showcase-desert.jpg) |
+![Горы ReTerraForged и даль до горизонта](docs/showcase-mountains.jpg)
+
+| ![Вишнёвая роща над морем](docs/showcase-cherry-grove.jpg) | ![Долина у подножия гор](docs/showcase-valley.jpg) |
 |---|---|
+| ![Побережье](docs/showcase-coast.jpg) | ![Озеро в лесу](docs/showcase-lake.jpg) |
+| ![Цветочный лес на склонах](docs/showcase-flower-forest.jpg) | ![Болото и река](docs/showcase-swamp.jpg) |
+| ![Лесистые бесплодные земли](docs/showcase-badlands.jpg) | ![Экран пресетов](docs/preset-preview.png) |
 
-<sub>Minecraft 26.2, пресет «Default», шейдеры Complementary Reimagined (Iris) — только для картинок, мод от них не
-зависит. Снято `tools/showcase.sh`.</sub>
+<sub>Minecraft 26.3, ReTerraForged 0.0.12, пресет «Default» с высотой мира 384, размером биомов 300 и горами ×1.15.
+Шейдеры Complementary Reimagined (Iris) и Distant Horizons с прорисовкой 256 чанков — только для картинок, мод от них
+не зависит. Снято `tools/showcase.sh`.</sub>
 
 ## Версии
 
