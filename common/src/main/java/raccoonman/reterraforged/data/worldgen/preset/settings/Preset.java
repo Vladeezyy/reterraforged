@@ -30,7 +30,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.structure.rule.StructureRule;
 
 public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings caves, ClimateSettings climate, TerrainSettings terrain, IslandSettings island, FakeWaterBiomeSettings fakeWaterBiomes, RiverSettings rivers, FilterSettings filters, StructureSettings structures, MiscellaneousSettings miscellaneous) {
-	public static final Codec<Preset> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	private static final Codec<Preset> RECORD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		WorldSettings.CODEC.fieldOf("world").forGetter(Preset::world),
 		SurfaceSettings.CODEC.optionalFieldOf("surface", new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F))).forGetter(Preset::surface),
 		CaveSettings.CODEC.optionalFieldOf("caves", new CaveSettings(0.0F, 1.5625F, 1.0F, 1.0F, 1.0F, 0.14285715F, 0.07F, 0.02F, true, false)).forGetter(Preset::caves),
@@ -43,6 +43,8 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 		StructureSettings.CODEC.fieldOf("structures").forGetter(Preset::structures),
 		MiscellaneousSettings.CODEC.fieldOf("miscellaneous").forGetter(Preset::miscellaneous)
 	).apply(instance, Preset::new));
+	// a preset read from a file is held to the preset screen's ranges (PresetLimits)
+	public static final Codec<Preset> DIRECT_CODEC = RECORD_CODEC.xmap(PresetLimits::clamp, (preset) -> preset);
 	
 	@Deprecated
 	public static final ResourceKey<Preset> KEY = RTFRegistries.createKey(RTFRegistries.PRESET, "preset");
