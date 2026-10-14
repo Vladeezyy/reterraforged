@@ -64,7 +64,7 @@ public final class RTFSelfTest {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		if (!enabled()) return;
-		dispatcher.register(Commands.literal("rtf").requires(s -> s.hasPermission(4)).then(Commands.literal("selftest").executes(ctx -> {
+		dispatcher.register(Commands.literal("rtf").requires(Commands.hasPermission(Commands.LEVEL_OWNERS)).then(Commands.literal("selftest").executes(ctx -> {
 			String result = new RTFSelfTest().run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
@@ -154,7 +154,7 @@ public final class RTFSelfTest {
 		// the preset's biome modifiers are applied: the forest has the mod's trees instead of vanilla's (on NeoForge
 		// they were left out of the preset datapack, and every tree was vanilla)
 		List<String> trees = level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.FOREST).getGenerationSettings().features().stream()
-			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.location().toString())
+			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
 			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
 		// and they stand in the world: trunks in the nearest forest (the feature list above holds even when every tree
