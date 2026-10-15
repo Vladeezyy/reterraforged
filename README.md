@@ -511,7 +511,7 @@ the previous one. Build: `./gradlew build` (Java 21 for 1.21.x, Java 25 for 26.x
 
 TerraForged by dags; ReTerraForged by racoonman2; the 1.21.1 port by Campione01; this fork by Vladeezyy.
 
-License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYING](COPYING)), Copyright (c) 2026 Vladeezyy. Forks and modified versions must stay open under the same license and credit the authors. The code taken from the upstream projects keeps its MIT license and copyright notices ([LICENSE-MIT](LICENSE-MIT)). Please download the mod only from the official release pages.
+License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Forks and modified versions must stay open under the same license and credit the authors. The code taken from the upstream projects keeps its MIT license and copyright notices ([LICENSE-MIT](licenses/LICENSE-MIT)). Please download the mod only from the official release pages.
 
 </details>
 
@@ -1016,6 +1016,6 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 
 TerraForged — dags; ReTerraForged — racoonman2; порт на 1.21.1 — Campione01; этот форк — Vladeezyy.
 
-Лицензия: **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL-3.0 в [COPYING](COPYING)), Copyright (c) 2026 Vladeezyy. Форки и изменённые версии обязаны оставаться открытыми под той же лицензией и указывать авторов. Код, взятый из исходных проектов, сохраняет лицензию MIT и копирайты авторов ([LICENSE-MIT](LICENSE-MIT)). Пожалуйста, скачивайте мод только со страниц официальных релизов.
+Лицензия: **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL-3.0 в [COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Форки и изменённые версии обязаны оставаться открытыми под той же лицензией и указывать авторов. Код, взятый из исходных проектов, сохраняет лицензию MIT и копирайты авторов ([LICENSE-MIT](licenses/LICENSE-MIT)). Пожалуйста, скачивайте мод только со страниц официальных релизов.
 
 </details>

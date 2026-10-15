@@ -26,3 +26,9 @@ remapJar {
 test {
 	useJUnitPlatform()
 }
+
+// License texts inside both mod jars (common's resources are bundled into the NeoForge and Fabric jars)
+processResources {
+    from(rootProject.file('LICENSE')) { rename { 'LICENSE_reterraforged' } }
+    from(rootProject.file('licenses')) { into 'licenses/reterraforged' }
+}
