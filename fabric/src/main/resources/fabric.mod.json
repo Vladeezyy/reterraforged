@@ -13,7 +13,7 @@
     "repo": "https://github.com/Vladeezyy/reterraforged",
     "issues": "https://github.com/Vladeezyy/reterraforged/issues"
   },
-  "license": "MIT",
+  "license": "LGPL-3.0-only",
   "environment": "*",
   "entrypoints": {
     "main": [
