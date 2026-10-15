@@ -3,9 +3,10 @@
 # that loader, which installs the server and exports the "Default" preset datapack).
 # Two fresh worlds on the same seed: one with the preset datapack (ReTerraForged), one without it (vanilla generation,
 # the baseline). In each, "rtf bench" generates 32 x 32 chunks far from the spawn to the full status and reports chunks
-# per second; the server runs with spark (its "health" report: CPU, memory, GC) and a Java Flight Recorder recording,
+# per second; the server runs with spark ("spark tps" during the generation: TPS, tick times, CPU; printed in the
+# console, nothing is uploaded) and a Java Flight Recorder recording,
 # whose hottest methods are printed. Both are downloaded/kept in run/ and taken out of the server's mods afterwards.
-# SIZE=n changes the square (n x n chunks).
+# SIZE=n changes the square (n x n chunks); MODES="reterraforged" measures one world only.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
@@ -49,7 +50,7 @@ read -r url file < <(curl -fsSL "https://api.modrinth.com/v2/project/spark/versi
 cp "run/$file" "$dir/mods/"
 echo "spark: $file"
 
-for mode in reterraforged vanilla; do
+for mode in ${MODES:-reterraforged vanilla}; do
     world=world-bench-$mode
     rm -rf "$dir/$world" "$OUT/$mode.jfr"
     mkdir -p "$dir/$world/datapacks"
@@ -63,18 +64,17 @@ for mode in reterraforged vanilla; do
     start_server bench.log
     if ! wait_for bench.log 'Done (' 600; then echo "$mode: server did not start"; kill_servers; continue; fi
     echo "rtf bench $SIZE" >> "$dir/console.in"
-    # spark while the chunks generate: its health report (tick times, CPU, memory) 8 s into the measured part
+    # spark while the chunks generate, 8 s into the measured part: TPS, tick times, CPU
     wait_for bench.log '\[RTF bench\] warmed up' 600
     sleep 8
-    echo "spark health" >> "$dir/console.in"
+    echo "spark tps" >> "$dir/console.in"
     wait_for bench.log '\[RTF bench\] [a-zA-Z]*:' 1800
     echo "stop" >> "$dir/console.in"
     wait_for bench.log 'All dimensions are saved' 120; sleep 5
     kill "$(cat "$dir/tail.pid")" 2>/dev/null; kill_servers; wait $pid 2>/dev/null
     cp "$dir/bench.log" "$OUT/$mode.log"
     echo "== $(grep -o '\[RTF bench\].*' "$OUT/$mode.log" | tail -1)"
-    # spark's health report (the server thread was busy with the bench, so its TPS says nothing; CPU and memory do)
-    sed -n '/> TPS from last/,/> Disk usage/p' "$OUT/$mode.log" | grep -v '^\s*\[' | sed 's/^\[[^]]*\] \[[^]]*\]: //' > "$OUT/$mode-spark.txt"
+    grep -A10 '> TPS from last' "$OUT/$mode.log" | grep -v '^\[' | grep -v '^--' > "$OUT/$mode-spark.txt"
     cat "$OUT/$mode-spark.txt"
     grep -o '\[RTF bench\].*' "$OUT/$mode.log" | tail -1 >> "$OUT/summary.txt"
     if [ -f "$OUT/$mode.jfr" ] && [ -x "$JFR" -o -x "$JFR.exe" ]; then

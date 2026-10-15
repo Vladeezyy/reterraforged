@@ -58,7 +58,7 @@ grep -h "RTF clienttest" "$OUT/client.log" | sed 's/^.*\[RTF clienttest\]/ /'
 # Not the mod: Realms without an account in the dev client, NeoForge's note about Loom's dev-only class processor,
 # OSHI system info on Windows with broken performance counters (26.2+), player certificates without an account,
 # the client shutdown watchdog of a client that did not exit (see above; it fails to load its class after FML closed)
-noise='far chunk.*large_dripstone|Realms|ClassTransformStatistics|oshi.|Win32Exception|Perflib|player/certificates|MinecraftClientHttpException|authlib.minecraft.client|ServerWatchdog|Client shutdown watchdog|Module minecraft has been closed'
+noise='far chunk.*large_dripstone|Realms|ClassTransformStatistics|oshi.|Win32Exception|Perflib|player/certificates|Failed to retrieve profile key pair|MinecraftClientHttpException|authlib.minecraft.client|ServerWatchdog|Client shutdown watchdog|Module minecraft has been closed'
 dripstone=$(grep -c 'far chunk.*large_dripstone' "$OUT/client.log")
 errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | grep -c .)
 echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors (+ $dripstone vanilla large_dripstone far-chunk lines)"
