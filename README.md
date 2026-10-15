@@ -20,7 +20,7 @@ does not depend on them.</sub>
 
 TerraForged-style world generation: continents and oceans, mountain ranges, river networks with tributaries, lakes,
 wetlands, slope erosion, rock strata, and a preset editor with a live map of the world to be. This is a working fork of
-[ReterraForged](https://github.com/Campione01/ReterraForged) (Campione01, built on racoonman2 and TerraForged). The
+[ReTerraForged](https://github.com/racoonman2/ReTerraForged) by racoonman2, built on TerraForged by dags. The
 generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without its bugs and on new game versions.
 
 ## Download
@@ -67,7 +67,7 @@ The mod only affects new worlds created with its preset. It does not change an e
 - **Structures:** spacing, separation and salt for every structure set, or disable it. Villages and other surface
   structures are not placed on mountains, as in 0.0.6.
 - **Presets:** the "Default" of ReTerraForged 0.0.6 and the classic TerraForged presets (Beautiful, Huge Biomes, Lite,
-  Vanilla-ish). The 1.21.1 port's variant is there too, as the last entry of the list.
+  Vanilla-ish).
 - **11 languages:** English, Russian, Ukrainian, Chinese, German, French, Spanish, Portuguese (Brazil), Japanese, Korean,
   Polish.
 
@@ -510,7 +510,7 @@ the previous one. Build: `./gradlew build` (Java 21 for 1.21.x, Java 25 for 26.x
 
 ## Credits and license
 
-TerraForged by dags; ReTerraForged by racoonman2; the 1.21.1 port by Campione01; this fork by Vladeezyy.
+TerraForged by dags; ReTerraForged by racoonman2; this fork by Vladeezyy.
 
 License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Forks and modified versions must stay open under the same license and credit the authors. The code taken from the upstream projects keeps its MIT license and copyright notices ([LICENSE-MIT](licenses/LICENSE-MIT)). Please download the mod only from the official release pages.
 
@@ -525,7 +525,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 Генерация мира в духе TerraForged: материки и океаны, горные хребты, речные сети с притоками, озёра, болота, эрозия
 склонов, пласты горных пород — и редактор пресетов с живой картой будущего мира. Это рабочий форк
-[ReterraForged](https://github.com/Campione01/ReterraForged) (Campione01, поверх racoonman2 и TerraForged). Генерация —
+[ReTerraForged](https://github.com/racoonman2/ReTerraForged) от racoonman2, поверх TerraForged от dags. Генерация —
 как в оригинальном **ReTerraForged 0.0.6** для 1.20.1, только без его ошибок и на новых версиях игры.
 
 ## Скачать
@@ -570,8 +570,8 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Структуры:** для каждого набора структур можно задать расстояние, разнос и salt или отключить его. Деревни и
   другие наземные структуры не ставятся на горы, как в 0.0.6.
 - **Пресеты:** «По умолчанию» из ReTerraForged 0.0.6 и классические пресеты TerraForged — Beautiful, Huge Biomes,
-  Lite, Vanilla-ish. Есть и вариант порта на 1.21.1, последней строкой списка.
-- **10 языков:** русский, английский, китайский, немецкий, французский, испанский, португальский (Бразилия),
+  Lite, Vanilla-ish.
+- **11 языков:** русский, украинский, английский, китайский, немецкий, французский, испанский, португальский (Бразилия),
   японский, корейский, польский.
 
 ![Экран пресетов на русском](docs/preset-screen-ru.jpg)
@@ -1015,7 +1015,7 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 
 ## Авторы и лицензия
 
-TerraForged — dags; ReTerraForged — racoonman2; порт на 1.21.1 — Campione01; этот форк — Vladeezyy.
+TerraForged — dags; ReTerraForged — racoonman2; этот форк — Vladeezyy.
 
 Лицензия: **LGPL-3.0-only** ([LICENSE](LICENSE), текст GPL-3.0 в [COPYING](licenses/COPYING)), Copyright (c) 2026 Vladeezyy. Форки и изменённые версии обязаны оставаться открытыми под той же лицензией и указывать авторов. Код, взятый из исходных проектов, сохраняет лицензию MIT и копирайты авторов ([LICENSE-MIT](licenses/LICENSE-MIT)). Пожалуйста, скачивайте мод только со страниц официальных релизов.
 

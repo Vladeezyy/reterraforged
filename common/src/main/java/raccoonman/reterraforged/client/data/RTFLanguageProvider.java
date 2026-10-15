@@ -26,7 +26,6 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SELECT_PRESET_TITLE, "Presets & Defaults");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME, "Default");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_LEGACY_PRESET_NAME, "TerraForged - Default (Legacy)");
-			this.add(RTFTranslationKeys.GUI_PORT_DEFAULT_PRESET_NAME, "Default (1.21.1 port, experimental)");
 			this.add(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME, "TerraForged - Beautiful (Legacy)");
 			this.add(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME, "TerraForged - Huge Biomes (Legacy)");
 			this.add(RTFTranslationKeys.GUI_LITE_PRESET_NAME, "TerraForged - Lite (Legacy)");

@@ -264,7 +264,6 @@ public final class RTFStressTest {
 	private static List<Variant> variants(int randomCount) {
 		List<Variant> variants = new ArrayList<>();
 		variants.add(new Variant("preset Default", Presets::makeDefault, List.of()));
-		variants.add(new Variant("preset Default (1.21.1 port)", Presets::makePortDefault, List.of()));
 		variants.add(new Variant("preset Legacy Vanillaish", Presets::makeLegacyVanillaish, List.of()));
 		variants.add(new Variant("preset Legacy Beautiful", Presets::makeLegacyBeautiful, List.of()));
 		variants.add(new Variant("preset Legacy Lite", Presets::makeLegacyLite, List.of()));

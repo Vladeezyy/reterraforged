@@ -204,13 +204,12 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		entries.addAll(this.listPresets(PRESET_PATH));
 		entries.addAll(this.listPresets(LEGACY_PRESET_PATH));
 
-		// as in ReTerraForged 0.0.6: "Default" is TerraForged's default; the 1.21.1 port's default comes last
+		// as in ReTerraForged 0.0.6: "Default" is TerraForged's default
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeDefault(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyBeautiful(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyHugeBiomes(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LITE_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyLite(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_VANILLAISH_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyVanillaish(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_PORT_DEFAULT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makePortDefault(), true, this));
 		this.left.replaceEntries(entries.stream().map(WidgetList.Entry::new).toList());
 		if(this.selectName != null) {
 			for(Entry<PresetEntry> entry : this.left.children()) {
