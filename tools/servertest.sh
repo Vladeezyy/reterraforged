@@ -7,6 +7,8 @@
 # enabled by -Drtf.selftest=true), then "rtf structures" (every overworld structure near the spawn, built and checked).
 # Prints the result lines and every error / exception the log contains.
 # PRESET=min|max|random:N exports a stress test preset instead of "Default" (tools/stressworld.sh).
+# MODS="biomes-o-plenty ..." also installs these Modrinth projects with their dependencies (tools/extramods.sh) and runs
+# "rtf biomemods" in both worlds: the vanilla export world is the reference for the other mods' biomes.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -90,6 +92,7 @@ for loader in $LOADERS; do
     esac
     rm -f "$dir"/mods/reterraforged-*.jar
     cp "$jar" "$dir/mods/"
+    bash tools/extramods.sh $loader "$dir/mods" $MODS || { FAILS=$((FAILS+1)); continue; }
     echo "eula=true" > "$dir/eula.txt"
     props="online-mode=false\nserver-port=$PORT\nlevel-seed=20261013\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\n"
 
@@ -100,6 +103,10 @@ for loader in $LOADERS; do
     if wait_for "$dir/export.log" 'Done (' 600; then
         echo "rtf exportpreset${PRESET:+ $PRESET}" >> "$dir/console.in"
         wait_for "$dir/export.log" '\[RTF\] \(exported\|preset export failed\)' 300
+        if [ -n "$MODS" ]; then
+            echo "rtf biomemods" >> "$dir/console.in"
+            wait_for "$dir/export.log" 'RTF biomemods\] \(vanilla\|FAIL\)' 1200
+        fi
     fi
     stop_server "$dir" export.log
     if [ ! -f "$dir/reterraforged-preset.zip" ]; then
@@ -122,6 +129,10 @@ for loader in $LOADERS; do
     echo "rtf structures" >> "$dir/console.in"
     wait_for "$dir/console.log" 'RTF structures\] \(PASS\|FAIL\)' 1200
     structures=$(grep -o 'RTF structures\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-400)
+    if [ -n "$MODS" ]; then
+        echo "rtf biomemods" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF biomemods\] \(rtf\|FAIL\)' 1200
+    fi
     stop_server "$dir" console.log
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
@@ -130,7 +141,31 @@ for loader in $LOADERS; do
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"
     grep -E '/ERROR\]|Exception' "$dir/console.log" | grep -vE "$noise" | sed 's/^\[[0-9:]*\] //' | cut -c1-160 | sort | uniq -c | sort -rn | head -8
-    [[ "$line" == *"PASS all"* && "$errors" == 0 && "$structures" == *"PASS"* ]] || FAILS=$((FAILS+1))
+    biomemods=PASS
+    if [ -n "$MODS" ]; then
+        # the other mods' biomes as in a vanilla world with the same mods: at least 80 % of the biome kinds found
+        # there, a share of the surface at least half as large, not more often under water, and their own surface
+        # blocks in as many biomes (less 10 %)
+        ref=$(grep -o 'RTF biomemods\] vanilla.*' "$dir/export.log" | tail -1)
+        got=$(grep -o 'RTF biomemods\] rtf.*' "$dir/console.log" | tail -1)
+        echo "  ${ref:-RTF biomemods] no vanilla result}"
+        echo "  ${got:-RTF biomemods] no result}"
+        biomemods=$($PY -c '
+import re, sys
+def p(s):
+    m = re.search(r"found=(\d+)/(\d+) share=([\d.]+) underwater=([\d.]+) surface=(\d+)/(\d+)", s)
+    return [float(x) for x in m.groups()] if m else None
+r, g = p(sys.argv[1]), p(sys.argv[2])
+if not r or not g: print("FAIL no result"); sys.exit()
+bad = []
+if g[0] < 0.8 * r[0]: bad.append("fewer biome kinds")
+if g[2] < 0.5 * r[2]: bad.append("smaller share")
+if g[3] > r[3] + 10: bad.append("more under water")
+if g[4] / max(1, g[0]) < r[4] / max(1, r[0]) - 0.1: bad.append("fewer own surfaces")
+print("PASS" if not bad else "FAIL " + ", ".join(bad))' "$ref" "$got")
+        echo "  biomes of other mods: $biomemods (tables: $dir/rtf-biomemods-*.txt)"
+    fi
+    [[ "$line" == *"PASS all"* && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS ]] || FAILS=$((FAILS+1))
 done
 echo; [ $FAILS = 0 ] && echo "ALL PASS" || { echo "$FAILS FAILED"; exit 1; }
 exit 0

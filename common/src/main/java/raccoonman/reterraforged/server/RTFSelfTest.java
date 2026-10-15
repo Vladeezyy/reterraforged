@@ -80,6 +80,18 @@ public final class RTFSelfTest {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("holes").executes(ctx -> {
+			String result = RTFHoleTest.run(ctx.getSource().getServer(), 48);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("chunks", IntegerArgumentType.integer(4, 256)).executes(ctx -> {
+			String result = RTFHoleTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("biomemods").executes(ctx -> {
+			String result = RTFBiomeModTest.run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})).then(Commands.literal("exportpreset").executes(ctx -> {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);

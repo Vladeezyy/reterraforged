@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,8 +18,10 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,11 +44,14 @@ public final class RTFClientTest {
 	private static final String WORLD = System.getProperty("rtf.clienttest");
 	// tools/showcase.sh (pictures for the README, with shaders): evening sun and lower cameras
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
+	// tools/clienttest.sh with BIOMES="biomesoplenty:lavender_field,...": one more screenshot in each of these biomes
+	private static final String BIOMES = System.getProperty("rtf.clientbiomes", "");
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;
 	private static int shot;
 	private static float[][] spots;
+	private static String[] names;
 	private static CompletableFuture<float[][]> search;
 
 	private RTFClientTest() {
@@ -135,7 +142,7 @@ public final class RTFClientTest {
 						command(mc, String.format(java.util.Locale.ROOT, "tp @s %.1f %.1f %.1f %.1f %.1f", spot[0], spot[1], spot[2], spot[3], spot[4]));
 						next(500); // chunks around the new place are generated and rendered
 					} else {
-						shoot(mc, NAMES[i / 2]);
+						shoot(mc, names[i / 2]);
 						next(20);
 					}
 				} else {
@@ -145,8 +152,6 @@ public final class RTFClientTest {
 			}
 		}
 	}
-
-	private static final String[] NAMES = { "mountains", "desert", "river", "overview", "village" };
 
 	private static void next(int ticks) {
 		step++;
@@ -230,11 +235,21 @@ public final class RTFClientTest {
 			RTFCommon.LOGGER.info("[RTF clienttest] village at {} {} {}", villagePos.getX(), vy, villagePos.getZ());
 			village = lookAt(villagePos.getX(), vy, villagePos.getZ(), 70, 40);
 		}
-		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village };
+		List<float[]> list = new ArrayList<>(List.of(mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village));
+		List<String> named = new ArrayList<>(List.of("mountains", "desert", "river", "overview", "village"));
+		for (String id : BIOMES.split(",")) {
+			if (id.isBlank()) continue;
+			float[] spot = biomeSpot(level, spawn, ResourceKey.create(Registries.BIOME, ResourceLocation.parse(id.trim())));
+			if (spot == null) continue;
+			list.add(spot);
+			named.add(id.trim().replace(':', '-'));
+		}
+		names = named.toArray(String[]::new);
+		return list.toArray(float[][]::new);
 	}
 
 	private static float[] biomeSpot(ServerLevel level, BlockPos origin, ResourceKey<Biome> biome) {
-		Pair<BlockPos, Holder<Biome>> found = level.findClosestBiome3d((b) -> b.is(biome), origin.atY(level.getSeaLevel() + 8), 2400, 32, 4096);
+		Pair<BlockPos, Holder<Biome>> found = level.findClosestBiome3d((b) -> b.is(biome), origin.atY(level.getSeaLevel() + 8), 6400, 32, 4096);
 		if (found == null) {
 			RTFCommon.LOGGER.warn("[RTF clienttest] no {} found", biome.location());
 			return null;
