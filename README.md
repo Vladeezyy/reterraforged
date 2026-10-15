@@ -27,16 +27,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 
@@ -532,16 +532,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.13](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.13-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 
