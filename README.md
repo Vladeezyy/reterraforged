@@ -333,17 +333,174 @@ that was left) is garbage collected, and its cleanup stops.
 
 ## Testing
 
-Every version is tested on real NeoForge and Fabric servers (`tools/servertest.sh`). A world is created with the
-"Default" preset, and `rtf selftest` checks 18 points:
-- terrain, sea and a spawn on dry land;
-- the mod's trees stand in the forest and have bee nests;
-- bedrock, the Nether and the End;
-- the structure page reaches the world.
+Every release is checked on all 10 Minecraft versions and both loaders before it is published. The tests are part
+of the mod (`rtf` commands, enabled only in test runs) and of the repository (`tools/*.sh`), so anyone can repeat them.
 
-`rtf structures` finds and builds every vanilla structure near the spawn and checks that villages stand on the ground
-and have streets. The client tests (`tools/clienttest.sh`) create a world through the preset screen with real mouse
-clicks and go through every slider and switch. The stress test (`tools/stresstest.sh`) runs every setting at its
-extremes and hundreds of random combinations.
+<details>
+<summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 18 checks</summary>
+
+A real dedicated NeoForge or Fabric server is installed, the preset datapack is exported, a new world is created with
+the "Default" preset and `rtf selftest` runs in it. Output of 1.21.11 NeoForge:
+
+```
+[RTF selftest] ok   overworld uses the ReTerraForged generator
+[RTF selftest] ok   the forest grows ReTerraForged trees, not vanilla ones [reterraforged:forest_trees]
+[RTF selftest] ok   trees stand in the forest at -1920, 384 (150 trunk columns)
+[RTF selftest] ok   the structure page sets the villages' spacing, separation and salt
+[RTF selftest] 289 height samples in 11988 ms, ground 10 .. 154, water at 194 of 289 points
+[RTF selftest] 81 chunks fully generated in 2608 ms
+[RTF selftest] ok   terrain has relief (ground 10 .. 154)
+[RTF selftest] ok   terrain reaches above sea level
+[RTF selftest] ok   there is water (194/289)
+[RTF selftest] ok   terrain stays inside the world height
+[RTF selftest] ok   overworld bedrock floor is whole (holes: 0)
+[RTF selftest] ok   spawn is on dry land (2640, 93, 672: Sand)
+[RTF selftest] ok   bee nests grow on the mod's trees
+[RTF selftest] ok   saplings grown next to flowers get bee nests (7 of 199)
+[RTF selftest] ok   a village is found
+[RTF selftest] ok   the village stands on land above the sea
+[RTF selftest] ok   nether bedrock floor is whole (holes: 0)
+[RTF selftest] ok   nether bedrock roof is whole (holes: 0)
+[RTF selftest] ok   nether is made of netherrack as usual (22/90)
+[RTF selftest] ok   the end island is there
+[RTF selftest] PASS all 18
+```
+
+The script also fails on any error of the mod in the server log.
+
+</details>
+
+<details>
+<summary><b>2. Structure test</b>: <code>rtf structures</code></summary>
+
+Every vanilla structure is searched for near the spawn, generated and measured: how many pieces float in the air or
+are buried, and for villages, how many path blocks the streets have. A structure "not near" is fine (biomes decide
+that); a floating or buried village is a failure.
+
+```
+[RTF structures] village_plains at 3323 52 -819: 110 pieces, 0 floating, 0 buried, 1420 path blocks, terrain badlands
+[RTF structures] village_desert at 2177 53 549: 79 pieces, 0 floating, 0 buried, 1040 path blocks, terrain coast
+[RTF structures] village_taiga at 4199 67 -1020: 92 pieces, 0 floating, 0 buried, 558 path blocks, terrain hills
+[RTF structures] monument at 1632 39 816: 1 pieces, terrain deep_ocean
+[RTF structures] stronghold at 1758 2 -1201: 168 pieces, terrain deep_ocean
+[RTF structures] trial_chambers at 2222 -56 574: 254 pieces, terrain coast
+[RTF structures] PASS: 15 of 26 structures found in 49 s
+```
+
+The client test then flies to the village and takes a picture (1.21.11 NeoForge):
+
+![Desert village found by the structure test](docs/test-village.jpg)
+
+</details>
+
+<details>
+<summary><b>3. Preset screen click test</b>: <code>tools/clienttest.sh &lt;loader&gt; gui</code></summary>
+
+A real game client is started and driven by mouse events, as a player would: World tab → Customize → click
+"Default" → a click on the continent scale slider → `>>` through every page (each scrolled down first) → `<<` back,
+checking that every page is still scrolled where it was left → Done → the world is created, and the generator must
+use the value set by the click. Then a second round with another value. 12 screenshots per run.
+
+```
+[RTF clienttest] click Button 'Customize' at 480 80 on CreateWorldScreen
+[RTF clienttest] selected after the click: Default
+[RTF clienttest] continent scale 3000 -> 2530 (slider click)
+[RTF clienttest] pages with >>: [WorldSettingsPage, SurfaceSettingsPage, CaveSettingsPage, ClimateSettingsPage, ...]
+[RTF clienttest] round 0: the world will use the preset with continent scale 2530
+```
+
+| After the slider click | The last page |
+|---|---|
+| ![](docs/test-gui-slider.jpg) | ![](docs/test-gui-last-page.jpg) |
+
+</details>
+
+<details>
+<summary><b>4. Stress test</b>: <code>tools/stresstest.sh</code></summary>
+
+`rtf stress` runs inside a real server. Every setting of the preset screen is tried at both ends of its slider, along with every built-in preset, everything at minimum, everything at maximum and random combinations. Each variant goes through the preset codec, the datapack registries of a new world, the preview and the world tiles with every filter, under a time limit. Results of 0.0.13 (1.21.1 NeoForge):
+
+| Mode | Variants | OK | Failed | Hung | Time |
+|---|---:|---:|---:|---:|---:|
+| default: every slider end, the presets, 40 random combinations | 404 | 404 | 0 | 0 | 65 s |
+| `abuse`: NaN, ±infinity, negative and huge numbers, as a broken preset file can hold them | 935 | 935 | 0 | 0 | 126 s |
+
+```
+stress: 404 variants in 65 s: 404 ok, 0 failed, 0 hung; slowest terrain().general.terrainSeedOffset = 0 (1338 ms)
+stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().continent.continentSkipping = 0.0 (720 ms)
+```
+
+`effects` checks that every setting reaches the world: each value is compared with Default in the terrain cells and in the datapack. 153 of 167 settings change the world. The other 14 do nothing in the original 0.0.6 either, and the preset screen shows them as inactive: ore compatible stone only, plain stone erosion, mountain and volcano biome usage, five branch river sizes, the lake start distances, the island control points and the lava level.
+
+</details>
+
+<details>
+<summary><b>5. Performance</b>: <code>tools/benchmark.sh</code>, spark and Java Flight Recorder</summary>
+
+`tools/benchmark.sh` starts a real NeoForge server twice on the same seed: with the "Default" preset (ReTerraForged) and without it (vanilla generation, the baseline). In each world `rtf bench` first warms up, then generates a square of chunks far from the spawn to the full status, with one thread per core asking for chunks while the server keeps ticking. The server runs with [spark](https://spark.lucko.me) (`spark tps` during the generation, printed to the console, nothing uploaded) and a Java Flight Recorder recording.
+
+![World generation speed](docs/benchmark.png)
+
+On 1.21.1 ReTerraForged is about 9 % slower than vanilla. The mod computes a whole continent map, erosion and filters on top of vanilla's work. 0.0.13 closed a part of the gap: the erosion asked every cell's terrain for its erosion modifier through a chain of delegates, which took 4.5 % of all generation time in 0.0.12. On 26.3, with Mojang's new compiled density functions, it is as fast as vanilla.
+
+| One run | Chunks | Time | Chunks/s | Per chunk | Heap in use |
+|---|---:|---:|---:|---:|---:|
+| 1.21.1 vanilla | 2304 | 27.1 s | 84.9 | 11.8 ms | 958 MB |
+| 1.21.1 ReTerraForged 0.0.13 | 2304 | 30.0 s | 76.7 | 13.0 ms | 1193 MB |
+| 26.3 vanilla | 4096 | 15.5 s | 264.0 | 3.8 ms | 1101 MB |
+| 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 s | 270.1 | 3.7 ms | 1165 MB |
+
+**spark during the generation** (`spark tps`, the same runs). 16 threads ask for chunks at once, far more than any player flying with elytra does, so TPS drops for the time of the test in vanilla as well and is back to 20 right after it:
+
+| | TPS 5 s / 10 s / 1 min | Tick min / median / 95 % / max, ms | CPU (process) |
+|---|---|---|---|
+| 1.21.1 vanilla | 7.4 / 10.8 / 17.5 | 0.3 / 9.2 / 81.0 / 110.3 | 28 % |
+| 1.21.1 ReTerraForged | 8.2 / 11.6 / 17.8 | 0.3 / 7.6 / 102.2 / 121.2 | 31 % |
+| 26.3 vanilla | 10.2 / 13.5 / 18.5 | 0.1 / 3.5 / 20.3 / 45.7 | 49 % |
+| 26.3 ReTerraForged | 9.7 / 13.0 / 18.4 | 0.1 / 3.9 / 21.5 / 42.8 | 50 % |
+
+Raw output of spark (26.3, ReTerraForged):
+
+```
+> TPS from last 5s, 10s, 1m, 5m, 15m:
+ 9.65, 13.02, 18.36, 19.65, 19.88
+
+> Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+ 0.1/3.9/21.5/42.8;  0.1/3.9/21.5/42.8
+
+> CPU usage from last 10s, 1m, 15m:
+ 57%, 53%, 53%  (system)
+ 50%, 53%, 53%  (process)
+```
+
+**Where the time goes** (Java Flight Recorder, `jfr view hot-methods`, share of all samples). Vanilla's aquifers and noise still take most of the time. The hottest method of the mod is the erosion filter:
+
+| Method | 1.21.1 | 26.3 |
+|---|---:|---:|
+| vanilla `Aquifer.computeSubstance` | 15.0 % | 4.4 % |
+| vanilla `Beardifier.compute` (structures) | 6.1 % | 1.6 % |
+| ReTerraForged `Erosion.applyDrop` | 5.0 % | 6.0 % |
+| ReTerraForged `Perlin.compute` | 1.7 % | 2.9 % |
+| ReTerraForged `ITerrain$Delegate.erosionModifier` | 4.5 % in 0.0.12, gone in 0.0.13 | – |
+
+</details>
+
+### Results of 0.0.13
+
+| Minecraft | Self test, NeoForge | Self test, Fabric | Structure test | Click test, NeoForge | Click test, Fabric |
+|---|:-:|:-:|:-:|:-:|:-:|
+| 1.21.1 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.3 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.4 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.5 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.8 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.10 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 1.21.11 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 26.1.2 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 26.2 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+| 26.3 | ✅ 18/18 | ✅ 18/18 | ✅ 15 of 26 found | ✅ 12 screenshots | ✅ 12 screenshots |
+
+Zero errors of the mod in every server and client log. The tests found two things on the way to this table: on 26.3 the left mouse button is number 1 instead of 0, so the click test clicked nothing until it was fixed, and on 1.21.4 Fabric the click test failed once and passed on every rerun.
 
 ## Source
 
@@ -677,17 +834,176 @@ TerraForged by dags; ReTerraForged by racoonman2; the 1.21.1 port by Campione01;
 
 ## Проверка
 
-Каждая версия проверяется на настоящих серверах NeoForge и Fabric (`tools/servertest.sh`). Мир создаётся с пресетом
-«По умолчанию», и `rtf selftest` проверяет 18 пунктов:
-- рельеф, море и спавн на суше;
-- деревья мода стоят в лесу, на них есть ульи;
-- бедрок, Незер и Энд;
-- страница структур доходит до мира.
+Каждый релиз перед публикацией проверяется на всех 10 версиях Minecraft и обоих загрузчиках. Тесты встроены в мод
+(команды `rtf`, включаются только в тестовых запусках) и лежат в репозитории (`tools/*.sh`), так что их может
+повторить кто угодно.
 
-`rtf structures` находит и строит каждую ванильную структуру рядом со спавном и проверяет, что деревни стоят на земле
-и с улицами. Клиентские тесты (`tools/clienttest.sh`) создают мир через экран пресетов настоящими кликами мыши и
-проходят каждый ползунок и переключатель. Стресс-тест (`tools/stresstest.sh`) прогоняет каждую настройку на крайних
-значениях и сотни случайных комбинаций.
+<details>
+<summary><b>1. Самопроверка на сервере</b>: <code>tools/servertest.sh</code>, 18 пунктов</summary>
+
+Ставится настоящий выделенный сервер NeoForge или Fabric, экспортируется датапак пресета, создаётся новый мир с
+пресетом «По умолчанию», и в нём запускается `rtf selftest`. Вывод на 1.21.11 NeoForge:
+
+```
+[RTF selftest] ok   overworld uses the ReTerraForged generator
+[RTF selftest] ok   the forest grows ReTerraForged trees, not vanilla ones [reterraforged:forest_trees]
+[RTF selftest] ok   trees stand in the forest at -1920, 384 (150 trunk columns)
+[RTF selftest] ok   the structure page sets the villages' spacing, separation and salt
+[RTF selftest] 289 height samples in 11988 ms, ground 10 .. 154, water at 194 of 289 points
+[RTF selftest] 81 chunks fully generated in 2608 ms
+[RTF selftest] ok   terrain has relief (ground 10 .. 154)
+[RTF selftest] ok   terrain reaches above sea level
+[RTF selftest] ok   there is water (194/289)
+[RTF selftest] ok   terrain stays inside the world height
+[RTF selftest] ok   overworld bedrock floor is whole (holes: 0)
+[RTF selftest] ok   spawn is on dry land (2640, 93, 672: Sand)
+[RTF selftest] ok   bee nests grow on the mod's trees
+[RTF selftest] ok   saplings grown next to flowers get bee nests (7 of 199)
+[RTF selftest] ok   a village is found
+[RTF selftest] ok   the village stands on land above the sea
+[RTF selftest] ok   nether bedrock floor is whole (holes: 0)
+[RTF selftest] ok   nether bedrock roof is whole (holes: 0)
+[RTF selftest] ok   nether is made of netherrack as usual (22/90)
+[RTF selftest] ok   the end island is there
+[RTF selftest] PASS all 18
+```
+
+Ещё скрипт падает на любой ошибке мода в логе сервера.
+
+</details>
+
+<details>
+<summary><b>2. Тест структур</b>: <code>rtf structures</code></summary>
+
+Каждая ванильная структура ищется рядом со спавном, генерируется и измеряется: сколько частей висят в воздухе или
+закопаны, а у деревень — сколько блоков тропинок на улицах. «Не рядом» — нормально (это решают биомы); висящая или
+закопанная деревня — ошибка.
+
+```
+[RTF structures] village_plains at 3323 52 -819: 110 pieces, 0 floating, 0 buried, 1420 path blocks, terrain badlands
+[RTF structures] village_desert at 2177 53 549: 79 pieces, 0 floating, 0 buried, 1040 path blocks, terrain coast
+[RTF structures] village_taiga at 4199 67 -1020: 92 pieces, 0 floating, 0 buried, 558 path blocks, terrain hills
+[RTF structures] monument at 1632 39 816: 1 pieces, terrain deep_ocean
+[RTF structures] stronghold at 1758 2 -1201: 168 pieces, terrain deep_ocean
+[RTF structures] trial_chambers at 2222 -56 574: 254 pieces, terrain coast
+[RTF structures] PASS: 15 of 26 structures found in 49 s
+```
+
+Потом клиентский тест летит к деревне и делает снимок (1.21.11 NeoForge):
+
+![Пустынная деревня, найденная тестом структур](docs/test-village.jpg)
+
+</details>
+
+<details>
+<summary><b>3. Тест экрана пресетов кликами</b>: <code>tools/clienttest.sh &lt;загрузчик&gt; gui</code></summary>
+
+Запускается настоящий клиент игры, и им управляют события мыши, как игрок: вкладка «Мир» → «Настроить» → клик по
+«По умолчанию» → клик по ползунку масштаба континентов → `>>` по всем страницам (каждая сначала прокручена вниз) →
+`<<` обратно с проверкой, что каждая страница прокручена туда же, где её оставили → «Готово» → создаётся мир, и
+генератор должен использовать значение, выставленное кликом. Потом второй круг с другим значением. 12 скриншотов за
+прогон.
+
+```
+[RTF clienttest] click Button 'Customize' at 480 80 on CreateWorldScreen
+[RTF clienttest] selected after the click: Default
+[RTF clienttest] continent scale 3000 -> 2530 (slider click)
+[RTF clienttest] pages with >>: [WorldSettingsPage, SurfaceSettingsPage, CaveSettingsPage, ClimateSettingsPage, ...]
+[RTF clienttest] round 0: the world will use the preset with continent scale 2530
+```
+
+| После клика по ползунку | Последняя страница |
+|---|---|
+| ![](docs/test-gui-slider.jpg) | ![](docs/test-gui-last-page.jpg) |
+
+</details>
+
+<details>
+<summary><b>4. Стресс-тест</b>: <code>tools/stresstest.sh</code></summary>
+
+`rtf stress` работает внутри настоящего сервера. Каждая настройка экрана пресетов проверяется на обоих концах ползунка, вместе с каждым встроенным пресетом, «всё на минимуме», «всё на максимуме» и случайными комбинациями. Каждый вариант проходит через кодек пресета, регистры датапака нового мира, превью и тайлы мира со всеми фильтрами, с ограничением по времени. Результаты 0.0.13 (1.21.1 NeoForge):
+
+| Режим | Вариантов | Успешно | Ошибок | Зависаний | Время |
+|---|---:|---:|---:|---:|---:|
+| обычный: каждый конец ползунка, пресеты, 40 случайных комбинаций | 404 | 404 | 0 | 0 | 65 с |
+| `abuse`: NaN, ±бесконечность, отрицательные и огромные числа, как в сломанном файле пресета | 935 | 935 | 0 | 0 | 126 с |
+
+```
+stress: 404 variants in 65 s: 404 ok, 0 failed, 0 hung; slowest terrain().general.terrainSeedOffset = 0 (1338 ms)
+stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().continent.continentSkipping = 0.0 (720 ms)
+```
+
+`effects` проверяет, что каждая настройка доходит до мира: каждое значение сравнивается с Default в ячейках рельефа и в датапаке. 153 из 167 настроек меняют мир. Остальные 14 ничего не делают и в оригинальном 0.0.6, и экран пресетов показывает их неактивными: камень только для руд, эрозия простого камня, доля горных и вулканических биомов, пять размеров рек-притоков, расстояния начала озёр, контрольные точки островов и уровень лавы.
+
+</details>
+
+<details>
+<summary><b>5. Производительность</b>: <code>tools/benchmark.sh</code>, spark и Java Flight Recorder</summary>
+
+`tools/benchmark.sh` дважды запускает настоящий сервер NeoForge на одном сиде: с пресетом «По умолчанию» (ReTerraForged) и без него (ванильная генерация, точка отсчёта). В каждом мире `rtf bench` сначала прогревается, потом генерирует квадрат чанков далеко от спавна до полного статуса: по одному потоку на ядро запрашивают чанки, а сервер продолжает тикать. Сервер работает со [spark](https://spark.lucko.me) (`spark tps` во время генерации, вывод в консоль, ничего не загружается) и с записью Java Flight Recorder.
+
+![Скорость генерации мира](docs/benchmark.png)
+
+На 1.21.1 ReTerraForged примерно на 9 % медленнее ванили. Мод считает целую карту континентов, эрозию и фильтры поверх работы ванили. 0.0.13 сократил часть разрыва: эрозия спрашивала у рельефа каждой ячейки модификатор эрозии через цепочку делегатов, и в 0.0.12 на это уходило 4.5 % всего времени генерации. На 26.3, с новыми скомпилированными функциями плотности Mojang, мод работает так же быстро, как ваниль.
+
+| Один прогон | Чанков | Время | Чанков/с | На чанк | Занято кучи |
+|---|---:|---:|---:|---:|---:|
+| 1.21.1 ваниль | 2304 | 27.1 с | 84.9 | 11.8 мс | 958 МБ |
+| 1.21.1 ReTerraForged 0.0.13 | 2304 | 30.0 с | 76.7 | 13.0 мс | 1193 МБ |
+| 26.3 ваниль | 4096 | 15.5 с | 264.0 | 3.8 мс | 1101 МБ |
+| 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 с | 270.1 | 3.7 мс | 1165 МБ |
+
+**spark во время генерации** (`spark tps`, те же прогоны). 16 потоков запрашивают чанки одновременно, гораздо больше, чем игрок на элитрах, поэтому TPS на время теста проседает и у ванили и сразу после него возвращается к 20:
+
+| | TPS 5 с / 10 с / 1 мин | Тик мин / медиана / 95 % / макс, мс | CPU (процесс) |
+|---|---|---|---|
+| 1.21.1 ваниль | 7.4 / 10.8 / 17.5 | 0.3 / 9.2 / 81.0 / 110.3 | 28 % |
+| 1.21.1 ReTerraForged | 8.2 / 11.6 / 17.8 | 0.3 / 7.6 / 102.2 / 121.2 | 31 % |
+| 26.3 ваниль | 10.2 / 13.5 / 18.5 | 0.1 / 3.5 / 20.3 / 45.7 | 49 % |
+| 26.3 ReTerraForged | 9.7 / 13.0 / 18.4 | 0.1 / 3.9 / 21.5 / 42.8 | 50 % |
+
+Сырой вывод spark (26.3, ReTerraForged):
+
+```
+> TPS from last 5s, 10s, 1m, 5m, 15m:
+ 9.65, 13.02, 18.36, 19.65, 19.88
+
+> Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+ 0.1/3.9/21.5/42.8;  0.1/3.9/21.5/42.8
+
+> CPU usage from last 10s, 1m, 15m:
+ 57%, 53%, 53%  (system)
+ 50%, 53%, 53%  (process)
+```
+
+**Куда уходит время** (Java Flight Recorder, `jfr view hot-methods`, доля всех сэмплов). Больше всего времени по-прежнему занимают ванильные водоносные слои и шум. Самый горячий метод мода — фильтр эрозии:
+
+| Метод | 1.21.1 | 26.3 |
+|---|---:|---:|
+| ванильный `Aquifer.computeSubstance` | 15.0 % | 4.4 % |
+| ванильный `Beardifier.compute` (структуры) | 6.1 % | 1.6 % |
+| ReTerraForged `Erosion.applyDrop` | 5.0 % | 6.0 % |
+| ReTerraForged `Perlin.compute` | 1.7 % | 2.9 % |
+| ReTerraForged `ITerrain$Delegate.erosionModifier` | 4.5 % в 0.0.12, убран в 0.0.13 | – |
+
+</details>
+
+### Результаты 0.0.13
+
+| Minecraft | Самопроверка, NeoForge | Самопроверка, Fabric | Тест структур | Тест кликами, NeoForge | Тест кликами, Fabric |
+|---|:-:|:-:|:-:|:-:|:-:|
+| 1.21.1 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.3 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.4 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.5 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.8 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.10 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 1.21.11 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 26.1.2 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 26.2 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+| 26.3 | ✅ 18/18 | ✅ 18/18 | ✅ найдено 15 из 26 | ✅ 12 скриншотов | ✅ 12 скриншотов |
+
+Ноль ошибок мода во всех логах серверов и клиентов. По дороге к этой таблице тесты нашли две вещи: на 26.3 левая кнопка мыши имеет номер 1 вместо 0, поэтому тест кликами ничего не нажимал, пока это не исправили, а на 1.21.4 Fabric тест кликами один раз упал и проходил при каждом повторе.
 
 ## Исходники
 

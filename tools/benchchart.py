@@ -1,5 +1,6 @@
 """Chart of tools/benchmark.sh results for the README: python tools/benchchart.py <out.png> <label=chunks/s>...
-Each argument is a bar, e.g. "1.21.1 vanilla=84.3" "1.21.1 ReTerraForged 0.0.13=76.5"."""
+Each argument is a bar, e.g. "1.21.1 vanilla=84.3" "1.21.1 ReTerraForged 0.0.13=76.5"; TITLE=... sets the title."""
+import os
 import sys
 
 import matplotlib
@@ -20,7 +21,7 @@ for i, v in enumerate(values[::-1]):
 ax.set_xlabel('chunks generated per second (higher is better)')
 ax.set_xlim(0, max(values) * 1.15)
 ax.spines[['top', 'right']].set_visible(False)
-ax.set_title('World generation speed: 48 × 48 chunks, NeoForge, 16 cores', fontsize=11)
+ax.set_title(os.environ.get('TITLE', 'World generation speed, NeoForge'), fontsize=11)
 fig.tight_layout()
 fig.savefig(out)
 print('saved', out)
