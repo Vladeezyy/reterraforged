@@ -74,7 +74,9 @@ for mode in ${MODES:-reterraforged vanilla}; do
     kill "$(cat "$dir/tail.pid")" 2>/dev/null; kill_servers; wait $pid 2>/dev/null
     cp "$dir/bench.log" "$OUT/$mode.log"
     echo "== $(grep -o '\[RTF bench\].*' "$OUT/$mode.log" | tail -1)"
-    grep -A10 '> TPS from last' "$OUT/$mode.log" | grep -v '^\[' | grep -v '^--' > "$OUT/$mode-spark.txt"
+    # spark's reply, from its worker thread's log lines ("[?] ..." on 1.21.x, "System chat: [?] ..." on 26.x)
+    grep 'spark-worker' "$OUT/$mode.log" | sed -E 's/\x1b\[[0-9;]*m//g; s/^[^]]*\] \[[^]]*\] \[[^]]*\]: //; s/^System chat: //; s/^\[\?\] ?//; s/^> //' \
+        | sed -n '/TPS from last/,$p' | head -10 | sed -E 's/^([A-Z])/> \1/' > "$OUT/$mode-spark.txt"
     cat "$OUT/$mode-spark.txt"
     grep -o '\[RTF bench\].*' "$OUT/$mode.log" | tail -1 >> "$OUT/summary.txt"
     if [ -f "$OUT/$mode.jfr" ] && [ -x "$JFR" -o -x "$JFR.exe" ]; then
