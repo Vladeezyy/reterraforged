@@ -44,25 +44,27 @@ public abstract class LinkedPageScreen extends Screen {
         int buttonHeight = 20;
         int buttonPad = 2;
         int buttonsRow = this.height - 25;
-       
+        // Cancel and Done fit their text (vanilla Ukrainian "Скасувати" is wider than 50), both the same width
+        int middleWidth = Math.max(buttonWidth, Math.max(this.font.width(CommonComponents.GUI_CANCEL), this.font.width(CommonComponents.GUI_DONE)) + 10);
+
 		this.previousButton = Button.builder(Component.literal("<<"), (b) -> {
 			this.currentPage.previous().ifPresent(this::setPage);
-		}).bounds(buttonsCenter - (buttonWidth * 2 + (buttonPad * 3)), buttonsRow, buttonWidth, buttonHeight).build();
+		}).bounds(buttonsCenter - (middleWidth + buttonWidth + (buttonPad * 3)), buttonsRow, buttonWidth, buttonHeight).build();
 		this.previousButton.active = this.currentPage.previous().isPresent();
 
 		this.nextButton = Button.builder(Component.literal(">>"), (b) -> {
 			this.currentPage.next().ifPresent(this::setPage);
-		}).bounds(buttonsCenter + buttonWidth + (buttonPad * 3), buttonsRow, buttonWidth, buttonHeight).build();
+		}).bounds(buttonsCenter + middleWidth + (buttonPad * 3), buttonsRow, buttonWidth, buttonHeight).build();
 		this.nextButton.active = this.currentPage.next().isPresent();
-		
+
 		this.cancelButton = Button.builder(CommonComponents.GUI_CANCEL, (b) -> {
 			this.onClose();
-		}).bounds(buttonsCenter - buttonWidth - buttonPad, buttonsRow, buttonWidth, buttonHeight).build();
+		}).bounds(buttonsCenter - middleWidth - buttonPad, buttonsRow, middleWidth, buttonHeight).build();
 
 		this.doneButton = Button.builder(CommonComponents.GUI_DONE, (b) -> {
 			this.onDone();
 			this.onClose();
-		}).bounds(buttonsCenter + buttonPad, buttonsRow, buttonWidth, buttonHeight).build();
+		}).bounds(buttonsCenter + buttonPad, buttonsRow, middleWidth, buttonHeight).build();
 		
 		this.currentPage.init();
 		this.currentPage.setScroll(this.scrolls.getOrDefault(this.currentPage.getClass(), 0.0));
