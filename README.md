@@ -68,7 +68,8 @@ The mod only affects new worlds created with its preset. It does not change an e
   structures are not placed on mountains, as in 0.0.6.
 - **Presets:** the "Default" of ReTerraForged 0.0.6 and the classic TerraForged presets (Beautiful, Huge Biomes, Lite,
   Vanilla-ish). The 1.21.1 port's variant is there too, as the last entry of the list.
-- **10 languages:** English, Russian, Chinese, German, French, Spanish, Portuguese (Brazil), Japanese, Korean, Polish.
+- **11 languages:** English, Russian, Ukrainian, Chinese, German, French, Spanish, Portuguese (Brazil), Japanese, Korean,
+  Polish.
 
 ## What this fork fixes
 
