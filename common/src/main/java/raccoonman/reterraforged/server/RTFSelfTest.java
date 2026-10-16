@@ -96,6 +96,10 @@ public final class RTFSelfTest {
 			String result = RTFBiomeModTest.probe(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("match").executes(ctx -> {
+			String result = RTFBiomeModTest.match(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})).then(Commands.literal("dump").executes(ctx -> {
 			String result = RTFBiomeModTest.dump(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);

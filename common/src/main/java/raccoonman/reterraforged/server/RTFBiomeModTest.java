@@ -165,6 +165,30 @@ public final class RTFBiomeModTest {
 		}
 	}
 
+	// "rtf biomemods match": the biome of 289 grid points from the biome source with the world's sampler and from the
+	// chunk itself (built to the biomes status), how often they agree
+	public static String match(MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		var gen = level.getChunkSource().getGenerator();
+		var rs = level.getChunkSource().randomState();
+		var source = gen.getBiomeSource();
+		int n = 0, ok = 0;
+		List<String> diffs = new ArrayList<>();
+		for (int x = -4096; x <= 4096; x += 512) {
+			for (int z = -4096; z <= 4096; z += 512) {
+				int top = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
+				int qx = QuartPos.fromBlock(x), qy = QuartPos.fromBlock(top), qz = QuartPos.fromBlock(z);
+				String a = name(source.getNoiseBiome(qx, qy, qz, rs.sampler()));
+				String c = name(level.getChunk(x >> 4, z >> 4, ChunkStatus.BIOMES, true).getNoiseBiome(qx, qy, qz));
+				n++;
+				if (a.equals(c)) ok++;
+				else if (diffs.size() < 12) diffs.add(x + "," + z + ": source " + a + " chunk " + c);
+			}
+		}
+		RTFCommon.LOGGER.info("[RTF biomemods] match differences: {}", diffs);
+		return "[RTF biomemods] rtf match " + ok + "/" + n + " agree with the chunks";
+	}
+
 	private static net.minecraft.world.level.levelgen.DensityFunction constant(float value) {
 		return net.minecraft.world.level.levelgen.DensityFunctions.constant(value);
 	}
@@ -220,18 +244,22 @@ public final class RTFBiomeModTest {
 		}
 		RTFCommon.LOGGER.info("[RTF biomemods] {} samples in {} ms", samples, (System.nanoTime() - t0) / 1_000_000);
 
-		// top blocks of the columns of each mod biome in the chunk of its first sample (one chunk each: the server test
-		// world holds the selftest's and structure test's chunks already, more ran a 3 GB server out of memory)
-		for (Map.Entry<String, Stat> e : stats.entrySet()) {
-			Stat s = e.getValue();
-			int cx0 = s.first.getX() >> 4, cz0 = s.first.getZ() >> 4;
+		// top blocks of the columns of the chunks of every mod biome's first sample, by the biome each column has in the
+		// built chunk: the biome of a place can change when the tile around it is built (WorldLookup.applyCell reads a
+		// tile when there is one), so a chunk at a sample can hold other biomes. One chunk each: the server test world
+		// holds the selftest's and structure test's chunks already, more ran a 3 GB server out of memory
+		java.util.Set<Long> built = new java.util.HashSet<>();
+		for (Stat first : List.copyOf(stats.values())) {
+			int cx0 = first.first.getX() >> 4, cz0 = first.first.getZ() >> 4;
+			if (!built.add(((long) cx0 << 32) ^ (cz0 & 0xFFFFFFFFL))) continue;
 			ChunkAccess chunk = level.getChunk(cx0, cz0, ChunkStatus.FULL, true);
 			for (int x = 0; x < 16; x++) {
 				for (int z = 0; z < 16; z++) {
 					// the top block itself: ChunkAccess.getHeight is the heightmap's height less one
 					int y = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
 					BlockPos pos = new BlockPos((cx0 << 4) + x, y, (cz0 << 4) + z);
-					if (!name(level.getBiome(pos)).equals(e.getKey())) continue;
+					Stat s = stats.get(name(level.getBiome(pos)));
+					if (s == null) continue;
 					String block = BuiltInRegistries.BLOCK.getKey(chunk.getBlockState(pos).getBlock()).toString();
 					s.tops.merge(block, 1, Integer::sum);
 					s.columns++;
