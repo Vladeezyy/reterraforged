@@ -247,6 +247,20 @@ public final class RTFStressTest {
 	 * (every setting at its maximum) or "random:N" (the stress test's random combination number N).
 	 */
 	public static Preset makePreset(String spec) {
+		// "set:caves().cheeseCaveProbability=0;caves().entranceCaveProbability=1": "Default" with these numeric settings
+		// changed (tools/servertest.sh PRESET=..., to see which setting a generation problem comes from)
+		if (spec.startsWith("set:")) {
+			Preset preset = Presets.makeDefault();
+			for (String assignment : spec.substring(4).split(";")) {
+				String[] kv = assignment.split("=", 2);
+				Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
+					.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
+				Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
+				setting.set(preset, value);
+			}
+			RTFCommon.LOGGER.info("[RTF] preset {}", spec);
+			return preset;
+		}
 		List<Variant> variants = variants(spec.startsWith("random:") ? Integer.parseInt(spec.substring(7)) + 1 : 0);
 		String name = switch (spec) {
 			case "min" -> "every setting at its minimum";
@@ -254,7 +268,7 @@ public final class RTFStressTest {
 			default -> spec.startsWith("random:") ? "random #" + spec.substring(7) + " " : null;
 		};
 		if (name == null) {
-			throw new IllegalArgumentException("unknown stress preset " + spec + " (min, max, random:N)");
+			throw new IllegalArgumentException("unknown stress preset " + spec + " (min, max, random:N, set:name=value;...)");
 		}
 		Variant variant = variants.stream().filter((v) -> v.name().startsWith(name) || v.name().equals(name.trim())).findFirst().orElseThrow();
 		RTFCommon.LOGGER.info("[RTF] stress preset {}: {}", spec, variant.changes());

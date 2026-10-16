@@ -169,7 +169,9 @@ public final class RTFStructureTest {
 				BlockState above = level.getBlockState(new BlockPos(p[0], b.maxY() + 3, p[1]));
 				if (above.is(BlockTags.DIRT) || above.is(BlockTags.BASE_STONE_OVERWORLD) || above.is(BlockTags.SAND) || above.is(Blocks.GRAVEL)) covered++;
 			}
-			if (air >= 3) floating++;
+			// only pieces on the structure's lowest level stand on the ground: under the rooms of a mansion's upper floors
+			// are the rooms below
+			if (air >= 3 && b.minY() <= box.minY() + 1) floating++;
 			if (covered >= 3) buried++;
 		}
 		int paths = 0;

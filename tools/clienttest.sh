@@ -7,6 +7,8 @@
 # "gui" instead makes a new world through the screens with mouse clicks, as a player does (RTFGuiTest): the preset
 # list, the settings pages, Done twice, Create New World; checks the world is built with the edited preset.
 # "widgets" uses every slider, switch and button of the settings pages (RTFWidgetTest), table in rtf-widgets.txt.
+# MODS="biomes-o-plenty ..." installs these Modrinth projects into the dev client (tools/extramods.sh; the same as for
+# servertest.sh, whose world is loaded), BIOMES="biomesoplenty:lavender_field,..." adds a screenshot in each biome.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
@@ -21,6 +23,10 @@ if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then
 elif [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh $LOADER first"; exit 1; fi
 
 mkdir -p "$RUN/saves" "$OUT"
+bash tools/extramods.sh $LOADER "$RUN/mods" $MODS || exit 1
+[ -n "$BIOMES" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientbiomes=$BIOMES"
+# SPOTS="x,z;x,z": a screenshot looking down at each place (the pits "rtf holes" lists)
+[ -n "$SPOTS" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientspots=$SPOTS"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
 if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then rm -rf "$RUN/saves/New World"* "$RUN/rtf-widgets.txt"; else
     cp -r "$WORLD" "$RUN/saves/rtf-test"
