@@ -2,6 +2,8 @@ package raccoonman.reterraforged.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.CloudStatus;
@@ -16,8 +18,10 @@ import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,6 +47,10 @@ public final class RTFClientTest {
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
 	// a button press as if made with the keyboard (Enter)
 	private static final KeyEvent PRESS = new KeyEvent(InputConstants.KEY_RETURN, 0, 0);
+	// tools/clienttest.sh with BIOMES="biomesoplenty:lavender_field,...": one more screenshot in each of these biomes
+	private static final String BIOMES = System.getProperty("rtf.clientbiomes", "");
+	// SPOTS="3260,1160;3608,922": a screenshot looking down at each of these places (pits found by "rtf holes")
+	private static final String SPOTS = System.getProperty("rtf.clientspots", "");
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;
@@ -236,7 +244,25 @@ public final class RTFClientTest {
 		if (SHOWCASE) {
 			return showcaseSpots(level, spawn, mountains, overview, village);
 		}
-		return new float[][] { mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village };
+		List<float[]> list = new ArrayList<>(List.of(mountains, desert != null ? desert : overview, river != null ? river : overview, overview, village));
+		List<String> named = new ArrayList<>(List.of("mountains", "desert", "river", "overview", "village"));
+		for (String id : BIOMES.split(",")) {
+			if (id.isBlank()) continue;
+			float[] spot = biomeSpot(level, spawn, ResourceKey.create(Registries.BIOME, Identifier.parse(id.trim())));
+			if (spot == null) continue;
+			list.add(spot);
+			named.add(id.trim().replace(':', '-'));
+		}
+		for (String spot : SPOTS.split(";")) {
+			String[] xz = spot.trim().split(",");
+			if (xz.length != 2) continue;
+			int x = Integer.parseInt(xz[0]), z = Integer.parseInt(xz[1]);
+			int y = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
+			list.add(lookAt(x, y, z, 40, 50));
+			named.add("spot_" + x + "_" + z);
+		}
+		names = named.toArray(String[]::new);
+		return list.toArray(float[][]::new);
 	}
 
 	// the README pictures: the landscapes of the world, each where it is nearest to the spawn
@@ -297,7 +323,7 @@ public final class RTFClientTest {
 	}
 
 	private static float[] biomeSpot(ServerLevel level, BlockPos origin, ResourceKey<Biome> biome) {
-		Pair<BlockPos, Holder<Biome>> found = level.findClosestBiome3d((b) -> b.is(biome), origin.atY(level.getSeaLevel() + 8), 2400, 32, 4096);
+		Pair<BlockPos, Holder<Biome>> found = level.findClosestBiome3d((b) -> b.is(biome), origin.atY(level.getSeaLevel() + 8), 6400, 32, 4096);
 		if (found == null) {
 			RTFCommon.LOGGER.warn("[RTF clienttest] no {} found", biome.identifier());
 			return null;

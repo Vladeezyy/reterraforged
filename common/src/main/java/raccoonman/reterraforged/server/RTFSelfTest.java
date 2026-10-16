@@ -80,7 +80,31 @@ public final class RTFSelfTest {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})).then(Commands.literal("exportpreset").executes(ctx -> {
+		})).then(Commands.literal("holes").executes(ctx -> {
+			String result = RTFHoleTest.run(ctx.getSource().getServer(), 16);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("chunks", IntegerArgumentType.integer(4, 64)).executes(ctx -> {
+			String result = RTFHoleTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("biomemods").executes(ctx -> {
+			String result = RTFBiomeModTest.run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.literal("probe").executes(ctx -> {
+			String result = RTFBiomeModTest.probe(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("match").executes(ctx -> {
+			String result = RTFBiomeModTest.match(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("dump").executes(ctx -> {
+			String result = RTFBiomeModTest.dump(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("exportpreset").executes(ctx -> {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
