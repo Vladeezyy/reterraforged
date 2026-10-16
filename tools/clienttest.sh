@@ -25,6 +25,8 @@ elif [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh 
 mkdir -p "$RUN/saves" "$OUT"
 bash tools/extramods.sh $LOADER "$RUN/mods" $MODS || exit 1
 [ -n "$BIOMES" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientbiomes=$BIOMES"
+# SPOTS="x,z;x,z": a screenshot looking down at each place (the pits "rtf holes" lists)
+[ -n "$SPOTS" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientspots=$SPOTS"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
 if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then rm -rf "$RUN/saves/New World"* "$RUN/rtf-widgets.txt"; else
     cp -r "$WORLD" "$RUN/saves/rtf-test"

@@ -27,6 +27,9 @@ if [ -z "$JAVA" ]; then
     else JAVA=java; fi
 fi
 PY=$(command -v python3 >/dev/null && python3 -c '' 2>/dev/null && echo python3 || echo python)
+# a modpack with Biomes O' Plenty and the like gets 4 GB (the biome mod test after the structure test filled 3 GB on
+# Fabric), the mod alone 3 GB
+HEAP=$([ -n "$MODS" ] && echo 4G || echo 3G)
 PORT=${PORT:-25599}  # another port lets two checkouts test at the same time
 TAG=$(pwd | cksum | cut -d' ' -f1)  # marks this checkout's server processes (a number: MSYS rewrites path-like args)
 FAILS=0
@@ -81,14 +84,14 @@ for loader in $LOADERS; do
                 (cd "$dir" && "$JAVA" -jar ../neoforge-installer.jar --installServer > installer.log 2>&1)
             fi
             jar=$(ls -t neoforge/build/libs/reterraforged-*-neoforge-*.jar | head -1)
-            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx3G @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
+            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
         fabric)
             if [ ! -f "$dir/fabric-server-launch.jar" ]; then
                 curl -fsSL -o "$dir/fabric-server-launch.jar" "https://meta.fabricmc.net/v2/versions/loader/$MC/$FABRIC_LOADER/1.0.1/server/jar"
                 curl -fsSL -o "$dir/mods/fabric-api.jar" "https://cdn.modrinth.com/data/P7dR8mSH/versions/$(curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22fabric%22%5D" | $PY -c 'import json,sys; v=[x for x in json.load(sys.stdin) if x["version_number"]=="'$FABRIC_API'"]; print(v[0]["id"]+"/"+v[0]["files"][0]["filename"])')"
             fi
             jar=$(ls -t fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)
-            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx3G -jar fabric-server-launch.jar nogui) ;;
+            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP -jar fabric-server-launch.jar nogui) ;;
     esac
     rm -f "$dir"/mods/reterraforged-*.jar
     cp "$jar" "$dir/mods/"
@@ -135,8 +138,9 @@ for loader in $LOADERS; do
     fi
     stop_server "$dir" console.log
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
+    # Biomes O' Plenty on a Fabric server: a client class of Fabric API it names, its boats without a data fixer;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
-    noise='Yggdrasil|api\.minecraftservices\.com/publickeys|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
+    noise='Error loading class: net/fabricmc/fabric/api/client|No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"

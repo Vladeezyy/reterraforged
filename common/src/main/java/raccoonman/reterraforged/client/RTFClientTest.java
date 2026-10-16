@@ -46,6 +46,8 @@ public final class RTFClientTest {
 	private static final boolean SHOWCASE = Boolean.getBoolean("rtf.showcase");
 	// tools/clienttest.sh with BIOMES="biomesoplenty:lavender_field,...": one more screenshot in each of these biomes
 	private static final String BIOMES = System.getProperty("rtf.clientbiomes", "");
+	// SPOTS="3260,1160;3608,922": a screenshot looking down at each of these places (pits found by "rtf holes")
+	private static final String SPOTS = System.getProperty("rtf.clientspots", "");
 	private static final Set<String> CONFIRM_KEYS = Set.of("gui.proceed", "gui.yes", "gui.continue", "selectWorld.backupJoinSkipButton");
 	private static int step;
 	private static int wait;
@@ -243,6 +245,14 @@ public final class RTFClientTest {
 			if (spot == null) continue;
 			list.add(spot);
 			named.add(id.trim().replace(':', '-'));
+		}
+		for (String spot : SPOTS.split(";")) {
+			String[] xz = spot.trim().split(",");
+			if (xz.length != 2) continue;
+			int x = Integer.parseInt(xz[0]), z = Integer.parseInt(xz[1]);
+			int y = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
+			list.add(lookAt(x, y, z, 40, 50));
+			named.add("spot_" + x + "_" + z);
 		}
 		names = named.toArray(String[]::new);
 		return list.toArray(float[][]::new);
