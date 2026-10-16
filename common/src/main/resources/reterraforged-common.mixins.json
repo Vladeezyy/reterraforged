@@ -18,7 +18,8 @@
 		"MixinNoiseBasedChunkGenerator",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
-		"terrablender.MixinTargetPoint"
+		"terrablender.MixinTargetPoint",
+		"terrablender.MixinMultiNoiseBiomeSource"
   	],
   	"client": [
 		"ScreenInvoker",

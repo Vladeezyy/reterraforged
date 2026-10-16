@@ -7,8 +7,12 @@ import com.google.common.collect.ImmutableList;
 import raccoonman.reterraforged.platform.ModLoaderUtil;
 
 public class TBCompat {
-	public static final List<String> TERRABLENDER_COMPAT_MIXINS = ImmutableList.of(mixinClass("terrablender.MixinClimateSampler"), mixinClass("terrablender.MixinParameterList"), mixinClass("terrablender.MixinTargetPoint"));
+	public static final List<String> TERRABLENDER_COMPAT_MIXINS = ImmutableList.of(mixinClass("terrablender.MixinClimateSampler"), mixinClass("terrablender.MixinParameterList"), mixinClass("terrablender.MixinTargetPoint"), mixinClass("terrablender.MixinMultiNoiseBiomeSource"));
 	
+	// the preset's biome region of the place a chunk's biome resolver looks up (MixinMultiNoiseBiomeSource), for points
+	// made from climate volumes, which have none
+	public static final ThreadLocal<Float> CHUNK_UNIQUENESS = new ThreadLocal<>();
+
 	// "rtf biomemods probe" (tests only): the regions' trees are searched with the points as they are
 	public static volatile boolean probing;
 
