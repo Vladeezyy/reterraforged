@@ -3,20 +3,25 @@
 TerraForged-style world generation for Minecraft **1.21.1 – 26.3** · **NeoForge** & **Fabric** · the generation of
 ReTerraForged 0.0.6, fixed and ported.
 
-![Mountains and a view to the horizon](docs/showcase-mountains.jpg)
+![A river in the desert between red badlands](docs/showcase-01.jpg)
 
-| ![Cherry grove above the sea](docs/showcase-cherry-grove.jpg) | ![Valley at the foot of the mountains](docs/showcase-valley.jpg) |
+| ![A sandy coast and a river mouth](docs/showcase-02.jpg) | ![A wide river between wooded shores](docs/showcase-03.jpg) |
 |---|---|
-| ![Coast](docs/showcase-coast.jpg) | ![Lake in a forest](docs/showcase-lake.jpg) |
-| ![Flower forest on the slopes](docs/showcase-flower-forest.jpg) | ![Swamp and river](docs/showcase-swamp.jpg) |
-| ![Wooded badlands](docs/showcase-badlands.jpg) | ![Preset screen with the preview map](docs/preset-screen.jpg) |
+| ![A lake in the plains](docs/showcase-04.jpg) | ![A lake by a village](docs/showcase-05.jpg) |
+| ![A sea shore and a sandbank](docs/showcase-06.jpg) | ![Hills to the horizon](docs/showcase-07.jpg) |
+| ![A desert river valley](docs/showcase-08.jpg) | ![Sunset over the mountains](docs/showcase-09.jpg) |
+| ![A cherry grove on the slopes](docs/showcase-10.jpg) | ![A badlands canyon in a spruce forest](docs/showcase-11.jpg) |
+| ![Terracotta hills in the meadows](docs/showcase-12.jpg) | ![A snowy peak above the forest](docs/showcase-13.jpg) |
+| ![A river in the jungle](docs/showcase-14.jpg) | ![Under the trees of a forest](docs/showcase-15.jpg) |
+| ![A beach at the edge of the jungle](docs/showcase-16.jpg) | ![A shipwreck in a lake on the plains](docs/showcase-17.jpg) |
+| ![A flower forest](docs/showcase-18.jpg) | ![A lake under the mountains](docs/showcase-19.jpg) |
+| ![A pillager outpost on the plains](docs/showcase-20.jpg) | ![Desert villages at night](docs/showcase-21.jpg) |
+| ![Preset screen with the preview map](docs/preset-screen.jpg) |  |
 
 <details>
 <summary><b>🇬🇧 English — click to open</b></summary>
 
-<sub>Minecraft 26.3, ReTerraForged 0.0.12, the "Default" preset with world height 384, biome size 300 and mountains
-×1.15. Complementary Reimagined shaders (Iris) and Distant Horizons with a 256 chunk view, just for the looks: the mod
-does not depend on them.</sub>
+<sub>Shaders and long view distance are just for the looks: the mod does not depend on them.</sub>
 
 TerraForged-style world generation: continents and oceans, mountain ranges, river networks with tributaries, lakes,
 wetlands, slope erosion, rock strata, and a preset editor with a live map of the world to be. This is a working fork of
@@ -358,7 +363,7 @@ that was left) is garbage collected, and its cleanup stops.
 
 ## Compatibility
 
-- Works with **Distant Horizons**, **Iris** and **Sodium**; the screenshots above were taken with them.
+- Works with **Distant Horizons**, **Iris** and **Sodium**.
 - **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map. Tested with
   **Biomes O' Plenty** on 1.21.1, 1.21.11 and 26.3 (NeoForge and Fabric). On 26.3 install TerraBlender yourself: Biomes
   O' Plenty needs it but its Modrinth page does not list it.
@@ -551,9 +556,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 <details>
 <summary><b>🇷🇺 Русский — нажмите, чтобы открыть</b></summary>
 
-<sub>Minecraft 26.3, ReTerraForged 0.0.12, пресет «По умолчанию» с высотой мира 384, размером биомов 300 и горами ×1.15.
-Шейдеры Complementary Reimagined (Iris) и Distant Horizons с прорисовкой 256 чанков — только для красоты, мод от них
-не зависит.</sub>
+<sub>Шейдеры и большая дальность прорисовки — только для красоты, мод от них не зависит.</sub>
 
 Генерация мира в духе TerraForged: материки и океаны, горные хребты, речные сети с притоками, озёра, болота, эрозия
 склонов, пласты горных пород — и редактор пресетов с живой картой будущего мира. Это рабочий форк
@@ -892,7 +895,7 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
 
 ## Совместимость
 
-- Работает вместе с **Distant Horizons**, **Iris** и **Sodium** — на этой связке сняты скриншоты выше.
+- Работает вместе с **Distant Horizons**, **Iris** и **Sodium**.
 - **TerraBlender** и моды на биомы через него поддерживаются: регионы биомов берутся из карты ReTerraForged.
   Проверено с **Biomes O' Plenty** на 1.21.1, 1.21.11 и 26.3 (NeoForge и Fabric). На 26.3 TerraBlender ставьте сами:
   Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
