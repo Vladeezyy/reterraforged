@@ -27,18 +27,20 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
+Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
+on protected branches `release/<version>-<minecraft>` (for example `release/0.0.14-1.21.1`).
 
 ## Installation
 
@@ -90,6 +92,13 @@ versions of the fork keep their generation.
 - a memory leak: the generator's caches were never freed until the game was closed;
 - extreme settings produced NaN terrain.
 
+**Biome mods (Biomes O' Plenty and others through TerraBlender), 0.0.15:**
+- a third of Biomes O' Plenty's biome kinds never generated (woodland, orchard, grassland, pasture, tundra and more);
+  now 52 of 61 do, against 55 in a vanilla world;
+- on Fabric 1.21.10 and 1.21.11 the regions of biome mods ignored the ReTerraForged map;
+- on 26.3 chunks got other biomes than `/locate`, structures and the spawn expected, and the surfaces of biome mods
+  (sand, mud, volcanic rock) seemed missing.
+
 **Preset screen:**
 - on 1.21.11+ the sliders changed nothing;
 - the selected preset was not highlighted, edits and a re-applied preset were lost;
@@ -101,6 +110,27 @@ badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) 
 from files are held to valid values, and a broken file in the presets folder no longer crashes the game.
 
 ## Problems and fixes in detail
+
+<details>
+<summary><b>Biome mods through TerraBlender</b> (0.0.15)</summary>
+
+ReTerraForged picks vanilla biomes by its own biome types, and gives the biome tables only some temperature and
+humidity pairs: on land none is warm with neutral humidity. That suits vanilla's biomes, but Biomes O' Plenty places
+woodland, old growth woodland, grassland, orchard and more exactly there: 39 of its 61 overworld kinds generated (55
+in a vanilla world with the same seed). The regions of other mods are now searched with the temperature and humidity
+moved by up to about one band by two smooth noises; vanilla's region and worlds without TerraBlender are unchanged.
+Now 52 of 61.
+
+On Fabric 1.21.10 and 1.21.11 the hook that gives TerraBlender the ReTerraForged biome regions was never applied
+(its target stayed in Mojang names in the jar), and TerraBlender chose them by its own noise. On 26.3 the game fills
+a chunk's biomes from climate volumes, past that hook, so chunks and `/locate` disagreed at 130 of 289 places with
+Biomes O' Plenty. Both are fixed: 288 of 289 places agree.
+
+Tested with Biomes O' Plenty on 1.21.1, 1.21.11 and 26.3, NeoForge and Fabric: `MODS=biomes-o-plenty
+tools/servertest.sh` compares a ReTerraForged world with a vanilla world of the same seed and mods (biome kinds, their
+share of the land, how much of them is under water, their own surface blocks).
+
+</details>
 
 <details>
 <summary><b>Bee nests on the mod's trees</b> (0.0.12)</summary>
@@ -329,7 +359,9 @@ that was left) is garbage collected, and its cleanup stops.
 ## Compatibility
 
 - Works with **Distant Horizons**, **Iris** and **Sodium**; the screenshots above were taken with them.
-- **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map.
+- **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map. Tested with
+  **Biomes O' Plenty** on 1.21.1, 1.21.11 and 26.3 (NeoForge and Fabric). On 26.3 install TerraBlender yourself: Biomes
+  O' Plenty needs it but its Modrinth page does not list it.
 - For cave biome mods there is a cave compatibility mode on the Caves page.
 
 ## Testing
@@ -532,18 +564,20 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.14](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.14-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.15](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.15-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
+Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
+в защищённых ветках `release/<версия>-<minecraft>` (например, `release/0.0.14-1.21.1`).
 
 ## Установка
 
@@ -593,6 +627,13 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - утечка памяти: кэши генератора не освобождались до закрытия игры;
 - крайние значения настроек давали NaN в рельефе.
 
+**Моды на биомы (Biomes O' Plenty и другие через TerraBlender), 0.0.15:**
+- треть видов биомов Biomes O' Plenty не генерировалась (woodland, orchard, grassland, pasture, tundra и другие);
+  теперь 52 из 61, в ванильном мире 55;
+- на Fabric 1.21.10 и 1.21.11 регионы модов на биомы не следовали карте ReTerraForged;
+- на 26.3 в чанках оказывались не те биомы, что ждали `/locate`, структуры и спаун, и поверхность модов на биомы
+  (песок, грязь, вулканическая порода) будто пропадала.
+
 **Экран пресетов:**
 - на 1.21.11+ ползунки ничего не меняли;
 - выбранный пресет не подсвечивался, правки и повторно применённый пресет терялись;
@@ -604,6 +645,26 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 неактивными. Пресеты из файлов приводятся к допустимым значениям, сломанный файл в папке пресетов больше не роняет игру.
 
 ## Проблемы и исправления подробно
+
+<details>
+<summary><b>Моды на биомы через TerraBlender</b> (0.0.15)</summary>
+
+ReTerraForged выбирает ванильные биомы по своим типам биомов и отдаёт таблицам биомов только некоторые пары
+температуры и влажности: на суше нет ни одной «тепло + средняя влажность». Ванильным биомам это подходит, а Biomes
+O' Plenty ставит туда woodland, old growth woodland, grassland, orchard и другие: генерировалось 39 видов из 61 (в
+ванильном мире с тем же сидом 55). Теперь для регионов других модов температура и влажность сдвигаются двумя
+плавными шумами примерно на одну полосу; ванильный регион и миры без TerraBlender не меняются. Стало 52 из 61.
+
+На Fabric 1.21.10 и 1.21.11 хук, который передаёт TerraBlender регионы ReTerraForged, не применялся (его цель
+осталась в jar в мохжанговых именах), и TerraBlender выбирал регионы по своему шуму. На 26.3 игра заполняет биомы
+чанка по объёмам климата, мимо этого хука, поэтому с Biomes O' Plenty чанки и `/locate` расходились в 130 местах из
+289. Оба исправлены: совпадают 288 из 289.
+
+Проверено с Biomes O' Plenty на 1.21.1, 1.21.11 и 26.3, NeoForge и Fabric: `MODS=biomes-o-plenty
+tools/servertest.sh` сравнивает мир ReTerraForged с ванильным миром с тем же сидом и модами (виды биомов, их доля
+суши, сколько их под водой, свои верхние блоки).
+
+</details>
 
 <details>
 <summary><b>Ульи на деревьях мода</b> (0.0.12)</summary>
@@ -833,6 +894,8 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 - Работает вместе с **Distant Horizons**, **Iris** и **Sodium** — на этой связке сняты скриншоты выше.
 - **TerraBlender** и моды на биомы через него поддерживаются: регионы биомов берутся из карты ReTerraForged.
+  Проверено с **Biomes O' Plenty** на 1.21.1, 1.21.11 и 26.3 (NeoForge и Fabric). На 26.3 TerraBlender ставьте сами:
+  Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
 - Для модов на пещерные биомы есть режим совместимости пещер на странице «Пещеры».
 
 ## Проверка
