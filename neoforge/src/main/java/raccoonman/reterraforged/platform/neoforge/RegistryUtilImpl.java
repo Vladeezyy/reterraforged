@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryDataLoader.RegistryData;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
@@ -52,7 +55,10 @@ public static void register(IEventBus bus) {
 	}
 
 	public static List<RegistryData<?>> getDynamicRegistries() {
-		return DataPackRegistriesHooks.getWorldRegistries();
+		// the world registries with the ones mods add. NeoForge 26.3.0.89 removed getWorldRegistries(); the stream
+		// with the dimension registries exists in every 26.3 build, so drop those from it
+		Set<ResourceKey<? extends Registry<?>>> dimensions = RegistryDataLoader.DIMENSION_REGISTRIES.stream().map(RegistryData::key).collect(Collectors.toSet());
+		return DataPackRegistriesHooks.getWorldRegistriesWithDimensions().filter((data) -> !dimensions.contains(data.key())).toList();
 	}
 
 	@SuppressWarnings("unchecked")
