@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "Разрешить генерацию ванильных лавовых озёр",
   "reterraforged.gui.button.vanillaLavaSprings": "Ванильные лавовые источники",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "Разрешить ванильные источники (блоки-источники лавы)",
-  "reterraforged.gui.button.originalGeneration": "Оригинальная генерация (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "Вкл.: генерация мира ReTerraForged 0.0.6 (1.20.1). Выкл.: изменения порта на 1.21.1 (климат гор, реки, озёра, болота, структуры на горах, склоны пустынь, кусты, глубина пещерных биомов)",
   "reterraforged.gui.tooltip.notUsed": "Не используется генерацией мира (в ReTerraForged 0.0.6 тоже ничего не делало)",
   "reterraforged.gui.button.vanillaSprings": "Ванильные источники",
   "reterraforged.gui.button.vanillaSprings.tooltip": "Разрешить ванильные источники (блоки-источники воды)",

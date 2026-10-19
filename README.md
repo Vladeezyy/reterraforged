@@ -83,8 +83,8 @@ The mod only affects new worlds created with its preset. It does not change an e
 **Generation as in 0.0.6.** The 1.21.1 port this fork started from changed the generation beyond what porting needed:
 "Default", mountain climate (snowy peaks next to deserts), rivers, lakes, wetlands, structures on mountains, desert
 slopes, bushes, cave biome depth. Every class of the mod was compared with the 0.0.6 source, and all of it is back. The
-port's variant remains as the "Original Generation (0.0.6)" switch in Miscellaneous. Worlds created with earlier
-versions of the fork keep their generation.
+port's variant is gone (0.0.17): the "Original Generation (0.0.6)" switch was removed, every world generates as 0.0.6.
+New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so they may show a seam at the border.
 
 **Bugs that broke the world:**
 - a new world could not be created: generation crashed on a mixin error;
@@ -190,9 +190,8 @@ different rivers and lakes, villages on mountains.
 Comparing every class with the 0.0.6 source found two more: the slope gradient was no longer capped at 1 (rock and
 snow lay differently), and skipped continents in the open ocean got another continent's rivermap.
 
-**Fix.** All of it is back as in 0.0.6. The port's variant remains as the "Original Generation (0.0.6)" switch in
-Miscellaneous and as a separate preset at the end of the list. Worlds made with earlier versions of the fork keep their
-generation, with no seams between old and new chunks.
+**Fix.** All of it is back as in 0.0.6. Since 0.0.17 the port's variant is removed altogether (the "Original Generation
+(0.0.6)" switch and its preset): every world generates as 0.0.6.
 
 </details>
 
@@ -617,9 +616,9 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 **Генерация как в 0.0.6.** Порт на 1.21.1, с которого начинался этот форк, менял генерацию сверх нужного: «Default»,
 климат гор (ледяные пики рядом с пустыней), реки, озёра, болота, структуры на горах, склоны пустынь, кусты, глубину
-пещерных биомов. Каждый класс мода сверен с исходником 0.0.6, и всё это возвращено. Вариант порта остался
-переключателем «Оригинальная генерация (0.0.6)» в разделе «Прочее». Миры, созданные на прошлых версиях форка,
-сохраняют свою генерацию.
+пещерных биомов. Каждый класс мода сверен с исходником 0.0.6, и всё это возвращено. Вариант порта удалён (0.0.17):
+переключателя «Оригинальная генерация (0.0.6)» больше нет, все миры генерируются как в 0.0.6. Новые чанки миров,
+созданных на версиях форка до 0.0.11, тоже идут по 0.0.6, поэтому на границе возможен шов.
 
 **Ошибки, из-за которых мир не работал:**
 - новый мир не создавался — генерация падала из-за ошибки в миксине;
@@ -722,9 +721,8 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
 Сверка каждого класса с исходником 0.0.6 нашла ещё два отличия: крутизна склонов не ограничивалась единицей (камень и
 снег ложились иначе), а пропущенные материки в открытом океане получали чужую карту рек.
 
-**Как исправлено.** Всё возвращено как в 0.0.6. Вариант порта остался переключателем «Оригинальная генерация (0.0.6)» в
-разделе «Прочее» и отдельным пресетом в конце списка. Миры прошлых версий форка сохраняют свою генерацию — без швов на
-границе старых и новых чанков.
+**Как исправлено.** Всё возвращено как в 0.0.6. С 0.0.17 вариант порта удалён совсем (переключатель «Оригинальная
+генерация (0.0.6)» и его пресет): все миры генерируются как в 0.0.6.
 
 </details>
 

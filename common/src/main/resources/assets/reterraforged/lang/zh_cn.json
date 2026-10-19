@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "允许生成原版熔岩湖",
   "reterraforged.gui.button.vanillaLavaSprings": "原版熔岩泉",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "允许生成原版泉（熔岩源方块）",
-  "reterraforged.gui.button.originalGeneration": "原始生成（0.0.6）",
-  "reterraforged.gui.button.originalGeneration.tooltip": "开：ReTerraForged 0.0.6（1.20.1）的世界生成。关：1.21.1 移植版的改动（山地气候、河流、湖泊、湿地、山上的结构、沙漠坡面、灌木、洞穴生物群系深度）",
   "reterraforged.gui.tooltip.notUsed": "世界生成中未使用（在 ReTerraForged 0.0.6 中同样无效）",
   "reterraforged.gui.button.vanillaSprings": "原版泉",
   "reterraforged.gui.button.vanillaSprings.tooltip": "允许生成原版泉（水源方块）",

@@ -38,10 +38,10 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
         this.minEdgeValue = context.preset.world().controlPoints.inland;
         this.seed = context.seed.root() + context.preset.rivers().seedOffset;
         this.count = context.preset.rivers().riverCount;
-        this.main = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().mainRivers.minBankHeight, context.preset.rivers().mainRivers.maxBankHeight).bankWidth(context.preset.rivers().mainRivers.bankWidth).bedWidth(context.preset.rivers().mainRivers.bedWidth).bedDepth(context.preset.rivers().mainRivers.bedDepth).fade(context.preset.rivers().mainRivers.fade).length(5000).main(true).order(0).original(context.preset.miscellaneous().originalGeneration).build();
-        this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).original(context.preset.miscellaneous().originalGeneration).build();
+        this.main = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().mainRivers.minBankHeight, context.preset.rivers().mainRivers.maxBankHeight).bankWidth(context.preset.rivers().mainRivers.bankWidth).bedWidth(context.preset.rivers().mainRivers.bedWidth).bedDepth(context.preset.rivers().mainRivers.bedDepth).fade(context.preset.rivers().mainRivers.fade).length(5000).main(true).order(0).build();
+        this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).build();
         this.wetland = new WetlandConfig(context.preset.rivers().wetlands);
-        this.lake = LakeConfig.of(context.preset.rivers().lakes, context.levels, context.preset.miscellaneous().originalGeneration);
+        this.lake = LakeConfig.of(context.preset.rivers().lakes, context.levels);
     }
     
     @Override
@@ -123,7 +123,7 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
             float z1 = PosUtil.unpackRightf(start);
             float x2 = PosUtil.unpackLeftf(end);
             float z2 = PosUtil.unpackRightf(end);
-            builder.wetlands.add(new Wetland(random.nextInt(), new Vec2f(x1, z1), new Vec2f(x2, z2), width, this.levels, this.lake.original));
+            builder.wetlands.add(new Wetland(random.nextInt(), new Vec2f(x1, z1), new Vec2f(x2, z2), width, this.levels));
         }
         for (Network.Builder child : builder.children) {
             this.generateWetlands(child, random);

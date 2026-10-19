@@ -18,7 +18,7 @@ import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 
 public class Presets {
 
-	// the "Default" of ReTerraForged 0.0.6: TerraForged's default settings with the original generation
+	// the "Default" of ReTerraForged 0.0.6: TerraForged's default settings
 	public static Preset makeDefault() {
 		return makeLegacyDefault();
 	}
@@ -64,7 +64,7 @@ public class Presets {
 				new Smoothing(1, 1.8F, 0.9F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 0.4F, 0.4F, true)
+			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 0.4F, 0.4F)
 		); 
 	}
 	
@@ -109,7 +109,7 @@ public class Presets {
 				new Smoothing(2, 1.8F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.75F, true)
+			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.75F)
 		); 
 	}
 	
@@ -155,7 +155,7 @@ public class Presets {
 				new Smoothing(1, 1.855F, 0.916F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 0.853F, 0.855F, true)
+			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 0.853F, 0.855F)
 		); 
 	}
 	
@@ -200,7 +200,7 @@ public class Presets {
 				new Smoothing(2, 1.799F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.75F, true)
+			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.75F)
 		);
 	}
 	
@@ -245,7 +245,7 @@ public class Presets {
 				new Smoothing(1, 1.799F, 0.898F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F, true)
+			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F)
 		);
 	}
 }

@@ -140,7 +140,7 @@ public final class RTFStructureTest {
 			Cell cell = new Cell();
 			state.generatorContext().lookup.applyCell(cell.reset(), box.getCenter().getX(), box.getCenter().getZ(), false);
 			terrain = cell.terrain.getName();
-			if (target.kind() != Kind.OTHER && cell.terrain.isMountain() && state.preset() != null && state.preset().miscellaneous().originalGeneration) {
+			if (target.kind() != Kind.OTHER && cell.terrain.isMountain()) {
 				return name + " at " + box.getCenter().getX() + ", " + box.getCenter().getZ() + " starts on " + terrain;
 			}
 		}

@@ -101,15 +101,15 @@ public class PresetNoiseRouterData {
         DensityFunction oreVeinB = NoiseRouterData.yLimitedInterpolatable(y, DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_VEIN_B), 4.0, 4.0), minY, maxY, 0).abs();
         DensityFunction oreVein = DensityFunctions.add(DensityFunctions.constant(-0.08F), DensityFunctions.max(oreVeinA, oreVeinB));
         DensityFunction oreGap = DensityFunctions.noise(noiseParams.getOrThrow(Noises.ORE_GAP));
-        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth, preset.miscellaneous().originalGeneration), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), finalDensity, oreVeininess, oreVein, oreGap);
+        return new NoiseRouter(aquiferBarrier, aquiferFluidLevelFloodedness, aquiferFluidLevelSpread, aquiferLava, temperature, vegetation, NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.CONTINENTS), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.EROSION), climateDepth(caves, depth, y, worldDepth), NoiseRouterData.getFunction(densityFunctions, NoiseRouterData.RIDGES), slideOverworld(DensityFunctions.add(initialDensity, DensityFunctions.constant(UNIT * -90)).clamp(-64.0, 64.0), -worldDepth), finalDensity, oreVeininess, oreVein, oreGap);
 	}
 
-    private static DensityFunction climateDepth(CaveSettings caves, DensityFunction depth, DensityFunction y, int worldDepth, boolean original) {
-        // ReTerraForged 0.0.6: depth - 0.275, the cave biomes as deep as there; the 1.21.1 port moved them up (- 0.205)
-        // and clamps the depth for TerraBlender (kept with 0.0.6's depth only when a cave biome mod needs it)
-        DensityFunction climateDepth = DensityFunctions.add(depth, DensityFunctions.constant(original ? -0.275D : -0.205D));
+    private static DensityFunction climateDepth(CaveSettings caves, DensityFunction depth, DensityFunction y, int worldDepth) {
+        // as in ReTerraForged 0.0.6: depth - 0.275, the cave biomes as deep as there; clamped for TerraBlender only when
+        // a cave biome mod needs it
+        DensityFunction climateDepth = DensityFunctions.add(depth, DensityFunctions.constant(-0.275D));
         CompatibilityMode mode = caves.compatibilityMode;
-        if(mode == CompatibilityMode.RTF || (mode == CompatibilityMode.AUTO && !TBCompat.isEnabled()) || (original && mode == CompatibilityMode.AUTO && !hasUndergroundBiomeCompatTarget())) {
+        if(mode == CompatibilityMode.RTF || (mode == CompatibilityMode.AUTO && (!TBCompat.isEnabled() || !hasUndergroundBiomeCompatTarget()))) {
             return climateDepth;
         }
         DensityFunction terraBlenderDepth = climateDepth.clamp(-1.0D, terraBlenderClimateDepthMax(mode));

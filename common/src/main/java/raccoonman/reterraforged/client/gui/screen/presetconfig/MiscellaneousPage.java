@@ -12,7 +12,6 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSetti
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
 public class MiscellaneousPage extends PresetEditorPage {
-	private CycleButton<Boolean> originalGeneration;
 	private CycleButton<Boolean> smoothLayerDecorator;
 	private Slider strataRegionSize;
 	private CycleButton<Boolean> strataDecorator;
@@ -81,15 +80,11 @@ public class MiscellaneousPage extends PresetEditorPage {
 			miscellaneous.mountainBiomeUsage = (float) slider.scaleValue(value);
 			return value;
 		});
-		this.originalGeneration = PresetWidgets.createToggle(miscellaneous.originalGeneration, RTFTranslationKeys.GUI_BUTTON_ORIGINAL_GENERATION, (button, value) -> {
-			miscellaneous.originalGeneration = value;
-		});
 		this.volcanoBiomeUsage = PresetWidgets.createFloatSlider(miscellaneous.volcanoBiomeUsage, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE, (slider, value) -> {
 			miscellaneous.volcanoBiomeUsage = (float) slider.scaleValue(value);
 			return value;
 		});
 		
-		this.left.addWidget(this.originalGeneration);
 		this.left.addWidget(this.smoothLayerDecorator);
 		this.left.addWidget(this.strataRegionSize);
 		this.left.addWidget(this.strataDecorator);

@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "바닐라 용암 호수 생성을 허용합니다",
   "reterraforged.gui.button.vanillaLavaSprings": "바닐라 용암 샘",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "바닐라 샘(용암 원천 블록) 생성을 허용합니다",
-  "reterraforged.gui.button.originalGeneration": "원본 생성 (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "켜기: ReTerraForged 0.0.6(1.20.1)의 월드 생성. 끄기: 1.21.1 포트의 변경 사항(산의 기후, 강, 호수, 습지, 산 위의 구조물, 사막 경사, 덤불, 동굴 생물 군계 깊이)",
   "reterraforged.gui.tooltip.notUsed": "월드 생성에 사용되지 않습니다(ReTerraForged 0.0.6에서도 효과가 없었습니다)",
   "reterraforged.gui.button.vanillaSprings": "바닐라 샘",
   "reterraforged.gui.button.vanillaSprings.tooltip": "바닐라 샘(물 원천 블록) 생성을 허용합니다",

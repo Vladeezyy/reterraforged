@@ -45,10 +45,9 @@ record CellTest(float cutoff, Set<Terrain> terrainTypeBlacklist) implements Stru
 				if(cell.riverMask < this.cutoff) {
 					return false;
 				}
-				// ReTerraForged 0.0.6: no structures on the blacklisted terrain (mountains). The 1.21.1 port dropped
-				// the check because it also removed the ancient cities under mountains; it is kept for structures that
+				// as in ReTerraForged 0.0.6: no structures on the blacklisted terrain (mountains); for structures that
 				// start at the surface only, those far below it (ancient cities, trial chambers) are left alone
-				if(generatorContext.preset.miscellaneous().originalGeneration && this.terrainTypeBlacklist.contains(cell.terrain)) {
+				if(this.terrainTypeBlacklist.contains(cell.terrain)) {
 					int surface = generatorContext.levels.scale(cell.height);
 					if(pos.getY() >= surface - 16) {
 						return false;

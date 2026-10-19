@@ -36,7 +36,6 @@ import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.SurfaceSettings;
-import raccoonman.reterraforged.world.worldgen.feature.BushFeature;
 import raccoonman.reterraforged.world.worldgen.feature.DecorateSnowFeature;
 import raccoonman.reterraforged.world.worldgen.feature.ErodeFeature;
 import raccoonman.reterraforged.world.worldgen.feature.RTFFeatures;
@@ -80,11 +79,6 @@ public class PresetConfiguredFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_LARGE = createKey("jungle/large");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> JUNGLE_HUGE = createKey("jungle/huge");
 
-	public static final ResourceKey<ConfiguredFeature<?, ?>> MARSH_BUSH = createKey("shrubs/marsh_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> PLAINS_BUSH = createKey("shrubs/plains_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> STEPPE_BUSH = createKey("shrubs/steppe_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> COLD_STEPPE_BUSH = createKey("shrubs/cold_steppe_bush");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> TAIGA_SCRUB_BUSH = createKey("shrubs/taiga_scrub_bush");
 
 	// a meadow's oak with a bee nest, as the vanilla meadow trees always have one
 	public static final ResourceKey<ConfiguredFeature<?, ?>> MEADOW_TREE = createKey("oak/meadow");
@@ -98,7 +92,6 @@ public class PresetConfiguredFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> BIRCH_TREES = createKey("birch_trees");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> DARK_FOREST_TREES = createKey("dark_forest_trees");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> SAVANNA_TREES = createKey("savanna_trees");
-	public static final ResourceKey<ConfiguredFeature<?, ?>> BADLANDS_TREES = createKey("badlands_trees");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> WOODED_BADLANDS_TREES = createKey("wooded_badlands_trees");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> SWAMP_TREES = createKey("swamp_trees");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> FIR_TREES = createKey("fir_trees");
@@ -175,11 +168,6 @@ public class PresetConfiguredFeatures {
 			FeatureUtils.register(ctx, JUNGLE_LARGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.JUNGLE_LARGE));
 			FeatureUtils.register(ctx, JUNGLE_HUGE, RTFFeatures.TEMPLATE, makeTree(PresetTemplatePaths.JUNGLE_HUGE));
 			
-			FeatureUtils.register(ctx, MARSH_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F));
-			FeatureUtils.register(ctx, PLAINS_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.OAK_LOG, Blocks.BIRCH_LEAVES, 0.05F, 0.09F, 0.65F));
-			FeatureUtils.register(ctx, STEPPE_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.ACACIA_LOG, Blocks.ACACIA_LEAVES, 0.06F, 0.08F, 0.7F));
-			FeatureUtils.register(ctx, COLD_STEPPE_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.OAK_LEAVES, 0.05F, 0.075F, 0.6F));
-			FeatureUtils.register(ctx, TAIGA_SCRUB_BUSH, RTFFeatures.BUSH, makeSmallBush(Blocks.SPRUCE_LOG, Blocks.SPRUCE_LEAVES, 0.05F, 0.075F, 0.6F));
 			
 			// bee nests, as on the vanilla trees these replace (plains 5 %, flower forests 2 %, forests and birch
 			// forests 0.2 %): the decorator was there but never used, not in 0.0.6 either, and those biomes had no bees
@@ -219,10 +207,6 @@ public class PresetConfiguredFeatures {
 			FeatureUtils.register(ctx, SAVANNA_TREES, Feature.RANDOM_SELECTOR, makeRandom(acaciaLarge, List.of(
 				makeWeighted(0.4F, acaciaLarge), 
 				makeWeighted(0.15F, acaciaSmall)
-			)));
-			FeatureUtils.register(ctx, BADLANDS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakSmall, List.of(
-				makeWeighted(0.2F, oakSmall), 
-				makeWeighted(0.1F, acaciaBush)
 			)));
 			FeatureUtils.register(ctx, WOODED_BADLANDS_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakSmall, List.of(
 				makeWeighted(0.3F, oakSmall), 
@@ -279,9 +263,6 @@ public class PresetConfiguredFeatures {
 	    }
 	}
 
-	private static BushFeature.Config makeSmallBush(Block log, Block leaves, float air, float leaf, float size) {
-		return new BushFeature.Config(log.defaultBlockState(), leaves.defaultBlockState(), air, leaf, size);
-	}
 	
 	private static TemplateFeature.Config<?> makeTree(List<ResourceLocation> templates) {
 		return makeTree(templates, 3);

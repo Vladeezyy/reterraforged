@@ -76,7 +76,6 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS, "Vanilla Springs");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES, "Vanilla Lava Lakes");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_SPRINGS, "Vanilla Lava Springs");
-			this.add(RTFTranslationKeys.GUI_BUTTON_ORIGINAL_GENERATION, "Original Generation (0.0.6)");
 			this.add(RTFTranslationKeys.GUI_TOOLTIP_NOT_USED, "Not used by the world generation (it did nothing in ReTerraForged 0.0.6 either)");
 			this.add(RTFTranslationKeys.GUI_BUTTON_ENABLE_ARCHIPELAGO, "Enable Archipelago");
 			this.add(RTFTranslationKeys.GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES, "Fake Water Biomes");
@@ -258,7 +257,6 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS), "Allow vanilla springs (water source blocks) to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES), "Allow vanilla lava-lakes to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_SPRINGS), "Allow vanilla springs (lava source blocks) to generate");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ORIGINAL_GENERATION), "On: the world generation of ReTerraForged 0.0.6 (1.20.1). Off: the 1.21.1 port's changes to it (mountain climate, rivers, lakes, wetlands, structures on mountains, desert slopes, bushes, cave biome depth)");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ZOOM), "Controls the zoom level of the preview map");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE), "Controls the size of continents. You may also need to adjust the transition points to ensure beaches etc still form.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER), "Controls how much continent centers are offset from the underlying noise grid.");

@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "Allow vanilla lava-lakes to generate",
   "reterraforged.gui.button.vanillaLavaSprings": "Vanilla Lava Springs",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "Allow vanilla springs (lava source blocks) to generate",
-  "reterraforged.gui.button.originalGeneration": "Original Generation (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "On: the world generation of ReTerraForged 0.0.6 (1.20.1). Off: the 1.21.1 port's changes to it (mountain climate, rivers, lakes, wetlands, structures on mountains, desert slopes, bushes, cave biome depth)",
   "reterraforged.gui.tooltip.notUsed": "Not used by the world generation (it did nothing in ReTerraForged 0.0.6 either)",
   "reterraforged.gui.button.vanillaSprings": "Vanilla Springs",
   "reterraforged.gui.button.vanillaSprings.tooltip": "Allow vanilla springs (water source blocks) to generate",

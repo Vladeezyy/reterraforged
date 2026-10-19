@@ -24,8 +24,7 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class TerrainProvider {
 
-    // original: the generation of ReTerraForged 0.0.6 (MiscellaneousSettings.originalGeneration)
-    public static List<CellPopulator> generateTerrain(Seed seed, TerrainSettings settings, RegionConfig config, Levels levels, HolderGetter<Noise> noiseLookup, boolean original) {
+    public static List<CellPopulator> generateTerrain(Seed seed, TerrainSettings settings, RegionConfig config, Levels levels, HolderGetter<Noise> noiseLookup) {
     	TerrainSettings.General general = settings.general;
     	float verticalScale = general.globalVerticalScale;
     	boolean fancyMountains = general.fancyMountains;
@@ -35,20 +34,20 @@ public class TerrainProvider {
     	Noise ground = PresetNoiseData.getNoise(noiseLookup, PresetTerrainTypeNoise.GROUND);
     	
     	List<TerrainPopulator> mixable = new ArrayList<>();
-    	mixable.add(Populators.makeSteppe(terrainSeed, ground, settings.steppe, original));
-    	mixable.add(Populators.makePlains(terrainSeed, ground, settings.plains, verticalScale, original));
+    	mixable.add(Populators.makeSteppe(terrainSeed, ground, settings.steppe));
+    	mixable.add(Populators.makePlains(terrainSeed, ground, settings.plains, verticalScale));
         mixable.add(Populators.makeDales(terrainSeed, ground, settings.dales));
-        mixable.add(Populators.makeHills1(terrainSeed, ground, settings.hills, verticalScale, original));
-        mixable.add(Populators.makeHills2(terrainSeed, ground, settings.hills, verticalScale, original));
+        mixable.add(Populators.makeHills1(terrainSeed, ground, settings.hills, verticalScale));
+        mixable.add(Populators.makeHills2(terrainSeed, ground, settings.hills, verticalScale));
         mixable.add(Populators.makeTorridonian(terrainSeed, ground, settings.torridonian));
         mixable.add(Populators.makePlateau(terrainSeed, ground, settings.plateau, verticalScale));
-        mixable.add(Populators.makeBadlands(terrainSeed, ground, settings.badlands, original));
+        mixable.add(Populators.makeBadlands(terrainSeed, ground, settings.badlands));
     	mixable = mixable.stream().filter((populator) -> {
     		return populator.weight() > 0.0F;
     	}).toList();
         
         List<CellPopulator> unmixable = new ArrayList<>();
-        unmixable.add(Populators.makeBadlands(terrainSeed, ground, settings.badlands, original));
+        unmixable.add(Populators.makeBadlands(terrainSeed, ground, settings.badlands));
         unmixable.add(Populators.makeMountains(terrainSeed, ground, settings.mountains, 1.0F, verticalScale, fancyMountains, legacyMountainScaling));
         unmixable.add(Populators.makeMountains2(terrainSeed, ground, settings.mountains, verticalScale, fancyMountains, legacyMountainScaling));
         unmixable.add(Populators.makeMountains3(terrainSeed, ground, settings.mountains, verticalScale, fancyMountains, legacyMountainScaling));

@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "バニラの溶岩湖の生成を許可します",
   "reterraforged.gui.button.vanillaLavaSprings": "バニラの溶岩の湧き口",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "バニラの湧き口（溶岩の水源ブロック）の生成を許可します",
-  "reterraforged.gui.button.originalGeneration": "オリジナル生成 (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "オン：ReTerraForged 0.0.6（1.20.1）のワールド生成。オフ：1.21.1移植版での変更（山の気候、川、湖、湿地、山の上の構造物、砂漠の斜面、低木、洞窟バイオームの深さ）",
   "reterraforged.gui.tooltip.notUsed": "ワールド生成には使われません（ReTerraForged 0.0.6でも効果はありませんでした）",
   "reterraforged.gui.button.vanillaSprings": "バニラの湧き口",
   "reterraforged.gui.button.vanillaSprings.tooltip": "バニラの湧き口（水源ブロック）の生成を許可します",

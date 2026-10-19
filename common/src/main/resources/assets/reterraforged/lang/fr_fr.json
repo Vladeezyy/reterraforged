@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "Autoriser les lacs de lave du jeu de base",
   "reterraforged.gui.button.vanillaLavaSprings": "Sources de lave du jeu de base",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "Autoriser les sources du jeu de base (blocs source de lave)",
-  "reterraforged.gui.button.originalGeneration": "Génération originale (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "Activé : la génération de monde de ReTerraForged 0.0.6 (1.20.1). Désactivé : les changements du portage 1.21.1 (climat des montagnes, rivières, lacs, marécages, structures sur les montagnes, pentes désertiques, buissons, profondeur des biomes souterrains)",
   "reterraforged.gui.tooltip.notUsed": "Non utilisé par la génération du monde (sans effet dans ReTerraForged 0.0.6 non plus)",
   "reterraforged.gui.button.vanillaSprings": "Sources du jeu de base",
   "reterraforged.gui.button.vanillaSprings.tooltip": "Autoriser les sources du jeu de base (blocs source d'eau)",

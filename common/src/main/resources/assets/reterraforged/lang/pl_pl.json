@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "Zezwól na podstawowe jeziora lawy",
   "reterraforged.gui.button.vanillaLavaSprings": "Podstawowe źródła lawy",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "Zezwól na podstawowe źródła (bloki źródłowe lawy)",
-  "reterraforged.gui.button.originalGeneration": "Oryginalna generacja (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "Wł.: generowanie świata z ReTerraForged 0.0.6 (1.20.1). Wył.: zmiany z portu 1.21.1 (klimat gór, rzeki, jeziora, mokradła, budowle na górach, zbocza pustyń, krzewy, głębokość biomów jaskiniowych)",
   "reterraforged.gui.tooltip.notUsed": "Nieużywane przez generowanie świata (w ReTerraForged 0.0.6 też nic nie robiło)",
   "reterraforged.gui.button.vanillaSprings": "Podstawowe źródła",
   "reterraforged.gui.button.vanillaSprings.tooltip": "Zezwól na podstawowe źródła (bloki źródłowe wody)",

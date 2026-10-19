@@ -67,8 +67,6 @@
   "reterraforged.gui.button.vanillaLavaLakes.tooltip": "Vanilla-Lavaseen erlauben",
   "reterraforged.gui.button.vanillaLavaSprings": "Vanilla-Lavaquellen",
   "reterraforged.gui.button.vanillaLavaSprings.tooltip": "Vanilla-Quellen (Lavaquellblöcke) erlauben",
-  "reterraforged.gui.button.originalGeneration": "Originale Generierung (0.0.6)",
-  "reterraforged.gui.button.originalGeneration.tooltip": "An: die Weltgenerierung von ReTerraForged 0.0.6 (1.20.1). Aus: die Änderungen der 1.21.1-Portierung (Bergklima, Flüsse, Seen, Feuchtgebiete, Strukturen auf Bergen, Wüstenhänge, Büsche, Tiefe der Höhlenbiome)",
   "reterraforged.gui.tooltip.notUsed": "Wird von der Weltgenerierung nicht verwendet (auch in ReTerraForged 0.0.6 ohne Wirkung)",
   "reterraforged.gui.button.vanillaSprings": "Vanilla-Quellen",
   "reterraforged.gui.button.vanillaSprings.tooltip": "Vanilla-Quellen (Wasserquellblöcke) erlauben",

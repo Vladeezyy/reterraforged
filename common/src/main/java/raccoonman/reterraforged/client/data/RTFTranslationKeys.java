@@ -64,7 +64,6 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_VANILLA_SPRINGS = resolve("gui.button.vanillaSprings");
 	public static final String GUI_BUTTON_VANILLA_LAVA_LAKES = resolve("gui.button.vanillaLavaLakes");
 	public static final String GUI_BUTTON_VANILLA_LAVA_SPRINGS = resolve("gui.button.vanillaLavaSprings");
-	public static final String GUI_BUTTON_ORIGINAL_GENERATION = resolve("gui.button.originalGeneration");
 	public static final String GUI_TOOLTIP_NOT_USED = resolve("gui.tooltip.notUsed");
 	public static final String GUI_BUTTON_ENABLE_ARCHIPELAGO = resolve("gui.button.enableArchipelago");
 	public static final String GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES = resolve("gui.button.enableFakeWaterBiomes");

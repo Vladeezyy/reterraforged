@@ -13,9 +13,6 @@ public class LakeConfig {
     public float bankMax;
     public float distanceMin;
     public float distanceMax;
-    // the lakes of ReTerraForged 0.0.6 (MiscellaneousSettings.originalGeneration): a valley of 275 blocks around the
-    // lake; the 1.21.1 port made it the lake's size range and softened its edge
-    public boolean original;
     
     private LakeConfig(Builder builder) {
         this.depth = builder.depth;
@@ -29,7 +26,7 @@ public class LakeConfig {
         this.distanceMax = builder.distanceMax;
     }
     
-    public static LakeConfig of(RiverSettings.Lake settings, Levels levels, boolean original) {
+    public static LakeConfig of(RiverSettings.Lake settings, Levels levels) {
         Builder builder = new Builder();
         builder.chance = settings.chance;
         builder.sizeMin = settings.sizeMin;
@@ -39,9 +36,7 @@ public class LakeConfig {
         builder.distanceMax = settings.maxStartDistance;
         builder.bankMin = levels.water(settings.minBankHeight);
         builder.bankMax = levels.water(settings.maxBankHeight);
-        LakeConfig config = new LakeConfig(builder);
-        config.original = original;
-        return config;
+        return new LakeConfig(builder);
     }
     
     public static class Builder {

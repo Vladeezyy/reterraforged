@@ -14,9 +14,6 @@ public class RiverConfig {
     public int length;
     public int length2;
     public float fade;
-    // the generation of ReTerraForged 0.0.6 (MiscellaneousSettings.originalGeneration): rivers carve without the
-    // 1.21.1 port's fading out on high ground and in mountains, lakes and wetlands as in 0.0.6
-    public boolean original;
     
     private RiverConfig(Builder builder) {
         this.main = builder.main;
@@ -29,7 +26,6 @@ public class RiverConfig {
         this.length = builder.length;
         this.length2 = builder.length * builder.length;
         this.fade = builder.fade;
-        this.original = builder.original;
     }
     
     public RiverConfig(boolean main, int order, int bedWidth, int bankWidth, float bedHeight, float minBankHeight, float maxBankHeight, int length, int length2, float fade) {
@@ -56,9 +52,7 @@ public class RiverConfig {
     public RiverConfig createFork(int bedHeight, int bedWidth, int bankWidth, Levels levels) {
         int minBankHeight = Math.max(levels.groundLevel, levels.scale(this.minBankHeight) - 1);
         int maxBankHeight = Math.max(minBankHeight, levels.scale(this.maxBankHeight) - 1);
-        RiverConfig fork = new RiverConfig(false, this.order + 1, bedWidth, bankWidth, levels.scale(bedHeight), levels.scale(minBankHeight), levels.scale(maxBankHeight), this.length, this.length2, this.fade);
-        fork.original = this.original;
-        return fork;
+        return new RiverConfig(false, this.order + 1, bedWidth, bankWidth, levels.scale(bedHeight), levels.scale(minBankHeight), levels.scale(maxBankHeight), this.length, this.length2, this.fade);
     }
     
     public static Builder builder(Levels levels) {
@@ -75,7 +69,6 @@ public class RiverConfig {
         private int minBankHeight;
         private int length;
         private float fade;
-        private boolean original;
         private Levels levels;
         
         private Builder(Levels levels) {
@@ -132,11 +125,6 @@ public class RiverConfig {
             return this;
         }
 
-        public Builder original(boolean value) {
-            this.original = value;
-            return this;
-        }
-        
         public RiverConfig build() {
             return new RiverConfig(this);
         }

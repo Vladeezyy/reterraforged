@@ -4,7 +4,6 @@ import java.util.Random;
 
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
-import raccoonman.reterraforged.world.worldgen.cell.rivermap.fade.RiverTerrainFade;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.CurveFunction;
@@ -13,7 +12,6 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 
 public class RiverCarver implements Comparable<RiverCarver> {
     public boolean main;
-    private boolean connecting;
     private float fade;
     private float fadeInv;
     private Range bedWidth;
@@ -22,8 +20,6 @@ public class RiverCarver implements Comparable<RiverCarver> {
     private Range bedDepth;
     private Range banksDepth;
     private float waterLine;
-    private float fadeStartHeight;
-    private float fadeEndHeight;
     public River river;
     public RiverWarp warp;
     public RiverConfig config;
@@ -39,13 +35,10 @@ public class RiverCarver implements Comparable<RiverCarver> {
         this.warp = warp;
         this.config = config;
         this.main = config.main;
-        this.connecting = settings.connecting;
         this.waterLine = levels.water;
         this.bedDepth = new Range(levels.water, config.bedHeight);
         this.banksDepth = new Range(config.minBankHeight, config.maxBankHeight);
         this.valleyCurve = settings.valleyCurve;
-        this.fadeStartHeight = levels.scale(300);
-        this.fadeEndHeight = levels.scale(360);
     }
 
     @Override
@@ -53,55 +46,8 @@ public class RiverCarver implements Comparable<RiverCarver> {
         return Integer.compare(this.config.order, o.config.order);
     }
     
+    // as in ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere
     public void carve(Cell cell, float px, float pz, float pt, float x, float z, float t) {
-        if (this.config.original) {
-            this.carveOriginal(cell, px, pz, pt, x, z, t);
-            return;
-        }
-        float d2 = this.getDistance2(x, z, t);
-        float pd2 = this.getDistance2(px, pz, pt);
-        float heightFade = RiverTerrainFade.heightFade(cell.height, this.fadeStartHeight, this.fadeEndHeight);
-        float valleyFade = RiverTerrainFade.valleyFade(cell, heightFade);
-        float banksFade = RiverTerrainFade.banksFade(cell, heightFade);
-        float bedFade = RiverTerrainFade.bedFade(cell, heightFade);
-
-        float valleyAlpha = this.getDistanceAlpha(pt, Math.min(d2, pd2), this.valleyWidth);
-        valleyAlpha *= valleyFade;
-        if (valleyAlpha == 0.0F) {
-            return;
-        }
-        float bankHeight = this.getScaledSize(t, this.banksDepth);
-        valleyAlpha = this.valleyCurve.apply(valleyAlpha);
-        cell.riverMask = Math.min(cell.riverMask, 1.0F - valleyAlpha);
-        cell.height = Math.min(NoiseUtil.lerp(cell.height, bankHeight, valleyAlpha), cell.height);
-        if (!this.connecting || t > 1.0F) {
-        	
-        }
-        float mouthModifier = getMouthModifier(cell);
-        float bedHeight = this.getScaledSize(t, this.bedDepth);
-        float banksAlpha = this.getDistanceAlpha(t, d2 * mouthModifier, this.banksWidth);
-        banksAlpha *= banksFade;
-
-        boolean canTagRiver = RiverTerrainFade.canTagRiver(banksFade, bedFade);
-        if (banksAlpha != 0.0F && cell.height > bedHeight) {
-            cell.height = Math.min(NoiseUtil.lerp(cell.height, bedHeight, banksAlpha), cell.height);
-            if (canTagRiver) {
-                this.tag(cell, bedHeight);
-            }
-        }
-        float bedAlpha = this.getDistanceAlpha(t, d2, this.bedWidth);
-        bedAlpha *= bedFade;
-
-        if (bedAlpha != 0.0F && cell.height > bedHeight) {
-            cell.height = NoiseUtil.lerp(cell.height, bedHeight, bedAlpha);
-            if (canTagRiver) {
-                this.tag(cell, bedHeight);
-            }
-        }
-    }
-    
-    // ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere
-    private void carveOriginal(Cell cell, float px, float pz, float pt, float x, float z, float t) {
         float d2 = this.getDistance2(x, z, t);
         float pd2 = this.getDistance2(px, pz, pt);
         float valleyAlpha = this.getDistanceAlpha(pt, Math.min(d2, pd2), this.valleyWidth);

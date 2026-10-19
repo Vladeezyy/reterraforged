@@ -12,10 +12,8 @@ public class WorldLookup {
 	private TileCache cache;
 	private Heightmap heightmap;
 	private Levels levels;
-	private boolean original;
 	
 	public WorldLookup(GeneratorContext context) {
-		this.original = context.preset.miscellaneous().originalGeneration;
 		this.cache = context.cache;
 		this.heightmap = context.generator.getHeightmap();
 		this.waterLevel = context.levels.water;
@@ -25,11 +23,6 @@ public class WorldLookup {
 	
 	public Heightmap getHeightmap() {
 		return this.heightmap;
-	}
-
-	// the generation of ReTerraForged 0.0.6 (MiscellaneousSettings.originalGeneration)
-	public boolean isOriginal() {
-		return this.original;
 	}
 
 	public boolean applyCell(Cell cell, int x, int z, boolean applyClimate) {

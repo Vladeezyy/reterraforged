@@ -178,19 +178,19 @@ public final class RTFWorldChecks {
 		check.accept("the preset's biomes keep their mobs " + empty, empty.isEmpty());
 	}
 
-	// a preset file saved by an older version of the mod: settings added later are missing and get their defaults, and
-	// originalGeneration (0.0.11) stays off so worlds of earlier versions keep their generation
+	// a preset file saved by an older version of the mod: settings added later are missing and get their defaults, a
+	// setting that no longer exists (originalGeneration, 0.0.11 to 0.0.16) is ignored
 	private static void legacyPreset(BiConsumer<String, Boolean> check) {
 		boolean ok;
 		String why;
 		try {
 			JsonObject json = Preset.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, Presets.makeDefault()).getOrThrow().getAsJsonObject();
 			for (String later : List.of("surface", "caves", "island", "fakeWaterBiomes")) json.remove(later);
-			json.getAsJsonObject("miscellaneous").remove("originalGeneration");
+			json.getAsJsonObject("miscellaneous").addProperty("originalGeneration", false);
 			json.getAsJsonObject("world").getAsJsonObject("properties").remove("lavaLevel");
 			Preset old = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, (JsonElement) json).getOrThrow();
-			ok = !old.miscellaneous().originalGeneration && old.world().properties.lavaLevel == -54;
-			why = "originalGeneration " + old.miscellaneous().originalGeneration + ", lavaLevel " + old.world().properties.lavaLevel;
+			ok = old.world().properties.lavaLevel == -54;
+			why = "lavaLevel " + old.world().properties.lavaLevel;
 		} catch (Throwable t) {
 			ok = false;
 			why = t.toString();

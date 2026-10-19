@@ -18,13 +18,11 @@ public class Lake {
     private float bankMin;
     private float bankMax;
     protected Vec2f center;
-    private boolean original;
     
     public Lake(Vec2f center, float radius, float multiplier, LakeConfig config) {
-        this.original = config.original;
         float lake = radius * multiplier;
-        float smoothRange = Math.max(50.0F, config.sizeRange * 2.0F);
-        float valley = config.original ? 275.0F * multiplier : lake + smoothRange * multiplier;
+        // as in ReTerraForged 0.0.6: a valley of 275 blocks around the lake
+        float valley = 275.0F * multiplier;
         // 确保 valley 不小于 lake
         if (valley < lake) {
             valley = lake;
@@ -76,10 +74,6 @@ public class Lake {
             valleyAlpha = 0.0F;
         } else if (valleyAlpha > 1.0F) {
             valleyAlpha = 1.0F;
-        }
-        // 动态平滑：距离越远平滑强度越小（二次衰减）
-        if (!this.original) {
-            valleyAlpha = valleyAlpha * valleyAlpha;
         }
         cell.height = NoiseUtil.lerp(cell.height, bankHeight, valleyAlpha);
         cell.riverMask *= 1.0F - valleyAlpha;
