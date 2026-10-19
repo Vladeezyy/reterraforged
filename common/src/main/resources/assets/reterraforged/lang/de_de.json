@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Geröll-Steilheit",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Steilheit, ab der die Oberfläche in Kies übergehen kann",
   "reterraforged.gui.slider.seaLevel": "Meeresspiegel",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Legt den Meeresspiegel fest",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Legt den Meeresspiegel fest. Extreme Werte verderben die Welt: nahe dem Weltboden bleibt das Land nackter Stein ohne Gras und Bäume; bei hohem Meeresspiegel auch die Welthöhe erhöhen, sonst werden die Berge an der Weltobergrenze abgeschnitten",
   "reterraforged.gui.slider.separation": "Trennung",
   "reterraforged.gui.slider.separation.tooltip": "Mindestabstand zwischen Exemplaren der Struktur. Größere Werte garantieren größere Abstände zwischen Strukturen gleichen Typs, ordnen sie aber stärker am Raster aus. Kleinere Werte ergeben eine zufälligere Verteilung, Strukturen können aber näher beieinander entstehen.",
   "reterraforged.gui.slider.shallowOcean": "Flacher Ozean",

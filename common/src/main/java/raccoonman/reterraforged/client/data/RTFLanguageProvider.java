@@ -276,7 +276,7 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_INLAND), "Controls the overall transition from ocean to inland terrain.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT), "Controls the world height");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WORLD_DEPTH), "Controls the minimum y level");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL), "Controls the sea level");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL), "Controls the sea level. Extreme values spoil the world: near the bottom of the world the land stays bare stone, without grass or trees; with a high sea level raise the world height as well, or the mountains are cut off at the top of the world");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_OCEAN_DEPTH), "Controls deep ocean floor depth. The default preserves the existing generator scale and does not change sea level or coastline transition points.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL), "Controls the lava level.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ROCK_VARIANCE), "Controls the density of the rock gradient");

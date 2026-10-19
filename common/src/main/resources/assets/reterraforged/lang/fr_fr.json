@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Pente des éboulis",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Pente à partir de laquelle la surface peut passer au gravier",
   "reterraforged.gui.slider.seaLevel": "Niveau de la mer",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Détermine le niveau de la mer",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Détermine le niveau de la mer. Les valeurs extrêmes gâchent le monde : près du fond du monde, la terre reste de la pierre nue, sans herbe ni arbres ; avec une mer haute, augmentez aussi la hauteur du monde, sinon les montagnes seront coupées au plafond du monde",
   "reterraforged.gui.slider.separation": "Séparation",
   "reterraforged.gui.slider.separation.tooltip": "Distance minimale entre deux exemplaires de la structure. Des valeurs élevées garantissent plus d'écart entre structures du même type mais les alignent davantage sur une grille. Des valeurs faibles donnent une répartition plus aléatoire mais les structures peuvent être plus proches.",
   "reterraforged.gui.slider.shallowOcean": "Océan peu profond",

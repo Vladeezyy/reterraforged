@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "너덜 경사",
   "reterraforged.gui.slider.screeSteepness.tooltip": "지표가 자갈로 바뀔 수 있는 경사",
   "reterraforged.gui.slider.seaLevel": "해수면",
-  "reterraforged.gui.slider.seaLevel.tooltip": "해수면 높이를 정합니다",
+  "reterraforged.gui.slider.seaLevel.tooltip": "해수면 높이를 정합니다. 극단적인 값은 월드를 망칩니다: 월드 바닥에 가까우면 땅이 풀과 나무 없는 맨 돌로 남고, 해수면이 높으면 월드 높이도 올려야 산이 월드 꼭대기에서 잘리지 않습니다",
   "reterraforged.gui.slider.separation": "간격",
   "reterraforged.gui.slider.separation.tooltip": "구조물 사이의 최소 거리입니다. 값이 크면 같은 종류의 구조물 사이 거리가 보장되지만 격자에 맞춰 배치되는 경향이 커집니다. 값이 작으면 더 무작위로 분포하지만 서로 가까이 생성될 수 있습니다.",
   "reterraforged.gui.slider.shallowOcean": "얕은 바다",

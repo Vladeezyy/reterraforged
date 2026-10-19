@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Pendiente de pedregal",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Pendiente a partir de la cual la superficie puede pasar a grava",
   "reterraforged.gui.slider.seaLevel": "Nivel del mar",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Controla el nivel del mar",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Controla el nivel del mar. Los valores extremos estropean el mundo: cerca del fondo del mundo la tierra queda como piedra desnuda, sin hierba ni árboles; con el mar alto sube también la altura del mundo, o las montañas se cortarán en el techo del mundo",
   "reterraforged.gui.slider.separation": "Separación",
   "reterraforged.gui.slider.separation.tooltip": "Distancia mínima entre instancias de la estructura. Valores altos garantizan más distancia entre estructuras del mismo tipo, pero las alinean más a la cuadrícula. Valores bajos dan una distribución más aleatoria, aunque pueden quedar más cerca entre sí.",
   "reterraforged.gui.slider.shallowOcean": "Océano poco profundo",

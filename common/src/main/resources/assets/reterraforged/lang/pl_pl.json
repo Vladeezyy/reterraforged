@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Nachylenie piargów",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Nachylenie, przy którym powierzchnia może przechodzić w żwir",
   "reterraforged.gui.slider.seaLevel": "Poziom morza",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Określa poziom morza",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Określa poziom morza. Skrajne wartości psują świat: przy dnie świata ląd zostaje gołym kamieniem, bez trawy i drzew; przy wysokim morzu podnieś też wysokość świata, inaczej góry zostaną ucięte na szczycie świata",
   "reterraforged.gui.slider.separation": "Odstęp",
   "reterraforged.gui.slider.separation.tooltip": "Najmniejsza odległość między egzemplarzami budowli. Większe wartości gwarantują większe odstępy między budowlami tego samego typu, ale bardziej układają je w siatkę. Mniejsze dają bardziej losowy rozkład, ale budowle mogą powstawać bliżej siebie.",
   "reterraforged.gui.slider.shallowOcean": "Płytki ocean",

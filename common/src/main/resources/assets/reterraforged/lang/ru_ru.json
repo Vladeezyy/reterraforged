@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Крутизна осыпей",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Крутизна, при которой поверхность может переходить в гравий",
   "reterraforged.gui.slider.seaLevel": "Уровень моря",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Уровень моря",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Уровень моря. Крайние значения портят мир: у дна мира суша остаётся голым камнем, без травы и деревьев; при высоком море поднимите и высоту мира, иначе горы обрежутся о потолок мира",
   "reterraforged.gui.slider.separation": "Разнос",
   "reterraforged.gui.slider.separation.tooltip": "Наименьшее расстояние между экземплярами структуры. Большие значения гарантируют большее расстояние между структурами одного типа, но выстраивают их «по сетке». Меньшие дают более случайное распределение, но структуры могут оказаться ближе друг к другу.",
   "reterraforged.gui.slider.shallowOcean": "Мелкий океан",

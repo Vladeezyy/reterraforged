@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Inclinação do cascalho",
   "reterraforged.gui.slider.screeSteepness.tooltip": "Inclinação a partir da qual a superfície pode passar a cascalho",
   "reterraforged.gui.slider.seaLevel": "Nível do mar",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Controla o nível do mar",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Controla o nível do mar. Valores extremos estragam o mundo: perto do fundo do mundo a terra fica como pedra nua, sem grama nem árvores; com o mar alto aumente também a altura do mundo, ou as montanhas serão cortadas no teto do mundo",
   "reterraforged.gui.slider.separation": "Separação",
   "reterraforged.gui.slider.separation.tooltip": "Distância mínima entre instâncias da estrutura. Valores maiores garantem mais distância entre estruturas do mesmo tipo, mas as alinham mais à grade. Valores menores dão uma distribuição mais aleatória, mas permitem que fiquem mais próximas.",
   "reterraforged.gui.slider.shallowOcean": "Oceano raso",

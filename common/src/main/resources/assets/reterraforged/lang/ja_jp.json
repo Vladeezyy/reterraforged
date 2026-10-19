@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "がれ場の傾斜",
   "reterraforged.gui.slider.screeSteepness.tooltip": "地表が砂利に移り変われるようになる傾斜",
   "reterraforged.gui.slider.seaLevel": "海面",
-  "reterraforged.gui.slider.seaLevel.tooltip": "海面の高さ",
+  "reterraforged.gui.slider.seaLevel.tooltip": "海面の高さ。極端な値はワールドを損ないます：ワールドの底に近いと陸地は草も木もない裸の石のままになり、海面が高いときはワールドの高さも上げないと山がワールドの上限で切れます",
   "reterraforged.gui.slider.separation": "間隔",
   "reterraforged.gui.slider.separation.tooltip": "構造物同士の最小距離です。大きい値は同じ種類の構造物同士の距離を広げますが、格子状に並びやすくなります。小さい値はよりランダムな分布になりますが、構造物同士が近くに生成されることがあります。",
   "reterraforged.gui.slider.shallowOcean": "浅い海",

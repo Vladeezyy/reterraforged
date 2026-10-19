@@ -42,7 +42,7 @@ if mode in ('ground', 'all', 'world'):
         w = b_ground.get(k)
         if w != v:
             diffs.append(f'ground at {k[0]},{k[1]}: {v} / {w}')
-n = (len(a_base) if mode != 'ground' else 0) + (len(a_ground) if mode != 'heights' else 0)
+n = (len(a_base) if mode != 'ground' else 0) * (2 if mode in ('all', 'world') else 1) + (len(a_ground) if mode != 'heights' else 0)
 if not a_base or (mode != 'heights' and not a_ground):
     print('FAIL empty sample file')
 elif diffs:

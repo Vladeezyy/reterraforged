@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "碎石陡度",
   "reterraforged.gui.slider.screeSteepness.tooltip": "地表可以过渡为碎石的陡度\n用于模拟山体滑坡和碎石坡\n当地形坡度超过此值时，会在地表生成碎石",
   "reterraforged.gui.slider.seaLevel": "海平面",
-  "reterraforged.gui.slider.seaLevel.tooltip": "控制海平面高度",
+  "reterraforged.gui.slider.seaLevel.tooltip": "控制海平面高度。极端数值会破坏世界：接近世界底部时陆地只剩裸露的石头，没有草和树；海平面较高时也要提高世界高度，否则山会在世界顶部被截断",
   "reterraforged.gui.slider.separation": "间距",
   "reterraforged.gui.slider.separation.tooltip": "控制结构实例之间的最小距离\n较大的值保证相同类型的结构之间有更大的距离，但会导致它们更加'网格对齐'，较小的值会产生更随机的分布，但可能允许实例生成得更近",
   "reterraforged.gui.slider.shallowOcean": "浅海",

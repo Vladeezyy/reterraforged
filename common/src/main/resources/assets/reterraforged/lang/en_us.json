@@ -283,7 +283,7 @@
   "reterraforged.gui.slider.screeSteepness": "Scree Steepness",
   "reterraforged.gui.slider.screeSteepness.tooltip": "The steepness at which the surface can transition into gravel",
   "reterraforged.gui.slider.seaLevel": "Sea Level",
-  "reterraforged.gui.slider.seaLevel.tooltip": "Controls the sea level",
+  "reterraforged.gui.slider.seaLevel.tooltip": "Controls the sea level. Extreme values spoil the world: near the bottom of the world the land stays bare stone, without grass or trees; with a high sea level raise the world height as well, or the mountains are cut off at the top of the world",
   "reterraforged.gui.slider.separation": "Separation",
   "reterraforged.gui.slider.separation.tooltip": "Controls the minimum distance between instances of the structure. Larger values guarantee larger distances between structures of the same type but cause them to generate more 'grid-aligned'. Lower values will produce a more random distribution but may allow instances to generate closer together.",
   "reterraforged.gui.slider.shallowOcean": "Shallow Ocean",
