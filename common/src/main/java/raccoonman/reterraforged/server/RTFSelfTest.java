@@ -88,6 +88,22 @@ public final class RTFSelfTest {
 			String result = RTFHoleTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		}))).then(Commands.literal("heights").executes(ctx -> {
+			String result = RTFWorldChecks.heights(ctx.getSource().getServer(), "");
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("name", StringArgumentType.word()).executes(ctx -> {
+			String result = RTFWorldChecks.heights(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))).then(Commands.literal("extremes").executes(ctx -> {
+			String result = RTFWorldChecks.extremes(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("dungeons").then(Commands.argument("chunks", IntegerArgumentType.integer(1, 64)).executes(ctx -> {
+			String result = RTFWorldChecks.countDungeons(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		}))).then(Commands.literal("biomemods").executes(ctx -> {
 			String result = RTFBiomeModTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
@@ -175,6 +191,13 @@ public final class RTFSelfTest {
 			this.failed.add("exception: " + t);
 			RTFCommon.LOGGER.error("[RTF selftest] exception", t);
 		}
+		// the checks from the FreeTerraForged test plan run even when the ones above stopped (a vanilla reference world)
+		try {
+			RTFWorldChecks.run(server, this::check);
+		} catch (Throwable t) {
+			this.failed.add("exception: " + t);
+			RTFCommon.LOGGER.error("[RTF selftest] exception", t);
+		}
 		String r = this.failed.isEmpty() ? "[RTF selftest] PASS all " + this.checks : "[RTF selftest] FAIL " + this.failed.size() + "/" + this.checks + ": " + this.failed;
 		RTFCommon.LOGGER.info(r);
 		return r;
@@ -191,7 +214,8 @@ public final class RTFSelfTest {
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
 		// and they stand in the world: trunks in the nearest forest (the feature list above holds even when every tree
 		// fails to place, as on 26.1 with the soil tag and 26.3 with the template block names)
-		Pair<BlockPos, Holder<Biome>> forest = level.findClosestBiome3d((biome) -> biome.is(Biomes.FOREST), BlockPos.ZERO.atY(level.getSeaLevel() + 8), 2400, 32, 64);
+		// a forest on the surface (biomes are 3D: at a fixed height a "forest" can be inside a mountain or in the air)
+		Pair<BlockPos, Holder<Biome>> forest = RTFWorldChecks.surfaceBiome(level, Biomes.FOREST, 2400);
 		if (forest == null) {
 			RTFCommon.LOGGER.info("[RTF selftest] no forest within 2400 blocks, its trees not checked");
 		} else {
@@ -203,6 +227,15 @@ public final class RTFSelfTest {
 					int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
 					if (level.getBlockState(new BlockPos(x, ground - 1, z)).is(BlockTags.LOGS)) trunks++;
 				}
+			}
+			if (trunks < 5) {
+				// what the forest stands on, to tell rock slopes and water from trees that failed
+				java.util.Map<String, Integer> surface = new java.util.TreeMap<>();
+				for (int x = center.getX() - 24; x < center.getX() + 24; x += 4) for (int z = center.getZ() - 24; z < center.getZ() + 24; z += 4) {
+					int top = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+					surface.merge(level.getBlockState(new BlockPos(x, top, z)).getBlock().getDescriptionId() + " (" + level.getBiome(new BlockPos(x, top, z)).getRegisteredName() + ")", 1, Integer::sum);
+				}
+				RTFCommon.LOGGER.info("[RTF selftest] the forest at {} {}: surface {}", center.getX(), center.getZ(), surface);
 			}
 			check("trees stand in the forest at " + center.getX() + ", " + center.getZ() + " (" + trunks + " trunk columns)", trunks >= 5);
 		}
@@ -236,7 +269,8 @@ public final class RTFSelfTest {
 		for (int cx = 20; cx < 29; cx++) for (int cz = 20; cz < 29; cz++) full(level, cx, cz);
 		RTFCommon.LOGGER.info("[RTF selftest] 81 chunks fully generated in {} ms", (System.nanoTime() - t0) / 1_000_000);
 		check("terrain has relief (ground " + min + " .. " + max + ")", max - min >= 40);
-		check("terrain reaches above sea level", max > level.getSeaLevel() + 20);
+		// the generator's sea level: Level.getSeaLevel() is 63 on 1.21.1 whatever the preset sets
+		check("terrain reaches above sea level (" + gen.getSeaLevel() + ")", max > gen.getSeaLevel() + 20);
 		check("there is water (" + water + "/" + samples + ")", water > 0 && water < samples);
 		check("terrain stays inside the world height", min > level.getMinBuildHeight() + 5 && max < level.getMaxBuildHeight() - 5);
 
@@ -249,18 +283,26 @@ public final class RTFSelfTest {
 		check("overworld bedrock floor is whole (holes: " + holes + ")", holes == 0);
 
 		// spawn on dry land
+		// (a player appears at a random safe spot within the spawn radius: the spawn block itself and at least a quarter
+		// of the 21 x 21 blocks around it, a beach, must be dry land)
 		BlockPos spawn = level.getSharedSpawnPos();
-		ChunkAccess sc = full(level, spawn.getX() >> 4, spawn.getZ() >> 4);
-		int sy = sc.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX() & 15, spawn.getZ() & 15);
+		for (int cx = (spawn.getX() - 10) >> 4; cx <= (spawn.getX() + 10) >> 4; cx++) for (int cz = (spawn.getZ() - 10) >> 4; cz <= (spawn.getZ() + 10) >> 4; cz++) full(level, cx, cz);
+		int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX(), spawn.getZ());
 		var below = level.getBlockState(new BlockPos(spawn.getX(), sy - 1, spawn.getZ()));
-		check("spawn is on dry land (" + spawn.getX() + ", " + sy + ", " + spawn.getZ() + ": " + below.getBlock().getName().getString() + ")",
-				below.getFluidState().isEmpty() && !below.isAir());
+		int dry = 0;
+		for (int x = -10; x <= 10; x++) for (int z = -10; z <= 10; z++) {
+			int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, spawn.getX() + x, spawn.getZ() + z);
+			if (level.getBlockState(new BlockPos(spawn.getX() + x, y - 1, spawn.getZ() + z)).getFluidState().isEmpty()) dry++;
+		}
+		check("spawn is on dry land (" + spawn.getX() + ", " + sy + ", " + spawn.getZ() + ": " + below.getBlock().getName().getString() + ", dry " + dry + "/441)",
+				below.getFluidState().isEmpty() && !below.isAir() && dry >= 441 / 4);
 
 		// bee nests grow on the mod's trees (their decorator was never used, those biomes had no bees): a meadow tree,
 		// which always has one, grown on a grass block near the spawn (the spawn may be in a desert)
-		Holder<ConfiguredFeature<?, ?>> meadowTree = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).getOrThrow(PresetConfiguredFeatures.MEADOW_TREE);
+		// (a preset of an older version, tools/servertest.sh LEGACY=..., has no meadow tree)
+		Holder<ConfiguredFeature<?, ?>> meadowTree = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).get(PresetConfiguredFeatures.MEADOW_TREE).orElse(null);
 		boolean nest = false;
-		for (int i = 0; i < 12 && !nest; i++) {
+		for (int i = 0; i < 12 && !nest && meadowTree != null; i++) {
 			int x = spawn.getX() + 32 + i * 24, z = spawn.getZ() + 32;
 			for (int cx = (x >> 4) - 1; cx <= (x >> 4) + 1; cx++) for (int cz = (z >> 4) - 1; cz <= (z >> 4) + 1; cz++) full(level, cx, cz);
 			BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
@@ -269,7 +311,7 @@ public final class RTFSelfTest {
 				nest = BlockPos.betweenClosedStream(ground.offset(-8, 0, -8), ground.offset(8, 20, 8)).anyMatch((p) -> level.getBlockState(p).is(Blocks.BEE_NEST));
 			}
 		}
-		check("bee nests grow on the mod's trees", nest);
+		check("bee nests grow on the mod's trees" + (meadowTree == null ? " (the preset has no meadow tree)" : ""), nest);
 		// and saplings grown with bone meal next to flowers are Minecraft's own trees, with its 5 % chance of a nest: 200
 		// oak saplings, each with a poppy beside it, on grass blocks east of the spawn
 		int grown = 0, nests = 0;
@@ -294,7 +336,7 @@ public final class RTFSelfTest {
 		if (village != null) {
 			ChunkAccess vc = full(level, village.getX() >> 4, village.getZ() >> 4);
 			int ground = vc.getHeight(Heightmap.Types.WORLD_SURFACE_WG, village.getX() & 15, village.getZ() & 15);
-			boolean onLand = ground > level.getSeaLevel() - 2;
+			boolean onLand = ground > level.getChunkSource().getGenerator().getSeaLevel() - 2;
 			RTFCommon.LOGGER.info("[RTF selftest] village at {} {} ground {}", village.getX(), village.getZ(), ground);
 			check("the village stands on land above the sea", onLand);
 		}
@@ -313,10 +355,17 @@ public final class RTFSelfTest {
 		}
 		check("nether bedrock floor is whole (holes: " + floorHoles + ")", floorHoles == 0);
 		check("nether bedrock roof is whole (holes: " + roofHoles + ")", roofHoles == 0);
-		ChunkAccess c = full(level, 0, 0);
-		int netherrack = 0;
-		for (int y = floorY + 10; y < floorY + 100; y++) if (c.getBlockState(new BlockPos(8, y, 8)).is(Blocks.NETHERRACK)) netherrack++;
-		check("nether is made of netherrack as usual (" + netherrack + "/90)", netherrack > 10);
+		// one column of each of the 7 x 7 chunks (one may stand in the lava sea), any nether stone (a seed may have a
+		// soul sand valley or basalt deltas there)
+		int stone = 0;
+		for (int cx = -3; cx <= 3; cx++) for (int cz = -3; cz <= 3; cz++) {
+			ChunkAccess c = full(level, cx, cz);
+			for (int y = floorY + 10; y < floorY + 100; y++) {
+				var state = c.getBlockState(new BlockPos(8, y, 8));
+				if (state.is(BlockTags.BASE_STONE_NETHER) || state.is(BlockTags.SOUL_FIRE_BASE_BLOCKS) || state.is(BlockTags.NYLIUM)) stone++;
+			}
+		}
+		check("nether is made of nether stone as usual (" + stone + "/4410)", stone > 490);
 	}
 
 	private void end(ServerLevel level) {

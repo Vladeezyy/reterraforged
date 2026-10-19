@@ -227,6 +227,9 @@ public final class RTFGuiTest {
 		if ((Object) level.getChunkSource().randomState() instanceof RTFRandomState state && state.generatorContext() != null) {
 			int scale = state.preset().world().continent.continentScale;
 			log("the new world is built by ReTerraForged, continent scale {}", scale);
+			// the world's shape for tools/uiparity.sh: a server world from the exported datapack, with this seed and scale,
+			// must be the same
+			raccoonman.reterraforged.server.RTFWorldChecks.heights(server, "gui-" + scale);
 			if (scale != expectedScale) fail("the new world has continent scale " + scale + ", the preset screen set " + expectedScale);
 		} else {
 			fail("the new world is not built by ReTerraForged (vanilla generator)");

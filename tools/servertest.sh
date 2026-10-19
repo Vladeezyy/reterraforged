@@ -9,6 +9,12 @@
 # PRESET=min|max|random:N exports a stress test preset instead of "Default" (tools/stressworld.sh).
 # MODS="biomes-o-plenty ..." also installs these Modrinth projects with their dependencies (tools/extramods.sh) and runs
 # "rtf biomemods" in both worlds: the vanilla export world is the reference for the other mods' biomes.
+# After the self test "rtf heights" writes the world's shape (run/heights-<loader>.txt); with both loaders the two must
+# be identical. More (the FreeTerraForged release test plan): SEED=<number or text> another seed; PRESET=set:...seaLevel=
+# ...;...lavaLevel=... with EXTREMES=1 checks such a world ("rtf extremes"); HEIGHTS_REF=<file> [HEIGHTS_MODE=heights|
+# ground|all] the same shape as another run (MODS=biomes-o-plenty against a run without); LEGACY=<old version> a world
+# of that release opened with this build has the same ground as a new one (no seams); NOPRESET=1 a vanilla reference
+# world; SKIP_STRUCTURES=1 leaves the structure test out (quick runs). tools/uiparity.sh: the preset screen's world.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -97,7 +103,7 @@ for loader in $LOADERS; do
     cp "$jar" "$dir/mods/"
     bash tools/extramods.sh $loader "$dir/mods" $MODS || { FAILS=$((FAILS+1)); continue; }
     echo "eula=true" > "$dir/eula.txt"
-    props="online-mode=false\nserver-port=$PORT\nlevel-seed=20261013\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\n"
+    props="online-mode=false\nserver-port=$PORT\nlevel-seed=${SEED:-20261013}\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\n"
 
     # pass 1: export the preset datapack
     rm -rf "$dir/world-export" "$dir/reterraforged-preset.zip"
@@ -116,10 +122,43 @@ for loader in $LOADERS; do
         echo "$loader: preset export failed"; grep -m8 -E "Exception|ERROR|RTF" "$dir/export.log"; FAILS=$((FAILS+1)); continue
     fi
 
+    # LEGACY=<old version> (e.g. 0.0.9): a world made by that release of the mod with its own preset datapack, then the
+    # same world opened with this build, and pass 2 makes a new world with that old preset on this build: the chunks
+    # the old version generated and the ones this build generates must have the same ground (no seams in old worlds)
+    legacy=PASS
+    if [ -n "$LEGACY" ]; then
+        old="run/legacy/$LEGACY"; mkdir -p "$old"
+        rel="https://github.com/Vladeezyy/reterraforged/releases/download/v$LEGACY-$MC"
+        oldjar="$old/reterraforged-$LEGACY-$loader-$MC.jar"
+        [ -s "$oldjar" ] || curl -fsSL -o "$oldjar" "$rel/reterraforged-$LEGACY-$loader-$MC.jar"
+        [ -s "$old/preset.zip" ] || curl -fsSL -o "$old/preset.zip" "$rel/reterraforged-preset-$MC.zip"
+        rm -rf "$dir/world-legacy"; mkdir -p "$dir/world-legacy/datapacks"; cp "$old/preset.zip" "$dir/world-legacy/datapacks/"
+        printf "${props}level-name=world-legacy\n" > "$dir/server.properties"
+        rm -f "$dir"/mods/reterraforged-*.jar; cp "$oldjar" "$dir/mods/"
+        start_server "$dir" legacy-old.log
+        if wait_for "$dir/legacy-old.log" 'Done (' 600; then
+            echo "rtf selftest" >> "$dir/console.in"
+            wait_for "$dir/legacy-old.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
+        fi
+        stop_server "$dir" legacy-old.log
+        rm -f "$dir"/mods/reterraforged-*.jar "$dir/rtf-heights-legacy.txt"; cp "$jar" "$dir/mods/"
+        start_server "$dir" legacy-new.log
+        if wait_for "$dir/legacy-new.log" 'Done (' 600; then
+            echo "rtf heights legacy" >> "$dir/console.in"
+            wait_for "$dir/legacy-new.log" 'RTF heights\]' 300
+        fi
+        stop_server "$dir" legacy-new.log
+        cp "$dir/rtf-heights-legacy.txt" "run/heights-legacy-$loader.txt" 2>/dev/null || legacy="FAIL no heights from the old world"
+        cp "$old/preset.zip" "$dir/reterraforged-preset.zip"
+    fi
+    # PRESET_ZIP=<file>: pass 2 uses this preset datapack (for example the one a GUI world saved) instead of the export
+    [ -z "$PRESET_ZIP" ] || cp "$PRESET_ZIP" "$dir/reterraforged-preset.zip"
+
     # pass 2: a new world with the preset, self-test
     rm -rf "$dir/world"
     mkdir -p "$dir/world/datapacks"
-    cp "$dir/reterraforged-preset.zip" "$dir/world/datapacks/"
+    # NOPRESET=1: the second world without the preset (vanilla generation), as a reference
+    [ -n "$NOPRESET" ] || cp "$dir/reterraforged-preset.zip" "$dir/world/datapacks/"
     printf "${props}level-name=world\n" > "$dir/server.properties"
     start_server "$dir" console.log
     if ! wait_for "$dir/console.log" 'Done (' 600; then
@@ -128,10 +167,31 @@ for loader in $LOADERS; do
     echo "rtf selftest" >> "$dir/console.in"
     wait_for "$dir/console.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
     line=$(grep -o 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\).*' "$dir/console.log" | tail -1)
-    # every overworld structure near the spawn, built and checked (RTFStructureTest)
-    echo "rtf structures" >> "$dir/console.in"
-    wait_for "$dir/console.log" 'RTF structures\] \(PASS\|FAIL\)' 1200
-    structures=$(grep -o 'RTF structures\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-400)
+    # the world's shape as a file (RTFWorldChecks.heights): compared between the loaders below, and with HEIGHTS_REF
+    rm -f "$dir/rtf-heights.txt" "run/heights-$loader.txt"
+    echo "rtf heights" >> "$dir/console.in"
+    wait_for "$dir/console.log" 'RTF heights\]' 300 && cp "$dir/rtf-heights.txt" "run/heights-$loader.txt" 2>/dev/null
+    # EXTREMES=1 (with PRESET=set:...seaLevel=...;...lavaLevel=...): bedrock and the levels of such a world
+    extremes=PASS
+    if [ -n "$EXTREMES" ]; then
+        echo "rtf extremes" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF extremes\] \(PASS\|FAIL\)' 600
+        extremes=$(grep -o 'RTF extremes\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1)
+    fi
+    # DUNGEONS=<N>: the dungeon spawners over N x N chunks (compare with NOPRESET=1)
+    if [ -n "$DUNGEONS" ]; then
+        echo "rtf dungeons $DUNGEONS" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF dungeons\]' 1800
+        grep -o 'RTF dungeons\].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
+    fi
+    # every overworld structure near the spawn, built and checked (RTFStructureTest); SKIP_STRUCTURES=1 for quick runs
+    if [ -n "$SKIP_STRUCTURES" ]; then
+        structures="RTF structures] PASS (skipped)"
+    else
+        echo "rtf structures" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF structures\] \(PASS\|FAIL\)' 1200
+        structures=$(grep -o 'RTF structures\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-400)
+    fi
     if [ -n "$MODS" ]; then
         echo "rtf biomemods" >> "$dir/console.in"
         wait_for "$dir/console.log" 'RTF biomemods\] \(rtf\|FAIL\)' 1200
@@ -144,6 +204,18 @@ for loader in $LOADERS; do
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"
+    [ -n "$EXTREMES" ] && echo "  ${extremes:-RTF extremes] no result}"
+    # HEIGHTS_REF=<file> [HEIGHTS_MODE=heights|ground|all]: the same shape as another run (a world without other mods,
+    # another version of the mod)
+    if [ -n "$LEGACY" ] && [[ "$legacy" == PASS ]]; then
+        legacy=$($PY tools/compareheights.py "run/heights-legacy-$loader.txt" "run/heights-$loader.txt" ground)
+        echo "  a world of $LEGACY opened with this build, against a new one: $legacy"
+    fi
+    shape=PASS
+    if [ -n "$HEIGHTS_REF" ]; then
+        shape=$($PY tools/compareheights.py "$HEIGHTS_REF" "run/heights-$loader.txt" "${HEIGHTS_MODE:-heights}")
+        echo "  world shape against $HEIGHTS_REF: $shape"
+    fi
     grep -E '/ERROR\]|Exception' "$dir/console.log" | grep -vE "$noise" | sed 's/^\[[0-9:]*\] //' | cut -c1-160 | sort | uniq -c | sort -rn | head -8
     biomemods=PASS
     if [ -n "$MODS" ]; then
@@ -169,8 +241,15 @@ if g[4] / max(1, g[0]) < r[4] / max(1, r[0]) - 0.1: bad.append("fewer own surfac
 print("PASS" if not bad else "FAIL " + ", ".join(bad))' "$ref" "$got")
         echo "  biomes of other mods: $biomemods (tables: $dir/rtf-biomemods-*.txt)"
     fi
-    [[ "$line" == *"PASS all"* && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS ]] || FAILS=$((FAILS+1))
+    # LEGACY: the self test judges the old preset (no bee nest tree before 0.0.12, forge: biome modifiers before 0.0.10), only the ground is compared
+    [[ ( -n "$LEGACY" || "$line" == *"PASS all"* ) && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS && "$extremes" == *PASS* && "$shape" == PASS* && "$legacy" == PASS* ]] || FAILS=$((FAILS+1))
 done
+# both loaders on the same seed and preset: the same world (heights, ground and biomes)
+if [[ " $LOADERS " == *" neoforge "* && " $LOADERS " == *" fabric "* && -f run/heights-neoforge.txt && -f run/heights-fabric.txt ]]; then
+    parity=$($PY tools/compareheights.py run/heights-neoforge.txt run/heights-fabric.txt all)
+    echo "NeoForge and Fabric: $parity"
+    [[ "$parity" == PASS* ]] || FAILS=$((FAILS+1))
+fi
 echo; [ $FAILS = 0 ] && echo "ALL PASS" || { echo "$FAILS FAILED"; exit 1; }
 exit 0
 }

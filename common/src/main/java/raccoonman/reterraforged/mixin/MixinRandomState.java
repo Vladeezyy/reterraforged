@@ -32,6 +32,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.tags.RTFDensityFunctionTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 import raccoonman.reterraforged.world.worldgen.densityfunction.NoiseFunction;
@@ -131,6 +132,14 @@ class MixinRandomState {
 				// where the world spawn is searched from (setInitialSpawn runs after the levels are created)
 				if((Object) this.sampler instanceof RTFClimateSampler rtfClimateSampler) {
 					rtfClimateSampler.setSpawnSearchCenter(this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext));
+					// the climate takes rivers and lakes for land: without this the spawn could be in a lake too wide
+					// for the spawn chunk search (a player in the water)
+					GeneratorContext spawnContext = this.generatorContext;
+					rtfClimateSampler.setSpawnWater((x, z) -> {
+						Cell cell = new Cell();
+						spawnContext.generator.getHeightmap().apply(cell, x, z, false);
+						return cell.height <= spawnContext.levels.water;
+					});
 				}
 			}
 		}, () -> {

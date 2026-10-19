@@ -12,6 +12,8 @@ import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 	
 @Deprecated(forRemoval = true)
 public class SpawnFinderFix {
+	// above the distance and climate fitness of any spot within the search (10^8 at 2500 blocks)
+	private static final long WATER_PENALTY = 1_000_000_000_000L;
 	public Result result;
 
 	public SpawnFinderFix(List<ParameterPoint> list, Sampler sampler) {
@@ -21,6 +23,12 @@ public class SpawnFinderFix {
 			this.result = SpawnFinderFix.getSpawnPositionAndFitness(list, sampler, center.getX(), center.getZ());
 			this.radialSearch(list, sampler, 2048.0f, 512.0f);
 			this.radialSearch(list, sampler, 512.0f, 32.0f);
+			// still in the water (an ocean around the search center, a large continent scale): further out, up to 8192
+			// blocks (the water penalty is above the distance fitness there)
+			if (this.result.fitness() >= WATER_PENALTY) {
+				this.radialSearch(list, sampler, 8192.0f, 512.0f);
+				this.radialSearch(list, sampler, 512.0f, 32.0f);
+			}
 		}
 	}
 
@@ -52,6 +60,11 @@ public class SpawnFinderFix {
 		long m = Long.MAX_VALUE;
 		for (ParameterPoint parameterPoint : list) {
 			m = Math.min(m, parameterPoint.fitness(targetPoint2));
+		}
+		// the generator's water is no spawn (the climate takes rivers and lakes for land); not with the spawn types
+		// without climate points (m stays Long.MAX_VALUE there, the nearest spot to the search center wins)
+		if (m != Long.MAX_VALUE && (Object) sampler instanceof RTFClimateSampler rtfClimateSampler && rtfClimateSampler.getSpawnWater() != null && rtfClimateSampler.getSpawnWater().test(i, j)) {
+			m += WATER_PENALTY;
 		}
 		return new Result(new BlockPos(i, 0, j), l + m);
 	}
