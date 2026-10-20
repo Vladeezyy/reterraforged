@@ -120,7 +120,15 @@ public final class RTFSelfTest {
 			String result = RTFBiomeModTest.dump(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("exportpreset").executes(ctx -> {
+		}))).then(Commands.literal("surfacemap").then(Commands.argument("biome", net.minecraft.commands.arguments.ResourceLocationArgument.id()).executes(ctx -> {
+			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), 12);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("chunks", IntegerArgumentType.integer(2, 64)).executes(ctx -> {
+			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})))).then(Commands.literal("exportpreset").executes(ctx -> {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
