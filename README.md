@@ -137,7 +137,8 @@ does not change (the same heights everywhere); in a world without such mods abou
 differ, all of them at chunk borders, where the result used to depend on the generation order. Worlds made before
 keep their chunks; chunks whose surface an older version already built are eroded the old way, so there is no seam
 at the edge of the explored area. On 12 x 12 chunks of Stony Peaks with the mod, the ground block changed across a
-chunk border 1.41 times as often as inside a chunk before, 0.82 times after.
+chunk border 1.41 times as often as inside a chunk before, 0.82 times after; with the vertical scale at 1.5 and the
+mountains' at 2 (as in the report) 1.93 before, 0.82 after.
 
 </details>
 
@@ -393,7 +394,8 @@ that was left) is garbage collected, and its cleanup stops.
   O' Plenty needs it but its Modrinth page does not list it.
 - For cave biome mods there is a cave compatibility mode on the Caves page.
 - **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge and Fabric): its biomes and surfaces generate,
-  no seams on cliffs since 0.0.17. Its forests grow its own trees instead of the ReTerraForged ones.
+  no seams on cliffs since 0.0.17. Its forests grow its own trees instead of the ReTerraForged ones. On Fabric it
+  needs Fabric Loader 0.18.5 and Fabric API 0.116.12 or newer.
 
 ## Testing
 
@@ -695,7 +697,8 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 (высоты те же везде); в мире без таких модов отличается около 0,1–0,2 % блоков поверхности, все у границ чанков, где
 результат раньше зависел от порядка генерации. Старые миры сохраняют свои чанки; чанки, поверхность которых уже
 построила старая версия, эродируются по-старому, поэтому шва на краю исследованной области нет. На 12 × 12 чанках
-Stony Peaks с модом блок поверхности на границе чанков менялся в 1,41 раза чаще, чем внутри чанка, теперь в 0,82.
+Stony Peaks с модом блок поверхности на границе чанков менялся в 1,41 раза чаще, чем внутри чанка, теперь в 0,82; с
+вертикальным масштабом 1,5 и масштабом гор 2 (как в отчёте) было 1,93, стало 0,82.
 
 </details>
 
@@ -950,7 +953,8 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
   Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
 - Для модов на пещерные биомы есть режим совместимости пещер на странице «Пещеры».
 - **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge и Fabric): его биомы и поверхности генерируются,
-  швов на склонах нет с 0.0.17. В лесах растут его деревья вместо деревьев ReTerraForged.
+  швов на склонах нет с 0.0.17. В лесах растут его деревья вместо деревьев ReTerraForged. На Fabric ему нужны
+  Fabric Loader 0.18.5 и Fabric API 0.116.12 или новее.
 
 ## Проверка
 
