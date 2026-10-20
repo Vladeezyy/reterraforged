@@ -104,6 +104,10 @@ New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so 
 - on 26.3 chunks got other biomes than `/locate`, structures and the spawn expected, and the surfaces of biome mods
   (sand, mud, volcanic rock) seemed missing.
 
+**Seams on cliffs, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): with mods that repaint
+mountain surfaces, such as William Wythers' Overhauled Overworld, the rock of steep slopes came out in chunk-sized
+squares and stripes.
+
 **Preset screen:**
 - on 1.21.11+ the sliders changed nothing;
 - the selected preset was not highlighted, edits and a re-applied preset were lost;
@@ -115,6 +119,28 @@ badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) 
 from files are held to valid values, and a broken file in the presets folder no longer crashes the game.
 
 ## Problems and fixes in detail
+
+<details>
+<summary><b>Seams along chunk borders on cliffs</b> (0.0.17, <a href="https://github.com/Vladeezyy/reterraforged/issues/2">#2</a>)</summary>
+
+**Problem.** With William Wythers' Overhauled Overworld the volcanic Stony Peaks had patches of diorite and stone cut
+off along chunk borders in the middle of its blackstone, tuff and basalt; other mods that repaint slopes looked the
+same. Higher vertical or horizontal scales made it worse.
+
+**Cause.** The erosion decorator (rock, gravel and scree on steep slopes) ran as the first feature of each chunk and
+rewrote up to 32 blocks of its columns. The features of neighbour chunks reach a few blocks into a chunk, and those
+of neighbours generated earlier were already there: the erosion overwrote them, while those of neighbours generated
+later stayed. Whether a patch survived depended on the order the chunks were generated in. 0.0.6 has the same bug.
+
+**Fix.** The erosion runs as the chunk's surface is built, before any feature of it or of a neighbour. The terrain
+does not change (the same heights everywhere); in a world without such mods about 0.1 - 0.2 % of the ground blocks
+differ, all of them at chunk borders, where the result used to depend on the generation order. Worlds made before
+keep their chunks; chunks whose surface an older version already built are eroded the old way, so there is no seam
+at the edge of the explored area. On 12 x 12 chunks of Stony Peaks with the mod, the ground block changed across a
+chunk border 1.41 times as often as inside a chunk before, 0.82 times after; with the vertical scale at 1.5 and the
+mountains' at 2 (as in the report) 1.93 before, 0.82 after.
+
+</details>
 
 <details>
 <summary><b>Biome mods through TerraBlender</b> (0.0.15)</summary>
@@ -367,6 +393,9 @@ that was left) is garbage collected, and its cleanup stops.
   **Biomes O' Plenty** on 1.21.1, 1.21.11 and 26.3 (NeoForge and Fabric). On 26.3 install TerraBlender yourself: Biomes
   O' Plenty needs it but its Modrinth page does not list it.
 - For cave biome mods there is a cave compatibility mode on the Caves page.
+- **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge and Fabric): its biomes and surfaces generate,
+  no seams on cliffs since 0.0.17. Its forests grow its own trees instead of the ReTerraForged ones. On Fabric it
+  needs Fabric Loader 0.18.5 and Fabric API 0.116.12 or newer.
 
 ## Testing
 
@@ -636,6 +665,10 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - на 26.3 в чанках оказывались не те биомы, что ждали `/locate`, структуры и спаун, и поверхность модов на биомы
   (песок, грязь, вулканическая порода) будто пропадала.
 
+**Швы на склонах, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): с модами, которые
+перекрашивают поверхность гор, например William Wythers' Overhauled Overworld, камень крутых склонов выходил
+квадратами и полосами по чанкам.
+
 **Экран пресетов:**
 - на 1.21.11+ ползунки ничего не меняли;
 - выбранный пресет не подсвечивался, правки и повторно применённый пресет терялись;
@@ -647,6 +680,27 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 неактивными. Пресеты из файлов приводятся к допустимым значениям, сломанный файл в папке пресетов больше не роняет игру.
 
 ## Проблемы и исправления подробно
+
+<details>
+<summary><b>Швы по границам чанков на склонах</b> (0.0.17, <a href="https://github.com/Vladeezyy/reterraforged/issues/2">#2</a>)</summary>
+
+**Проблема.** С William Wythers' Overhauled Overworld на вулканических Stony Peaks посреди блэкстоуна, туфа и
+базальта оставались пятна диорита и камня, обрезанные по границам чанков; с другими модами, которые перекрашивают
+склоны, то же самое. С увеличенным вертикальным или горизонтальным масштабом заметнее.
+
+**Причина.** Эрозия (камень, гравий и осыпи на крутых склонах) шла первой фичей каждого чанка и переписывала до 32
+блоков его колонок. Фичи соседних чанков заходят в чанк на несколько блоков, и фичи соседей, сгенерированных раньше,
+там уже были: эрозия их затирала, а фичи соседей, сгенерированных позже, оставались. Уцелеет ли пятно, зависело от
+порядка генерации чанков. В 0.0.6 та же ошибка.
+
+**Как исправлено.** Эрозия идёт при постройке поверхности чанка, до любых фич его и соседей. Рельеф не меняется
+(высоты те же везде); в мире без таких модов отличается около 0,1–0,2 % блоков поверхности, все у границ чанков, где
+результат раньше зависел от порядка генерации. Старые миры сохраняют свои чанки; чанки, поверхность которых уже
+построила старая версия, эродируются по-старому, поэтому шва на краю исследованной области нет. На 12 × 12 чанках
+Stony Peaks с модом блок поверхности на границе чанков менялся в 1,41 раза чаще, чем внутри чанка, теперь в 0,82; с
+вертикальным масштабом 1,5 и масштабом гор 2 (как в отчёте) было 1,93, стало 0,82.
+
+</details>
 
 <details>
 <summary><b>Моды на биомы через TerraBlender</b> (0.0.15)</summary>
@@ -898,6 +952,9 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
   Проверено с **Biomes O' Plenty** на 1.21.1, 1.21.11 и 26.3 (NeoForge и Fabric). На 26.3 TerraBlender ставьте сами:
   Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
 - Для модов на пещерные биомы есть режим совместимости пещер на странице «Пещеры».
+- **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge и Fabric): его биомы и поверхности генерируются,
+  швов на склонах нет с 0.0.17. В лесах растут его деревья вместо деревьев ReTerraForged. На Fabric ему нужны
+  Fabric Loader 0.18.5 и Fabric API 0.116.12 или новее.
 
 ## Проверка
 

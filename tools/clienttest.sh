@@ -13,7 +13,7 @@
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
 MODE=${2:-world}
-WORLD=run/server-$LOADER/world
+WORLD=${WORLD:-run/server-$LOADER/world}  # WORLD=<folder>: another world of the test server
 RUN=$LOADER/run
 OUT=run/clienttest-$LOADER
 TEST=rtf-test
@@ -25,7 +25,7 @@ elif [ ! -f "$WORLD/level.dat" ]; then echo "no $WORLD, run tools/servertest.sh 
 mkdir -p "$RUN/saves" "$OUT"
 bash tools/extramods.sh $LOADER "$RUN/mods" $MODS || exit 1
 [ -n "$BIOMES" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientbiomes=$BIOMES"
-# SPOTS="x,z;x,z": a screenshot looking down at each place (the pits "rtf holes" lists)
+# SPOTS="x,z;x,z": a screenshot looking down at each place (the pits "rtf holes" lists); "x,z,distance,pitch" sets the camera
 [ -n "$SPOTS" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientspots=$SPOTS"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
 if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then rm -rf "$RUN/saves/New World"* "$RUN/rtf-widgets.txt"; else
