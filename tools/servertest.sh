@@ -24,8 +24,8 @@ prop() { grep "^$1=" gradle.properties | cut -d= -f2- | tr -d '
 '; }
 MC=$(prop minecraft_version)
 NEOFORGE=$(prop neoforge_version)
-FABRIC_LOADER=$(prop fabric_loader_version)
-FABRIC_API=$(prop fabric_api_version)
+FABRIC_LOADER=${FABRIC_LOADER:-$(prop fabric_loader_version)}
+FABRIC_API=${FABRIC_API:-$(prop fabric_api_version)}
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) WIN=1; ARGS_FILE=win_args.txt ;; *) WIN=; ARGS_FILE=unix_args.txt ;; esac
 if [ -z "$JAVA" ]; then
     if [ -n "$JAVA_HOME" ]; then JAVA="$JAVA_HOME/bin/java"
@@ -92,9 +92,13 @@ for loader in $LOADERS; do
             jar=$(ls -t neoforge/build/libs/reterraforged-*-neoforge-*.jar | head -1)
             start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
         fabric)
-            if [ ! -f "$dir/fabric-server-launch.jar" ]; then
+            # FABRIC_LOADER= / FABRIC_API= other versions than gradle.properties' (mods that need newer ones): the
+            # installed pair is remembered and replaced when it differs
+            if [ ! -f "$dir/fabric-server-launch.jar" ] || [ "$(cat "$dir/fabric-versions.txt" 2>/dev/null)" != "$FABRIC_LOADER $FABRIC_API" ]; then
+                rm -f "$dir/fabric-server-launch.jar" "$dir/mods/fabric-api.jar"; rm -rf "$dir/.fabric"
                 curl -fsSL -o "$dir/fabric-server-launch.jar" "https://meta.fabricmc.net/v2/versions/loader/$MC/$FABRIC_LOADER/1.0.1/server/jar"
                 curl -fsSL -o "$dir/mods/fabric-api.jar" "https://cdn.modrinth.com/data/P7dR8mSH/versions/$(curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22fabric%22%5D" | $PY -c 'import json,sys; v=[x for x in json.load(sys.stdin) if x["version_number"]=="'$FABRIC_API'"]; print(v[0]["id"]+"/"+v[0]["files"][0]["filename"])')"
+                echo "$FABRIC_LOADER $FABRIC_API" > "$dir/fabric-versions.txt"
             fi
             jar=$(ls -t fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)
             start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP -jar fabric-server-launch.jar nogui) ;;
