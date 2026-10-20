@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.feature;
 
+import java.util.function.Function;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,6 +24,8 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import org.jetbrains.annotations.Nullable;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
+import raccoonman.reterraforged.data.worldgen.preset.settings.SurfaceSettings;
 import raccoonman.reterraforged.tags.RTFBlockTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -50,49 +54,71 @@ public record ErodeFeature(Config config) implements Feature {
 
 	private boolean place(PlaceContext<Config> placeContext) {
 		WorldGenLevel level = placeContext.level();
+		ChunkAccess chunk = level.getChunk(placeContext.origin());
 		RandomState randomState = level.getLevel().getChunkSource().randomState();
-		
-		@Nullable
-		GeneratorContext generatorContext;
-		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
-			ChunkPos chunkPos = ChunkPos.containing(placeContext.origin());
-			int chunkX = chunkPos.x();
-			int chunkZ = chunkPos.z();
-			ChunkGenerator generator = placeContext.chunkGenerator();
-			ChunkAccess chunk = level.getChunk(chunkX, chunkZ);
-			Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
-			raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap heightmap = generatorContext.generator.getHeightmap();
-			Levels levels = heightmap.levels();
-			Noise rand = Noises.white(heightmap.climate().randomSeed(), 1);
-			BlockPos.MutableBlockPos pos = new MutableBlockPos();
-			Config config = placeContext.config();
-			for(int x = 0; x < 16; x++) {
-				for(int z = 0; z < 16; z++) {
-					int worldX = chunkPos.getBlockX(x);
-					int worldZ = chunkPos.getBlockZ(z);
-					
-					Cell cell = tileChunk.getCell(x, z);
-					int scaledY = levels.scale(cell.height);
-					int surfaceY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
-					Holder<Biome> biome = level.getBiome(pos.set(worldX, surfaceY, worldZ));
-					
-					pos.set(worldX, surfaceY, worldZ);
-					
-			        if(surfaceY <= scaledY && surfaceY >= generator.getSeaLevel() - 1 && !biome.is(Biomes.WOODED_BADLANDS) && !biome.is(Biomes.BADLANDS)) {
-						erodeColumn(config, rand, generator, chunk, cell, pos, surfaceY);
-						//remove any foliage that may have generated above
-						pos.setY(surfaceY);
-						while(!level.getBlockState(pos.setY(pos.getY() + 1)).canSurvive(level, pos)) {
-							level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-						}
-					}
-				}
-			}
-			return true;
-		} else {
+		// chunks are eroded when their surface is built (MixinNoiseBasedChunkGenerator, ERODED marks them): eroding
+		// here, at the start of the chunk's own features, overwrote what the features of neighbour chunks generated
+		// earlier had already placed in it (issue #2: William Wythers' Overhauled Overworld's blackstone and tuff cut
+		// off along chunk borders on cliffs). Only a chunk whose surface an older version built is eroded here.
+		if(chunk.getInhabitedTime() >= ERODED || !((Object) randomState instanceof RTFRandomState rtfRandomState) || rtfRandomState.generatorContext() == null) {
 			// not a ReTerraForged generator (nether, end, other dimensions get the feature through biome modifiers
 			// without a filter): nothing to do; throwing here left the chunk unfinished and froze the server
 			return false;
+		}
+		BlockPos.MutableBlockPos above = new MutableBlockPos();
+		erodeChunk(placeContext.config(), rtfRandomState.generatorContext(), placeContext.chunkGenerator(), chunk, level::getBiome, (x, surfaceY, z) -> {
+			//remove any foliage that may have generated above
+			above.set(x, surfaceY, z);
+			while(!level.getBlockState(above.setY(above.getY() + 1)).canSurvive(level, above)) {
+				level.setBlock(above, Blocks.AIR.defaultBlockState(), 3);
+			}
+		});
+		return true;
+	}
+
+	public interface ErodedColumn {
+		void accept(int x, int surfaceY, int z);
+	}
+
+	/**
+	 * Marks a chunk eroded as its surface was built: its inhabited time (saved with chunks that are not finished yet
+	 * too, and carried over to the finished chunk) is at least 1 tick. Regional difficulty counts up to 3600000 ticks.
+	 */
+	public static final long ERODED = 1L;
+
+	/**
+	 * Erodes a chunk as its surface is built, before any feature of it or of a neighbour chunk runs: the result no
+	 * longer depends on the order in which the chunks are generated. Called by MixinNoiseBasedChunkGenerator after the
+	 * surface rules when the preset has the erosion decorator (the reterraforged:erode placed feature exists).
+	 */
+	public static void erodeChunk(Config config, GeneratorContext generatorContext, ChunkGenerator generator, ChunkAccess chunk, Function<BlockPos, Holder<Biome>> biomes, @Nullable ErodedColumn eroded) {
+		ChunkPos chunkPos = chunk.getPos();
+		int chunkX = chunkPos.x();
+		int chunkZ = chunkPos.z();
+		Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
+		raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap heightmap = generatorContext.generator.getHeightmap();
+		Levels levels = heightmap.levels();
+		Noise rand = Noises.white(heightmap.climate().randomSeed(), 1);
+		BlockPos.MutableBlockPos pos = new MutableBlockPos();
+		for(int x = 0; x < 16; x++) {
+			for(int z = 0; z < 16; z++) {
+				int worldX = chunkPos.getBlockX(x);
+				int worldZ = chunkPos.getBlockZ(z);
+				
+				Cell cell = tileChunk.getCell(x, z);
+				int scaledY = levels.scale(cell.height);
+				int surfaceY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
+				Holder<Biome> biome = biomes.apply(pos.set(worldX, surfaceY, worldZ));
+				
+				pos.set(worldX, surfaceY, worldZ);
+				
+		        if(surfaceY <= scaledY && surfaceY >= generator.getSeaLevel() - 1 && !biome.is(Biomes.WOODED_BADLANDS) && !biome.is(Biomes.BADLANDS)) {
+					erodeColumn(config, rand, generator, chunk, cell, pos, surfaceY);
+					if(eroded != null) {
+						eroded.accept(worldX, surfaceY, worldZ);
+					}
+				}
+			}
 		}
 	}
 	
@@ -199,6 +225,12 @@ public record ErodeFeature(Config config) implements Feature {
     }
 
     public record Config(int rockVar, int rockMin, int dirtVar, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness, float heightModifier, float slopeModifier, float sedimentModifier, float sedimentNoise, float screeValue) {
+		// the preset's erosion settings (PresetConfiguredFeatures registers the feature with them)
+		public static Config of(Preset preset) {
+			SurfaceSettings.Erosion erosion = preset.surface().erosion();
+			return new Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F);
+		}
+
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.INT.fieldOf("rock_var").forGetter(Config::rockVar),
 			Codec.INT.fieldOf("rock_min").forGetter(Config::rockMin),
