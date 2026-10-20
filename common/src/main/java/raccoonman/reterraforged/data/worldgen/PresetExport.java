@@ -33,7 +33,12 @@ public final class PresetExport {
 
 		DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName);
 		dataGenerator.run();
-		copyToZip(datagenOutputPath, outputPath);
+		// a new archive replaces the old one: zip file systems open an existing archive and only add to it, so a preset
+		// exported again kept the files its new settings no longer make (erosion switched off stayed in the pack, #5)
+		Path tempPath = outputPath.resolveSibling(outputPath.getFileName() + ".tmp");
+		Files.deleteIfExists(tempPath);
+		copyToZip(datagenOutputPath, tempPath);
+		Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
 		PathUtils.deleteDirectory(datagenPath);
 
 		RTFCommon.LOGGER.info("Exported datapack to {}", outputPath);
