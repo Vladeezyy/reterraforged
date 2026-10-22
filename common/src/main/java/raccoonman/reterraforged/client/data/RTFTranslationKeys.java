@@ -162,6 +162,10 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_SPACING = resolve("gui.slider.spacing");
 	public static final String GUI_SLIDER_SEPARATION = resolve("gui.slider.separation");
 	public static final String GUI_SLIDER_STRATA_REGION_SIZE = resolve("gui.slider.strataRegionSize");
+	public static final String GUI_SLIDER_STRATA_MIN_LAYERS = resolve("gui.slider.strataMinLayers");
+	public static final String GUI_SLIDER_STRATA_MAX_LAYERS = resolve("gui.slider.strataMaxLayers");
+	public static final String GUI_SLIDER_STRATA_MIN_DEPTH = resolve("gui.slider.strataMinDepth");
+	public static final String GUI_SLIDER_STRATA_MAX_DEPTH = resolve("gui.slider.strataMaxDepth");
 	public static final String GUI_SLIDER_MOUNTAIN_BIOME_USAGE = resolve("gui.slider.mountainBiomeUsage");
 	public static final String GUI_SLIDER_VOLCANO_BIOME_USAGE = resolve("gui.slider.volcanoBiomeUsage");
 	public static final String GUI_SLIDER_ISLAND_DENSITY = resolve("gui.slider.islandDensity");
