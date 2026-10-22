@@ -1,6 +1,8 @@
 package raccoonman.reterraforged.server;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,7 +15,9 @@ import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -28,6 +32,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 
@@ -104,7 +109,35 @@ public final class RTFWorldChecks {
 		dungeons(overworld, check);
 		mobs(overworld, check);
 		legacyPreset(check);
+		reexport(server, check);
 		strata(overworld, check);
+	}
+
+	// a preset exported again into the same file (the preset screen's "Export As Datapack" writes exports/<name>.zip)
+	// holds only what its settings make now: the erosion decorator switched off leaves no erosion feature behind (#5)
+	private static void reexport(MinecraftServer server, BiConsumer<String, Boolean> check) {
+		boolean ok;
+		String why;
+		Path zip = server.getServerDirectory().resolve("rtf-reexport-test.zip");
+		try {
+			RegistryAccess registries = server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS);
+			Files.deleteIfExists(zip);
+			PresetExport.toZip(Presets.makeDefault(), "Default", registries, zip);
+			Preset noErosion = Presets.makeDefault();
+			noErosion.miscellaneous().erosionDecorator = false;
+			PresetExport.toZip(noErosion, "Default", registries, zip);
+			try (FileSystem fs = FileSystems.newFileSystem(zip)) {
+				boolean feature = Files.exists(fs.getPath("data/reterraforged/worldgen/placed_feature/erode.json"));
+				boolean preset = Files.readString(fs.getPath("data/reterraforged/reterraforged/worldgen/preset/preset.json")).replace(" ", "").contains("\"erosionDecorator\":false");
+				ok = !feature && preset;
+				why = "erosion feature " + (feature ? "still there" : "gone") + ", preset says erosion " + (preset ? "off" : "on");
+			}
+			Files.deleteIfExists(zip);
+		} catch (Throwable t) {
+			ok = false;
+			why = t.toString();
+		}
+		check.accept("a preset exported again into the same file drops what its settings switched off (" + why + ")", ok);
 	}
 
 	// the strata decorator of "Default" lays bands of granite, diorite, andesite and stone under the ground (rtf strata)

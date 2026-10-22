@@ -118,7 +118,9 @@ squares and stripes.
 - on 1.21.11+ the sliders changed nothing;
 - the selected preset was not highlighted, edits and a re-applied preset were lost;
 - "back" skipped a page;
-- on 1.21.6+ the screen crashed the game.
+- on 1.21.6+ the screen crashed the game;
+- "Export As Datapack" of a preset exported before kept in the archive what the new settings had switched off, such as
+  the erosion decorator ([#5](https://github.com/Vladeezyy/reterraforged/issues/5)).
 
 The structure page and the sliders that did nothing before now work (horizontal scale of hills, dales, plateaus,
 badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) are shown as inactive. Presets read
@@ -685,7 +687,9 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - на 1.21.11+ ползунки ничего не меняли;
 - выбранный пресет не подсвечивался, правки и повторно применённый пресет терялись;
 - «назад» перескакивал через страницу;
-- на 1.21.6+ экран ронял игру.
+- на 1.21.6+ экран ронял игру;
+- «Экспорт в датапак» уже экспортированного пресета оставлял в архиве то, что новые настройки выключили, например
+  эрозию ([#5](https://github.com/Vladeezyy/reterraforged/issues/5)).
 
 Ещё заработали страница структур и ползунки, которые раньше ничего не делали (горизонтальный масштаб холмов, долин,
 плато, бесплодных земель, масштабы вулканов). Настройки, которые генерация не использует (и в 0.0.6 тоже), показаны
