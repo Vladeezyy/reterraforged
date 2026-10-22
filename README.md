@@ -66,6 +66,12 @@ The mod only affects new worlds created with its preset. It does not change an e
   configurable.
 - **Surface:** water droplet erosion simulation, rock and scree on steep slopes, rock strata, snow only where it would
   settle naturally.
+- **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
+  stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
+  Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
+  already. "Ore Compatible Stone Only" (on by default, as in TerraForged) keeps the strata to the stones ores generate in
+  (tag `reterraforged:ore_compatible`): on 1.18+ ores skip Quark's stones, so switch it off to get them, with fewer
+  ores in their layers.
 - **The mod's own trees** from templates (oak, birch, spruce, redwood, willow, acacia, jungle), with bee nests like the
   vanilla ones.
 - **Preset editor:** more than 160 settings on eleven pages (world, surface, caves, climate, terrain, islands, rivers,
@@ -630,6 +636,12 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Вода:** речные сети с главными реками и притоками, озёра на реках, болота, глубина и ширина русла настраиваются.
 - **Поверхность:** симуляция эрозии каплями воды, камень и осыпи на крутых склонах, пласты горных пород, снег только
   там, где он лёг бы естественно.
+- **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
+  и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
+  других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
+  «Только камень для руд» (включено по умолчанию, как в TerraForged) оставляет в пластах только камни, в которых
+  появляются руды (тег `reterraforged:ore_compatible`): с 1.18 руды не появляются в камнях Quark, поэтому чтобы они
+  были в пластах, выключите его, руд в их слоях не будет.
 - **Деревья мода** из шаблонов — дубы, берёзы, ели, секвойи, ивы, акации, джунгли — с ульями, как у ванильных.
 - **Редактор пресетов:** больше 160 настроек на одиннадцати страницах — мир, поверхность, пещеры, климат, рельеф, острова, реки,
   фильтры, структуры и прочее — с картой-превью, которая перерисовывается при каждом изменении. Пресеты сохраняются,
