@@ -32,6 +32,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
+import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 
@@ -109,6 +110,7 @@ public final class RTFWorldChecks {
 		mobs(overworld, check);
 		legacyPreset(check);
 		reexport(server, check);
+		strata(overworld, check);
 	}
 
 	// a preset exported again into the same file (the preset screen's "Export As Datapack" writes exports/<name>.zip)
@@ -136,6 +138,14 @@ public final class RTFWorldChecks {
 			why = t.toString();
 		}
 		check.accept("a preset exported again into the same file drops what its settings switched off (" + why + ")", ok);
+	}
+
+	// the strata decorator of "Default" lays bands of granite, diorite, andesite and stone under the ground (rtf strata)
+	private static void strata(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().strataDecorator) return;
+		BlockPos spawn = level.getSharedSpawnPos();
+		RTFStrataTest.Result result = RTFStrataTest.sample(level, ((spawn.getX() + 2000) >> 4) - 2, (spawn.getZ() >> 4) - 2, 4);
+		check.accept("the strata lay rock bands under the ground (" + result.describe() + ")", result.rock().size() >= 3 && result.layers() >= 2);
 	}
 
 	// far from the centre (players fly 5 - 10 thousand blocks there): bedrock as usual and nothing of the overworld's
