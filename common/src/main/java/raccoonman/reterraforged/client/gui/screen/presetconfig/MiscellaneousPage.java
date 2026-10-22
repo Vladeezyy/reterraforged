@@ -15,6 +15,10 @@ public class MiscellaneousPage extends PresetEditorPage {
 	private CycleButton<Boolean> smoothLayerDecorator;
 	private Slider strataRegionSize;
 	private CycleButton<Boolean> strataDecorator;
+	private Slider strataMinLayers;
+	private Slider strataMaxLayers;
+	private Slider strataMinDepth;
+	private Slider strataMaxDepth;
 	private CycleButton<Boolean> oreCompatibleStoneOnly;
 	private CycleButton<Boolean> erosionDecorator;
 	private CycleButton<Boolean> plainStoneErosion;
@@ -52,6 +56,23 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.strataDecorator = PresetWidgets.createToggle(miscellaneous.strataDecorator, RTFTranslationKeys.GUI_BUTTON_STRATA_DECORATOR, (button, value) -> {
 			miscellaneous.strataDecorator = value;
 		});
+		MiscellaneousSettings.Strata strata = miscellaneous.strata;
+		this.strataMinLayers = PresetWidgets.createIntSlider(strata.minLayers, 1, 64, RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_LAYERS, (slider, value) -> {
+			strata.minLayers = (int) slider.scaleValue(value);
+			return value;
+		});
+		this.strataMaxLayers = PresetWidgets.createIntSlider(strata.maxLayers, 1, 64, RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_LAYERS, (slider, value) -> {
+			strata.maxLayers = (int) slider.scaleValue(value);
+			return value;
+		});
+		this.strataMinDepth = PresetWidgets.createFloatSlider(strata.minDepth, 0.01F, 3.0F, RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_DEPTH, (slider, value) -> {
+			strata.minDepth = (float) slider.scaleValue(value);
+			return value;
+		});
+		this.strataMaxDepth = PresetWidgets.createFloatSlider(strata.maxDepth, 0.01F, 3.0F, RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_DEPTH, (slider, value) -> {
+			strata.maxDepth = (float) slider.scaleValue(value);
+			return value;
+		});
 		this.oreCompatibleStoneOnly = PresetWidgets.createToggle(miscellaneous.oreCompatibleStoneOnly, RTFTranslationKeys.GUI_BUTTON_ORE_COMPATIBLE_STONE_ONLY, (button, value) -> {
 			miscellaneous.oreCompatibleStoneOnly = value;
 		});
@@ -88,7 +109,11 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.left.addWidget(this.smoothLayerDecorator);
 		this.left.addWidget(this.strataRegionSize);
 		this.left.addWidget(this.strataDecorator);
-		this.left.addWidget(PresetWidgets.unused(this.oreCompatibleStoneOnly));
+		this.left.addWidget(this.strataMinLayers);
+		this.left.addWidget(this.strataMaxLayers);
+		this.left.addWidget(this.strataMinDepth);
+		this.left.addWidget(this.strataMaxDepth);
+		this.left.addWidget(this.oreCompatibleStoneOnly);
 		this.left.addWidget(this.erosionDecorator);
 		this.left.addWidget(PresetWidgets.unused(this.plainStoneErosion));
 		this.left.addWidget(this.naturalSnowDecorator);
