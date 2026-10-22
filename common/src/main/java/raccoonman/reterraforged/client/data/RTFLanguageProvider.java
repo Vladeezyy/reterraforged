@@ -176,6 +176,10 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_SPACING, "Spacing");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SEPARATION, "Separation");
 			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_REGION_SIZE, "Strata Region Size");
+			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_LAYERS, "Strata Min Layers");
+			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_LAYERS, "Strata Max Layers");
+			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_DEPTH, "Strata Min Thickness");
+			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_DEPTH, "Strata Max Thickness");
 			this.add(RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE, "Mountain Biome Usage");
 			this.add(RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE, "Volcano Biome Usage");
 			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY, "Island Density");
@@ -249,7 +253,7 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_DISABLED), "Prevent this structure from generating.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_SMOOTH_LAYER_DECORATOR), "Modifies layer block levels (ie snow) to fit the terrain");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_STRATA_DECORATOR), "Generates strata (rock layers) instead of just stone");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ORE_COMPATIBLE_STONE_ONLY), "Only use stone types that ores can generate in");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ORE_COMPATIBLE_STONE_ONLY), "Only use stone types that ores can generate in (tag reterraforged:ore_compatible); stones of other mods that ores skip are left out");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_EROSION_DECORATOR), "Replace surface materials where erosion has occurred");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION), "Changes most exposed rock surfaces to plain stone");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_NATURAL_SNOW_DECORATOR), "Removes snow from the terrain where it shouldn't naturally settle");
@@ -372,6 +376,10 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE), "The probability that mountainous terrain will be set to a mountain biome type.\nThis may help improve compatibility with mods that rely exclusively on mountain biomes.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE), "The probability that volcano terrain will be set to a volcano biome type.\nThis may help improve compatibility with mods that rely exclusively on volcano biomes.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_REGION_SIZE), "Controls the size of strata regions");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_LAYERS), "The fewest rock layers in a strata region. More layers are thinner");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_LAYERS), "The most rock layers in a strata region. More layers are thinner");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_DEPTH), "Relative thickness of the thinnest rock layer: the layers share the height of the ground by their thickness");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_DEPTH), "Relative thickness of the thickest rock layer: the further it is from the minimum, the more the layers differ");
 		}
 	}
 }
