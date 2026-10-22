@@ -2,6 +2,7 @@ package raccoonman.reterraforged.world.worldgen.surface.rule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.SurfaceRules.Context;
+import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
@@ -56,17 +58,22 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	
 	private List<List<Layer>> generateStrata(RandomSource random) {
         List<List<Layer>> layers = new ArrayList<>();
+        List<List<Holder<Block>>> materials = new ArrayList<>();
+        for(Strata strata : this.strata) {
+        	materials.add(strata.materialList());
+        }
 		for(int i = 0; i < this.iterations; i++) {
 			List<Layer> layer = new ArrayList<>();
-			for(Strata strata : this.strata) {
-				layer.addAll(strata.generateLayers(random));
+			for(int j = 0; j < this.strata.size(); j++) {
+				layer.addAll(this.strata.get(j).generateLayers(random, materials.get(j)));
 			}
 			layers.add(layer);
 		}
         return layers;
 	}
 	
-	public record Strata(TagKey<Block> materials, Holder<Noise> noise, int attempts, int minLayers, int maxLayers, float minDepth, float maxDepth) {
+	// required: only the materials also in this tag ("Ore Compatible Stone Only": the stones ores generate in)
+	public record Strata(TagKey<Block> materials, Holder<Noise> noise, int attempts, int minLayers, int maxLayers, float minDepth, float maxDepth, Optional<TagKey<Block>> required) {
 		public static final Codec<Strata> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			TagKey.hashedCodec(Registries.BLOCK).fieldOf("materials").forGetter(Strata::materials),
 			Noise.CODEC.fieldOf("noise").forGetter(Strata::noise),
@@ -74,14 +81,34 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 			Codec.INT.fieldOf("min_layers").forGetter(Strata::minLayers),
 			Codec.INT.fieldOf("max_layers").forGetter(Strata::maxLayers),
 			Codec.FLOAT.fieldOf("min_depth").forGetter(Strata::minDepth),
-			Codec.FLOAT.fieldOf("max_depth").forGetter(Strata::maxDepth)			
+			Codec.FLOAT.fieldOf("max_depth").forGetter(Strata::maxDepth),
+			TagKey.hashedCodec(Registries.BLOCK).optionalFieldOf("required").forGetter(Strata::required)
 		).apply(instance, Strata::new));
 		
-		public List<Layer> generateLayers(RandomSource random) {
+		public Strata(TagKey<Block> materials, Holder<Noise> noise, int attempts, int minLayers, int maxLayers, float minDepth, float maxDepth) {
+			this(materials, noise, attempts, minLayers, maxLayers, minDepth, maxDepth, Optional.empty());
+		}
+		
+		// the blocks of the tag, without those missing from the required tag (logged, as TerraForged did)
+		public List<Holder<Block>> materialList() {
+			List<Holder<Block>> materials = new ArrayList<>();
+			for(Holder<Block> block : BuiltInRegistries.BLOCK.getTagOrEmpty(this.materials)) {
+				if(this.required.isPresent() && !block.is(this.required.get())) {
+					RTFCommon.LOGGER.info("Block {} is in tag {} but not in tag {}: left out of the strata", block.getRegisteredName(), this.materials.location(), this.required.get().location());
+					continue;
+				}
+				materials.add(block);
+			}
+			return materials;
+		}
+		
+		public List<Layer> generateLayers(RandomSource random, List<Holder<Block>> materials) {
 			int lastIndex = -1;
 	        int layers = this.minLayers + NoiseUtil.round(random.nextFloat() * (this.maxLayers - this.minLayers));
 	        List<Layer> result = new ArrayList<>();
-	        List<Holder<Block>> materials = ImmutableList.copyOf(BuiltInRegistries.BLOCK.getTagOrEmpty(this.materials));
+	        if(materials.isEmpty()) {
+	        	return result;
+	        }
 	        
 	        int seed = random.nextInt();
 	        for (int i = 0; i < layers; i++) {
