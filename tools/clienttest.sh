@@ -42,16 +42,29 @@ gradle=$!
 # in dev runs Architectury's TransformerRuntime leaves non-daemon thread pools behind (seen with 26.2; not in the
 # released jars), and the client then does not exit after "done" (NeoForge: never, Fabric: shutdown watchdog crash):
 # a minute after the test is done, this checkout's client process is stopped
-done_at=
+kill_client() {
+    if [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; then
+        powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -like '*rtf.clienttest=*' -and \$_.CommandLine.Replace([char]92, '/') -like '*$(pwd -W)/$LOADER/*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }" 2>/dev/null
+    else
+        pkill -f "rtf.clienttest=.*$(pwd)/$LOADER/" 2>/dev/null
+    fi
+}
+# hang watchdog (modding-kb testing/hang-watchdog.md): once the game runs, a log that stops growing for $STALL seconds
+# (default 90; a modal screen, a deadlock) stops the client: HUNG, the run fails
+done_at=; hung=; last_size=-1; last_change=$SECONDS
 while kill -0 $gradle 2>/dev/null; do
     if [ -z "$done_at" ] && grep -q "RTF clienttest\] done" "$OUT/client.log"; then done_at=$SECONDS; fi
     if [ -n "$done_at" ] && [ $((SECONDS - done_at)) -gt 60 ]; then
-        if [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; then
-            powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -like '*rtf.clienttest=*' -and \$_.CommandLine.Replace([char]92, '/') -like '*$(pwd -W)/$LOADER/*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }" 2>/dev/null
-        else
-            pkill -f "rtf.clienttest=.*$(pwd)/$LOADER/" 2>/dev/null
-        fi
+        kill_client
         echo "client did not exit after the test, stopped" >> "$OUT/client.log"
+        break
+    fi
+    size=$(wc -c < "$OUT/client.log" 2>/dev/null || echo 0)
+    if [ "$size" != "$last_size" ]; then last_size=$size; last_change=$SECONDS
+    elif [ -z "$done_at" ] && [ $((SECONDS - last_change)) -ge "${STALL:-90}" ] && grep -q 'Render thread' "$OUT/client.log"; then
+        echo "HUNG: no client log output for ${STALL:-90}s, client stopped. Last lines:" | tee -a "$OUT/client.log"
+        grep -vE '^\s*$' "$OUT/client.log" | tail -4 | cut -c1-300
+        hung=1; kill_client
         break
     fi
     sleep 2
@@ -69,6 +82,7 @@ dripstone=$(grep -c 'far chunk.*large_dripstone' "$OUT/client.log")
 errors=$(grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | grep -c .)
 echo "screenshots: $(ls "$OUT"/*.png 2>/dev/null | wc -l) in $OUT; errors in log: $errors (+ $dripstone vanilla large_dripstone far-chunk lines)"
 grep -E 'ERROR|Exception' "$OUT/client.log" | grep -vE "$noise" | cut -c1-200 | sort | uniq -c | sort -rn | head -8
+[ -z "$hung" ] || exit 124
 grep -q "RTF clienttest\] done" "$OUT/client.log"
 exit $?
 }
