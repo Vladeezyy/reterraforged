@@ -15,7 +15,8 @@
 # ground|all] the same shape as another run (MODS=biomes-o-plenty against a run without); LEGACY=<old version> a world
 # of that release opened with this build has the same ground as a new one (no seams); NOPRESET=1 a vanilla reference
 # world; SKIP_STRUCTURES=1 leaves the structure test out, SKIP_SELFTEST=1 the self test (quick runs that only need the
-# world's shape: with both about 1 minute a loader instead of 6). tools/uiparity.sh: the preset screen's world.
+# world's shape: with both about 1 minute a loader instead of 6; compare such heights only with another SKIP_SELFTEST
+# run: a few "base" samples come out 1-2 blocks off when the self test has generated the chunks around them). tools/uiparity.sh: the preset screen's world.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
