@@ -180,7 +180,8 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 		if (properties.oceanDepth <= WorldSettings.Properties.DEFAULT_OCEAN_DEPTH) {
 			return 0.0F;
 		}
-		int floorY = Math.max(-properties.worldDepth + 24, properties.lavaLevel + 2);
+		// 8 above the lava level: the noise interpolation and caves take parts of the floor a few blocks lower
+		int floorY = Math.max(-properties.worldDepth + 24, properties.lavaLevel + 8);
 		return Math.min(floorY, 0) / (float) levels.worldHeight;
 	}
 
