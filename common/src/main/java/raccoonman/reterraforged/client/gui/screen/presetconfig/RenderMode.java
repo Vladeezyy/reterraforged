@@ -18,14 +18,13 @@ public enum RenderMode {
         public int getColor(Cell cell, Levels levels, float scale, float bias) {
             switch (cell.terrain.getCategory()) {
                 case DEEP_OCEAN:
-                    return rgba(0.63F, 0.65F, 0.8F);
                 case SHALLOW_OCEAN:
-                    return rgba(0.6F, 0.6F, 0.8F);
+                    return RenderMode.getWaterColor(cell, levels);
                 case BEACH:
                     return rgba(0.2F, 0.4F, 0.75F);
                 default:
                     if (cell.height < levels.water) {
-                        return RenderMode.getWaterColor();
+                        return RenderMode.getWaterColor(cell, levels);
                     } else {
                         Color color = cell.biome.getColor();
                         float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), new float[3]);
@@ -108,7 +107,7 @@ public enum RenderMode {
 
     public int getColor(Cell cell, Levels levels) {
         if (!this.handlesWater() && cell.height < levels.water) {
-            return getWaterColor();
+            return getWaterColor(cell, levels);
         }
         float bands = 10.0F;
         float alpha = 0.2F;
@@ -125,8 +124,12 @@ public enum RenderMode {
         return false;
     }
 
-    private static int getWaterColor() {
-        return rgba(40, 140, 200);
+    // darker the deeper, in bands of 8 blocks down to 96 blocks below sea level: the ocean depth slider showed nothing
+    // in the preview when all water had one colour
+    private static int getWaterColor(Cell cell, Levels levels) {
+        float depth = (levels.water - cell.height) * levels.worldHeight;
+        float t = NoiseUtil.clamp(step(depth / 96.0F, 12), 0.0F, 1.0F);
+        return rgba((int) NoiseUtil.lerp(40, 8, t), (int) NoiseUtil.lerp(140, 30, t), (int) NoiseUtil.lerp(200, 90, t));
     }
 
     private static float step(float value, int steps) {
