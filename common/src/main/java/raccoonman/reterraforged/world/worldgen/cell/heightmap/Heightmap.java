@@ -135,11 +135,13 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         CellPopulator region = new RegionModule(regionConfig);
 
         Seed mountainSeed = ctx.seed.offset(general.terrainSeedOffset);
-        Noise mountainShape = Noises.worleyEdge(mountainSeed.next(), general.legacyMountainScaling ? 1000 : Math.round(1000 * terrainSettings.mountains.horizontalScale * 2.25F), EdgeFunction.DISTANCE_2_ADD, DistanceFunction.EUCLIDEAN);
+        Noise mountainShape = Noises.worleyEdge(mountainSeed.next(), general.legacyMountainScaling ? 1000 : 2250, EdgeFunction.DISTANCE_2_ADD, DistanceFunction.EUCLIDEAN);
         mountainShape = Noises.warpPerlin(mountainShape, mountainSeed.next(), 333, 2, 250.0F);
         mountainShape = Noises.curve(mountainShape, Interpolation.CURVE3);
         mountainShape = Noises.clamp(mountainShape, 0.0F, 0.9F);
         mountainShape = Noises.map(mountainShape, 0.0F, 1.0F);
+        // where the mountain chains are follows the mountains' horizontal scale too, with legacy scaling as well (#9)
+        mountainShape = Populators.horizontal(mountainShape, terrainSettings.mountains.horizontalScale);
 
         Noise ground = PresetNoiseData.getNoise(noiseLookup, PresetTerrainTypeNoise.GROUND);
         
