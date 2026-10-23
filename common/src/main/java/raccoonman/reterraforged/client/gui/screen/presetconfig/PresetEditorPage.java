@@ -150,6 +150,9 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    private int zoomValue = 68; // default zoom value
 	    private int generation;
 	    private int hash;
+	    // the world top and the preview's levels: the legend tells where the terrain goes above the top (cut flat there)
+	    private int topY = Integer.MAX_VALUE;
+	    private Levels levels;
 	
 	    public Preview() {
 	        super(-1, -1, -1, -1, CommonComponents.EMPTY);
@@ -182,6 +185,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        this.tile = generatorContext.generator.generateZoomed(this.centerX, this.centerZ, this.getZoom(), false).join();
 	        RenderMode renderMode = PresetEditorPage.this.renderMode.getValue();
 	        Levels levels = new Levels(properties.terrainScaler(), properties.seaLevel);
+	        this.levels = levels;
+	        this.topY = properties.worldHeight - 1;
 
 	        int stroke = 2;
 	        int width = this.tile.getBlockSize().size();
@@ -321,6 +326,10 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	                int iz = NoiseUtil.round(fz * this.tile.getBlockSize().size());
 	                Cell cell = this.tile.lookup(ix, iz);
 	                this.legendValues[1] = getTerrainName(cell);
+	                int y = this.levels != null ? this.levels.scale(cell.height) : 0;
+	                if (y > this.topY) {
+	                    this.legendValues[1] += " (y " + y + " > " + this.topY + ")";
+	                }
 	                this.legendValues[2] = getBiomeName(cell);
 	
 	                int dx = (ix - (this.tile.getBlockSize().size() / 2)) * zoom;
