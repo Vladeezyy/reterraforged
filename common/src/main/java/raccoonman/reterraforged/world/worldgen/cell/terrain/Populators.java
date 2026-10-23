@@ -45,6 +45,11 @@ public class Populators {
 	}
 	
 	public static CellPopulator makeDeepOcean(@Deprecated int seed, float seaLevel, int oceanDepth) {
+		return makeDeepOcean(seed, seaLevel, oceanDepth, 0.0F);
+	}
+
+	// floor: the lowest sea floor (Heightmap.oceanFloor); below 0 only matters with an ocean depth above the default
+	public static CellPopulator makeDeepOcean(@Deprecated int seed, float seaLevel, int oceanDepth, float floor) {
 		Noise hills = Noises.perlin(++seed, 150, 3);
 		hills = Noises.mul(hills, seaLevel * 0.7F);
 
@@ -72,7 +77,7 @@ public class Populators {
 		if (depthScale != 1.0F) {
 			height = Noises.add(Noises.mul(height, depthScale), seaLevel * (1.0F - depthScale));
 		}
-		return new OceanPopulator(TerrainType.DEEP_OCEAN, height);
+		return new OceanPopulator(TerrainType.DEEP_OCEAN, height, floor);
 	}
     
 	public static CellPopulator makeShallowOcean(Levels levels) {
