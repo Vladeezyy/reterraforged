@@ -18,14 +18,13 @@ public enum RenderMode {
         public int getColor(Cell cell, Levels levels, float scale, float bias) {
             switch (cell.terrain.getCategory()) {
                 case DEEP_OCEAN:
-                    return rgba(0.63F, 0.65F, 0.8F);
                 case SHALLOW_OCEAN:
-                    return rgba(0.6F, 0.6F, 0.8F);
+                    return RenderMode.getWaterColor(cell, levels);
                 case BEACH:
                     return rgba(0.2F, 0.4F, 0.75F);
                 default:
                     if (cell.height < levels.water) {
-                        return RenderMode.getWaterColor();
+                        return RenderMode.getWaterColor(cell, levels);
                     } else {
                         Color color = cell.biome.getColor();
                         float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), new float[3]);
@@ -108,11 +107,13 @@ public enum RenderMode {
 
     public int getColor(Cell cell, Levels levels) {
         if (!this.handlesWater() && cell.height < levels.water) {
-            return getWaterColor();
+            return getWaterColor(cell, levels);
         }
         float bands = 10.0F;
         float alpha = 0.2F;
-        float elevation = (cell.height - levels.water) / (1.0F - levels.water);
+        // above the world top the bands went past full brightness, which spilled into the other colour channels
+        // (white, purple and blue specks in high mountains)
+        float elevation = NoiseUtil.clamp((cell.height - levels.water) / (1.0F - levels.water), 0.0F, 1.0F);
         int band = NoiseUtil.round(elevation * bands);
         float scale = 1.0F - alpha;
         float bias = alpha * (band / bands);
@@ -125,8 +126,13 @@ public enum RenderMode {
         return false;
     }
 
-    private static int getWaterColor() {
-        return rgba(40, 140, 200);
+    // darker the deeper, down to 112 blocks below sea level: the ocean depth slider showed nothing in the preview when
+    // all water had one colour. Smooth and soft: the sea floor varies within a preview pixel (50 blocks), with bands
+    // the neighbouring pixels flickered between them and the ocean looked like noise
+    private static int getWaterColor(Cell cell, Levels levels) {
+        float depth = (levels.water - cell.height) * levels.worldHeight;
+        float t = NoiseUtil.clamp(depth / 112.0F, 0.0F, 1.0F);
+        return rgba((int) NoiseUtil.lerp(48, 18, t), (int) NoiseUtil.lerp(150, 70, t), (int) NoiseUtil.lerp(210, 150, t));
     }
 
     private static float step(float value, int steps) {
@@ -134,7 +140,7 @@ public enum RenderMode {
     }
 
     private static int rgba(float h, float s, float b) {
-        int argb = Color.HSBtoRGB(h, s, b);
+        int argb = Color.HSBtoRGB(h, s, NoiseUtil.clamp(b, 0.0F, 1.0F));
         int red = (argb >> 16) & 0xFF;
         int green = (argb >> 8) & 0xFF;
         int blue =  argb & 0xFF;

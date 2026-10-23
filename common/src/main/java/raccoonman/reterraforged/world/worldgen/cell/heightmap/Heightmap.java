@@ -151,7 +151,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         Climate climate = Climate.make(continent, ctx);
         CellPopulator land = new Blender(mountainShape, terrainBlend, mountains, 0.3F, 0.8F, 0.575F);
         
-        CellPopulator deepOcean = Populators.makeDeepOcean(ctx.seed.next(), levels.water, world.properties.oceanDepth);
+        CellPopulator deepOcean = Populators.makeDeepOcean(ctx.seed.next(), levels.water, world.properties.oceanDepth, oceanFloor(world.properties, levels));
         CellPopulator shallowOcean = Populators.makeShallowOcean(ctx.levels);
         CellPopulator coast = Populators.makeCoast(ctx.levels);
         
@@ -168,6 +168,19 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         beachNoise = Noises.mul(beachNoise, ctx.levels.scale(5));
         FakeWaterBiomeResolver fakeWaterBiomeResolver = new FakeWaterBiomeResolver(ctx.preset.fakeWaterBiomes(), ctx.levels);
         return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver);
+	}
+
+	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above
+	// about 96 changed nearly nothing: now it may go down to 24 blocks above the world bottom (where the bottom slide
+	// starts) and stays above the lava level (water below it would be lava). Only for a depth above the default: the
+	// default noise dips a little below 0 too, and its worlds must stay as they are.
+	private static float oceanFloor(WorldSettings.Properties properties, Levels levels) {
+		if (properties.oceanDepth <= WorldSettings.Properties.DEFAULT_OCEAN_DEPTH) {
+			return 0.0F;
+		}
+		// 8 above the lava level: the noise interpolation and caves take parts of the floor a few blocks lower
+		int floorY = Math.max(-properties.worldDepth + 24, properties.lavaLevel + 8);
+		return Math.min(floorY, 0) / (float) levels.worldHeight;
 	}
 
 	private static boolean isIslandTerrain(Cell cell) {
