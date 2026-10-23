@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # java_version from gradle.properties (21 for 1.21.x, 25 for 26.x); org.gradle.java.home points at a JDK on
       # the dev Mac and does not exist here
@@ -31,15 +31,18 @@ jobs:
           fi
           echo "java=$v" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: ${{ steps.props.outputs.java }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      # v5, not v6: v6's caching is a proprietary component under Gradle's own terms of use
+      - uses: gradle/actions/setup-gradle@v5
 
+      # a second try when the first fails: a download from a Maven repository dropped now and then ("Got socket
+      # exception during request", maven.fabricmc.net, 2026-10-23)
       - name: Build
-        run: chmod +x gradlew && ./gradlew build --console=plain
+        run: chmod +x gradlew && { ./gradlew build --console=plain || { echo "build failed, trying again"; sleep 30; ./gradlew build --console=plain; }; }
 
       # tools/servertest.sh: the release jars on real NeoForge and Fabric servers:
       # preset export, "rtf selftest", the world shape on both loaders (the structure pass is too long here)
@@ -48,7 +51,7 @@ jobs:
 
       - name: Upload server logs
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: server-logs
           path: |
@@ -58,7 +61,7 @@ jobs:
 
       - name: Upload jars
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jars
           path: |
