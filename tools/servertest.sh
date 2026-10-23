@@ -14,7 +14,8 @@
 # ...;...lavaLevel=... with EXTREMES=1 checks such a world ("rtf extremes"); HEIGHTS_REF=<file> [HEIGHTS_MODE=heights|
 # ground|all] the same shape as another run (MODS=biomes-o-plenty against a run without); LEGACY=<old version> a world
 # of that release opened with this build has the same ground as a new one (no seams); NOPRESET=1 a vanilla reference
-# world; SKIP_STRUCTURES=1 leaves the structure test out (quick runs). tools/uiparity.sh: the preset screen's world.
+# world; SKIP_STRUCTURES=1 leaves the structure test out, SKIP_SELFTEST=1 the self test (quick runs that only need the
+# world's shape: with both about 1 minute a loader instead of 6). tools/uiparity.sh: the preset screen's world.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -168,9 +169,13 @@ for loader in $LOADERS; do
     if ! wait_for "$dir/console.log" 'Done (' 600; then
         echo "$loader: server did not start"; grep -m5 -E "Exception|Error" "$dir/console.log"; FAILS=$((FAILS+1)); stop_server "$dir" console.log; continue
     fi
-    echo "rtf selftest" >> "$dir/console.in"
-    wait_for "$dir/console.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
-    line=$(grep -o 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\).*' "$dir/console.log" | tail -1)
+    if [ -n "$SKIP_SELFTEST" ]; then
+        line="RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked"
+    else
+        echo "rtf selftest" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
+        line=$(grep -o 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\).*' "$dir/console.log" | tail -1)
+    fi
     # the world's shape as a file (RTFWorldChecks.heights): compared between the loaders below, and with HEIGHTS_REF
     rm -f "$dir/rtf-heights.txt" "run/heights-$loader.txt"
     echo "rtf heights" >> "$dir/console.in"
@@ -246,7 +251,7 @@ print("PASS" if not bad else "FAIL " + ", ".join(bad))' "$ref" "$got")
         echo "  biomes of other mods: $biomemods (tables: $dir/rtf-biomemods-*.txt)"
     fi
     # LEGACY: the self test judges the old preset (no bee nest tree before 0.0.12, forge: biome modifiers before 0.0.10), only the ground is compared
-    [[ ( -n "$LEGACY" || "$line" == *"PASS all"* ) && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS && "$extremes" == *PASS* && "$shape" == PASS* && "$legacy" == PASS* ]] || FAILS=$((FAILS+1))
+    [[ ( -n "$LEGACY" || -n "$SKIP_SELFTEST" || "$line" == *"PASS all"* ) && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS && "$extremes" == *PASS* && "$shape" == PASS* && "$legacy" == PASS* ]] || FAILS=$((FAILS+1))
 done
 # both loaders on the same seed and preset: the same world (heights, ground and biomes)
 if [[ " $LOADERS " == *" neoforge "* && " $LOADERS " == *" fabric "* && -f run/heights-neoforge.txt && -f run/heights-fabric.txt ]]; then
