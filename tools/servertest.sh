@@ -67,9 +67,25 @@ stop_server() {
     wait $pid 2>/dev/null
 }
 
-# wait_for <file> <regex> <seconds>
+# wait_for <file> <regex> <seconds>; hang watchdog (modding-kb testing/hang-watchdog.md): before the server is up
+# ("Done ("), a log that stops growing for $STALL seconds (default 90) once the server runs is a hang -> HUNG, fail.
+# After that silence is normal (a server waiting for commands, the self test's long forest search)
 wait_for() {
-    for i in $(seq 1 "$3"); do grep -q "$2" "$1" && return 0; grep -q 'Crash report\|Failed to start\|Exception in server tick loop\|Error executing task\|Mixin apply.*failed' "$1" && return 1; sleep 1; done
+    local last=-1 quiet=0 size
+    for i in $(seq 1 "$3"); do
+        grep -q "$2" "$1" && return 0
+        grep -q 'Crash report\|Failed to start\|Exception in server tick loop\|Error executing task\|Mixin apply.*failed' "$1" && return 1
+        if ! grep -q 'Done (' "$1"; then
+            size=$(wc -c < "$1" 2>/dev/null || echo 0)
+            if [ "$size" != "$last" ]; then last=$size; quiet=0
+            elif [ $((quiet += 1)) -ge "${STALL:-90}" ] && grep -qE 'Server thread|main/' "$1"; then
+                echo "HUNG: $(basename "$1") wrote nothing for ${STALL:-90}s before the server was up. Last lines:" | tee -a "$1"
+                grep -vE '^\s*$' "$1" | tail -4 | cut -c1-300
+                return 1
+            fi
+        fi
+        sleep 1
+    done
     return 1
 }
 
