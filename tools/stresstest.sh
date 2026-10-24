@@ -1,12 +1,13 @@
 #!/bin/bash
-# Stress test of the presets on a real dedicated server: tools/stresstest.sh [neoforge|fabric] [random variants|abuse|effects]
+# Stress test of the presets on a real dedicated server: tools/stresstest.sh [neoforge|fabric] [random variants|abuse|effects|curves]
 # (after tools/servertest.sh for that loader, which installs the server). Starts the server with a throwaway world
 # and runs "rtf stress" (server/stress/RTFStressTest): every preset screen setting at both ends of its slider, every
 # built-in preset, all at minimum, all at maximum and random combinations, each through the preset codec, the
 # datapack registries of a new world, the preview and world tiles with every filter, with a time limit. Prints the
 # summary, the failures and the hangs. "abuse" instead: every number setting at values no slider gives (NaN,
 # infinities, negative, huge), as a broken preset file holds them. "effects": whether each setting reaches the world
-# (RTFEffectTest: terrain cells and datapack entries against Default), table in run/effects-<loader>.txt.
+# (RTFEffectTest: terrain cells and datapack entries against Default), table in run/effects-<loader>.txt. "curves":
+# every number setting at 0/25/50/75/100 % of its slider, steps that change nothing (run/curves-<loader>.txt).
 # Settings table: tools/stresstable.py.
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
@@ -73,6 +74,10 @@ grep -h '\[RTF stress\] [0-9]* variants in' "$dir/$log" | sed 's/^.*\[RTF stress
 if [ "$RANDOM_VARIANTS" = effects ]; then
     cp "$dir/rtf-effects.txt" "run/effects-$LOADER.txt" 2>/dev/null
     grep -h '\[RTF stress\] without effect' "$dir/$log" | sed 's/^.*\[RTF stress\] /  /'
+fi
+if [ "$RANDOM_VARIANTS" = curves ]; then
+    cp "$dir/rtf-curves.txt" "run/curves-$LOADER.txt" 2>/dev/null
+    head -1 "run/curves-$LOADER.txt" 2>/dev/null | cut -c1-600
 fi
 grep -hE '\[RTF stress\] ([0-9]+x |HANG )' "$dir/$log" | sed 's/^.*\[RTF stress\] /  /' | cut -c1-240
 grep -m3 -hE 'OutOfMemoryError|Crash report|Exception in server tick loop' "$dir/$log" | sed 's/^/  server: /' | cut -c1-240
