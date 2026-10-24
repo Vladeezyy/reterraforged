@@ -202,8 +202,6 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.continentNoiseLacunarity);
 
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTROL_POINTS));
-		this.left.addWidget(PresetWidgets.unused(this.islandInland));
-		this.left.addWidget(PresetWidgets.unused(this.islandCoast));
 		this.left.addWidget(this.deepOcean);
 		this.left.addWidget(this.shallowOcean);
 		this.left.addWidget(this.beach);

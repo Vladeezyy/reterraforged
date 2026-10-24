@@ -214,8 +214,6 @@ class RiverSettingsPage extends PresetEditorPage {
 		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_LAKES));
 		this.left.addWidget(this.lakeChance);
-		this.left.addWidget(PresetWidgets.unused(this.lakeMinStartDistance));
-		this.left.addWidget(PresetWidgets.unused(this.lakeMaxStartDistance));
 		this.left.addWidget(this.lakeDepth);
 		this.left.addWidget(this.lakeSizeMin);
 		this.left.addWidget(this.lakeSizeMax);
