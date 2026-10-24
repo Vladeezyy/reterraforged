@@ -231,9 +231,22 @@ public final class RTFWorldChecks {
 			for (String later : List.of("surface", "caves", "island", "fakeWaterBiomes")) json.remove(later);
 			json.getAsJsonObject("miscellaneous").addProperty("originalGeneration", false);
 			json.getAsJsonObject("world").getAsJsonObject("properties").remove("lavaLevel");
+			// before 0.0.20: no settings version, the settings that did nothing hold the values of 0.0.6's Default
+			JsonObject misc = json.getAsJsonObject("miscellaneous");
+			misc.remove("settingsVersion");
+			misc.addProperty("plainStoneErosion", true);
+			misc.addProperty("mountainBiomeUsage", 0.4F);
+			misc.addProperty("volcanoBiomeUsage", 0.4F);
+			json.getAsJsonObject("rivers").remove("branchSizeFromMain");
+			json.getAsJsonObject("rivers").getAsJsonObject("lakes").addProperty("maxStartDistance", 0.03F);
+			json.getAsJsonObject("world").getAsJsonObject("controlPoints").addProperty("islandCoast", 0.1F);
 			Preset old = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, (JsonElement) json).getOrThrow();
-			ok = old.world().properties.lavaLevel == -54;
-			why = "lavaLevel " + old.world().properties.lavaLevel;
+			var cp = old.world().controlPoints;
+			// PresetMigration: the values that keep the world of such a preset as it was
+			boolean migrated = !old.miscellaneous().plainStoneErosion && old.miscellaneous().mountainBiomeUsage == 1.0F && old.miscellaneous().volcanoBiomeUsage == 0.0F
+				&& old.rivers().branchSizeFromMain && old.rivers().lakes.maxStartDistance == 0.0F && cp.islandCoast == cp.coast && cp.islandInland == cp.inland;
+			ok = old.world().properties.lavaLevel == -54 && migrated;
+			why = "lavaLevel " + old.world().properties.lavaLevel + ", settings that did nothing " + (migrated ? "migrated" : "NOT migrated");
 		} catch (Throwable t) {
 			ok = false;
 			why = t.toString();
@@ -291,21 +304,25 @@ public final class RTFWorldChecks {
 		ServerLevel level = server.overworld();
 		// the generator's sea level: Level.getSeaLevel() is 63 on 1.21.1 whatever the world's settings
 		int seaLevel = level.getChunkSource().getGenerator().getSeaLevel();
-		int holes = 0, lava = 0, water = 0, top = 0;
+		int holes = 0, lava = 0, water = 0, top = 0, lavaTop = Integer.MIN_VALUE;
 		for (int cx = -2; cx <= 2; cx++) for (int cz = -2; cz <= 2; cz++) {
 			ChunkAccess c = full(level, cx, cz);
 			for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
 				if (!c.getBlockState(new BlockPos(x, minY(level), z)).is(Blocks.BEDROCK)) holes++;
 				for (int y = minY(level); y <= maxY(level); y += 4) {
 					BlockState state = c.getBlockState(new BlockPos(x, y, z));
-					if (state.is(Blocks.LAVA)) lava++;
+					if (state.is(Blocks.LAVA)) {
+						lava++;
+						lavaTop = Math.max(lavaTop, y);
+					}
 					else if (state.is(Blocks.WATER)) water++;
 				}
 				if (!c.getBlockState(new BlockPos(x, maxY(level), z)).isAir()) top++;
 			}
 		}
 		boolean ok = holes == 0;
-		String r = String.format("[RTF extremes] %s: sea level %d, bedrock holes %d, lava %d, water %d samples, blocks at the world top %d (25 chunks)", ok ? "PASS" : "FAIL", seaLevel, holes, lava, water, top);
+		// the highest lava sample: the lava level of the preset (#13: it stayed at -54 whatever the slider)
+		String r = String.format("[RTF extremes] %s: sea level %d, bedrock holes %d, lava %d (highest y %s), water %d samples, blocks at the world top %d (25 chunks)", ok ? "PASS" : "FAIL", seaLevel, holes, lava, lava > 0 ? String.valueOf(lavaTop) : "-", water, top);
 		RTFCommon.LOGGER.info(r);
 		return r;
 	}

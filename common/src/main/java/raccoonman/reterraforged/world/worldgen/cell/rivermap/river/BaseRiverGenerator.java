@@ -28,6 +28,9 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
     protected RiverConfig main;
     protected RiverConfig fork;
     protected WetlandConfig wetland;
+    // false: the branch rivers that leave a main river have the sizes of the branch river sliders (their own branches
+    // narrow down from them); true: the size of the main river where they meet it, as in TerraForged
+    protected boolean branchSizeFromMain;
     protected T continent;
     protected Levels levels;
     
@@ -41,6 +44,7 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
         this.main = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().mainRivers.minBankHeight, context.preset.rivers().mainRivers.maxBankHeight).bankWidth(context.preset.rivers().mainRivers.bankWidth).bedWidth(context.preset.rivers().mainRivers.bedWidth).bedDepth(context.preset.rivers().mainRivers.bedDepth).fade(context.preset.rivers().mainRivers.fade).length(5000).main(true).order(0).build();
         this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).build();
         this.wetland = new WetlandConfig(context.preset.rivers().wetlands);
+        this.branchSizeFromMain = context.preset.rivers().branchSizeFromMain;
         this.lake = LakeConfig.of(context.preset.rivers().lakes, context.levels);
     }
     
@@ -88,7 +92,7 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
                     float x2 = x1 - dx * length;
                     float z2 = z1 - dz * length;
                     if (this.continent.getEdgeValue(x2, z2) >= this.minEdgeValue) {
-                        RiverConfig forkConfig = parent.carver.createForkConfig(offset, this.levels);
+                        RiverConfig forkConfig = depth == 0 && !this.branchSizeFromMain ? config : parent.carver.createForkConfig(offset, this.levels);
                         River river = new River(x2, z2, x1, z1);
                         if (!this.riverOverlaps(river, parent, rivers)) {
                             float valleyWidth = 275.0f * River.FORK_VALLEY.next(random);
@@ -133,8 +137,11 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
     public void addLake(Network.Builder branch, Random random, GenWarp warp) {
         if (random.nextFloat() <= this.lake.chance) {
             float lakeSize = this.lake.sizeMin + random.nextFloat() * this.lake.sizeRange;
-            float cx = branch.carver.river.x1;
-            float cz = branch.carver.river.z1;
+            // along the river from its source (0) to where it joins (1), between the lake start distances; at 0
+            // (presets saved before 0.0.20) exactly the source, without a random number, as before
+            float t = this.lake.distanceMax > this.lake.distanceMin ? this.lake.distanceMin + random.nextFloat() * (this.lake.distanceMax - this.lake.distanceMin) : this.lake.distanceMin;
+            float cx = t == 0.0F ? branch.carver.river.x1 : PosUtil.unpackLeftf(branch.carver.river.pos(t));
+            float cz = t == 0.0F ? branch.carver.river.z1 : PosUtil.unpackRightf(branch.carver.river.pos(t));
             if (this.lakeOverlapsOther(cx, cz, lakeSize, branch.lakes)) {
                 return;
             }

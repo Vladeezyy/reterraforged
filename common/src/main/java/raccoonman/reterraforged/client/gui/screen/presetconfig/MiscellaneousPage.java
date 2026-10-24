@@ -115,14 +115,14 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.left.addWidget(this.strataMaxDepth);
 		this.left.addWidget(this.oreCompatibleStoneOnly);
 		this.left.addWidget(this.erosionDecorator);
-		this.left.addWidget(PresetWidgets.unused(this.plainStoneErosion));
+		this.left.addWidget(this.plainStoneErosion);
 		this.left.addWidget(this.naturalSnowDecorator);
 		this.left.addWidget(this.customBiomeFeatures);
 		this.left.addWidget(this.vanillaSprings);
 		this.left.addWidget(this.vanillaLavaLakes);
 		this.left.addWidget(this.vanillaLavaSprings);
-		this.left.addWidget(PresetWidgets.unused(this.mountainBiomeUsage));
-		this.left.addWidget(PresetWidgets.unused(this.volcanoBiomeUsage));
+		this.left.addWidget(this.mountainBiomeUsage);
+		this.left.addWidget(this.volcanoBiomeUsage);
 	}
 	
 	@Override
