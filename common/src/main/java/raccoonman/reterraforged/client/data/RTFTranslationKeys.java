@@ -38,6 +38,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_UNIT_PERCENT = resolve("gui.unit.percent");
 	// + "<enum class, lower case>.<value, lower case>" (PresetWidgets.enumName)
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
+	// + "<namespace>.<path>" of a structure set (StructureSettingsPage)
+	public static final String GUI_STRUCTURE_SET_PREFIX = resolve("gui.structureSet.");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
