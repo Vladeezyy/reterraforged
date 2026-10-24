@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
+import net.minecraft.client.gui.components.CycleButton;
+
 import java.util.Optional;
 
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,7 @@ class RiverSettingsPage extends PresetEditorPage {
 	private Slider branchRiverBedWidth;
 	private Slider branchRiverBankWidth;
 	private Slider branchRiverFade;
+	private CycleButton<Boolean> branchSizeFromMain;
 	
 	private Slider lakeChance;
 	private Slider lakeMinStartDistance;
@@ -129,6 +132,12 @@ class RiverSettingsPage extends PresetEditorPage {
 			this.regenerate();
 			return value;
 		});
+		// on: the branch rivers take the size of the main river (as in TerraForged), their size sliders do nothing
+		this.branchSizeFromMain = PresetWidgets.createToggle(river.branchSizeFromMain, RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN, (button, value) -> {
+			river.branchSizeFromMain = value;
+			this.updateBranchSliders(value);
+			this.regenerate();
+		});
 		this.branchRiverFade = PresetWidgets.createFloatSlider(branchRivers.fade, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_RIVER_FADE, (slider, value) -> {
 			branchRivers.fade = (float) slider.scaleValue(value);
 			this.regenerate();
@@ -205,6 +214,8 @@ class RiverSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.mainRiverFade);
 		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_BRANCH_RIVERS));
+		this.left.addWidget(this.branchSizeFromMain);
+		this.updateBranchSliders(river.branchSizeFromMain);
 		this.left.addWidget(this.branchRiverBedDepth);
 		this.left.addWidget(this.branchRiverMinBankHeight);
 		this.left.addWidget(this.branchRiverMaxBankHeight);
@@ -214,8 +225,8 @@ class RiverSettingsPage extends PresetEditorPage {
 		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_LAKES));
 		this.left.addWidget(this.lakeChance);
-		this.left.addWidget(PresetWidgets.unused(this.lakeMinStartDistance));
-		this.left.addWidget(PresetWidgets.unused(this.lakeMaxStartDistance));
+		this.left.addWidget(this.lakeMinStartDistance);
+		this.left.addWidget(this.lakeMaxStartDistance);
 		this.left.addWidget(this.lakeDepth);
 		this.left.addWidget(this.lakeSizeMin);
 		this.left.addWidget(this.lakeSizeMax);
@@ -239,4 +250,12 @@ class RiverSettingsPage extends PresetEditorPage {
 		return Optional.of(new FilterSettingsPage(this.screen, this.preset));
 	}
 
+
+	private void updateBranchSliders(boolean sizeFromMain) {
+		this.branchRiverBedDepth.active = !sizeFromMain;
+		this.branchRiverMinBankHeight.active = !sizeFromMain;
+		this.branchRiverMaxBankHeight.active = !sizeFromMain;
+		this.branchRiverBedWidth.active = !sizeFromMain;
+		this.branchRiverBankWidth.active = !sizeFromMain;
+	}
 }
