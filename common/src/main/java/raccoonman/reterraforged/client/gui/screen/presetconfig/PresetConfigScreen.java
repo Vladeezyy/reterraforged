@@ -1,29 +1,21 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-
-import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
-import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.levelgen.WorldOptions;
+import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 
 //FIXME pressing the create world screen before the pack is copied will fuck the game up (surprisingly noone seems to have run into this?)
 public class PresetConfigScreen extends LinkedPageScreen {
-	private static final String PACK_NAME = "reterraforged-preset";
-	private static final AtomicInteger APPLIED = new AtomicInteger();
 	// edited copies of the built-in presets (they are not saved to files) for each create world screen, by name
 	private static final Map<CreateWorldScreen, Map<String, PresetEntry>> EDITED_BUILTINS = new WeakHashMap<>();
 	private CreateWorldScreen parent;
@@ -62,31 +54,8 @@ public class PresetConfigScreen extends LinkedPageScreen {
 		return this.parent.getUiState().getSettings();
 	}
 
-	public void applyPreset(PresetEntry preset) throws IOException {		
-		Pair<Path, PackRepository> path = this.parent.getDataPackSelectionSettings(this.parent.getUiState().getSettings().dataConfiguration());
-		PackRepository repository = path.getSecond();
-		// the preset goes in under a new file name each time: the create world screen reloads the datapacks only when
-		// the list of them changes, so a preset edited and applied again (Customize, Done, Customize, Done) used to
-		// keep the first one, and the new world was made with the old settings
-		List<Path> previous;
-		try(Stream<Path> files = Files.list(path.getFirst())) {
-			previous = files.filter((file) -> file.getFileName().toString().startsWith(PACK_NAME)).toList();
-		}
-		for(Path file : previous) {
-			repository.removePack("file/" + file.getFileName());
-			try {
-				Files.deleteIfExists(file);
-			} catch(IOException e) {
-				// still open: it stays in the temporary folder, not selected
-			}
-		}
-		Path exportPath = path.getFirst().resolve(PACK_NAME + "-" + APPLIED.incrementAndGet() + ".zip");
-		this.exportAsDatapack(exportPath, preset);
-		repository.reload();
-		if(repository.addPack("file/" + exportPath.getFileName())) {
-			this.parent.tryApplyNewDataPacks(repository, false, (data) -> {
-			});
-		}
+	public void applyPreset(PresetEntry preset) throws IOException {
+		RTFCreateWorld.apply(this.parent, preset.getName(), preset.getPreset());
 	}
 	
 	public void exportAsDatapack(Path outputPath, PresetEntry presetEntry) throws IOException {
