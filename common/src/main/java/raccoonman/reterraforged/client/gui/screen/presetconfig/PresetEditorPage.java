@@ -188,7 +188,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	            if (x < stroke || z < stroke || x >= width - stroke || z >= width - stroke) {
 	                pixels.setPixelRGBA(x, z, Color.BLACK.getRGB());
 	            } else {
-	                int color = renderMode.getColor(cell, levels);
+	                int color = renderMode.getColor(cell, levels, this.topY);
 	                pixels.setPixelRGBA(x, z, color);
 	                hash[0] = hash[0] * 31 + color;
 	            }
