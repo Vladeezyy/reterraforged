@@ -104,7 +104,9 @@ class MixinNoiseChunk {
 				if(noiseGeneratorSettings.seaLevel() != props.seaLevel) {
 					return fluidPicker;
 				}
-				if(noiseSettings.height() != props.worldHeight) {
+				// the noise settings' height is the whole world, depth + height (PresetNoiseGeneratorSettings): compared
+				// with the height alone it never matched, the lava level stayed vanilla's -54 whatever the slider (#13)
+				if(noiseSettings.minY() != -props.worldDepth || noiseSettings.height() != props.worldDepth + props.worldHeight) {
 					return fluidPicker;
 				}
 				int lavaLevel = props.lavaLevel;
