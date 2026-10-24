@@ -17,7 +17,7 @@ public abstract class BisectedPage<S extends Screen, L extends AbstractWidget, R
 	
 	@Override
 	public void init() {
-		ColumnAlignment alignment = new ColumnAlignment(this.screen, 4, 0, 10, 30);
+		ColumnAlignment alignment = new ColumnAlignment(this.screen, 4, 0, 10, 30, this.screen instanceof LinkedPageScreen linked ? linked.leftInset() : 0);
 		// the right column holds buttons like "Open Preset Folder" and the preview: at least 150 px, so they are not
 		// cut off on small windows / large GUI scales
 		float right = Math.min(0.45F, Math.max(0.3F, 150F / Math.max(1, this.screen.width)));

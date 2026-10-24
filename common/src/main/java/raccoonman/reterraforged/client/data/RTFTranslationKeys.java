@@ -22,6 +22,24 @@ public final class RTFTranslationKeys {
 	public static final String GUI_CREATE_WORLD_SETTINGS_TOOLTIP = resolve("gui.createWorld.settings.tooltip");
 	public static final String GUI_CREATE_WORLD_PRESET = resolve("gui.createWorld.preset");
 	public static final String GUI_CREATE_WORLD_VANILLA = resolve("gui.createWorld.vanilla");
+	public static final String GUI_TAB_PRESETS = resolve("gui.tab.presets");
+	public static final String GUI_TAB_WORLD = resolve("gui.tab.world");
+	public static final String GUI_TAB_SURFACE = resolve("gui.tab.surface");
+	public static final String GUI_TAB_CAVES = resolve("gui.tab.caves");
+	public static final String GUI_TAB_CLIMATE = resolve("gui.tab.climate");
+	public static final String GUI_TAB_TERRAIN = resolve("gui.tab.terrain");
+	public static final String GUI_TAB_WATER_BIOMES = resolve("gui.tab.waterBiomes");
+	public static final String GUI_TAB_ISLANDS = resolve("gui.tab.islands");
+	public static final String GUI_TAB_RIVERS = resolve("gui.tab.rivers");
+	public static final String GUI_TAB_FILTERS = resolve("gui.tab.filters");
+	public static final String GUI_TAB_STRUCTURES = resolve("gui.tab.structures");
+	public static final String GUI_TAB_MISC = resolve("gui.tab.misc");
+	public static final String GUI_UNIT_BLOCKS = resolve("gui.unit.blocks");
+	public static final String GUI_UNIT_Y = resolve("gui.unit.y");
+	public static final String GUI_UNIT_SCALE = resolve("gui.unit.scale");
+	public static final String GUI_UNIT_PERCENT = resolve("gui.unit.percent");
+	// + "<enum class, lower case>.<value, lower case>" (PresetWidgets.enumName)
+	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
