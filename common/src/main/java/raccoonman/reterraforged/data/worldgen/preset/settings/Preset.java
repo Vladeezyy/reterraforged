@@ -44,7 +44,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 		MiscellaneousSettings.CODEC.fieldOf("miscellaneous").forGetter(Preset::miscellaneous)
 	).apply(instance, Preset::new));
 	// a preset read from a file is held to the preset screen's ranges (PresetLimits)
-	public static final Codec<Preset> DIRECT_CODEC = RECORD_CODEC.xmap(PresetLimits::clamp, (preset) -> preset);
+	public static final Codec<Preset> DIRECT_CODEC = RECORD_CODEC.xmap((preset) -> PresetLimits.clamp(PresetMigration.migrate(preset)), (preset) -> preset);
 	
 	@Deprecated
 	public static final ResourceKey<Preset> KEY = RTFRegistries.createKey(RTFRegistries.PRESET, "preset");

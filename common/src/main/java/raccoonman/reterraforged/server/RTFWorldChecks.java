@@ -232,9 +232,22 @@ public final class RTFWorldChecks {
 			for (String later : List.of("surface", "caves", "island", "fakeWaterBiomes")) json.remove(later);
 			json.getAsJsonObject("miscellaneous").addProperty("originalGeneration", false);
 			json.getAsJsonObject("world").getAsJsonObject("properties").remove("lavaLevel");
+			// before 0.0.20: no settings version, the settings that did nothing hold the values of 0.0.6's Default
+			JsonObject misc = json.getAsJsonObject("miscellaneous");
+			misc.remove("settingsVersion");
+			misc.addProperty("plainStoneErosion", true);
+			misc.addProperty("mountainBiomeUsage", 0.4F);
+			misc.addProperty("volcanoBiomeUsage", 0.4F);
+			json.getAsJsonObject("rivers").remove("branchSizeFromMain");
+			json.getAsJsonObject("rivers").getAsJsonObject("lakes").addProperty("maxStartDistance", 0.03F);
+			json.getAsJsonObject("world").getAsJsonObject("controlPoints").addProperty("islandCoast", 0.1F);
 			Preset old = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, (JsonElement) json).getOrThrow();
-			ok = old.world().properties.lavaLevel == -54;
-			why = "lavaLevel " + old.world().properties.lavaLevel;
+			var cp = old.world().controlPoints;
+			// PresetMigration: the values that keep the world of such a preset as it was
+			boolean migrated = !old.miscellaneous().plainStoneErosion && old.miscellaneous().mountainBiomeUsage == 1.0F && old.miscellaneous().volcanoBiomeUsage == 0.0F
+				&& old.rivers().branchSizeFromMain && old.rivers().lakes.maxStartDistance == 0.0F && cp.islandCoast == cp.coast && cp.islandInland == cp.inland;
+			ok = old.world().properties.lavaLevel == -54 && migrated;
+			why = "lavaLevel " + old.world().properties.lavaLevel + ", settings that did nothing " + (migrated ? "migrated" : "NOT migrated");
 		} catch (Throwable t) {
 			ok = false;
 			why = t.toString();
