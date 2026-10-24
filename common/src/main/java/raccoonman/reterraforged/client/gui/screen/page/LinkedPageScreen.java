@@ -24,6 +24,11 @@ public abstract class LinkedPageScreen extends Screen {
 		super(CommonComponents.EMPTY);
 	}
 	
+	// width kept free on the left of the page (PresetConfigScreen: its tabs)
+	public int leftInset() {
+		return 0;
+	}
+
 	public Page getCurrentPage() {
 		return this.currentPage;
 	}
