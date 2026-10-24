@@ -82,7 +82,7 @@ public final class RTFPreviewMap {
 					}
 					image.setRGB(tx * tile + x, tz * tile + z, rgb);
 					// the screen's colours are ABGR (NativeImage)
-					int abgr = RenderMode.BIOME_TYPE.getColor(cell, levels);
+					int abgr = RenderMode.BIOME_TYPE.getColor(cell, levels, patched.world().properties.worldHeight - 1);
 					screen.setRGB(tx * tile + x, tz * tile + z, (abgr & 0xFF) << 16 | (abgr & 0xFF00) | (abgr >> 16 & 0xFF));
 				}
 			}

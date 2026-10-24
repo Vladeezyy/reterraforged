@@ -12,6 +12,8 @@ public final class RTFTranslationKeys {
 	
 	public static final String GUI_SELECT_PRESET_MISSING_LEGACY_PRESETS = resolve("gui.selectPreset.missingLegacyPresets");
 	public static final String GUI_SELECT_PRESET_TITLE = resolve("gui.selectPreset.title");
+	// + "<namespace>.<path>" of a structure set (StructureSettingsPage)
+	public static final String GUI_STRUCTURE_SET_PREFIX = resolve("gui.structureSet.");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");

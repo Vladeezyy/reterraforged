@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -80,7 +81,7 @@ public class StructureSettingsPage extends PresetEditorPage {
 				entry.disabled = value;
 			});
 			
-			this.left.addWidget(PresetWidgets.createLabel(key.identifier().toString()));
+			this.left.addWidget(PresetWidgets.createLabel(structureSetName(key.identifier().getNamespace(), key.identifier().getPath())));
 			this.left.addWidget(spacing);
 			this.left.addWidget(separation);
 			this.left.addWidget(salt);
@@ -115,5 +116,17 @@ public class StructureSettingsPage extends PresetEditorPage {
 			}
 		}
 		return false;
+	}
+
+	// a structure set by name ("Desert Pyramids") instead of its id (minecraft:desert_pyramids); a set of another mod
+	// without a translation as words with the mod's id ("Dungeon towers (somemod)")
+	private static Component structureSetName(String namespace, String path) {
+		String key = RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + namespace + "." + path;
+		if (Language.getInstance().has(key)) {
+			return Component.translatable(key);
+		}
+		String words = path.replace('/', ' ').replace('_', ' ');
+		words = Character.toUpperCase(words.charAt(0)) + words.substring(1);
+		return Component.literal(namespace.equals("minecraft") ? words : words + " (" + namespace + ")");
 	}
 }
