@@ -45,6 +45,14 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.trail_ruins", "Trail Ruins");
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.trial_chambers", "Trial Chambers");
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.abandoned_camp", "Abandoned Camps");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION, "World Generation");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_RTF, "ReTerraForged");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_VANILLA, "Vanilla");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_TOOLTIP, "ReTerraForged makes the terrain of the new world: continents, mountain chains, rivers and erosion. Vanilla makes a normal Minecraft world.");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_SETTINGS, "ReTerraForged Settings");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_SETTINGS_TOOLTIP, "Choose a preset and change the terrain of the new world");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_PRESET, "Preset: %s");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_VANILLA, "Normal Minecraft world generation");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME, "Default");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_LEGACY_PRESET_NAME, "TerraForged - Default (Legacy)");
 			this.add(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME, "TerraForged - Beautiful (Legacy)");
