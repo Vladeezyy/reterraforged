@@ -12,7 +12,7 @@ import raccoonman.reterraforged.client.data.RTFLanguageProvider;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.registries.RTFRegistries;
-import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
+import raccoonman.reterraforged.world.worldgen.biome.modifier.fabric.BiomeModifiersImpl;
 
 public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 
@@ -20,7 +20,7 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 	public void onInitialize() {
 		RTFCommon.bootstrap();
 
-		RegistryUtil.createDataRegistry(RTFRegistries.BIOME_MODIFIER, BiomeModifier.CODEC, false);
+		RegistryUtil.createDataRegistry(RTFRegistries.BIOME_MODIFIER, BiomeModifiersImpl.DATA_CODEC, false);
 		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> raccoonman.reterraforged.server.RTFSelfTest.register(dispatcher));
 	}
 
