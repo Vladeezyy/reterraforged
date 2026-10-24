@@ -291,21 +291,25 @@ public final class RTFWorldChecks {
 		ServerLevel level = server.overworld();
 		// the generator's sea level: Level.getSeaLevel() is 63 on 1.21.1 whatever the world's settings
 		int seaLevel = level.getChunkSource().getGenerator().getSeaLevel();
-		int holes = 0, lava = 0, water = 0, top = 0;
+		int holes = 0, lava = 0, water = 0, top = 0, lavaTop = Integer.MIN_VALUE;
 		for (int cx = -2; cx <= 2; cx++) for (int cz = -2; cz <= 2; cz++) {
 			ChunkAccess c = full(level, cx, cz);
 			for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
 				if (!c.getBlockState(new BlockPos(x, minY(level), z)).is(Blocks.BEDROCK)) holes++;
 				for (int y = minY(level); y <= maxY(level); y += 4) {
 					BlockState state = c.getBlockState(new BlockPos(x, y, z));
-					if (state.is(Blocks.LAVA)) lava++;
+					if (state.is(Blocks.LAVA)) {
+						lava++;
+						lavaTop = Math.max(lavaTop, y);
+					}
 					else if (state.is(Blocks.WATER)) water++;
 				}
 				if (!c.getBlockState(new BlockPos(x, maxY(level), z)).isAir()) top++;
 			}
 		}
 		boolean ok = holes == 0;
-		String r = String.format("[RTF extremes] %s: sea level %d, bedrock holes %d, lava %d, water %d samples, blocks at the world top %d (25 chunks)", ok ? "PASS" : "FAIL", seaLevel, holes, lava, water, top);
+		// the highest lava sample: the lava level of the preset (#13: it stayed at -54 whatever the slider)
+		String r = String.format("[RTF extremes] %s: sea level %d, bedrock holes %d, lava %d (highest y %s), water %d samples, blocks at the world top %d (25 chunks)", ok ? "PASS" : "FAIL", seaLevel, holes, lava, lava > 0 ? String.valueOf(lavaTop) : "-", water, top);
 		RTFCommon.LOGGER.info(r);
 		return r;
 	}
