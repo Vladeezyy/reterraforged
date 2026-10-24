@@ -13,7 +13,6 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.TerrainSettings.Te
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.Continent;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.Properties;
-import raccoonman.reterraforged.world.worldgen.cell.continent.IslandPopulator;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 
 public class Presets {
@@ -27,7 +26,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI_IMPROVED, DistanceFunction.EUCLIDEAN, 3000, 0.7F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(IslandPopulator.DEFAULT_INLAND_POINT, IslandPopulator.DEFAULT_COAST_POINT, 0.1F, 0.25F, 0.327F, 0.448F, 0.502F), 
+				new ControlPoints(0.502F, 0.448F, 0.1F, 0.25F, 0.327F, 0.448F, 0.502F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -56,7 +55,7 @@ public class Presets {
 				0, 8, 
 				new River(5, 2, 6, 20, 8, 0.75F),
 				new River(4, 1, 4, 14, 5, 0.975F), 
-				new Lake(0.3F, 0.0F, 0.03F, 10, 75, 150, 2, 10),
+				new Lake(0.3F, 0.0F, 0.0F, 10, 75, 150, 2, 10),
 				new Wetland(0.6F, 175, 225)
 			), 
 			new FilterSettings(
@@ -64,7 +63,7 @@ public class Presets {
 				new Smoothing(1, 1.8F, 0.9F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 0.4F, 0.4F)
+			new MiscellaneousSettings(true, 600, true, true, true, false, true, true, true, true, true, 1.0F, 0.0F)
 		); 
 	}
 	
@@ -72,7 +71,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 2000, 0.763F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(IslandPopulator.DEFAULT_INLAND_POINT, IslandPopulator.DEFAULT_COAST_POINT, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.WORLD_ORIGIN, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -101,7 +100,7 @@ public class Presets {
 				0, 11, 
 				new River(5, 2, 6, 20, 8, 0.507F),
 				new River(4, 1, 4, 14, 5, 0.493F), 
-				new Lake(0.462F, 0.0F, 0.028F, 10, 75, 150, 2, 10),
+				new Lake(0.462F, 0.0F, 0.0F, 10, 75, 150, 2, 10),
 				new Wetland(0.796F, 196, 255)
 			), 
 			new FilterSettings(
@@ -109,7 +108,7 @@ public class Presets {
 				new Smoothing(2, 1.8F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.75F)
+			new MiscellaneousSettings(false, 600, false, true, false, false, false, false, true, true, true, 1.0F, 0.0F)
 		); 
 	}
 	
@@ -118,7 +117,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 3000, 0.8F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(IslandPopulator.DEFAULT_INLAND_POINT, IslandPopulator.DEFAULT_COAST_POINT, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -147,7 +146,7 @@ public class Presets {
 				0, 14, 
 				new River(5, 1, 4, 20, 5, 0.504F),
 				new River(3, 1, 2, 12, 4, 0.5F), 
-				new Lake(0.671F, 0.0F, 0.028F, 8, 75, 150, 2, 7),
+				new Lake(0.671F, 0.0F, 0.0F, 8, 75, 150, 2, 7),
 				new Wetland(0.865F, 134, 201)
 			), 
 			new FilterSettings(
@@ -155,7 +154,7 @@ public class Presets {
 				new Smoothing(1, 1.855F, 0.916F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 0.853F, 0.855F)
+			new MiscellaneousSettings(true, 684, true, true, true, false, true, true, true, true, false, 1.0F, 0.0F)
 		); 
 	}
 	
@@ -163,7 +162,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 2000, 0.765F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(-1.0F, -1.0F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			),
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -192,7 +191,7 @@ public class Presets {
 				0, 11, 
 				new River(5, 2, 6, 20, 8, 0.507F),
 				new River(4, 1, 4, 14, 5, 0.493F), 
-				new Lake(0.462F, 0.0F, 0.028F, 10, 75, 150, 2, 10),
+				new Lake(0.462F, 0.0F, 0.0F, 10, 75, 150, 2, 10),
 				new Wetland(0.796F, 196, 255)
 			), 
 			new FilterSettings(
@@ -200,7 +199,7 @@ public class Presets {
 				new Smoothing(2, 1.799F, 0.75F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.75F)
+			new MiscellaneousSettings(true, 600, false, true, true, false, true, true, true, true, true, 1.0F, 0.0F)
 		);
 	}
 	
@@ -208,7 +207,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 4029, 0.8F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(-1.0F, -1.0F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -237,7 +236,7 @@ public class Presets {
 				0, 13, 
 				new River(5, 1, 5, 28, 9, 0.27F),
 				new River(3, 1, 3, 18, 3, 0.7F), 
-				new Lake(0.595F, 0.0F, 0.028F, 10, 75, 150, 2, 10),
+				new Lake(0.595F, 0.0F, 0.0F, 10, 75, 150, 2, 10),
 				new Wetland(0.86F, 175, 225)
 			), 
 			new FilterSettings(
@@ -245,7 +244,7 @@ public class Presets {
 				new Smoothing(1, 1.799F, 0.898F)
 			), 
 			new StructureSettings(),
-			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 0.902F, 0.945F)
+			new MiscellaneousSettings(true, 721, true, true, true, false, true, true, true, true, false, 1.0F, 0.0F)
 		);
 	}
 }
