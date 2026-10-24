@@ -14,6 +14,14 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SELECT_PRESET_TITLE = resolve("gui.selectPreset.title");
 	// + "<namespace>.<path>" of a structure set (StructureSettingsPage)
 	public static final String GUI_STRUCTURE_SET_PREFIX = resolve("gui.structureSet.");
+	public static final String GUI_CREATE_WORLD_GENERATION = resolve("gui.createWorld.generation");
+	public static final String GUI_CREATE_WORLD_GENERATION_RTF = resolve("gui.createWorld.generation.rtf");
+	public static final String GUI_CREATE_WORLD_GENERATION_VANILLA = resolve("gui.createWorld.generation.vanilla");
+	public static final String GUI_CREATE_WORLD_GENERATION_TOOLTIP = resolve("gui.createWorld.generation.tooltip");
+	public static final String GUI_CREATE_WORLD_SETTINGS = resolve("gui.createWorld.settings");
+	public static final String GUI_CREATE_WORLD_SETTINGS_TOOLTIP = resolve("gui.createWorld.settings.tooltip");
+	public static final String GUI_CREATE_WORLD_PRESET = resolve("gui.createWorld.preset");
+	public static final String GUI_CREATE_WORLD_VANILLA = resolve("gui.createWorld.vanilla");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
