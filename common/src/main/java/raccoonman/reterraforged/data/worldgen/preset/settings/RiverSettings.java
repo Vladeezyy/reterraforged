@@ -10,8 +10,15 @@ public class RiverSettings {
 		River.CODEC.fieldOf("mainRivers").forGetter((o) -> o.mainRivers),
 		River.CODEC.fieldOf("branchRivers").forGetter((o) -> o.branchRivers),
 		Lake.CODEC.fieldOf("lakes").forGetter((o) -> o.lakes),
-		Wetland.CODEC.fieldOf("wetlands").forGetter((o) -> o.wetlands)
-	).apply(instance, RiverSettings::new));
+		Wetland.CODEC.fieldOf("wetlands").forGetter((o) -> o.wetlands),
+		// added in 0.0.20: off, the branch rivers take the sizes of their own sliders; on (presets saved before), the
+		// size of the river they branch from where they meet it, as in TerraForged (the branch sliders did nothing)
+		Codec.BOOL.optionalFieldOf("branchSizeFromMain", true).forGetter((o) -> o.branchSizeFromMain)
+	).apply(instance, (seedOffset, riverCount, mainRivers, branchRivers, lakes, wetlands, branchSizeFromMain) -> {
+		RiverSettings settings = new RiverSettings(seedOffset, riverCount, mainRivers, branchRivers, lakes, wetlands);
+		settings.branchSizeFromMain = branchSizeFromMain;
+		return settings;
+	}));
 	
     public int seedOffset;
     public int riverCount;
@@ -19,6 +26,7 @@ public class RiverSettings {
     public River branchRivers;
     public Lake lakes;
     public Wetland wetlands;
+    public boolean branchSizeFromMain = true;
     
     public RiverSettings(int seedOffset, int riverCount, River mainRivers, River branchRivers, Lake lakes, Wetland wetlands) {
         this.seedOffset = seedOffset;
@@ -30,7 +38,9 @@ public class RiverSettings {
     }
     
     public RiverSettings copy() {
-    	return new RiverSettings(this.seedOffset, this.riverCount, this.mainRivers.copy(), this.branchRivers.copy(), this.lakes.copy(), this.wetlands.copy());
+    	RiverSettings copy = new RiverSettings(this.seedOffset, this.riverCount, this.mainRivers.copy(), this.branchRivers.copy(), this.lakes.copy(), this.wetlands.copy());
+    	copy.branchSizeFromMain = this.branchSizeFromMain;
+    	return copy;
     }
 
     public static class River {

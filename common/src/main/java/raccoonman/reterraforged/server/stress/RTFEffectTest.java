@@ -70,6 +70,9 @@ public final class RTFEffectTest {
 		CONTEXTS.put("island().", (p) -> p.island().enableArchipelago = true);
 		CONTEXTS.put("fakeWaterBiomes().", (p) -> p.fakeWaterBiomes().enableFakeWaterBiomes = true);
 		CONTEXTS.put("world().continent.continentShape", (p) -> p.world().continent.continentType = ContinentType.MULTI);
+		// the islands' control points shape the archipelago's islands; the branch river sizes need their own sizes on
+		CONTEXTS.put("world().controlPoints.island", (p) -> p.island().enableArchipelago = true);
+		CONTEXTS.put("rivers().branchRivers.", (p) -> p.rivers().branchSizeFromMain = false);
 	}
 
 	// world tiles where the terrain is: the spawn, then from the Default preview the highest land, a river, a coast

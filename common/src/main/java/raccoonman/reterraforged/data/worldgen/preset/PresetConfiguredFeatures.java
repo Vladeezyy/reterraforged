@@ -106,7 +106,7 @@ public class PresetConfiguredFeatures {
 		SurfaceSettings surface = preset.surface();
 		SurfaceSettings.Erosion erosion = surface.erosion();
 		
-		ErodeFeature.Config erodeConfig = new ErodeFeature.Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F);
+		ErodeFeature.Config erodeConfig = new ErodeFeature.Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F, miscellaneous.plainStoneErosion, miscellaneous.volcanoBiomeUsage);
 		if(miscellaneous.erosionDecorator) {
 			FeatureUtils.register(ctx, ERODE, RTFFeatures.ERODE, erodeConfig);
 		}
