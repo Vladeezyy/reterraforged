@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.client.gui.widget;
 
+import java.util.function.Function;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -15,6 +17,9 @@ public class Slider extends AbstractSliderButton {
 	private Format format;
 	@Nullable
 	private Callback callback;
+	// the value as shown, with its unit ("64 blocks", "Y 63"); without one the plain number
+	@Nullable
+	private Function<String, Component> valueText;
     
     public Slider(int x, int y, int width, int height, float initialValue, float min, float max, Component name, Format format, @Nullable Callback callback) {
         super(x, y, width, height, CommonComponents.EMPTY, 0.0);
@@ -60,9 +65,20 @@ public class Slider extends AbstractSliderButton {
     	}
     }
 
+    public Slider withValueText(Function<String, Component> valueText) {
+    	this.valueText = valueText;
+    	this.updateMessage();
+    	return this;
+    }
+
+    public Format getFormat() {
+    	return this.format;
+    }
+
     @Override
     protected void updateMessage() {
-        this.setMessage(CommonComponents.optionNameValue(this.name, Component.literal(this.format.getMessage(this.scaleValue(this.value)))));
+    	String number = this.format.getMessage(this.scaleValue(this.value));
+        this.setMessage(CommonComponents.optionNameValue(this.name, this.valueText != null ? this.valueText.apply(number) : Component.literal(number)));
     }
     
     public static enum Format {

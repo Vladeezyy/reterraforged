@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
+import java.util.Locale;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -14,6 +16,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.Toasts;
@@ -44,6 +47,10 @@ final class PresetWidgets {
 	private static Slider createSlider(float initial, float min, float max, String text, Slider.Format format, Slider.Callback callback) {
 		Slider slider = new Slider(-1, -1, -1, -1, initial, min, max, Component.translatable(text), format, callback);
 		slider.setTooltip(Tooltips.create(Tooltips.translationKey(text)));
+		Function<String, Component> valueText = SliderUnits.valueText(text);
+		if (valueText != null) {
+			slider.withValueText(valueText);
+		}
 		return slider;
 	}
 
@@ -65,7 +72,7 @@ final class PresetWidgets {
 	
 	public static <T> CycleButton<T> createCycle(Collection<T> values, T initial, Optional<String> text, CycleButton.OnValueChange<T> callback, Function<T, String> name) {
 		CycleButton.Builder<T> builder = CycleButton.<T>builder((e) -> {
-			return Component.literal(name.apply(e));
+			return e instanceof Enum<?> value ? enumName(value) : Component.literal(name.apply(e));
 		}, initial).withValues(values);
 		if(text.isEmpty()) {
 			builder = builder.displayOnlyValue();
@@ -77,6 +84,17 @@ final class PresetWidgets {
 		return button;
 	}
 	
+	// an enum value by its translation (reterraforged.gui.enum.<enum>.<value>, e.g. MULTI_IMPROVED -> "Several continents
+	// (improved)"); a value without one as words ("Multi improved") instead of the raw constant
+	public static Component enumName(Enum<?> value) {
+		String key = RTFTranslationKeys.GUI_ENUM_PREFIX + value.getDeclaringClass().getSimpleName().toLowerCase(Locale.ROOT) + "." + value.name().toLowerCase(Locale.ROOT);
+		if (Language.getInstance().has(key)) {
+			return Component.translatable(key);
+		}
+		String words = value.name().replace('_', ' ').toLowerCase(Locale.ROOT);
+		return Component.literal(Character.toUpperCase(words.charAt(0)) + words.substring(1));
+	}
+
 	public static CycleButton<Boolean> createToggle(boolean initial, String text, CycleButton.OnValueChange<Boolean> callback) {
 		CycleButton<Boolean> button = CycleButton.booleanBuilder(Component.translatable(RTFTranslationKeys.GUI_BUTTON_TRUE), Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE), initial).create(-1, -1, -1, -1, Component.translatable(text), callback);
 		button.setTooltip(Tooltips.create(Tooltips.translationKey(text)));
