@@ -160,6 +160,10 @@ public final class RTFSelfTest {
 			String result = RTFEffectTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("curves").executes(ctx -> {
+			String result = RTFEffectTest.runCurves(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})).then(Commands.argument("random", IntegerArgumentType.integer(0)).executes(ctx -> {
 			String result = RTFStressTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "random"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
