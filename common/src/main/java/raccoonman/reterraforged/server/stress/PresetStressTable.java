@@ -100,6 +100,7 @@ final class PresetStressTable {
 		Setting.ofInt("rivers().branchRivers.bedWidth", 1, 20, (p, v) -> p.rivers().branchRivers.bedWidth = v),
 		Setting.ofInt("rivers().branchRivers.bankWidth", 1, 50, (p, v) -> p.rivers().branchRivers.bankWidth = v),
 		Setting.ofFloat("rivers().branchRivers.fade", 0.0F, 1.0F, (p, v) -> p.rivers().branchRivers.fade = v),
+		Setting.ofBoolean("rivers().branchSizeFromMain", (p, v) -> p.rivers().branchSizeFromMain = v),
 		Setting.ofFloat("rivers().lakes.chance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.chance = v),
 		Setting.ofFloat("rivers().lakes.minStartDistance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.minStartDistance = v),
 		Setting.ofFloat("rivers().lakes.maxStartDistance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.maxStartDistance = v),

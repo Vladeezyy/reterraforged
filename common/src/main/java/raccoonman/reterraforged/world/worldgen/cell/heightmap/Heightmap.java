@@ -35,7 +35,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver) {
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask) {
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyTerrain(cell, x, z);
@@ -80,6 +80,13 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	}
 	
 	public void applyClimate(Cell cell, float x, float z, boolean applyClimate) {
+		// Mountain Biome Usage: the share of the mountains with mountain biomes (peaks, slopes); the rest gets the
+		// ordinary biomes of its climate (the erosion and weirdness of rolling land). 1 (presets saved before 0.0.20,
+		// when the setting did nothing): all of them
+		if (this.mountainBiomeUsage < 1.0F && cell.terrain.isMountain() && this.mountainBiomeMask.compute(x, z, 0) > this.mountainBiomeUsage) {
+			cell.erosion = Erosion.LEVEL_4.mid();
+			cell.weirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.mid();
+		}
 		float riverValleyThreshold = 0.675F;
         if(cell.riverMask < riverValleyThreshold && !isIslandTerrain(cell)) {
         	cell.erosion = 0.445F;
@@ -169,7 +176,9 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         Noise beachNoise = Noises.perlin2(ctx.seed.next(), 20, 1);
         beachNoise = Noises.mul(beachNoise, ctx.levels.scale(5));
         FakeWaterBiomeResolver fakeWaterBiomeResolver = new FakeWaterBiomeResolver(ctx.preset.fakeWaterBiomes(), ctx.levels);
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver);
+        // large patches, about the size of a mountain range; its own seed, so the other noises keep theirs
+        Noise mountainBiomeMask = Noises.perlin(ctx.seed.offset(5781).next(), 700, 2);
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask);
 	}
 
 	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above
