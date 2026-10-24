@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "Monde",
   "reterraforged.metadata.description": "Ressources de ReTerraForged",
   "reterraforged.mudSwamps.metadata.description": "Remplace le matériau des marais par de la boue",
-  "reterraforged.preset.metadata.description": "Preset ReTerraForged"
+  "reterraforged.preset.metadata.description": "Preset ReTerraForged",
+  "reterraforged.gui.createWorld.generation": "Génération du monde",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "Vanilla",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged crée le relief du nouveau monde : continents, chaînes de montagnes, rivières et érosion. Vanilla crée un monde Minecraft normal.",
+  "reterraforged.gui.createWorld.settings": "Paramètres de ReTerraForged",
+  "reterraforged.gui.createWorld.settings.tooltip": "Choisir un préréglage et modifier le relief du nouveau monde",
+  "reterraforged.gui.createWorld.preset": "Préréglage : %s",
+  "reterraforged.gui.createWorld.vanilla": "Génération de monde Minecraft normale"
 }

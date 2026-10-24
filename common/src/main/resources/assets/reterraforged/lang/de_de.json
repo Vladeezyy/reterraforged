@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "Welt",
   "reterraforged.metadata.description": "ReTerraForged-Ressourcen",
   "reterraforged.mudSwamps.metadata.description": "Ändert das Sumpfmaterial zu Schlamm",
-  "reterraforged.preset.metadata.description": "ReTerraForged-Preset"
+  "reterraforged.preset.metadata.description": "ReTerraForged-Preset",
+  "reterraforged.gui.createWorld.generation": "Weltgenerierung",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "Vanilla",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged erzeugt das Gelände der neuen Welt: Kontinente, Gebirgsketten, Flüsse und Erosion. Vanilla erzeugt eine normale Minecraft-Welt.",
+  "reterraforged.gui.createWorld.settings": "ReTerraForged-Einstellungen",
+  "reterraforged.gui.createWorld.settings.tooltip": "Eine Voreinstellung wählen und das Gelände der neuen Welt ändern",
+  "reterraforged.gui.createWorld.preset": "Voreinstellung: %s",
+  "reterraforged.gui.createWorld.vanilla": "Normale Minecraft-Weltgenerierung"
 }

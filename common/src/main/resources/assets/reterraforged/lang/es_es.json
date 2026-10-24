@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "Mundo",
   "reterraforged.metadata.description": "Recursos de ReTerraForged",
   "reterraforged.mudSwamps.metadata.description": "Cambia el material de los pantanos a barro",
-  "reterraforged.preset.metadata.description": "Preset de ReTerraForged"
+  "reterraforged.preset.metadata.description": "Preset de ReTerraForged",
+  "reterraforged.gui.createWorld.generation": "Generación del mundo",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "Vanilla",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged crea el terreno del mundo nuevo: continentes, cordilleras, ríos y erosión. Vanilla crea un mundo normal de Minecraft.",
+  "reterraforged.gui.createWorld.settings": "Ajustes de ReTerraForged",
+  "reterraforged.gui.createWorld.settings.tooltip": "Elige un preajuste y cambia el terreno del mundo nuevo",
+  "reterraforged.gui.createWorld.preset": "Preajuste: %s",
+  "reterraforged.gui.createWorld.vanilla": "Generación de mundo normal de Minecraft"
 }

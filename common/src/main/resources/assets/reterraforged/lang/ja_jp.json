@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "ワールドの設定",
   "reterraforged.metadata.description": "ReTerraForgedのリソース",
   "reterraforged.mudSwamps.metadata.description": "沼地の素材を泥に変えます",
-  "reterraforged.preset.metadata.description": "ReTerraForgedのプリセット"
+  "reterraforged.preset.metadata.description": "ReTerraForgedのプリセット",
+  "reterraforged.gui.createWorld.generation": "ワールド生成",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "バニラ",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged は新しいワールドの地形を作ります：大陸、山脈、川、浸食。バニラは通常の Minecraft ワールドを作ります。",
+  "reterraforged.gui.createWorld.settings": "ReTerraForged の設定",
+  "reterraforged.gui.createWorld.settings.tooltip": "プリセットを選び、新しいワールドの地形を変更します",
+  "reterraforged.gui.createWorld.preset": "プリセット：%s",
+  "reterraforged.gui.createWorld.vanilla": "通常の Minecraft のワールド生成"
 }

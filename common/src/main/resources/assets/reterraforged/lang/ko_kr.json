@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "월드 설정",
   "reterraforged.metadata.description": "ReTerraForged 리소스",
   "reterraforged.mudSwamps.metadata.description": "늪의 재료를 진흙으로 바꿉니다",
-  "reterraforged.preset.metadata.description": "ReTerraForged 프리셋"
+  "reterraforged.preset.metadata.description": "ReTerraForged 프리셋",
+  "reterraforged.gui.createWorld.generation": "월드 생성",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "바닐라",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged는 새 월드의 지형을 만듭니다: 대륙, 산맥, 강, 침식. 바닐라는 일반 Minecraft 월드를 만듭니다.",
+  "reterraforged.gui.createWorld.settings": "ReTerraForged 설정",
+  "reterraforged.gui.createWorld.settings.tooltip": "프리셋을 선택하고 새 월드의 지형을 바꿉니다",
+  "reterraforged.gui.createWorld.preset": "프리셋: %s",
+  "reterraforged.gui.createWorld.vanilla": "일반 Minecraft 월드 생성"
 }

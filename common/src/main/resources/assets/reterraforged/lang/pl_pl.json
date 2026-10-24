@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "Świat",
   "reterraforged.metadata.description": "Zasoby ReTerraForged",
   "reterraforged.mudSwamps.metadata.description": "Zmienia materiał bagien na błoto",
-  "reterraforged.preset.metadata.description": "Preset ReTerraForged"
+  "reterraforged.preset.metadata.description": "Preset ReTerraForged",
+  "reterraforged.gui.createWorld.generation": "Generowanie świata",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "Vanilla",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged tworzy teren nowego świata: kontynenty, łańcuchy górskie, rzeki i erozję. Vanilla tworzy zwykły świat Minecrafta.",
+  "reterraforged.gui.createWorld.settings": "Ustawienia ReTerraForged",
+  "reterraforged.gui.createWorld.settings.tooltip": "Wybierz ustawienie wstępne i zmień teren nowego świata",
+  "reterraforged.gui.createWorld.preset": "Ustawienie wstępne: %s",
+  "reterraforged.gui.createWorld.vanilla": "Zwykłe generowanie świata Minecrafta"
 }

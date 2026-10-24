@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "世界设置",
   "reterraforged.metadata.description": "ReTerraForged 资源",
   "reterraforged.mudSwamps.metadata.description": "将沼泽地面材质更改为泥巴",
-  "reterraforged.preset.metadata.description": "ReTerraForged 预设"
+  "reterraforged.preset.metadata.description": "ReTerraForged 预设",
+  "reterraforged.gui.createWorld.generation": "世界生成",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "原版",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged 生成新世界的地形：大陆、山脉、河流和侵蚀。原版生成普通的 Minecraft 世界。",
+  "reterraforged.gui.createWorld.settings": "ReTerraForged 设置",
+  "reterraforged.gui.createWorld.settings.tooltip": "选择预设并修改新世界的地形",
+  "reterraforged.gui.createWorld.preset": "预设：%s",
+  "reterraforged.gui.createWorld.vanilla": "普通的 Minecraft 世界生成"
 }

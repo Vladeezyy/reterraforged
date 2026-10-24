@@ -346,5 +346,13 @@
   "reterraforged.gui.worldSettings.title": "Мир",
   "reterraforged.metadata.description": "Ресурсы ReTerraForged",
   "reterraforged.mudSwamps.metadata.description": "Заменяет материал болот на грязь",
-  "reterraforged.preset.metadata.description": "Пресет ReTerraForged"
+  "reterraforged.preset.metadata.description": "Пресет ReTerraForged",
+  "reterraforged.gui.createWorld.generation": "Генерация мира",
+  "reterraforged.gui.createWorld.generation.rtf": "ReTerraForged",
+  "reterraforged.gui.createWorld.generation.vanilla": "Ванильная",
+  "reterraforged.gui.createWorld.generation.tooltip": "ReTerraForged создаёт рельеф нового мира: континенты, горные хребты, реки и эрозию. Ванильная — обычный мир Minecraft.",
+  "reterraforged.gui.createWorld.settings": "Настройки ReTerraForged",
+  "reterraforged.gui.createWorld.settings.tooltip": "Выбрать пресет и изменить рельеф нового мира",
+  "reterraforged.gui.createWorld.preset": "Пресет: %s",
+  "reterraforged.gui.createWorld.vanilla": "Обычная генерация мира Minecraft"
 }
