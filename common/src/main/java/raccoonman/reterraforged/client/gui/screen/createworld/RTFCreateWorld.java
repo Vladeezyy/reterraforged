@@ -151,7 +151,7 @@ public final class RTFCreateWorld {
 				}
 			});
 		Button settings = Button.builder(Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_SETTINGS), (button) -> {
-			minecraft.gui.setScreen(new PresetConfigScreen(screen));
+			minecraft.setScreen(new PresetConfigScreen(screen));
 		}).width(210).tooltip(Tooltip.create(Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_SETTINGS_TOOLTIP))).build();
 		StringWidget status = new StringWidget(210, 9, status(screen, enabled), minecraft.font);
 		layout.addChild(generation, rows[0], 0, layout.newCellSettings().alignHorizontallyCenter());
