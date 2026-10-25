@@ -1,0 +1,69 @@
+name: Compatibility issue
+description: ReTerraForged together with another mod or modpack does not work as it should
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For problems that only happen together with another mod (biome mods, terrain mods, Distant Horizons...).
+  - type: input
+    id: other
+    attributes:
+      label: Other mod and its version
+      placeholder: Biomes O' Plenty 21.1.0.14
+    validations:
+      required: true
+  - type: dropdown
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      options:
+        - "26.3"
+        - "26.2"
+        - "26.1.2"
+        - "1.21.11"
+        - "1.21.10"
+        - "1.21.8"
+        - "1.21.5"
+        - "1.21.4"
+        - "1.21.3"
+        - "1.21.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod loader
+      options:
+        - NeoForge
+        - Fabric
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ReTerraForged version
+      placeholder: 0.0.21
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What goes wrong
+      description: What you see (missing biomes, crash, seams, wrong blocks...) and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: All mods
+      description: The full mod list or the modpack's name and version.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log or crash report
+      render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots

@@ -1,0 +1,93 @@
+name: Bug report
+description: Something in the world generation, the preset screen or a crash is wrong
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! The more of this you fill in, the faster we can find it. Please check the [open issues](https://github.com/Vladeezyy/reterraforged/issues) first.
+  - type: dropdown
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      options:
+        - "26.3"
+        - "26.2"
+        - "26.1.2"
+        - "1.21.11"
+        - "1.21.10"
+        - "1.21.8"
+        - "1.21.5"
+        - "1.21.4"
+        - "1.21.3"
+        - "1.21.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod loader
+      options:
+        - NeoForge
+        - Fabric
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ReTerraForged version
+      description: The mod's version (the number in the jar's name), e.g. 0.0.21
+      placeholder: 0.0.21
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you see, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: The steps that lead to it, as exactly as you can.
+      placeholder: |
+        1. Create a new world with the preset ...
+        2. Set ... to ...
+        3. Go to ...
+  - type: dropdown
+    id: world
+    attributes:
+      label: World
+      options:
+        - A new world
+        - A world made with an older version of the mod
+        - A server with the preset datapack
+        - Not about a world (preset screen, crash on start)
+  - type: textarea
+    id: preset
+    attributes:
+      label: Preset and changed settings
+      description: Which preset (Default, Beautiful...) and which settings you changed on the preset screen. You can also attach the preset file or the exported datapack.
+  - type: input
+    id: seed
+    attributes:
+      label: World seed
+      description: The seed and, if it matters, the coordinates (F3).
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other mods
+      description: The other mods in the instance, or the modpack's name and version. "None" if it happens with ReTerraForged alone.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log or crash report
+      description: The latest.log or the crash report, or a link to it (mclo.gs, gist).
+      render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag images here. With F3 on, the coordinates help.

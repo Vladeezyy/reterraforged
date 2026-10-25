@@ -1,0 +1,21 @@
+name: Feature request
+description: An idea for the world generation, the preset screen or compatibility
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you would like, and why.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: Screenshots, another mod that does it, or how it would look on the preset screen.
+  - type: input
+    id: minecraft
+    attributes:
+      label: Minecraft version you play
+      placeholder: "26.3"
