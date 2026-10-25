@@ -41,6 +41,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_UNIT_SNOW_LAYERS = resolve("gui.unit.snowLayers");
 	// + "<enum class, lower case>.<value, lower case>" (PresetWidgets.enumName)
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
+	public static final String GUI_ENUM_OLD_NAME = resolve("gui.enum.oldName");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
 	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
@@ -82,7 +83,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_LEGACY_MOUNTAIN_SCALING = resolve("gui.button.legacyMountainScaling");
 	public static final String GUI_BUTTON_RIVER_SEED_OFFSET = resolve("gui.button.riverSeedOffset");
 	public static final String GUI_BUTTON_SALT = resolve("gui.button.salt");
-	public static final String GUI_BUTTON_DISABLED = resolve("gui.button.disabled");
+	public static final String GUI_BUTTON_GENERATES = resolve("gui.button.generates");
 	public static final String GUI_BUTTON_SMOOTH_LAYER_DECORATOR = resolve("gui.button.smoothLayerDecorator");
 	public static final String GUI_BUTTON_STRATA_DECORATOR = resolve("gui.button.strataDecorator");
 	public static final String GUI_BUTTON_ORE_COMPATIBLE_STONE_ONLY = resolve("gui.button.oreCompatibleStoneOnly");
@@ -96,6 +97,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_VANILLA_LAVA_LAKES = resolve("gui.button.vanillaLavaLakes");
 	public static final String GUI_BUTTON_VANILLA_LAVA_SPRINGS = resolve("gui.button.vanillaLavaSprings");
 	public static final String GUI_TOOLTIP_NOT_USED = resolve("gui.tooltip.notUsed");
+	public static final String GUI_TOOLTIP_NEEDS_ARCHIPELAGO = resolve("gui.tooltip.needsArchipelago");
+	public static final String GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF = resolve("gui.tooltip.needsBranchSizeOff");
 	public static final String GUI_BUTTON_ENABLE_ARCHIPELAGO = resolve("gui.button.enableArchipelago");
 	public static final String GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES = resolve("gui.button.enableFakeWaterBiomes");
 	public static final String GUI_BUTTON_STEPPE_FAKE_RIVERS = resolve("gui.button.steppeFakeRivers");
