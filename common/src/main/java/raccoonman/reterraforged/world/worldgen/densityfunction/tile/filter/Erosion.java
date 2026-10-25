@@ -16,6 +16,7 @@ public class Erosion implements Filter {
     private final float initialSpeed;
     private final float initialWaterVolume;
     private final int maxDropletLifetime;
+    private final float minCapacity;
     private final int[][] erosionBrushIndices;
     private final float[][] erosionBrushWeights;
     private final int seed;
@@ -31,6 +32,10 @@ public class Erosion implements Filter {
         this.initialSpeed = settings.dropletVelocity;
         this.initialWaterVolume = settings.dropletVolume;
         this.maxDropletLifetime = settings.dropletLifetime;
+        // the minimum sediment capacity of a droplet: 0.01 as in TerraForged; it is larger than what small droplets
+        // carry, so below a volume x velocity of 0.36 they all eroded alike. Now it shrinks with them there (every
+        // built-in preset is above 0.36: its erosion is unchanged), except for presets saved before 0.0.22
+        this.minCapacity = settings.legacyMinCapacity ? 0.01F : 0.01F * Math.min(1.0F, settings.dropletVelocity * settings.dropletVolume / 0.36F);
         this.erosionBrushIndices = new int[mapSize * mapSize][];
         this.erosionBrushWeights = new float[mapSize * mapSize][];
         this.initBrushes(mapSize, 4);
@@ -105,7 +110,7 @@ public class Erosion implements Filter {
             }
             final float newHeight = gradient2.at(cells, mapSize, posX, posY).height;
             final float deltaHeight = newHeight - gradient1.height;
-            final float sedimentCapacity = Math.max(-deltaHeight * speed * water * 4.0f, 0.01f);
+            final float sedimentCapacity = Math.max(-deltaHeight * speed * water * 4.0f, this.minCapacity);
             if (sediment > sedimentCapacity || deltaHeight > 0.0f) {
                 final float amountToDeposit = (deltaHeight > 0.0f) ? Math.min(deltaHeight, sediment) : ((sediment - sedimentCapacity) * this.depositSpeed);
                 sediment -= amountToDeposit;
