@@ -13,17 +13,25 @@ public class ColumnAlignment {
 	private int verticalMargin;
 	private int left;
 	
+	private int leftInset;
+
 	public ColumnAlignment(Screen parent, int horizontalPadding, int verticalPadding, int horizontalMargin, int verticalMargin) {
+		this(parent, horizontalPadding, verticalPadding, horizontalMargin, verticalMargin, 0);
+	}
+
+	// leftInset: width kept free on the left of the columns (the tabs of the preset screen)
+	public ColumnAlignment(Screen parent, int horizontalPadding, int verticalPadding, int horizontalMargin, int verticalMargin, int leftInset) {
 		this.parent = parent;
+		this.leftInset = leftInset;
 		this.horizontalPadding = horizontalPadding;
 		this.verticalPadding = verticalPadding;
 		this.horizontalMargin = horizontalMargin;
 		this.verticalMargin = verticalMargin;
-		this.left = horizontalMargin;
+		this.left = horizontalMargin + leftInset;
 	}
 
 	public <T extends GuiEventListener & Renderable> T addColumn(float columnSize, ColumnFactory<T> factory) {
-		int pageWidth = this.parent.width - (this.horizontalMargin * 2);
+		int pageWidth = this.parent.width - (this.horizontalMargin * 2) - this.leftInset;
 		int height = this.parent.height;
 		int columnWidth = Math.max(0, Math.round(columnSize * pageWidth) - (2 * this.horizontalPadding));
 		T column = factory.apply(this.left, this.verticalMargin, columnWidth, height, this.horizontalPadding, this.verticalPadding);
