@@ -28,8 +28,14 @@ public class FilterSettings {
     		Codec.FLOAT.fieldOf("dropletVolume").forGetter((o) -> o.dropletVolume),
     		Codec.FLOAT.fieldOf("dropletVelocity").forGetter((o) -> o.dropletVelocity),
     		Codec.FLOAT.fieldOf("erosionRate").forGetter((o) -> o.erosionRate),
-    		Codec.FLOAT.fieldOf("depositeRate").forGetter((o) -> o.depositeRate)
-    	).apply(instance, Erosion::new));
+    		Codec.FLOAT.fieldOf("depositeRate").forGetter((o) -> o.depositeRate),
+    		// added in 0.0.22: presets saved before keep the fixed minimum sediment capacity (their worlds stay as they were)
+    		Codec.BOOL.optionalFieldOf("legacyMinCapacity", true).forGetter((o) -> o.legacyMinCapacity)
+    	).apply(instance, (dropletsPerChunk, dropletLifetime, dropletVolume, dropletVelocity, erosionRate, depositeRate, legacyMinCapacity) -> {
+    		Erosion erosion = new Erosion(dropletsPerChunk, dropletLifetime, dropletVolume, dropletVelocity, erosionRate, depositeRate);
+    		erosion.legacyMinCapacity = legacyMinCapacity;
+    		return erosion;
+    	}));
     	
     	public int dropletsPerChunk;
         public int dropletLifetime;
@@ -37,6 +43,9 @@ public class FilterSettings {
         public float dropletVelocity;
         public float erosionRate;
         public float depositeRate;
+        // true: the droplets' minimum sediment capacity is a fixed 0.01 (TerraForged), which made the lower part of the
+        // Droplet Volume and Droplet Velocity sliders do nothing; false: it shrinks with small droplets (Erosion)
+        public boolean legacyMinCapacity = false;
         
         public Erosion(int dropletsPerChunk, int dropletsLifetime, float dropletVolume, float dropletVelocity, float erosionRate, float depositeRate) {
         	this.dropletsPerChunk = dropletsPerChunk;
@@ -48,7 +57,9 @@ public class FilterSettings {
         }
         
         public Erosion copy() {
-        	return new Erosion(this.dropletsPerChunk, this.dropletLifetime, this.dropletVolume, this.dropletVelocity, this.erosionRate, this.depositeRate);
+        	Erosion copy = new Erosion(this.dropletsPerChunk, this.dropletLifetime, this.dropletVolume, this.dropletVelocity, this.erosionRate, this.depositeRate);
+        	copy.legacyMinCapacity = this.legacyMinCapacity;
+        	return copy;
         }
     }
     
