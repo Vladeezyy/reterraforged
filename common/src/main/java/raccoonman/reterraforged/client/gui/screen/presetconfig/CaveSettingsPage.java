@@ -84,6 +84,7 @@ public class CaveSettingsPage extends PresetEditorPage {
 		this.compatibilityMode = CycleButton.<CaveSettings.CompatibilityMode>builder(CaveSettingsPage::compatibilityModeName)
 			.withInitialValue(caves.compatibilityMode)
 			.withValues(Arrays.asList(CaveSettings.CompatibilityMode.values()))
+			.withTooltip((value) -> Tooltips.create(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE)))
 			.create(-1, -1, -1, -1, Component.translatable(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE), (button, value) -> {
 				caves.compatibilityMode = value;
 			});

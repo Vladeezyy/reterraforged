@@ -10,14 +10,17 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.Toasts;
 import raccoonman.reterraforged.client.gui.Tooltips;
@@ -73,21 +76,42 @@ final class PresetWidgets {
 	public static <T> CycleButton<T> createCycle(Collection<T> values, T initial, Optional<String> text, CycleButton.OnValueChange<T> callback, Function<T, String> name) {
 		CycleButton.Builder<T> builder = CycleButton.<T>builder((e) -> {
 			return e instanceof Enum<?> value ? enumName(value) : Component.literal(name.apply(e));
-		}).withInitialValue(initial).withValues(values);
+		}).withInitialValue(initial).withValues(values).withTooltip((e) -> cycleTooltip(text, e));
 		if(text.isEmpty()) {
 			builder = builder.displayOnlyValue();
 		}
 		CycleButton<T> button = builder.create(-1, -1, -1, -1, text.map(Component::translatable).orElse(null), callback);
-		text.ifPresent((key) -> {
-			button.setTooltip(Tooltips.create(Tooltips.translationKey(key)));
-		});
+		button.setTooltip(cycleTooltip(text, initial));
 		return button;
+	}
+	
+	// the setting's tooltip, then for an enum value what it does and the name the button showed before 0.0.22 (the
+	// enum constant, e.g. MULTI_IMPROVED), so presets and guides written for the old names still make sense. Given to
+	// the builder: a tooltip set on the button only is dropped at the first click
+	private static <T> Tooltip cycleTooltip(Optional<String> text, T value) {
+		MutableComponent tooltip = Component.empty();
+		text.ifPresent((key) -> tooltip.append(Component.translatable(Tooltips.translationKey(key))));
+		if (value instanceof Enum<?> e) {
+			if (text.isPresent()) {
+				tooltip.append("\n\n");
+			}
+			String description = Tooltips.translationKey(enumKey(e));
+			if (Language.getInstance().has(description)) {
+				tooltip.append(enumName(e).copy().withStyle(ChatFormatting.YELLOW)).append(": ").append(Component.translatable(description)).append("\n");
+			}
+			tooltip.append(Component.translatable(RTFTranslationKeys.GUI_ENUM_OLD_NAME, e.name()).withStyle(ChatFormatting.GRAY));
+		}
+		return text.isEmpty() && !(value instanceof Enum<?>) ? null : Tooltip.create(tooltip);
+	}
+	
+	private static String enumKey(Enum<?> value) {
+		return RTFTranslationKeys.GUI_ENUM_PREFIX + value.getDeclaringClass().getSimpleName().toLowerCase(Locale.ROOT) + "." + value.name().toLowerCase(Locale.ROOT);
 	}
 	
 	// an enum value by its translation (reterraforged.gui.enum.<enum>.<value>, e.g. MULTI_IMPROVED -> "Several continents
 	// (improved)"); a value without one as words ("Multi improved") instead of the raw constant
 	public static Component enumName(Enum<?> value) {
-		String key = RTFTranslationKeys.GUI_ENUM_PREFIX + value.getDeclaringClass().getSimpleName().toLowerCase(Locale.ROOT) + "." + value.name().toLowerCase(Locale.ROOT);
+		String key = enumKey(value);
 		if (Language.getInstance().has(key)) {
 			return Component.translatable(key);
 		}
@@ -96,9 +120,20 @@ final class PresetWidgets {
 	}
 
 	public static CycleButton<Boolean> createToggle(boolean initial, String text, CycleButton.OnValueChange<Boolean> callback) {
-		CycleButton<Boolean> button = CycleButton.booleanBuilder(Component.translatable(RTFTranslationKeys.GUI_BUTTON_TRUE), Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE)).withInitialValue(initial).create(-1, -1, -1, -1, Component.translatable(text), callback);
+		CycleButton<Boolean> button = CycleButton.booleanBuilder(Component.translatable(RTFTranslationKeys.GUI_BUTTON_TRUE), Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE)).withInitialValue(initial).withTooltip((value) -> Tooltips.create(Tooltips.translationKey(text))).create(-1, -1, -1, -1, Component.translatable(text), callback);
 		button.setTooltip(Tooltips.create(Tooltips.translationKey(text)));
 		return button;
+	}
+	
+	// a setting another one switches off (the island sliders while Enable Archipelago is off): greyed out, and its
+	// tooltip says what it needs
+	public static void setUsable(AbstractWidget widget, String text, boolean usable, String requirement) {
+		widget.active = usable;
+		MutableComponent tooltip = Component.translatable(Tooltips.translationKey(text));
+		if (!usable) {
+			tooltip.append("\n\n").append(Component.translatable(requirement).withStyle(ChatFormatting.GRAY));
+		}
+		widget.setTooltip(Tooltip.create(tooltip));
 	}
 	
 	// a setting the world generation does not use (it did nothing in ReTerraForged 0.0.6 either): shown, not usable

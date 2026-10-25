@@ -279,8 +279,8 @@ public final class RTFWidgetTest {
 		// left out of the JSON: back at the codec's default, which the widget then shows
 		String value = after.getOrDefault(path, shown);
 		List<String> notes = new ArrayList<>();
-		// the widget shows the value the setting got
-		if (!sameValue(widget, shown, value)) {
+		// the widget shows the value the setting got (a structure's "Generates" the opposite of its "disabled")
+		if (!sameValue(widget, shown, path.endsWith(".disabled") ? String.valueOf(!Boolean.parseBoolean(value)) : value)) {
 			RTFGuiTest.fail(where + " shows " + shown + " but " + path + " is " + value);
 			notes.add("SHOWS " + shown + " BUT IS " + value);
 		}
