@@ -141,7 +141,7 @@ public final class RTFCreateWorld {
 		int[] rows = { 0 };
 		layout.visitChildren((child) -> rows[0]++);
 		boolean enabled = isEnabled(screen);
-		CycleButton<Boolean> generation = CycleButton.booleanBuilder(Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_RTF), Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_VANILLA)).withInitialValue(enabled)
+		CycleButton<Boolean> generation = CycleButton.booleanBuilder(Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_RTF), Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_VANILLA), enabled)
 			.withTooltip((value) -> Tooltip.create(Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION_TOOLTIP)))
 			.create(0, 0, 210, 20, Component.translatable(RTFTranslationKeys.GUI_CREATE_WORLD_GENERATION), (button, value) -> {
 				if (value) {
