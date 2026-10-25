@@ -127,7 +127,11 @@ public record ErodeFeature(Config config) implements Feature {
             return;
         }
 
+        boolean volcanic = isActiveVolcano(config, cell);
         if (cell.terrain == TerrainType.VOLCANO_PIPE) {
+            if (volcanic) {
+                volcanicCrater(chunk, pos, surfaceY);
+            }
             return;
         }
 		
@@ -136,7 +140,7 @@ public record ErodeFeature(Config config) implements Feature {
             BlockState material = getMaterial(config, rand, cell, pos, top, generator instanceof NoiseBasedChunkGenerator noiseChunkGenerator ? noiseChunkGenerator.generatorSettings().value().defaultBlock() : Blocks.STONE.defaultBlockState());
             if (material != top) {
                 if (material.is(RTFBlockTags.ROCK)) {
-                	erodeRock(chunk, cell, pos, surfaceY);
+                	erodeRock(config, volcanic, chunk, cell, pos, surfaceY);
                     return;
                 } else {
                     ColumnDecorator.fillDownSolid(chunk, pos, surfaceY, surfaceY - 4, material);
@@ -146,7 +150,30 @@ public record ErodeFeature(Config config) implements Feature {
         }
 	}
 
-    private static void erodeRock(ChunkAccess chunk, Cell cell, BlockPos.MutableBlockPos pos, int y) {
+    // Volcano Biome Usage: this share of the volcanoes (by their terrain region) has a volcanic surface, basalt on
+    // the rock of its cone and magma and blackstone in its crater. 0 (presets saved before 0.0.20, when the setting did
+    // nothing): none
+    private static boolean isActiveVolcano(Config config, Cell cell) {
+        if (config.volcanoSurface() <= 0.0F || (cell.terrain != TerrainType.VOLCANO && cell.terrain != TerrainType.VOLCANO_PIPE)) {
+            return false;
+        }
+        long hash = (long) Math.floor(cell.terrainRegionCenterX) * 73856093L ^ (long) Math.floor(cell.terrainRegionCenterZ) * 19349663L;
+        hash = (hash ^ (hash >>> 29)) * 0x9E3779B97F4A7C15L;
+        return Math.floorMod(hash >>> 11, 10000L) / 10000.0F < config.volcanoSurface();
+    }
+
+    private static void volcanicCrater(ChunkAccess chunk, BlockPos.MutableBlockPos pos, int y) {
+        int x = pos.getX();
+        int z = pos.getZ();
+        // magma in patches on blackstone
+        BlockState top = ((x * 31 + z * 17) & 3) == 0 ? Blocks.MAGMA_BLOCK.defaultBlockState() : Blocks.BLACKSTONE.defaultBlockState();
+        ColumnDecorator.replaceSolid(chunk, pos.setY(y), top);
+        for (int dy = 1; dy < 4; dy++) {
+            ColumnDecorator.replaceSolid(chunk, pos.setY(y - dy), Blocks.BLACKSTONE.defaultBlockState());
+        }
+    }
+
+    private static void erodeRock(Config config, boolean volcanic, ChunkAccess chunk, Cell cell, BlockPos.MutableBlockPos pos, int y) {
         int depth = 32;
         BlockState material = Blocks.GRAVEL.defaultBlockState();
         // find the uppermost layer of rock & record it's depth
@@ -154,7 +181,7 @@ public record ErodeFeature(Config config) implements Feature {
             pos.setY(y - dy);
             BlockState state = chunk.getBlockState(pos);
             if (state.is(RTFBlockTags.ROCK)) {
-                material = state;
+                material = volcanic ? Blocks.BASALT.defaultBlockState() : config.plainStone() ? Blocks.STONE.defaultBlockState() : state;
                 depth = dy + 1;
                 break;
             }
@@ -224,11 +251,14 @@ public record ErodeFeature(Config config) implements Feature {
         return Blocks.COARSE_DIRT.defaultBlockState();
     }
 
-    public record Config(int rockVar, int rockMin, int dirtVar, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness, float heightModifier, float slopeModifier, float sedimentModifier, float sedimentNoise, float screeValue) {
+    // plainStone (Plain Stone Erosion): eroded rock slopes of plain stone; off, of the rock layer found below them (the
+    // strata), as before 0.0.20 when the setting did nothing
+    // volcanoSurface (Volcano Biome Usage): the share of volcanoes with a volcanic surface (isActiveVolcano)
+    public record Config(int rockVar, int rockMin, int dirtVar, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness, float heightModifier, float slopeModifier, float sedimentModifier, float sedimentNoise, float screeValue, boolean plainStone, float volcanoSurface) {
 		// the preset's erosion settings (PresetConfiguredFeatures registers the feature with them)
 		public static Config of(Preset preset) {
 			SurfaceSettings.Erosion erosion = preset.surface().erosion();
-			return new Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F);
+			return new Config(erosion.rockVariance, erosion.rockMin, erosion.dirtVariance, erosion.dirtMin, erosion.rockSteepness, erosion.dirtSteepness, erosion.screeSteepness, 6F / 255F, 3F / 255F, 256, 3F / 255F, 0.55F, preset.miscellaneous().plainStoneErosion, preset.miscellaneous().volcanoBiomeUsage);
 		}
 
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -243,7 +273,9 @@ public record ErodeFeature(Config config) implements Feature {
 			Codec.FLOAT.fieldOf("slope_modifier").forGetter(Config::slopeModifier),
 			Codec.FLOAT.fieldOf("sediment_modifier").forGetter(Config::sedimentModifier),
 			Codec.FLOAT.fieldOf("sediment_noise").forGetter(Config::sedimentNoise),
-			Codec.FLOAT.fieldOf("screeValue").forGetter(Config::screeValue)
+			Codec.FLOAT.fieldOf("screeValue").forGetter(Config::screeValue),
+			Codec.BOOL.optionalFieldOf("plain_stone", false).forGetter(Config::plainStone),
+			Codec.FLOAT.optionalFieldOf("volcano_surface", 0.0F).forGetter(Config::volcanoSurface)
 		).apply(instance, Config::new));
 	}
 }

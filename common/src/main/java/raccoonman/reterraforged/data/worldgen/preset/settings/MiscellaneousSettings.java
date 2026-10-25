@@ -19,8 +19,16 @@ public class MiscellaneousSettings {
 		Codec.FLOAT.fieldOf("mountainBiomeUsage").forGetter((s) -> s.mountainBiomeUsage),
 		Codec.FLOAT.fieldOf("volcanoBiomeUsage").forGetter((s) -> s.volcanoBiomeUsage),
 		// added after 0.0.17: presets saved before get the strata of ReTerraForged 0.0.6
-		Strata.CODEC.optionalFieldOf("strata").forGetter((s) -> java.util.Optional.of(s.strata))
-	).apply(instance, (smoothLayerDecorator, strataRegionSize, strataDecorator, oreCompatibleStoneOnly, erosionDecorator, plainStoneErosion, naturalSnowDecorator, customBiomeFeatures, vanillaSprings, vanillaLavaLakes, vanillaLavaSprings, mountainBiomeUsage, volcanoBiomeUsage, strata) -> new MiscellaneousSettings(smoothLayerDecorator, strataRegionSize, strataDecorator, oreCompatibleStoneOnly, erosionDecorator, plainStoneErosion, naturalSnowDecorator, customBiomeFeatures, vanillaSprings, vanillaLavaLakes, vanillaLavaSprings, mountainBiomeUsage, volcanoBiomeUsage, strata.orElseGet(Strata::makeDefault))));
+		Strata.CODEC.optionalFieldOf("strata").forGetter((s) -> java.util.Optional.of(s.strata)),
+		// presets saved before 0.0.20 have none: PresetMigration gives their settings that did nothing the values
+		// that keep their worlds as they were
+		Codec.INT.optionalFieldOf("settingsVersion", 0).forGetter((s) -> s.settingsVersion)
+	).apply(instance, (smoothLayerDecorator, strataRegionSize, strataDecorator, oreCompatibleStoneOnly, erosionDecorator, plainStoneErosion, naturalSnowDecorator, customBiomeFeatures, vanillaSprings, vanillaLavaLakes, vanillaLavaSprings, mountainBiomeUsage, volcanoBiomeUsage, strata, settingsVersion) -> {
+		MiscellaneousSettings settings = new MiscellaneousSettings(smoothLayerDecorator, strataRegionSize, strataDecorator, oreCompatibleStoneOnly, erosionDecorator, plainStoneErosion, naturalSnowDecorator, customBiomeFeatures, vanillaSprings, vanillaLavaLakes, vanillaLavaSprings, mountainBiomeUsage, volcanoBiomeUsage, strata.orElseGet(Strata::makeDefault));
+		settings.settingsVersion = settingsVersion;
+		return settings;
+	}));
+	public static final int SETTINGS_VERSION = 1;
 	
 	public boolean smoothLayerDecorator;
 	public int strataRegionSize;
@@ -28,6 +36,7 @@ public class MiscellaneousSettings {
 	public boolean oreCompatibleStoneOnly;
 	public boolean erosionDecorator;
 	public boolean plainStoneErosion;
+	public int settingsVersion = SETTINGS_VERSION;
 	public boolean naturalSnowDecorator;
 	public boolean customBiomeFeatures;
 	public boolean vanillaSprings;
@@ -88,7 +97,9 @@ public class MiscellaneousSettings {
 	}
 	
 	public MiscellaneousSettings copy() {
-		return new MiscellaneousSettings(this.smoothLayerDecorator, this.strataRegionSize, this.strataDecorator, this.oreCompatibleStoneOnly, this.erosionDecorator, this.plainStoneErosion, this.naturalSnowDecorator, this.customBiomeFeatures, this.vanillaSprings, this.vanillaLavaLakes, this.vanillaLavaSprings, this.mountainBiomeUsage, this.volcanoBiomeUsage, this.strata.copy());
+		MiscellaneousSettings copy = new MiscellaneousSettings(this.smoothLayerDecorator, this.strataRegionSize, this.strataDecorator, this.oreCompatibleStoneOnly, this.erosionDecorator, this.plainStoneErosion, this.naturalSnowDecorator, this.customBiomeFeatures, this.vanillaSprings, this.vanillaLavaLakes, this.vanillaLavaSprings, this.mountainBiomeUsage, this.volcanoBiomeUsage, this.strata.copy());
+		copy.settingsVersion = this.settingsVersion;
+		return copy;
 	}
 
 	/**

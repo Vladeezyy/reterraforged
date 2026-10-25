@@ -105,15 +105,21 @@ public enum RenderMode {
         }
     };
 
-    public int getColor(Cell cell, Levels levels) {
+    // topY: the world's top. Terrain above it (cut flat there in the world) is magenta in every mode (#12)
+    public int getColor(Cell cell, Levels levels, int topY) {
+        int y = levels.scale(cell.height);
+        if (y > topY) {
+            return rgba(230, 30, 200);
+        }
         if (!this.handlesWater() && cell.height < levels.water) {
             return getWaterColor(cell, levels);
         }
         float bands = 10.0F;
         float alpha = 0.2F;
-        // above the world top the bands went past full brightness, which spilled into the other colour channels
-        // (white, purple and blue specks in high mountains)
-        float elevation = NoiseUtil.clamp((cell.height - levels.water) / (1.0F - levels.water), 0.0F, 1.0F);
+        // from sea level to the world's top: it went to y 256 whatever the world height, so with a higher world all
+        // mountains above it had the same colour (#12); past the top the bands also spilled into the other colour
+        // channels (white, purple and blue specks)
+        float elevation = NoiseUtil.clamp((y - levels.waterLevel) / (float) Math.max(1, topY - levels.waterLevel), 0.0F, 1.0F);
         int band = NoiseUtil.round(elevation * bands);
         float scale = 1.0F - alpha;
         float bias = alpha * (band / bands);

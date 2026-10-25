@@ -143,12 +143,13 @@ public class ArchipelagoPopulator implements CellPopulator {
 			float alpha = smoothStep(0.0F, shelfEnd, islandAlpha);
 			return NoiseUtil.lerp(this.controlPoints.deepOcean, this.controlPoints.shallowOcean, alpha);
 		}
+		// the islands' own coast and inland points (the continent's in presets saved before 0.0.20, PresetMigration)
 		if (islandAlpha < beachEnd) {
 			float alpha = smoothStep(shelfEnd, beachEnd, islandAlpha);
-			return NoiseUtil.lerp(this.controlPoints.shallowOcean, this.controlPoints.coast, alpha);
+			return NoiseUtil.lerp(this.controlPoints.shallowOcean, this.controlPoints.islandCoast, alpha);
 		}
 		float alpha = smoothStep(beachEnd, 1.0F, islandAlpha);
-		return NoiseUtil.lerp(this.controlPoints.coast, this.controlPoints.inland, alpha);
+		return NoiseUtil.lerp(this.controlPoints.islandCoast, this.controlPoints.islandInland, alpha);
 	}
 	
 	private static float chanceMask(Noise selector, float chance, float x, float z) {

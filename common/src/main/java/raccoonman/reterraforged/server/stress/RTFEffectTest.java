@@ -70,6 +70,9 @@ public final class RTFEffectTest {
 		CONTEXTS.put("island().", (p) -> p.island().enableArchipelago = true);
 		CONTEXTS.put("fakeWaterBiomes().", (p) -> p.fakeWaterBiomes().enableFakeWaterBiomes = true);
 		CONTEXTS.put("world().continent.continentShape", (p) -> p.world().continent.continentType = ContinentType.MULTI);
+		// the islands' control points shape the archipelago's islands; the branch river sizes need their own sizes on
+		CONTEXTS.put("world().controlPoints.island", (p) -> p.island().enableArchipelago = true);
+		CONTEXTS.put("rivers().branchRivers.", (p) -> p.rivers().branchSizeFromMain = false);
 	}
 
 	// world tiles where the terrain is: the spawn, then from the Default preview the highest land, a river, a coast
@@ -138,6 +141,84 @@ public final class RTFEffectTest {
 		String summary = String.format("[RTF stress] %d variants in %d s: %d settings, %d without effect (rtf-effects.txt)", variants, (System.nanoTime() - start) / 1_000_000_000L, PresetStressTable.SETTINGS.size(), without.size());
 		RTFCommon.LOGGER.info(summary);
 		return summary;
+	}
+
+	/**
+	 * "rtf stress curves" (tools/stresstest.sh &lt;loader&gt; curves): every number setting at 0, 25, 50, 75 and 100 % of
+	 * its slider (with what it needs switched on, as for "effects"), each step against the one before. A step that
+	 * changes nothing while others do is a dead stretch of the slider (a value clamped somewhere, as the ocean depth
+	 * that stopped at y 0 before 0.0.18). Table in rtf-curves.txt: the share of preview cells whose height changed.
+	 */
+	public static String runCurves(MinecraftServer server) {
+		RegistryAccess registries = server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS);
+		long start = System.nanoTime();
+		anchors = anchors(Presets.makeDefault(), registries);
+		List<String> report = new ArrayList<>();
+		List<String> dead = new ArrayList<>();
+		int variants = 0;
+		for (Setting<?> setting : PresetStressTable.SETTINGS) {
+			if (!(setting.min() instanceof Number min) || !(setting.max() instanceof Number max)) {
+				continue;
+			}
+			String context = CONTEXTS.keySet().stream().filter(setting.name()::startsWith).findFirst().orElse(null);
+			List<Object> values = new ArrayList<>();
+			for (float t : new float[] { 0.0F, 0.25F, 0.5F, 0.75F, 1.0F }) {
+				double v = min.doubleValue() + t * (max.doubleValue() - min.doubleValue());
+				Object value = min instanceof Integer ? (Object) (int) Math.round(v) : (Object) (float) v;
+				if (!values.contains(value)) values.add(value);
+			}
+			StringBuilder line = new StringBuilder(setting.name());
+			Print previous = null;
+			int changed = 0, unchanged = 0;
+			for (Object value : values) {
+				Preset preset = Presets.makeDefault();
+				if (context != null) CONTEXTS.get(context).accept(preset);
+				setting.set(preset, value);
+				Print print;
+				try {
+					print = print(preset, registries);
+				} catch (Throwable t) {
+					line.append(" | ").append(value).append(": FAILED ").append(t);
+					previous = null;
+					continue;
+				}
+				variants++;
+				if (previous != null) {
+					String effect = compare(previous, print);
+					String height = heightShare(previous, print);
+					line.append(" | ->").append(value).append(": ").append(effect.isEmpty() ? "nothing" : height);
+					if (effect.isEmpty()) unchanged++; else changed++;
+				} else {
+					line.append(" | ").append(value);
+				}
+				previous = print;
+			}
+			if (unchanged > 0) {
+				dead.add(setting.name() + (changed == 0 ? " (no step)" : " (" + unchanged + " of " + (changed + unchanged) + " steps)"));
+				line.append("   <- DEAD STRETCH");
+			}
+			report.add(line.toString());
+		}
+		report.add(0, "");
+		report.add(0, dead.size() + " settings with steps that change nothing: " + dead);
+		try {
+			Files.write(Path.of("rtf-curves.txt"), report);
+		} catch (IOException e) {
+			RTFCommon.LOGGER.error("[RTF stress] curves: could not write rtf-curves.txt", e);
+		}
+		String summary = String.format("[RTF stress] %d variants in %d s, curves: %d settings with dead stretches (rtf-curves.txt)", variants, (System.nanoTime() - start) / 1_000_000_000L, dead.size());
+		RTFCommon.LOGGER.info(summary);
+		return summary;
+	}
+
+	// the share of preview cells whose height changed, or what else changed
+	private static String heightShare(Print a, Print b) {
+		Object[] x = a.cells().get("preview height"), y = b.cells().get("preview height");
+		int differ = 0;
+		for (int i = 0; i < x.length; i++) {
+			if (!Objects.equals(x[i], y[i])) differ++;
+		}
+		return differ > 0 ? String.format(Locale.ROOT, "height %d%%", (int) Math.ceil(100.0 * differ / x.length)) : "other";
 	}
 
 	private static String json(Preset preset) {
