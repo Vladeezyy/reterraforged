@@ -252,10 +252,10 @@ class RiverSettingsPage extends PresetEditorPage {
 
 
 	private void updateBranchSliders(boolean sizeFromMain) {
-		this.branchRiverBedDepth.active = !sizeFromMain;
-		this.branchRiverMinBankHeight.active = !sizeFromMain;
-		this.branchRiverMaxBankHeight.active = !sizeFromMain;
-		this.branchRiverBedWidth.active = !sizeFromMain;
-		this.branchRiverBankWidth.active = !sizeFromMain;
+		PresetWidgets.setUsable(this.branchRiverBedDepth, RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverMinBankHeight, RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverMaxBankHeight, RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverBedWidth, RTFTranslationKeys.GUI_SLIDER_RIVER_BED_WIDTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverBankWidth, RTFTranslationKeys.GUI_SLIDER_RIVER_BANK_WIDTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
 	}
 }
