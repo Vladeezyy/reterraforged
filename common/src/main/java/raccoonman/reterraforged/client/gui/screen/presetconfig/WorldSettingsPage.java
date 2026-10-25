@@ -202,6 +202,8 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.continentNoiseLacunarity);
 
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTROL_POINTS));
+		PresetWidgets.setUsable(this.islandInland, RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND, preset.island().enableArchipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandCoast, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST, preset.island().enableArchipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
 		this.left.addWidget(this.islandInland);
 		this.left.addWidget(this.islandCoast);
 		this.left.addWidget(this.deepOcean);
