@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -57,6 +59,12 @@ public final class RTFWidgetTest {
 	private static double sliderBefore;
 	private static String shownBefore;
 	private static Object cycleStart;
+	private static double sliderStart;
+	// switches that other widgets of their page depend on, in the state that makes those do something: kept so while
+	// the rest of the page is tested, then put back (the archipelago's sliders did nothing with it off)
+	private static final Map<String, Boolean> ENABLING = Map.of("enableArchipelago", true, "enableFakeWaterBiomes", true, "branchSizeFromMain", false);
+	private static final List<AbstractWidget> TO_RESTORE = new ArrayList<>();
+	private static boolean restoreRevealed;
 	private static int cycleClicks;
 	private static int generationBefore;
 	private static int hashBefore;
@@ -145,6 +153,20 @@ public final class RTFWidgetTest {
 	private static void widget(Minecraft mc) {
 		LinkedPageScreen screen = (LinkedPageScreen) mc.screen;
 		if (index >= queue.size()) {
+			// the switches set for the page back as they were
+			if (!TO_RESTORE.isEmpty()) {
+				AbstractWidget switched = TO_RESTORE.get(0);
+				if (!restoreRevealed) {
+					left(mc).reveal(switched);
+					restoreRevealed = true;
+				} else {
+					RTFGuiTest.click(mc, switched, 0.5);
+					TO_RESTORE.remove(0);
+					restoreRevealed = false;
+				}
+				wait = 2;
+				return;
+			}
 			RTFGuiTest.shoot(mc, "widgets-" + RTFGuiTest.page(mc));
 			if (screen.nextButton.active) {
 				RTFGuiTest.click(mc, screen.nextButton, 0.5);
@@ -172,6 +194,7 @@ public final class RTFWidgetTest {
 					return;
 				}
 				cycleStart = widget instanceof CycleButton<?> cycle ? cycle.getValue() : null;
+				sliderStart = widget instanceof Slider slider ? slider.getValue() : 0.0;
 				cycleClicks = 0;
 				use(mc, widget, 0.2);
 				sub = 2;
@@ -187,6 +210,13 @@ public final class RTFWidgetTest {
 					// a switch goes round all its values back to the first one, so what it switches off is used too
 					use(mc, widget, 0.5);
 					wait = 2;
+				} else if (widget instanceof CycleButton<?> cycle && ENABLING.containsKey(key(widget)) && !Objects.equals(cycle.getValue(), ENABLING.get(key(widget)))) {
+					// a switch others depend on: on for the rest of the page
+					use(mc, widget, 0.5);
+					TO_RESTORE.add(widget);
+					index++;
+					sub = 0;
+					wait = 2;
 				} else {
 					index++;
 					sub = 0;
@@ -194,6 +224,13 @@ public final class RTFWidgetTest {
 			}
 			case 3 -> {
 				check(mc, widget, 0.8);
+				// back where it was, so the next widgets are tested on the preset as it was (the preview turned into
+				// open ocean after the sea level and the continents had been moved)
+				use(mc, widget, sliderStart);
+				sub = 4;
+				wait = 2;
+			}
+			case 4 -> {
 				index++;
 				sub = 0;
 			}
@@ -272,8 +309,20 @@ public final class RTFWidgetTest {
 
 	private static boolean sameValue(AbstractWidget widget, String shown, String value) {
 		if (widget instanceof Slider) {
+			// the number in the shown text, which has a unit since 0.0.22 ("16 blocks", "Y 63", "x1.95", "81 %"): a
+			// percentage is the setting x 100 and like the scale rounded to two places
+			Matcher number = Pattern.compile("-?\\d+(?:[.,]\\d+)?").matcher(shown);
+			if (!number.find()) return false;
 			try {
-				return Math.abs(Double.parseDouble(shown) - Double.parseDouble(value)) <= 0.0006;
+				double shownValue = Double.parseDouble(number.group().replace(',', '.'));
+				double tolerance = 0.0006;
+				if (shown.contains("%")) {
+					shownValue /= 100.0;
+					tolerance = 0.006;
+				} else if (shown.contains("×") || number.group().matches("-?\\d+[.,]\\d{2}")) {
+					tolerance = 0.006;
+				}
+				return Math.abs(shownValue - Double.parseDouble(value)) <= tolerance;
 			} catch (NumberFormatException e) {
 				return false;
 			}
