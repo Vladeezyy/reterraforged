@@ -47,12 +47,12 @@ Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a prese
 Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
 on protected branches `release/<version>-<minecraft>` (for example `release/0.0.14-1.21.1`).
 
-## Installation
+## Usage
 
-**Singleplayer.** Put the jar into the `mods` folder. When creating a world: World tab → Customize → pick a preset →
+**Singleplayer.** When creating a world: World tab → Customize → pick a preset →
 Done. Without this step the world will be vanilla. The experimental settings warning is expected, press Proceed.
 
-**Server.** Put the jar into `mods/`. For a new world, put the datapack `reterraforged-preset-<version>.zip` into
+**Server.** For a new world, put the datapack `reterraforged-preset-<version>.zip` into
 `world/datapacks/` before the first start. Your own preset can be exported with the "Export As Datapack" button on the
 preset screen.
 
@@ -579,7 +579,7 @@ Zero errors of the mod in every server and client log. The tests found two thing
 ## Source
 
 The `main` branch is Minecraft 1.21.1, the other versions are `mc/<version>` branches, one port commit each on top of
-the previous one. Build: `./gradlew build` (Java 21 for 1.21.x, Java 25 for 26.x).
+the previous one.
 
 ## Credits and license
 
@@ -618,13 +618,13 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
 в защищённых ветках `release/<версия>-<minecraft>` (например, `release/0.0.14-1.21.1`).
 
-## Установка
+## Как пользоваться
 
-**Одиночная игра.** Положите jar в папку `mods`. При создании мира: вкладка «Мир» → «Настроить» → выберите пресет →
+**Одиночная игра.** При создании мира: вкладка «Мир» → «Настроить» → выберите пресет →
 «Готово». Без этого шага мир будет ванильным. Предупреждение об экспериментальных настройках — нормально, нажмите
 «Продолжить».
 
-**Сервер.** Jar — в `mods/`. Для нового мира положите датапак `reterraforged-preset-<версия>.zip` в
+**Сервер.** Для нового мира положите датапак `reterraforged-preset-<версия>.zip` в
 `world/datapacks/` до первого запуска. Свой пресет можно выгрузить кнопкой «Экспорт в датапак» на экране пресетов.
 
 Мод влияет только на новые миры, созданные с его пресетом. Обычный мир он не меняет.
@@ -1148,7 +1148,6 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 ## Исходники
 
 Ветка `main` — Minecraft 1.21.1, остальные версии — ветки `mc/<версия>`, по одному коммиту порта поверх предыдущей.
-Сборка: `./gradlew build` (Java 21 для 1.21.x, Java 25 для 26.x).
 
 ## Авторы и лицензия
 
