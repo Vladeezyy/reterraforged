@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
@@ -408,6 +408,23 @@ wider access. Tested on 26.1.2 Fabric with C2ME and ModernFix-mVUS.
 
 </details>
 
+<details>
+<summary><b>C2ME's OpenCL module: a crash when creating a world</b> (0.0.24)</summary>
+
+**Problem.** With C2ME's OpenCL module (C2ME OpenCL Acceleration) the game stopped right after Create New World:
+"OpenCL codegen failed" ([#19](https://github.com/Vladeezyy/reterraforged/issues/19)).
+
+**Cause.** The module compiles each world's terrain for the GPU and only knows vanilla's density functions. On
+ReTerraForged's it gives up, and unless `allowIncompatibilityFallback` is set in `config/c2me.toml` (off by default) it
+stops the server.
+
+**Fix.** For a world with ReTerraForged terrain the mod makes the module fall back as if that setting were on: the
+overworld generates on the CPU (still multi-threaded by C2ME), the Nether and the End keep the GPU. Nothing to set.
+Tested on 1.21.1, 1.21.11, 26.1.2 and 26.2 servers (NeoForge and Fabric where the module exists). There is no 26.3
+build of the module yet.
+
+</details>
+
 ## Compatibility
 
 - Works with **Distant Horizons**, **Iris** and **Sodium**.
@@ -420,10 +437,11 @@ wider access. Tested on 26.1.2 Fabric with C2ME and ModernFix-mVUS.
   needs Fabric Loader 0.18.5 and Fabric API 0.116.12 or newer.
 
 - **ModernFix** and **C2ME**: work together with the mod since 0.0.23 (tested on 26.1.2 Fabric with C2ME 0.4.0-alpha
-  and ModernFix-mVUS 5.27.19). C2ME's **OpenCL module** (C2ME OpenCL Acceleration) only accelerates vanilla terrain
-  and by default stops the server on a ReTerraForged world: set `allowIncompatibilityFallback = true` under
-  `[openclAccel]` in `config/c2me.toml`. The overworld then generates on the CPU (still multi-threaded by C2ME), the
-  Nether and the End keep the GPU acceleration.
+  and ModernFix-mVUS 5.27.19). C2ME's **OpenCL module** (C2ME OpenCL Acceleration) only accelerates vanilla terrain:
+  since 0.0.24 a ReTerraForged world falls back on its own, the overworld generates on the CPU (still multi-threaded
+  by C2ME) and the Nether and the End keep the GPU. With 0.0.23 set `allowIncompatibilityFallback = true` under
+  `[openclAccel]` in the existing `config/c2me.toml` (a file written from scratch without `version = 3` is reset by
+  C2ME).
 ## Testing
 
 Every release is checked on all 10 Minecraft versions and both loaders before it is published. The tests are part
@@ -622,16 +640,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
@@ -994,6 +1012,23 @@ protected; Mixin не разрешает сужать доступ, и Minecraft
 
 </details>
 
+<details>
+<summary><b>Модуль OpenCL у C2ME: вылет при создании мира</b> (0.0.24)</summary>
+
+**Проблема.** С модулем OpenCL у C2ME (C2ME OpenCL Acceleration) игра останавливалась сразу после «Создать мир»:
+«OpenCL codegen failed» ([#19](https://github.com/Vladeezyy/reterraforged/issues/19)).
+
+**Почему.** Модуль переводит рельеф каждого мира на видеокарту и знает только ванильные функции плотности. На
+функциях ReTerraForged он отказывается и, если в `config/c2me.toml` не включён `allowIncompatibilityFallback` (по
+умолчанию выключен), останавливает сервер.
+
+**Как исправлено.** Для мира с рельефом ReTerraForged мод заставляет модуль откатиться, как будто эта настройка
+включена: обычный мир генерируется на процессоре (C2ME всё равно распараллеливает генерацию), Незер и Энд остаются на
+видеокарте. Настраивать ничего не нужно. Проверено на серверах 1.21.1, 1.21.11, 26.1.2 и 26.2 (NeoForge и Fabric, где
+модуль есть). Сборки модуля для 26.3 пока нет.
+
+</details>
+
 ## Совместимость
 
 - Работает вместе с **Distant Horizons**, **Iris** и **Sodium**.
@@ -1006,10 +1041,10 @@ protected; Mixin не разрешает сужать доступ, и Minecraft
   Fabric Loader 0.18.5 и Fabric API 0.116.12 или новее.
 
 - **ModernFix** и **C2ME**: работают вместе с модом с 0.0.23 (проверено на 26.1.2 Fabric с C2ME 0.4.0-alpha и
-  ModernFix-mVUS 5.27.19). **Модуль OpenCL** у C2ME (C2ME OpenCL Acceleration) ускоряет только ванильный рельеф и по
-  умолчанию останавливает сервер на мире ReTerraForged: поставьте `allowIncompatibilityFallback = true` в разделе
-  `[openclAccel]` файла `config/c2me.toml`. Тогда обычный мир генерируется на процессоре (C2ME всё равно
-  распараллеливает генерацию), а Незер и Энд остаются на видеокарте.
+  ModernFix-mVUS 5.27.19). **Модуль OpenCL** у C2ME (C2ME OpenCL Acceleration) ускоряет только ванильный рельеф: с
+  0.0.24 мир ReTerraForged откатывается сам, обычный мир генерируется на процессоре (C2ME всё равно распараллеливает
+  генерацию), а Незер и Энд остаются на видеокарте. С 0.0.23 поставьте `allowIncompatibilityFallback = true` в разделе
+  `[openclAccel]` уже созданного `config/c2me.toml` (файл, написанный с нуля без `version = 3`, C2ME сбрасывает).
 ## Проверка
 
 Каждый релиз перед публикацией проверяется на всех 10 версиях Minecraft и обоих загрузчиках. Тесты встроены в мод
