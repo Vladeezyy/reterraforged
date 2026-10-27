@@ -18,6 +18,7 @@
 		"MixinStructure",
 		"StructurePlacementAccessor",
 		"MixinNoiseBasedChunkGenerator",
+		"MixinBiome",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
 		"terrablender.MixinTargetPoint",

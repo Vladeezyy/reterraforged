@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO behält das RTF-Verhalten bei, außer eine bekannte Höhlenbiom-Mod ist geladen. RTF erzwingt RTF-Höhlenklima und -Höhlenschneider. VANILLA behält Vanilla-Höhlenschneider und die Klimatiefe externer Höhlenbiome.",
   "reterraforged.gui.button.legacyMountainScaling": "Alte Bergskalierung",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Bergskalierung, die mit dem alten TerraForged kompatibel ist",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Schneegrenze folgt Welthöhe",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Biome werden mit der Höhe so kälter wie in einer Welt mit Standardhöhe (320), damit Regen in einer höheren Welt auf dem meisten Land nicht zu Schnee wird. Aus: Abkühlung wie in Vanilla, in der Höhe schneit es statt zu regnen (Schnee hat kein Geräusch)",
   "reterraforged.gui.button.naturalSnowDecorator": "Natürlicher Schnee",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Entfernt Schnee dort, wo er sich natürlich nicht ablagern würde",
   "reterraforged.gui.button.snowLine": "Schneegrenze",

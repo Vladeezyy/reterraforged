@@ -197,6 +197,12 @@ for loader in $LOADERS; do
     rm -f "$dir/rtf-heights.txt" "run/heights-$loader.txt"
     echo "rtf heights" >> "$dir/console.in"
     wait_for "$dir/console.log" 'RTF heights\]' 300 && cp "$dir/rtf-heights.txt" "run/heights-$loader.txt" 2>/dev/null
+    # WEATHER=1: how much of the land snows instead of raining because of its height (RTFWorldChecks.weather)
+    if [ -n "$WEATHER" ]; then
+        echo "rtf weather" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF weather\]' 600
+        grep -o 'RTF weather\].*' "$dir/console.log" | tail -1 | tee "run/weather-$loader.txt"
+    fi
     # EXTREMES=1 (with PRESET=set:...seaLevel=...;...lavaLevel=...): bedrock and the levels of such a world
     extremes=PASS
     if [ -n "$EXTREMES" ]; then

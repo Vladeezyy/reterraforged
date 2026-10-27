@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO garde le comportement RTF sauf si un mod de biomes souterrains connu est chargé. RTF impose le climat et les creuseurs de grottes RTF. VANILLA conserve les creuseurs du jeu de base et la profondeur climatique des biomes souterrains externes.",
   "reterraforged.gui.button.legacyMountainScaling": "Ancienne échelle des montagnes",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Échelle des montagnes compatible avec l'ancien TerraForged",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Limite des neiges selon la hauteur du monde",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Les biomes se refroidissent avec l'altitude comme dans un monde de hauteur standard (320) : dans un monde plus haut, la pluie ne se change pas en neige sur la plupart des terres. Désactivé : refroidissement vanilla, en altitude il neige au lieu de pleuvoir (la neige n'a pas de son)",
   "reterraforged.gui.button.naturalSnowDecorator": "Neige naturelle",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Retire la neige là où elle ne se déposerait pas naturellement",
   "reterraforged.gui.button.snowLine": "Limite des neiges",

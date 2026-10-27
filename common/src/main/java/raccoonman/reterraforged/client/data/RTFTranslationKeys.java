@@ -81,6 +81,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_TERRAIN_SEED_OFFSET = resolve("gui.button.terrainSeedOffset");
 	public static final String GUI_BUTTON_FANCY_MOUNTAINS = resolve("gui.button.fancyMountains");
 	public static final String GUI_BUTTON_LEGACY_MOUNTAIN_SCALING = resolve("gui.button.legacyMountainScaling");
+	public static final String GUI_BUTTON_ALTITUDE_COOLING = resolve("gui.button.altitudeCoolingFollowsHeight");
 	public static final String GUI_BUTTON_RIVER_SEED_OFFSET = resolve("gui.button.riverSeedOffset");
 	public static final String GUI_BUTTON_SALT = resolve("gui.button.salt");
 	public static final String GUI_BUTTON_GENERATES = resolve("gui.button.generates");

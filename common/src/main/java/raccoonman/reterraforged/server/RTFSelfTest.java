@@ -100,7 +100,11 @@ public final class RTFSelfTest {
 			String result = RTFWorldChecks.heights(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("extremes").executes(ctx -> {
+		}))).then(Commands.literal("weather").executes(ctx -> {
+			String result = RTFWorldChecks.weather(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("extremes").executes(ctx -> {
 			String result = RTFWorldChecks.extremes(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;

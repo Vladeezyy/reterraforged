@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO mantiene el comportamiento de RTF salvo que haya cargado un mod conocido de biomas de cueva. RTF fuerza el clima y los excavadores de cuevas de RTF. VANILLA conserva los excavadores vanilla y la profundidad climática de biomas de cueva externos.",
   "reterraforged.gui.button.legacyMountainScaling": "Escala antigua de montañas",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Escala de montañas compatible con el TerraForged antiguo",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "La línea de nieve sigue la altura del mundo",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Los biomas se enfrían con la altura como en un mundo de altura estándar (320), así que en un mundo más alto la lluvia no se convierte en nieve en la mayor parte de la tierra. Desactivado: enfriamiento vanilla, en las alturas nieva en lugar de llover (la nieve no tiene sonido)",
   "reterraforged.gui.button.naturalSnowDecorator": "Nieve natural",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Quita la nieve donde no se asentaría de forma natural",
   "reterraforged.gui.button.snowLine": "Línea de nieve",

@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTOは既知の洞窟バイオームMODが読み込まれていなければRTFの挙動を保ちます。RTFは常にRTFの洞窟の気候とカーバーを使います。VANILLAはバニラのカーバーと外部の洞窟バイオームの気候の深さを保ちます。",
   "reterraforged.gui.button.legacyMountainScaling": "旧式の山の縮尺",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "旧TerraForgedと互換性のある山の縮尺にします",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "雪線をワールドの高さに合わせる",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "バイオームは標準の高さ（320）のワールドと同じように高度とともに寒くなります。高いワールドでも大部分の陸地で雨が雪に変わりません。オフ：バニラの冷却。高地では雨の代わりに雪が降ります（雪には音がありません）",
   "reterraforged.gui.button.naturalSnowDecorator": "自然な雪",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "自然には積もらない場所の雪を取り除きます",
   "reterraforged.gui.button.snowLine": "雪線",
