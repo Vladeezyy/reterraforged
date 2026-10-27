@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO mantém o comportamento do RTF, a menos que um mod conhecido de biomas de caverna esteja carregado. RTF força o clima e os escavadores de cavernas do RTF. VANILLA preserva os escavadores vanilla e a profundidade climática de biomas de caverna externos.",
   "reterraforged.gui.button.legacyMountainScaling": "Escala antiga das montanhas",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Escala das montanhas compatível com o TerraForged antigo",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Linha de neve segue a altura do mundo",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Os biomas esfriam com a altura como em um mundo de altura padrão (320), então em um mundo mais alto a chuva não vira neve na maior parte da terra. Desligado: resfriamento vanilla, nas alturas neva em vez de chover (a neve não tem som)",
   "reterraforged.gui.button.naturalSnowDecorator": "Neve natural",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Remove a neve onde ela não se acumularia naturalmente",
   "reterraforged.gui.button.snowLine": "Linha de neve",

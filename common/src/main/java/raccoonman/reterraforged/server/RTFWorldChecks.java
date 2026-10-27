@@ -271,6 +271,37 @@ public final class RTFWorldChecks {
 	 * the 81 chunks the self test generates, at 4 columns each. Chunks already saved, as by an older version of the mod,
 	 * are read as they are.
 	 */
+	/**
+	 * "rtf weather": on land points of an 8 x 8 km grid (every 64 blocks, base heights, no chunks generated), how often
+	 * the ground's biome rains at sea level but snows at the ground's height, where vanilla cools a biome with altitude
+	 * (rain is heard only where it rains on the ground near the player; snow has no sound)
+	 */
+	public static String weather(MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		var gen = level.getChunkSource().getGenerator();
+		var rs = level.getChunkSource().randomState();
+		int sea = gen.getSeaLevel();
+		int land = 0, rainLow = 0, snowHigh = 0;
+		List<Integer> heights = new ArrayList<>();
+		for (int x = -4096; x <= 4096; x += 64) {
+			for (int z = -4096; z <= 4096; z += 64) {
+				int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
+				if (h <= sea) continue;
+				land++;
+				heights.add(h);
+				Biome biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2).value();
+				if (biome.getPrecipitationAt(new BlockPos(x, sea + 1, z)) == Biome.Precipitation.RAIN) {
+					rainLow++;
+					if (biome.getPrecipitationAt(new BlockPos(x, h, z)) == Biome.Precipitation.SNOW) snowHigh++;
+				}
+			}
+		}
+		heights.sort(null);
+		int median = heights.isEmpty() ? 0 : heights.get(heights.size() / 2), p90 = heights.isEmpty() ? 0 : heights.get(heights.size() * 9 / 10);
+		return String.format("[RTF weather] land %d, ground y median %d, 90%% %d; rainy biomes %d, of them snowing at the ground's height %d (%.1f%%)",
+			land, median, p90, rainLow, snowHigh, rainLow == 0 ? 0.0 : 100.0 * snowHigh / rainLow);
+	}
+
 	public static String heights(MinecraftServer server, String name) {
 		ServerLevel level = server.overworld();
 		var gen = level.getChunkSource().getGenerator();

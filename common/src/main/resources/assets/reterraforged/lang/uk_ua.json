@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO — поведінка RTF, якщо не завантажено відомий мод печерних біомів. RTF — завжди клімат і вирізувачі печер RTF. VANILLA — ванільні вирізувачі й глибина клімату для сторонніх печерних біомів.",
   "reterraforged.gui.button.legacyMountainScaling": "Старий масштаб гір",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Масштаб гір, сумісний зі старим TerraForged",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Снігова лінія за висотою світу",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Біоми холоднішають з висотою так, як у світі стандартної висоти (320): у високому світі дощ на більшій частині суходолу не перетворюється на сніг. Вимк.: охолодження як у ванілі, на висоті замість дощу йде сніг (сніг не має звуку)",
   "reterraforged.gui.button.naturalSnowDecorator": "Природний сніг",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Прибирає сніг там, де він не ліг би природно",
   "reterraforged.gui.button.snowLine": "Снігова лінія",

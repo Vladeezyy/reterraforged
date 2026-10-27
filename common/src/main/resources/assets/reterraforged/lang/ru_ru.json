@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO — поведение RTF, если не загружен известный мод пещерных биомов. RTF — всегда климат и вырезатели пещер RTF. VANILLA — ванильные вырезатели и глубина климата для сторонних пещерных биомов.",
   "reterraforged.gui.button.legacyMountainScaling": "Старый масштаб гор",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Масштаб гор, совместимый со старым TerraForged",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Снеговая линия по высоте мира",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Биомы холодают с высотой так, как в мире стандартной высоты (320): в высоком мире дождь на большей части суши не превращается в снег. Выкл.: охлаждение как в ванили, на высоте вместо дождя идёт снег (у снега нет звука)",
   "reterraforged.gui.button.naturalSnowDecorator": "Естественный снег",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Убирает снег там, где он не лёг бы естественно",
   "reterraforged.gui.button.snowLine": "Снеговая линия",

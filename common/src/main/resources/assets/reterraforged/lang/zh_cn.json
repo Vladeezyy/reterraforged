@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO 会在检测到已知洞穴生物群系兼容目标时调整行为；RTF 强制使用 RTF 洞穴气候与雕刻器；VANILLA 保留原版雕刻器并使用外部洞穴生物群系兼容的气候深度。",
   "reterraforged.gui.button.legacyMountainScaling": "旧版山脉缩放",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "更改山脉缩放以兼容旧版TerraForged",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "雪线随世界高度调整",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "生物群系随高度变冷的方式与标准高度（320）的世界相同，因此在更高的世界中，大部分陆地上的雨不会变成雪。关闭：原版降温，高处下雪而不是下雨（雪没有声音）",
   "reterraforged.gui.button.naturalSnowDecorator": "自然雪装饰器",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "从雪不应自然堆积的地形上移除雪",
   "reterraforged.gui.button.snowLine": "雪线",

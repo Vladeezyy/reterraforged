@@ -170,6 +170,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_TERRAIN_SEED_OFFSET, "Terrain Seed Offset");
 			this.add(RTFTranslationKeys.GUI_BUTTON_FANCY_MOUNTAINS, "Fancy Mountains");
 			this.add(RTFTranslationKeys.GUI_BUTTON_LEGACY_MOUNTAIN_SCALING, "Legacy Mountain Scaling");
+			this.add(RTFTranslationKeys.GUI_BUTTON_ALTITUDE_COOLING, "Snow Line Follows World Height");
 			this.add(RTFTranslationKeys.GUI_BUTTON_RIVER_SEED_OFFSET, "Seed Offset");
 			this.add(RTFTranslationKeys.GUI_BUTTON_SALT, "Placement Seed");
 			this.add(RTFTranslationKeys.GUI_BUTTON_GENERATES, "Generates");
@@ -365,6 +366,7 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BADLANDS_FAKE_OCEANS), "Treat below-sea-level badlands terrain as river biome terrain.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_FANCY_MOUNTAINS), "Carries out extra processing on mountains to make them look even nicer. Can be disabled to improve performance slightly.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_LEGACY_MOUNTAIN_SCALING), "Changes mountain scaling to be compatible with legacy TerraForged");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ALTITUDE_COOLING), "Biomes get colder with height as in a world of the vanilla height (320), so in a taller world rain does not turn into snow on most of the land. Off: vanilla cooling, high ground snows instead of raining (snow has no sound)");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_RIVER_SEED_OFFSET), "A seed offset used to randomise river distribution");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_SALT), "Mixed with the world seed to place this structure type. Another value moves only these structures; press for a random one.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_GENERATES), "Off: this structure type is not generated.");
