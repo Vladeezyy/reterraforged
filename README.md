@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
@@ -394,6 +394,20 @@ that was left) is garbage collected, and its cleanup stops.
 
 </details>
 
+<details>
+<summary><b>ModernFix: a crash when creating a world</b> (0.0.23)</summary>
+
+**Problem.** With ModernFix (or ModernFix-mVUS) the game crashed right after Create New World: "Exception initializing
+level" ([#19](https://github.com/Vladeezyy/reterraforged/issues/19)).
+
+**Cause.** The mod's access widener made `NoiseChunk.wrap` public. ModernFix replaces that method and keeps it
+protected; Mixin does not allow lowering the access, so Minecraft could not load `NoiseChunk` at all.
+
+**Fix.** The access widener no longer touches the method: the mod calls it only from its own mixin, which needs no
+wider access. Tested on 26.1.2 Fabric with C2ME and ModernFix-mVUS.
+
+</details>
+
 ## Compatibility
 
 - Works with **Distant Horizons**, **Iris** and **Sodium**.
@@ -405,6 +419,11 @@ that was left) is garbage collected, and its cleanup stops.
   no seams on cliffs since 0.0.17. Its forests grow its own trees instead of the ReTerraForged ones. On Fabric it
   needs Fabric Loader 0.18.5 and Fabric API 0.116.12 or newer.
 
+- **ModernFix** and **C2ME**: work together with the mod since 0.0.23 (tested on 26.1.2 Fabric with C2ME 0.4.0-alpha
+  and ModernFix-mVUS 5.27.19). C2ME's **OpenCL module** (C2ME OpenCL Acceleration) only accelerates vanilla terrain
+  and by default stops the server on a ReTerraForged world: set `allowIncompatibilityFallback = true` under
+  `[openclAccel]` in `config/c2me.toml`. The overworld then generates on the CPU (still multi-threaded by C2ME), the
+  Nether and the End keep the GPU acceleration.
 ## Testing
 
 Every release is checked on all 10 Minecraft versions and both loaders before it is published. The tests are part
@@ -603,16 +622,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.22](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.22-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.23](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.23-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
@@ -961,6 +980,20 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
 
 </details>
 
+<details>
+<summary><b>ModernFix: вылет при создании мира</b> (0.0.23)</summary>
+
+**Проблема.** С ModernFix (или ModernFix-mVUS) игра вылетала сразу после «Создать мир»: «Exception initializing
+level» ([#19](https://github.com/Vladeezyy/reterraforged/issues/19)).
+
+**Почему.** Access widener мода делал `NoiseChunk.wrap` публичным. ModernFix подменяет этот метод и оставляет его
+protected; Mixin не разрешает сужать доступ, и Minecraft вообще не мог загрузить `NoiseChunk`.
+
+**Как исправлено.** Access widener больше не трогает этот метод: мод вызывает его только из своего миксина, которому
+расширенный доступ не нужен. Проверено на 26.1.2 Fabric с C2ME и ModernFix-mVUS.
+
+</details>
+
 ## Совместимость
 
 - Работает вместе с **Distant Horizons**, **Iris** и **Sodium**.
@@ -972,6 +1005,11 @@ tools/servertest.sh` сравнивает мир ReTerraForged с ванильн
   швов на склонах нет с 0.0.17. В лесах растут его деревья вместо деревьев ReTerraForged. На Fabric ему нужны
   Fabric Loader 0.18.5 и Fabric API 0.116.12 или новее.
 
+- **ModernFix** и **C2ME**: работают вместе с модом с 0.0.23 (проверено на 26.1.2 Fabric с C2ME 0.4.0-alpha и
+  ModernFix-mVUS 5.27.19). **Модуль OpenCL** у C2ME (C2ME OpenCL Acceleration) ускоряет только ванильный рельеф и по
+  умолчанию останавливает сервер на мире ReTerraForged: поставьте `allowIncompatibilityFallback = true` в разделе
+  `[openclAccel]` файла `config/c2me.toml`. Тогда обычный мир генерируется на процессоре (C2ME всё равно
+  распараллеливает генерацию), а Незер и Энд остаются на видеокарте.
 ## Проверка
 
 Каждый релиз перед публикацией проверяется на всех 10 версиях Minecraft и обоих загрузчиках. Тесты встроены в мод
