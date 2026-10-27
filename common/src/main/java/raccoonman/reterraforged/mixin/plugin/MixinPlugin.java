@@ -8,9 +8,11 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.platform.ModLoaderUtil;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 
 public class MixinPlugin implements IMixinConfigPlugin {
+	private static final String C2ME_OPENCL_MIXIN = "raccoonman.reterraforged.mixin.c2me.MixinC2MEOpenCL";
 
 	@Override
 	public void onLoad(String mixinPackage) {
@@ -28,6 +30,10 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if(mixinClassName.equals(C2ME_OPENCL_MIXIN)) {
+			// mod id: c2me-opts-accel-opencl on Fabric, c2me_opts_accel_opencl on NeoForge
+			return ModLoaderUtil.isLoaded("c2me-opts-accel-opencl") || ModLoaderUtil.isLoaded("c2me_opts_accel_opencl");
+		}
 		return TBCompat.isTBMixin(mixinClassName) ? TBCompat.isEnabled() : true;
 	}
 

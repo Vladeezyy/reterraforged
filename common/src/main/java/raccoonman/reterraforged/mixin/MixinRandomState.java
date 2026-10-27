@@ -58,6 +58,8 @@ class MixinRandomState {
 	private GeneratorContext generatorContext;
 	@Nullable
 	private Preset preset;
+	// the noise router has ReTerraForged density functions (set while the router is built, never cleared)
+	private boolean reTerraForgedFunctions;
 	
 	private long seed;
 	private NoiseGeneratorSettings noiseGeneratorSettings;
@@ -77,6 +79,9 @@ class MixinRandomState {
 			
 			@Override
 			public DensityFunction apply(DensityFunction function) {
+				if(function.getClass().getName().startsWith("raccoonman.reterraforged.")) {
+					MixinRandomState.this.reTerraForgedFunctions = true;
+				}
 				if(function instanceof NoiseFunction.Marker marker) {
 					return new NoiseFunction(marker.noise(), (int) seed);
 				}
@@ -154,6 +159,10 @@ class MixinRandomState {
 		return this.preset;
 	}
 	
+	public boolean reterraforged$RTFRandomState$hasReTerraForgedFunctions() {
+		return this.reTerraForgedFunctions;
+	}
+
 	@Nullable
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
 		return this.generatorContext;
