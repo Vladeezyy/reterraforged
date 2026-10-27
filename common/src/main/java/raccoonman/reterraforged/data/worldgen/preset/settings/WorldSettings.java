@@ -114,7 +114,9 @@ public class WorldSettings {
     		Codec.INT.optionalFieldOf("worldDepth", 64).forGetter((o) -> o.worldDepth),
     		Codec.INT.fieldOf("seaLevel").forGetter((o) -> o.seaLevel),
     		Codec.INT.optionalFieldOf("oceanDepth", DEFAULT_OCEAN_DEPTH).forGetter((o) -> o.oceanDepth),
-    		Codec.INT.optionalFieldOf("lavaLevel", -54).forGetter((o) -> o.lavaLevel)
+    		Codec.INT.optionalFieldOf("lavaLevel", -54).forGetter((o) -> o.lavaLevel),
+    		// off in a preset saved before 0.0.23 (its worlds keep their snow line); the built-in presets have it on
+    		Codec.BOOL.optionalFieldOf("altitudeCoolingFollowsHeight", false).forGetter((o) -> o.altitudeCoolingFollowsHeight)
     	).apply(instance, Properties::new));
     	
         public SpawnType spawnType;
@@ -123,12 +125,19 @@ public class WorldSettings {
         public int seaLevel;
         public int oceanDepth;
         public int lavaLevel;
+        // vanilla's cooling with height (rain to snow) counts the height as in a world of the vanilla height (AltitudeCooling)
+        public boolean altitudeCoolingFollowsHeight;
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int lavaLevel) {
         	this(spawnType, worldHeight, worldDepth, seaLevel, DEFAULT_OCEAN_DEPTH, lavaLevel);
         }
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int oceanDepth, int lavaLevel) {
+        	this(spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, true);
+        }
+        
+        public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int oceanDepth, int lavaLevel, boolean altitudeCoolingFollowsHeight) {
+        	this.altitudeCoolingFollowsHeight = altitudeCoolingFollowsHeight;
         	this.spawnType = spawnType;
         	this.worldHeight = worldHeight;
         	this.worldDepth = worldDepth;
@@ -138,7 +147,7 @@ public class WorldSettings {
         }
         
         public Properties copy() {
-        	return new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel);
+        	return new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel, this.altitudeCoolingFollowsHeight);
         }
         
         @Deprecated

@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO zachowuje działanie RTF, chyba że wczytany jest znany mod biomów jaskiniowych. RTF wymusza klimat i drążycieli jaskiń RTF. VANILLA zachowuje podstawowych drążycieli i głębokość klimatu zewnętrznych biomów jaskiniowych.",
   "reterraforged.gui.button.legacyMountainScaling": "Stara skala gór",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "Skala gór zgodna ze starym TerraForged",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "Granica śniegu według wysokości świata",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "Biomy ochładzają się z wysokością jak w świecie o standardowej wysokości (320), więc w wyższym świecie deszcz na większości lądu nie zamienia się w śnieg. Wył.: chłodzenie jak w wersji podstawowej, wysoko pada śnieg zamiast deszczu (śnieg nie wydaje dźwięku)",
   "reterraforged.gui.button.naturalSnowDecorator": "Naturalny śnieg",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "Usuwa śnieg tam, gdzie naturalnie by nie osiadł",
   "reterraforged.gui.button.snowLine": "Granica śniegu",

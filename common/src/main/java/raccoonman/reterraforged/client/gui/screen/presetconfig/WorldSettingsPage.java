@@ -38,6 +38,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 	
 	private CycleButton<SpawnType> spawnType;
 	private Slider worldHeight;
+	private CycleButton<Boolean> altitudeCooling;
 	private Slider worldDepth;
 	private Slider seaLevel;
 	private Slider oceanDepth;
@@ -170,6 +171,9 @@ public class WorldSettingsPage extends PresetEditorPage {
 			this.regenerate();
 			return slider.getSliderValue(nearestMultiple);
 		});
+		this.altitudeCooling = PresetWidgets.createToggle(properties.altitudeCoolingFollowsHeight, RTFTranslationKeys.GUI_BUTTON_ALTITUDE_COOLING, (button, value) -> {
+			properties.altitudeCoolingFollowsHeight = value;
+		});
 		this.worldDepth = PresetWidgets.createIntSlider(properties.worldDepth, 0, 1024, RTFTranslationKeys.GUI_SLIDER_WORLD_DEPTH, (slider, value) -> {
 			int nearestMultiple = getNearestMultiple(slider, (float) value, 16);
 			properties.worldDepth = nearestMultiple;
@@ -215,6 +219,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_PROPERTIES));
 		this.left.addWidget(this.spawnType);
 		this.left.addWidget(this.worldHeight);
+		this.left.addWidget(this.altitudeCooling);
 		this.left.addWidget(this.worldDepth);
 		this.left.addWidget(this.seaLevel);
 		this.left.addWidget(this.oceanDepth);
