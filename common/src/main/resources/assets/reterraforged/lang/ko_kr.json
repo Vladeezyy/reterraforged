@@ -36,6 +36,8 @@
   "reterraforged.gui.button.caveCompatibilityMode.tooltip": "AUTO는 알려진 동굴 생물 군계 모드가 없으면 RTF 동작을 유지합니다. RTF는 RTF 동굴 기후와 조각기를 강제합니다. VANILLA는 바닐라 조각기와 외부 동굴 생물 군계의 기후 깊이를 유지합니다.",
   "reterraforged.gui.button.legacyMountainScaling": "이전 산 크기 조정",
   "reterraforged.gui.button.legacyMountainScaling.tooltip": "이전 TerraForged와 호환되는 산 크기 조정을 사용합니다",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight": "설선이 월드 높이를 따름",
+  "reterraforged.gui.button.altitudeCoolingFollowsHeight.tooltip": "바이옴이 기본 높이(320) 월드처럼 고도에 따라 추워지므로, 더 높은 월드에서도 대부분의 땅에서 비가 눈으로 바뀌지 않습니다. 끔: 바닐라 냉각, 높은 곳에서는 비 대신 눈이 옵니다(눈에는 소리가 없습니다)",
   "reterraforged.gui.button.naturalSnowDecorator": "자연스러운 눈",
   "reterraforged.gui.button.naturalSnowDecorator.tooltip": "자연적으로 쌓이지 않을 곳의 눈을 제거합니다",
   "reterraforged.gui.button.snowLine": "설선",
