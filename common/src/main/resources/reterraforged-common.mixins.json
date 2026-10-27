@@ -22,7 +22,8 @@
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
 		"terrablender.MixinTargetPoint",
-		"terrablender.MixinNoiseChunk"
+		"terrablender.MixinNoiseChunk",
+		"c2me.MixinC2MEOpenCL"
   	],
   	"client": [
 		"ScreenInvoker",
