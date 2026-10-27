@@ -46,7 +46,8 @@ kill_client() {
     if [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; then
         powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -like '*rtf.clienttest=*' -and \$_.CommandLine.Replace([char]92, '/') -like '*$(pwd -W)/$LOADER/*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }" 2>/dev/null
     else
-        pkill -f "rtf.clienttest=.*$(pwd)/$LOADER/" 2>/dev/null
+        # the checkout path comes before -Drtf.clienttest in the command line (-Darchitectury.main.class=...)
+        pkill -f "$(pwd)/$LOADER/.*rtf\.clienttest=|rtf\.clienttest=.*$(pwd)/$LOADER/" 2>/dev/null
     fi
 }
 # hang watchdog (modding-kb testing/hang-watchdog.md): once the game runs, a log that stops growing for $STALL seconds
