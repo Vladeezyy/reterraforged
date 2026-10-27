@@ -13,6 +13,9 @@ public interface RTFRandomState {
 	@Nullable
 	Preset preset();
 
+	// the noise router has ReTerraForged density functions (known from the RandomState's construction on)
+	boolean hasReTerraForgedFunctions();
+
 	@Nullable
 	GeneratorContext generatorContext();
 	
