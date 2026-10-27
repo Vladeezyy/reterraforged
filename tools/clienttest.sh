@@ -60,6 +60,13 @@ while kill -0 $gradle 2>/dev/null; do
         echo "client did not exit after the test, stopped" >> "$OUT/client.log"
         break
     fi
+    # Fabric Loader's "Incompatible mods found!" window waits for a click before the game (and the log) starts
+    if grep -qE 'Incompatible mods found|loader\.impl\.FormattedException' "$OUT/client.log"; then
+        echo "FAILED: Fabric Loader refused the mods (window closed). Details:" | tee -a "$OUT/client.log"
+        grep -E "requires|Replace mod|Remove mod" "$OUT/client.log" | head -6 | cut -c1-300
+        hung=1; kill_client
+        break
+    fi
     size=$(wc -c < "$OUT/client.log" 2>/dev/null || echo 0)
     if [ "$size" != "$last_size" ]; then last_size=$size; last_change=$SECONDS
     elif [ -z "$done_at" ] && [ $((SECONDS - last_change)) -ge "${STALL:-90}" ] && grep -q 'Render thread' "$OUT/client.log"; then
