@@ -141,15 +141,15 @@ public class DecorateSnowFeature extends Feature<Config> {
         }
         BlockState top = chunk.getBlockState(pos.set(worldX, topY, worldZ));
         if (top.is(Blocks.WATER) && top.getFluidState().isSource()) {
-            chunk.setBlockState(pos, Blocks.ICE.defaultBlockState(), false);
+            chunk.setBlockState(pos, Blocks.ICE.defaultBlockState());
             return true;
         }
         pos.setY(topY + 1);
         BlockState snow = Blocks.SNOW.defaultBlockState();
         if (chunk.getBlockState(pos).isAir() && snow.canSurvive(level, pos)) {
-            chunk.setBlockState(pos, snow, false);
+            chunk.setBlockState(pos, snow);
             if (top.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY)) {
-                chunk.setBlockState(pos.setY(topY), top.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY, true), false);
+                chunk.setBlockState(pos.setY(topY), top.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY, true));
             }
         }
         return true;
