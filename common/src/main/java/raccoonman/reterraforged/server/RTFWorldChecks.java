@@ -111,6 +111,7 @@ public final class RTFWorldChecks {
 		legacyPreset(check);
 		reexport(server, check);
 		strata(overworld, check);
+		snowLine(overworld, check);
 	}
 
 	// a preset exported again into the same file (the preset screen's "Export As Datapack" writes exports/<name>.zip)
@@ -138,6 +139,14 @@ public final class RTFWorldChecks {
 			why = t.toString();
 		}
 		check.accept("a preset exported again into the same file drops what its settings switched off (" + why + ")", ok);
+	}
+
+	// a preset with the snow line on (tools/servertest.sh PRESET=set:miscellaneous().snowLine.enabled=true;...): the
+	// ground of the highest mountain above the line is under snow whatever its biome (rtf snowline)
+	private static void snowLine(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().snowLine.enabled) return;
+		RTFSnowLineTest.Result result = RTFSnowLineTest.sample(level, s.preset().miscellaneous().snowLine);
+		check.accept("above the snow line the ground is under snow (" + result.describe() + ")", result.above() >= 50 && result.share() >= 95.0);
 	}
 
 	// the strata decorator of "Default" lays bands of granite, diorite, andesite and stone under the ground (rtf strata)

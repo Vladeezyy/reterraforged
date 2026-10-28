@@ -140,7 +140,11 @@ public final class RTFSelfTest {
 			String result = RTFStrataTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("exportpreset").executes(ctx -> {
+		}))).then(Commands.literal("snowline").executes(ctx -> {
+			String result = RTFSnowLineTest.run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("exportpreset").executes(ctx -> {
 			String result = exportPreset(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;

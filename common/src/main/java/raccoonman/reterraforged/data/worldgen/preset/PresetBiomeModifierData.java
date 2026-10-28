@@ -161,7 +161,7 @@ public class PresetBiomeModifierData {
 		if(miscellaneous.erosionDecorator) {
 			ctx.register(ADD_EROSION, prepend(GenerationStep.Decoration.RAW_GENERATION, placedFeatures.getOrThrow(PresetPlacedFeatures.ERODE)));
 		}
-		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator) {
+		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator || miscellaneous.snowLine.enabled) {
 			ctx.register(ADD_SNOW_PROCESSING, append(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, placedFeatures.getOrThrow(PresetPlacedFeatures.DECORATE_SNOW)));
 		}
 		
