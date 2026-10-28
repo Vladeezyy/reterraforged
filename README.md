@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
@@ -66,6 +66,9 @@ The mod only affects new worlds created with its preset. It does not change an e
   configurable.
 - **Surface:** water droplet erosion simulation, rock and scree on steep slopes, rock strata, snow only where it would
   settle naturally.
+- **Snow Line** (0.0.25, Miscellaneous page, off by default): snow on the ground and on the trees above a height,
+  whatever the biome, so mountains in warm climates get snowy peaks; still water above it freezes. Snow Line Height
+  and Snow Line Variation set where it lies and how far its edge goes up and down.
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -425,9 +428,27 @@ build of the module yet.
 
 </details>
 
+<details>
+<summary><b>Ecliptic Seasons: no rain</b> (0.0.25)</summary>
+
+**Problem.** With Ecliptic Seasons neither rain nor its sound came in ReTerraForged worlds, even with `/weather rain`
+([#22](https://github.com/Vladeezyy/reterraforged/issues/22)).
+
+**Cause.** ReTerraForged's presets use the legacy random source (the surface of 0.0.6). With it vanilla looks each
+column's biome up at y 0 while building the surface, and Ecliptic Seasons keeps that biome as the column's surface
+biome. Under most land in ReTerraForged's terrain y 0 is a cave biome (dripstone caves), so it decided there was no
+precipitation.
+
+**Fix.** Other mods now get the biome at the surface there; vanilla's own use of the y 0 biome is unchanged, so the
+terrain is the same. Chunks generated before the update keep the biome Ecliptic Seasons stored for them. 26.3 looks
+the biome up at the surface already.
+
+</details>
+
 ## Compatibility
 
 - Works with **Distant Horizons**, **Iris** and **Sodium**.
+- **Ecliptic Seasons**: rain, snow and their sound work since 0.0.25 (tested with 0.15.5 on 1.21.1 NeoForge).
 - **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map. Tested with
   **Biomes O' Plenty** on 1.21.1, 1.21.11 and 26.3 (NeoForge and Fabric). On 26.3 install TerraBlender yourself: Biomes
   O' Plenty needs it but its Modrinth page does not list it.
@@ -640,16 +661,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
-| 1.21.10 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
-| 1.21.8 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
-| 1.21.5 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
-| 1.21.4 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
-| 1.21.3 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.24](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.24-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 26.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
+| 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
+| 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
+| 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
+| 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
+| 1.21.1 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
@@ -673,6 +694,9 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Вода:** речные сети с главными реками и притоками, озёра на реках, болота, глубина и ширина русла настраиваются.
 - **Поверхность:** симуляция эрозии каплями воды, камень и осыпи на крутых склонах, пласты горных пород, снег только
   там, где он лёг бы естественно.
+- **Снеговая линия** (0.0.25, страница «Прочее», по умолчанию выключена): снег на земле и деревьях выше заданной
+  высоты в любом биоме, так что у гор в тёплом климате появляются снежные вершины; стоячая вода выше неё замерзает.
+  «Высота снеговой линии» и «Разброс снеговой линии» задают, где она проходит и насколько неровен её край.
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
@@ -1029,9 +1053,26 @@ protected; Mixin не разрешает сужать доступ, и Minecraft
 
 </details>
 
+<details>
+<summary><b>Ecliptic Seasons: нет дождя</b> (0.0.25)</summary>
+
+**Проблема.** С Ecliptic Seasons в мирах ReTerraForged не было ни дождя, ни его звука, даже после `/weather rain`
+([#22](https://github.com/Vladeezyy/reterraforged/issues/22)).
+
+**Почему.** Пресеты ReTerraForged используют старый источник случайности (поверхность 0.0.6). С ним ваниль при
+построении поверхности берёт биом столбца на y 0, а Ecliptic Seasons запоминает его как биом поверхности. Под
+большей частью суши ReTerraForged на y 0 пещерный биом (капельниковые пещеры), и мод решал, что осадков нет.
+
+**Как исправлено.** Другим модам здесь теперь отдаётся биом на поверхности; сама ваниль по-прежнему берёт биом на
+y 0, так что рельеф не меняется. Чанки, созданные до обновления, сохраняют биом, который Ecliptic Seasons для них
+запомнил. На 26.3 биом и так берётся на поверхности.
+
+</details>
+
 ## Совместимость
 
 - Работает вместе с **Distant Horizons**, **Iris** и **Sodium**.
+- **Ecliptic Seasons**: дождь, снег и их звук работают с 0.0.25 (проверено с 0.15.5 на 1.21.1 NeoForge).
 - **TerraBlender** и моды на биомы через него поддерживаются: регионы биомов берутся из карты ReTerraForged.
   Проверено с **Biomes O' Plenty** на 1.21.1, 1.21.11 и 26.3 (NeoForge и Fabric). На 26.3 TerraBlender ставьте сами:
   Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
