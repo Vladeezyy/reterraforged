@@ -69,6 +69,9 @@ public class DecorateSnowFeature extends Feature<Config> {
 				for(int z = 0; z < 16; z++) {
 		        	Cell cell = tileChunk.getCell(x, z);
 					int scaledY = levels.scale(cell.height);
+					// snowLine: the Y above which the ground gets snow whatever the biome, -1 (presets exported
+					// before 0.0.25): none
+					boolean aboveSnowLine = config.snowLine() >= 0 && placeSnowLine(level, chunk, pos, x, z, chunkPos.getBlockX(x), chunkPos.getBlockZ(z), config, rand);
 			        int surfaceY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
 			        if(scaledY == surfaceY && scaledY >= generator.getSeaLevel()) {
 		        		int worldX = chunkPos.getBlockX(x);
@@ -76,7 +79,8 @@ public class DecorateSnowFeature extends Feature<Config> {
 				        pos.set(worldX, surfaceY, worldZ);
 				        
 				        if(config.erode) {
-				        	if(level.getBiome(pos).value().getTemperature(pos, generator.getSeaLevel()) <= 0.25) {
+				        	// steep rock above the snow line sheds its snow like a cold biome's
+				        	if(aboveSnowLine || level.getBiome(pos).value().getTemperature(pos, generator.getSeaLevel()) <= 0.25) {
 					            float var = -ColumnDecorator.sampleNoise(worldX, worldZ, 16, 0);
 					            float hNoise = rand.compute(worldX, worldZ, 4) * erodeConfig.heightModifier();
 					            float sNoise = rand.compute(worldX, worldZ, 5) * erodeConfig.slopeModifier();
@@ -122,6 +126,34 @@ public class DecorateSnowFeature extends Feature<Config> {
 			return false;
 		}
 	}
+
+    /**
+     * The snow line: above it (give or take the variation: a wide noise and a little per column, so the line is
+     * ragged) the top block of the column, ground or leaves, gets a snow layer as vanilla's freezing gives a cold
+     * biome, and still water freezes. Returns whether the column is above the line.
+     */
+    private static boolean placeSnowLine(WorldGenLevel level, ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int z, int worldX, int worldZ, Config config, Noise rand) {
+        int topY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+        float wide = (ColumnDecorator.sampleNoise(worldX, worldZ, 1.0F, 0.0F) - 0.5F) * 2.0F;
+        float local = (rand.compute(worldX, worldZ, 6) - 0.5F) * 2.0F;
+        if (topY < config.snowLine() + config.snowLineVariation() * (0.8F * wide + 0.2F * local)) {
+            return false;
+        }
+        BlockState top = chunk.getBlockState(pos.set(worldX, topY, worldZ));
+        if (top.is(Blocks.WATER) && top.getFluidState().isSource()) {
+            chunk.setBlockState(pos, Blocks.ICE.defaultBlockState(), false);
+            return true;
+        }
+        pos.setY(topY + 1);
+        BlockState snow = Blocks.SNOW.defaultBlockState();
+        if (chunk.getBlockState(pos).isAir() && snow.canSurvive(level, pos)) {
+            chunk.setBlockState(pos, snow, false);
+            if (top.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY)) {
+                chunk.setBlockState(pos.setY(topY), top.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY, true), false);
+            }
+        }
+        return true;
+    }
 
     private static boolean snowErosion(ErodeFeature.Config erodeConfig, float x, float z, float steepness, float height) {
         return steepness > erodeConfig.rockSteepness() || (steepness > SNOW_ROCK_STEEPNESS && height > SNOW_ROCK_HEIGHT) || (steepness > erodeConfig.dirtSteepness() && height > ColumnDecorator.sampleNoise(x, z, erodeConfig.dirtVar(), erodeConfig.dirtMin()));
@@ -198,11 +230,13 @@ public class DecorateSnowFeature extends Feature<Config> {
         return property.getPossibleValues().stream().max(Integer::compareTo).orElse(0);
     }
 
-	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig) implements FeatureConfiguration {
+	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig, int snowLine, int snowLineVariation) implements FeatureConfiguration {
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("erode").forGetter(Config::erode),
 			Codec.BOOL.fieldOf("smooth").forGetter(Config::smooth),
-			ErodeFeature.Config.CODEC.fieldOf("erode_config").forGetter(Config::erodeConfig)
+			ErodeFeature.Config.CODEC.fieldOf("erode_config").forGetter(Config::erodeConfig),
+			Codec.INT.optionalFieldOf("snow_line", -1).forGetter(Config::snowLine),
+			Codec.INT.optionalFieldOf("snow_line_variation", 0).forGetter(Config::snowLineVariation)
 		).apply(instance, Config::new));
 	}
 }
