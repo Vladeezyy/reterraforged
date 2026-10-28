@@ -34,6 +34,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
+import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
@@ -191,6 +192,12 @@ public final class RTFGuiTest {
 				}
 			}
 			case 11 -> {
+				// the rain check's comparison: the same screens, then vanilla generation
+				if (Boolean.getBoolean("rtf.clientrainvanilla") && mc.screen instanceof CreateWorldScreen screen && RTFCreateWorld.isEnabled(screen)) {
+					RTFCreateWorld.disable(screen);
+					wait = 200;
+					return;
+				}
 				if (!click(mc, (w) -> hasKey(w, "selectWorld.create") && w.active, 0.5)) fail("no Create New World button on " + name(mc.screen));
 				timeout = 2400;
 				next(20);
@@ -210,6 +217,10 @@ public final class RTFGuiTest {
 				}
 				MinecraftServer server = mc.getSingleplayerServer();
 				server.submit(() -> checkWorld(server)).join();
+				if (RTFRainProbe.ENABLED) {
+					step = 14;
+					return;
+				}
 				command(mc, "gamemode spectator");
 				command(mc, "time set 6000");
 				command(mc, "weather clear");
@@ -219,7 +230,11 @@ public final class RTFGuiTest {
 			}
 			case 13 -> {
 				shoot(mc, "gui-world");
-				next(20);
+				step = 15;
+				wait = 20;
+			}
+			case 14 -> {
+				if (RTFRainProbe.tick(mc)) step = 15;
 			}
 			default -> finish(mc);
 		}
