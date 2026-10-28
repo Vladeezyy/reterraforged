@@ -46,8 +46,8 @@ final class RTFRainProbe {
 				String biome = System.getProperty("rtf.clientrainbiome", "minecraft:plains");
 				BlockPos spot = server.submit(() -> {
 					ServerLevel level = server.overworld();
-					var found = level.findClosestBiome3d((h) -> h.is(net.minecraft.resources.ResourceLocation.parse(biome)), level.getSharedSpawnPos(), 6400, 32, 64);
-					BlockPos at = found != null ? found.getFirst() : level.getSharedSpawnPos();
+					var found = level.findClosestBiome3d((h) -> h.is(net.minecraft.resources.Identifier.parse(biome)), level.getRespawnData().pos(), 6400, 32, 64);
+					BlockPos at = found != null ? found.getFirst() : level.getRespawnData().pos();
 					RTFGuiTest.log("rain: {} at {}", biome, found != null ? at.toShortString() : "none, the spawn");
 					level.getChunk(at);
 					return level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, at);
@@ -57,7 +57,7 @@ final class RTFRainProbe {
 				RTFGuiTest.command(mc, String.format(Locale.ROOT, "tp @s %d %d %d 0 0", spot.getX(), spot.getY(), spot.getZ()));
 				RTFGuiTest.command(mc, "weather rain 100000");
 				mc.getSoundManager().addListener((sound, events, range) -> {
-					String id = sound.getLocation().toString();
+					String id = sound.getIdentifier().toString();
 					if (id.contains("rain")) SOUNDS.merge(id, 1, Integer::sum);
 				});
 				step++;
@@ -76,7 +76,7 @@ final class RTFRainProbe {
 				wait = 400;
 			}
 			case 2 -> {
-				BlockPos pos = BlockPos.containing(mc.gameRenderer.getMainCamera().getPosition());
+				BlockPos pos = BlockPos.containing(mc.gameRenderer.mainCamera().position());
 				RTFGuiTest.log("rain: sounds in 400 ticks {}, camera {}", SOUNDS, pos.toShortString());
 				RTFGuiTest.log("rain: client {}", describe(mc.level, pos));
 				MinecraftServer server = mc.getSingleplayerServer();
@@ -104,17 +104,17 @@ final class RTFRainProbe {
 	private static String describe(Level level, BlockPos pos) {
 		Holder<Biome> holder = level.getBiome(pos);
 		Biome biome = holder.value();
-		Registry<Biome> registry = level.registryAccess().registryOrThrow(Registries.BIOME);
-		Biome inRegistry = holder.unwrapKey().map(registry::get).orElse(null);
+		Registry<Biome> registry = level.registryAccess().lookupOrThrow(Registries.BIOME);
+		Biome inRegistry = holder.unwrapKey().map(registry::getValue).orElse(null);
 		long foreign = level.isClientSide() ? -1 : ((ServerLevel) level).getChunkSource().getGenerator().getBiomeSource().possibleBiomes().stream()
-			.filter((h) -> h.unwrapKey().map(registry::get).orElse(null) != h.value()).count();
+			.filter((h) -> h.unwrapKey().map(registry::getValue).orElse(null) != h.value()).count();
 		BlockPos above = pos.above();
 		Object surface = es("com.teamtea.eclipticseasons.common.core.map.MapChecker", "getSurfaceBiome", new Class<?>[] { Level.class, BlockPos.class }, level, above);
 		Biome surfaceBiome = surface instanceof Holder<?> h && h.value() instanceof Biome b ? b : biome;
 		Object weather = es("com.teamtea.eclipticseasons.common.core.biome.WeatherManager", "getBiomeWeather", new Class<?>[] { Level.class, Biome.class }, level, surfaceBiome);
 		Object list = es("com.teamtea.eclipticseasons.common.core.biome.WeatherManager", "getBiomeList", new Class<?>[] { Level.class }, level);
 		return String.format(Locale.ROOT, "biome %s, the registry's object %s (id %d), hasPrecipitation %s, precipitation at %s, raining %s, raining at %s, can see sky %s, motion blocking y %d, ES tag %s id %s; ES surface biome %s (its id %s, the registry's object %s), its weather %s, rain or snow %s, weather list size %s, small biome %s; possible biomes not from the registry %d",
-			holder.getRegisteredName(), biome == inRegistry, registry.getId(biome), biome.hasPrecipitation(), biome.getPrecipitationAt(pos), level.isRaining(), level.isRainingAt(above),
+			holder.getRegisteredName(), biome == inRegistry, registry.getId(biome), biome.hasPrecipitation(), biome.getPrecipitationAt(pos, level.getSeaLevel()), level.isRaining(), level.isRainingAt(above),
 			level.canSeeSky(above), level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, above).getY(), call(biome, "eclipticseasons$getBindTag"), call(biome, "eclipticseasons$getBindId"),
 			surface instanceof Holder<?> h ? h.getRegisteredName() : surface, call(surfaceBiome, "eclipticseasons$getBindId"), registry.getId(surfaceBiome) >= 0, weather,
 			es("com.teamtea.eclipticseasons.common.core.biome.WeatherManager", "getRainOrSnow", new Class<?>[] { Level.class, Biome.class, BlockPos.class }, level, surfaceBiome, above),
