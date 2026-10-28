@@ -56,7 +56,7 @@ public final class RTFSnowLineTest {
 	public static Result sample(ServerLevel level, MiscellaneousSettings.SnowLine snowLine) {
 		var gen = level.getChunkSource().getGenerator();
 		var rs = level.getChunkSource().randomState();
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		int bestX = spawn.getX(), bestZ = spawn.getZ(), bestY = Integer.MIN_VALUE;
 		for (int x = -1536; x <= 1536; x += 64) {
 			for (int z = -1536; z <= 1536; z += 64) {
