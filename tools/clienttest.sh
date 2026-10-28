@@ -27,6 +27,11 @@ bash tools/extramods.sh $LOADER "$RUN/mods" $MODS || exit 1
 [ -n "$BIOMES" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientbiomes=$BIOMES"
 # SPOTS="x,z;x,z": a screenshot looking down at each place (the pits "rtf holes" lists); "x,z,distance,pitch" sets the camera
 [ -n "$SPOTS" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientspots=$SPOTS"
+# gui with RAIN=1: the new world is checked in the rain in the nearest plains (RTFRainProbe: rain sounds, the biome the
+# rain is decided by, Ecliptic Seasons' surface biome when it is installed, #22); RAIN=vanilla makes the world with vanilla
+# generation for comparison. The released jar does the same in a production client with -Drtf.clienttest=gui -Drtf.clientrain=true
+[ -n "$RAIN" ] && export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS:+$JDK_JAVA_OPTIONS }-Drtf.clientrain=true"
+[ "$RAIN" = vanilla ] && export JDK_JAVA_OPTIONS="$JDK_JAVA_OPTIONS -Drtf.clientrainvanilla=true"
 rm -rf "$RUN/saves/rtf-test" "$RUN"/screenshots/rtf-*.png "$OUT"/*.png
 if [ "$MODE" = gui ] || [ "$MODE" = widgets ]; then rm -rf "$RUN/saves/New World"* "$RUN/rtf-widgets.txt"; else
     cp -r "$WORLD" "$RUN/saves/rtf-test"
