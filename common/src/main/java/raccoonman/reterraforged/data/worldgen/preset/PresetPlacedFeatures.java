@@ -88,7 +88,7 @@ public class PresetPlacedFeatures {
 			PlacementUtils.register(ctx, ERODE, features.getOrThrow(PresetConfiguredFeatures.ERODE));
 		}
 
-		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator) {
+		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator || miscellaneous.snowLine.enabled) {
 			PlacementUtils.register(ctx, DECORATE_SNOW, features.getOrThrow(PresetConfiguredFeatures.DECORATE_SNOW));
 		}
 		
