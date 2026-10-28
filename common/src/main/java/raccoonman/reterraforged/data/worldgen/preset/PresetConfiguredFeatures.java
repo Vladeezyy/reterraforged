@@ -108,8 +108,8 @@ public class PresetConfiguredFeatures {
 			ctx.register(ERODE, new ErodeFeature(erodeConfig));
 		}
 		
-		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator) {
-			ctx.register(DECORATE_SNOW, new DecorateSnowFeature(new DecorateSnowFeature.Config(miscellaneous.naturalSnowDecorator, miscellaneous.smoothLayerDecorator, erodeConfig)));
+		if(miscellaneous.naturalSnowDecorator || miscellaneous.smoothLayerDecorator || miscellaneous.snowLine.enabled) {
+			ctx.register(DECORATE_SNOW, new DecorateSnowFeature(new DecorateSnowFeature.Config(miscellaneous.naturalSnowDecorator, miscellaneous.smoothLayerDecorator, erodeConfig, miscellaneous.snowLine.enabled ? miscellaneous.snowLine.height : -1, miscellaneous.snowLine.variation)));
 		}
 		
 		ctx.register(SWAMP_SURFACE, new SwampSurfaceFeature(new SwampSurfaceFeature.Config(Blocks.CLAY.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(), Blocks.DIRT.defaultBlockState())));

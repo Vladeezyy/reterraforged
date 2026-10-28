@@ -20,11 +20,11 @@ final class SliderUnits {
 				RTFTranslationKeys.GUI_SLIDER_LAKE_MIN_BANK_HEIGHT, RTFTranslationKeys.GUI_SLIDER_LAKE_MAX_BANK_HEIGHT, RTFTranslationKeys.GUI_SLIDER_RIVER_BANK_WIDTH,
 				RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH, RTFTranslationKeys.GUI_SLIDER_RIVER_BED_WIDTH, RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT,
 				RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT, RTFTranslationKeys.GUI_SLIDER_ISLAND_SIZE, RTFTranslationKeys.GUI_SLIDER_DIRT_VARIANCE,
-				RTFTranslationKeys.GUI_SLIDER_ROCK_VARIANCE }) {
+				RTFTranslationKeys.GUI_SLIDER_ROCK_VARIANCE, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION }) {
 			UNITS.put(key, Unit.BLOCKS);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL, RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL, RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT,
-				RTFTranslationKeys.GUI_SLIDER_DIRT_MIN, RTFTranslationKeys.GUI_SLIDER_ROCK_MIN }) {
+				RTFTranslationKeys.GUI_SLIDER_DIRT_MIN, RTFTranslationKeys.GUI_SLIDER_ROCK_MIN, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT }) {
 			UNITS.put(key, Unit.Y);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_GLOBAL_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_GLOBAL_VERTICAL_SCALE,

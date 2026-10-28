@@ -89,6 +89,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_PLAIN_STONE_EROSION = resolve("gui.button.stoneErosion");
 	public static final String GUI_BUTTON_BRANCH_SIZE_FROM_MAIN = resolve("gui.button.branchSizeFromMain");
 	public static final String GUI_BUTTON_NATURAL_SNOW_DECORATOR = resolve("gui.button.naturalSnowDecorator");
+	public static final String GUI_BUTTON_SNOW_LINE = resolve("gui.button.snowLine");
 	public static final String GUI_BUTTON_CUSTOM_BIOME_FEATURES = resolve("gui.button.customBiomeFeatures");
 	public static final String GUI_BUTTON_VANILLA_SPRINGS = resolve("gui.button.vanillaSprings");
 	public static final String GUI_BUTTON_VANILLA_LAVA_LAKES = resolve("gui.button.vanillaLavaLakes");
@@ -197,6 +198,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_STRATA_MAX_DEPTH = resolve("gui.slider.strataMaxDepth");
 	public static final String GUI_SLIDER_MOUNTAIN_BIOME_USAGE = resolve("gui.slider.mountainBiomeUsage");
 	public static final String GUI_SLIDER_VOLCANO_BIOME_USAGE = resolve("gui.slider.volcanoBiomeUsage");
+	public static final String GUI_SLIDER_SNOW_LINE_HEIGHT = resolve("gui.slider.snowLineHeight");
+	public static final String GUI_SLIDER_SNOW_LINE_VARIATION = resolve("gui.slider.snowLineVariation");
 	public static final String GUI_SLIDER_ISLAND_DENSITY = resolve("gui.slider.islandDensity");
 	public static final String GUI_SLIDER_ISLAND_SIZE = resolve("gui.slider.islandSize");
 	public static final String GUI_SLIDER_ISLAND_HEIGHT = resolve("gui.slider.islandHeight");
