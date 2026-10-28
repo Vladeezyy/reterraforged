@@ -23,6 +23,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 	private CycleButton<Boolean> erosionDecorator;
 	private CycleButton<Boolean> plainStoneErosion;
 	private CycleButton<Boolean> naturalSnowDecorator;
+	private CycleButton<Boolean> snowLine;
+	private Slider snowLineHeight;
+	private Slider snowLineVariation;
 	private CycleButton<Boolean> customBiomeFeatures;
 	private CycleButton<Boolean> vanillaSprings;
 	private CycleButton<Boolean> vanillaLavaLakes;
@@ -85,6 +88,18 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.naturalSnowDecorator = PresetWidgets.createToggle(miscellaneous.naturalSnowDecorator, RTFTranslationKeys.GUI_BUTTON_NATURAL_SNOW_DECORATOR, (button, value) -> {
 			miscellaneous.naturalSnowDecorator = value;
 		});
+		MiscellaneousSettings.SnowLine snow = miscellaneous.snowLine;
+		this.snowLine = PresetWidgets.createToggle(snow.enabled, RTFTranslationKeys.GUI_BUTTON_SNOW_LINE, (button, value) -> {
+			snow.enabled = value;
+		});
+		this.snowLineHeight = PresetWidgets.createIntSlider(snow.height, -64, 512, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT, (slider, value) -> {
+			snow.height = (int) slider.scaleValue(value);
+			return value;
+		});
+		this.snowLineVariation = PresetWidgets.createIntSlider(snow.variation, 0, 64, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION, (slider, value) -> {
+			snow.variation = (int) slider.scaleValue(value);
+			return value;
+		});
 		this.customBiomeFeatures = PresetWidgets.createToggle(miscellaneous.customBiomeFeatures, RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES, (button, value) -> {
 			miscellaneous.customBiomeFeatures = value;
 		});
@@ -117,6 +132,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.left.addWidget(this.erosionDecorator);
 		this.left.addWidget(this.plainStoneErosion);
 		this.left.addWidget(this.naturalSnowDecorator);
+		this.left.addWidget(this.snowLine);
+		this.left.addWidget(this.snowLineHeight);
+		this.left.addWidget(this.snowLineVariation);
 		this.left.addWidget(this.customBiomeFeatures);
 		this.left.addWidget(this.vanillaSprings);
 		this.left.addWidget(this.vanillaLavaLakes);

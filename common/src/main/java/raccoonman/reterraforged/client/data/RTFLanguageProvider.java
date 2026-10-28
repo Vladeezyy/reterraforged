@@ -150,6 +150,9 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN), "On: branch rivers take the size of the river they branch from where they meet it, as in TerraForged; the branch river sliders above (except Fade) are not used. Off: branch rivers have the bed and bank sizes of these sliders.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION, "Plain Stone Erosion");
 			this.add(RTFTranslationKeys.GUI_BUTTON_NATURAL_SNOW_DECORATOR, "Natural Snow Decorator");
+			this.add(RTFTranslationKeys.GUI_BUTTON_SNOW_LINE, "Snow Line");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT, "Snow Line Height");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION, "Snow Line Variation");
 			this.add(RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES, "Custom Biome Features");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS, "Vanilla Springs");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES, "Vanilla Lava Lakes");
@@ -335,6 +338,9 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_EROSION_DECORATOR), "Replace surface materials where erosion has occurred");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION), "On: eroded rock slopes are plain stone. Off: they show the rock layer below them (the rock strata).");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_NATURAL_SNOW_DECORATOR), "Removes snow from the terrain where it shouldn't naturally settle");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_SNOW_LINE), "Snow on the ground above a height, whatever the biome: mountains in warm climates get snowy peaks. Off: snow only where the biome is cold (as in ReTerraForged 0.0.6).");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT), "The height above which the ground is snowy.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION), "How far the snow line goes up and down, so its edge is not a straight line.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES), "Use custom biome features in place of vanilla ones (such as trees)");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS), "Allow vanilla springs (water source blocks) to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES), "Allow vanilla lava-lakes to generate");
