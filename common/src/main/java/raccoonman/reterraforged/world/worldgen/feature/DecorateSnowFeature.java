@@ -60,7 +60,7 @@ public class DecorateSnowFeature extends Feature<Config> {
 			Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
 			raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap heightmap = generatorContext.generator.getHeightmap();
 			Levels levels = heightmap.levels();
-			Noise rand = Noises.white(heightmap.climate().randomSeed(), 1);
+			Noise rand = randomNoise(generatorContext);
 			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 			Config config = placeContext.config();
 			ErodeFeature.Config erodeConfig = config.erodeConfig();
@@ -69,10 +69,12 @@ public class DecorateSnowFeature extends Feature<Config> {
 				for(int z = 0; z < 16; z++) {
 		        	Cell cell = tileChunk.getCell(x, z);
 					int scaledY = levels.scale(cell.height);
-					// snowLine: the Y above which the ground gets snow whatever the biome, -1 (presets exported
-					// before 0.0.25): none
-					boolean aboveSnowLine = config.snowLine() >= 0 && placeSnowLine(level, chunk, pos, x, z, chunkPos.getBlockX(x), chunkPos.getBlockZ(z), config, rand);
+					// before the snow line's snow: two layers and more are in the heightmap
 			        int surfaceY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+					// snowLine: the Y above which the ground gets snow whatever the biome, -1 (presets exported
+					// before 0.0.25): none; the layers it put on the column, 0 below the line
+					int snowLineLayers = config.snowLine() >= 0 ? placeSnowLine(level, chunk, pos, x, z, chunkPos.getBlockX(x), chunkPos.getBlockZ(z), config, rand) : 0;
+					boolean aboveSnowLine = snowLineLayers > 0;
 			        if(scaledY == surfaceY && scaledY >= generator.getSeaLevel()) {
 		        		int worldX = chunkPos.getBlockX(x);
 		        		int worldZ = chunkPos.getBlockZ(z);
@@ -100,7 +102,9 @@ public class DecorateSnowFeature extends Feature<Config> {
 					        }
 				        }
 				        
-				        if(config.smooth) {
+				        // deeper snow of the snow line keeps its depth: the smoothing below sets the layers from the
+				        // terrain's height and would take it back to one or two
+				        if(config.smooth && snowLineLayers <= 1) {
 				            pos.setY(surfaceY + 1);
 
 				            BlockState state = chunk.getBlockState(pos);
@@ -129,30 +133,63 @@ public class DecorateSnowFeature extends Feature<Config> {
 
     /**
      * The snow line: above it (give or take the variation: a wide noise and a little per column, so the line is
-     * ragged) the top block of the column, ground or leaves, gets a snow layer as vanilla's freezing gives a cold
-     * biome, and still water freezes. Returns whether the column is above the line.
+     * ragged) the top block of the column, ground or leaves, gets snow as vanilla's freezing gives a cold biome, and
+     * still water freezes. The snow is as deep as the preset says for the column's height above the line (its depth
+     * there, the peak depth further up), give or take a little per column so the steps between depths are not
+     * contour lines. Returns the layers put on the column (1 for ice or a column where snow cannot lie), 0 below the
+     * line.
      */
-    private static boolean placeSnowLine(WorldGenLevel level, ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int z, int worldX, int worldZ, Config config, Noise rand) {
+    private static int placeSnowLine(WorldGenLevel level, ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int z, int worldX, int worldZ, Config config, Noise rand) {
         int topY = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-        float wide = (ColumnDecorator.sampleNoise(worldX, worldZ, 1.0F, 0.0F) - 0.5F) * 2.0F;
-        float local = (rand.compute(worldX, worldZ, 6) - 0.5F) * 2.0F;
-        if (topY < config.snowLine() + config.snowLineVariation() * (0.8F * wide + 0.2F * local)) {
-            return false;
+        int layers = snowLineLayers(topY, worldX, worldZ, config.snowLine(), config.snowLineVariation(), config.snowLineDepth(), config.snowLinePeakDepth(), config.snowLineDepthRange(), rand);
+        if (layers == 0) {
+            return 0;
         }
         BlockState top = chunk.getBlockState(pos.set(worldX, topY, worldZ));
         if (top.is(Blocks.WATER) && top.getFluidState().isSource()) {
             chunk.setBlockState(pos, Blocks.ICE.defaultBlockState());
-            return true;
+            return 1;
         }
         pos.setY(topY + 1);
-        BlockState snow = Blocks.SNOW.defaultBlockState();
+        BlockState snow = Blocks.SNOW.defaultBlockState().setValue(SnowLayerBlock.LAYERS, layers);
         if (chunk.getBlockState(pos).isAir() && snow.canSurvive(level, pos)) {
             chunk.setBlockState(pos, snow);
             if (top.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY)) {
                 chunk.setBlockState(pos.setY(topY), top.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SNOWY, true));
             }
+            return layers;
         }
-        return true;
+        // a cold biome's own snow (vanilla's freezing comes first) is made as deep as the line's
+        BlockState above = chunk.getBlockState(pos);
+        if (layers > 1 && above.is(Blocks.SNOW)) {
+            if (above.getValue(SnowLayerBlock.LAYERS) < layers) {
+                chunk.setBlockState(pos, snow);
+            }
+            return layers;
+        }
+        return 1;
+    }
+
+    // the per column noise of the snow decorator (also rtf snowline, to know the depth each column must have)
+    public static Noise randomNoise(GeneratorContext generatorContext) {
+        return Noises.white(generatorContext.generator.getHeightmap().climate().randomSeed(), 1);
+    }
+
+    /**
+     * The snow line's layers on a column whose top block is at topY, 0 below the line. The line is ragged (a wide noise
+     * and a little per column), the depth goes from the depth at the line to the peak depth over depthRange blocks,
+     * give or take a little per column so the steps between depths are not contour lines.
+     */
+    public static int snowLineLayers(int topY, int worldX, int worldZ, int snowLine, int variation, int depth, int peakDepth, int depthRange, Noise rand) {
+        float wide = (ColumnDecorator.sampleNoise(worldX, worldZ, 1.0F, 0.0F) - 0.5F) * 2.0F;
+        float local = (rand.compute(worldX, worldZ, 6) - 0.5F) * 2.0F;
+        float line = snowLine + variation * (0.8F * wide + 0.2F * local);
+        if (topY < line) {
+            return 0;
+        }
+        float t = Math.max(0.0F, Math.min(1.0F, (topY - line) / Math.max(1, depthRange)));
+        float layers = depth + (peakDepth - depth) * t;
+        return Math.max(1, Math.min(SnowLayerBlock.MAX_HEIGHT, Math.round(layers + 0.35F * local)));
     }
 
     private static boolean snowErosion(ErodeFeature.Config erodeConfig, float x, float z, float steepness, float height) {
@@ -230,13 +267,17 @@ public class DecorateSnowFeature extends Feature<Config> {
         return property.getPossibleValues().stream().max(Integer::compareTo).orElse(0);
     }
 
-	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig, int snowLine, int snowLineVariation) implements FeatureConfiguration {
+	public record Config(boolean erode, boolean smooth, ErodeFeature.Config erodeConfig, int snowLine, int snowLineVariation, int snowLineDepth, int snowLinePeakDepth, int snowLineDepthRange) implements FeatureConfiguration {
 		public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("erode").forGetter(Config::erode),
 			Codec.BOOL.fieldOf("smooth").forGetter(Config::smooth),
 			ErodeFeature.Config.CODEC.fieldOf("erode_config").forGetter(Config::erodeConfig),
 			Codec.INT.optionalFieldOf("snow_line", -1).forGetter(Config::snowLine),
-			Codec.INT.optionalFieldOf("snow_line_variation", 0).forGetter(Config::snowLineVariation)
+			Codec.INT.optionalFieldOf("snow_line_variation", 0).forGetter(Config::snowLineVariation),
+			// presets exported before 0.0.26: one layer
+			Codec.INT.optionalFieldOf("snow_line_depth", 1).forGetter(Config::snowLineDepth),
+			Codec.INT.optionalFieldOf("snow_line_peak_depth", 1).forGetter(Config::snowLinePeakDepth),
+			Codec.INT.optionalFieldOf("snow_line_depth_range", 64).forGetter(Config::snowLineDepthRange)
 		).apply(instance, Config::new));
 	}
 }
