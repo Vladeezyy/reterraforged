@@ -32,18 +32,19 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
+New versions are released for 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3; 1.21.3 to 1.21.10 stay at 0.0.25.
 Earlier versions stay on the [releases page](https://github.com/Vladeezyy/reterraforged/releases), and their source
 on protected branches `release/<version>-<minecraft>` (for example `release/0.0.14-1.21.1`).
 
@@ -68,7 +69,9 @@ The mod only affects new worlds created with its preset. It does not change an e
   settle naturally.
 - **Snow Line** (0.0.25, Miscellaneous page, off by default): snow on the ground and on the trees above a height,
   whatever the biome, so mountains in warm climates get snowy peaks; still water above it freezes. Snow Line Height
-  and Snow Line Variation set where it lies and how far its edge goes up and down.
+  and Snow Line Variation set where it lies and how far its edge goes up and down. Since 0.0.26 the snow can be deeper:
+  Snow Depth at the Line and Snow Depth on the Peaks (1 to 8 layers, 8 is a full block) and Snow Depth Growth (over how
+  many blocks above the line the depth goes from one to the other).
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -661,18 +664,19 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.26](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.26-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
+Новые версии выходят для 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3; 1.21.3–1.21.10 остаются на 0.0.25.
 Прошлые версии остаются на [странице релизов](https://github.com/Vladeezyy/reterraforged/releases), а их исходники —
 в защищённых ветках `release/<версия>-<minecraft>` (например, `release/0.0.14-1.21.1`).
 
@@ -696,7 +700,9 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
   там, где он лёг бы естественно.
 - **Снеговая линия** (0.0.25, страница «Прочее», по умолчанию выключена): снег на земле и деревьях выше заданной
   высоты в любом биоме, так что у гор в тёплом климате появляются снежные вершины; стоячая вода выше неё замерзает.
-  «Высота снеговой линии» и «Разброс снеговой линии» задают, где она проходит и насколько неровен её край.
+  «Высота снеговой линии» и «Разброс снеговой линии» задают, где она проходит и насколько неровен её край. С 0.0.26
+  снег может быть глубже: «Глубина снега у линии» и «Глубина снега на вершинах» (от 1 до 8 слоёв, 8 — полный блок) и
+  «Нарастание снега» (за сколько блоков над линией глубина меняется от одного значения к другому).
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
