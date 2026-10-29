@@ -147,6 +147,8 @@ public final class RTFWorldChecks {
 		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().snowLine.enabled) return;
 		RTFSnowLineTest.Result result = RTFSnowLineTest.sample(level, s.preset().miscellaneous().snowLine);
 		check.accept("above the snow line the ground is under snow (" + result.describe() + ")", result.above() >= 50 && result.share() >= 95.0);
+		// with a depth of 2 layers or more: the snow as deep as the preset gives each height
+		if (result.depthChecked() > 0) check.accept("the snow above the line is as deep as the preset says (" + result.describe() + ")", result.depthShare() >= 95.0);
 	}
 
 	// the strata decorator of "Default" lays bands of granite, diorite, andesite and stone under the ground (rtf strata)

@@ -38,6 +38,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_UNIT_Y = resolve("gui.unit.y");
 	public static final String GUI_UNIT_SCALE = resolve("gui.unit.scale");
 	public static final String GUI_UNIT_PERCENT = resolve("gui.unit.percent");
+	public static final String GUI_UNIT_SNOW_LAYERS = resolve("gui.unit.snowLayers");
 	// + "<enum class, lower case>.<value, lower case>" (PresetWidgets.enumName)
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
@@ -200,6 +201,9 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_VOLCANO_BIOME_USAGE = resolve("gui.slider.volcanoBiomeUsage");
 	public static final String GUI_SLIDER_SNOW_LINE_HEIGHT = resolve("gui.slider.snowLineHeight");
 	public static final String GUI_SLIDER_SNOW_LINE_VARIATION = resolve("gui.slider.snowLineVariation");
+	public static final String GUI_SLIDER_SNOW_LINE_DEPTH = resolve("gui.slider.snowLineDepth");
+	public static final String GUI_SLIDER_SNOW_LINE_PEAK_DEPTH = resolve("gui.slider.snowLinePeakDepth");
+	public static final String GUI_SLIDER_SNOW_LINE_DEPTH_RANGE = resolve("gui.slider.snowLineDepthRange");
 	public static final String GUI_SLIDER_ISLAND_DENSITY = resolve("gui.slider.islandDensity");
 	public static final String GUI_SLIDER_ISLAND_SIZE = resolve("gui.slider.islandSize");
 	public static final String GUI_SLIDER_ISLAND_HEIGHT = resolve("gui.slider.islandHeight");
