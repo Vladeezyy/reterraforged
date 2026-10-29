@@ -26,6 +26,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 	private CycleButton<Boolean> snowLine;
 	private Slider snowLineHeight;
 	private Slider snowLineVariation;
+	private Slider snowLineDepth;
+	private Slider snowLinePeakDepth;
+	private Slider snowLineDepthRange;
 	private CycleButton<Boolean> customBiomeFeatures;
 	private CycleButton<Boolean> vanillaSprings;
 	private CycleButton<Boolean> vanillaLavaLakes;
@@ -100,6 +103,18 @@ public class MiscellaneousPage extends PresetEditorPage {
 			snow.variation = (int) slider.scaleValue(value);
 			return value;
 		});
+		this.snowLineDepth = PresetWidgets.createIntSlider(snow.depth, 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH, (slider, value) -> {
+			snow.depth = (int) slider.scaleValue(value);
+			return value;
+		});
+		this.snowLinePeakDepth = PresetWidgets.createIntSlider(snow.peakDepth, 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_PEAK_DEPTH, (slider, value) -> {
+			snow.peakDepth = (int) slider.scaleValue(value);
+			return value;
+		});
+		this.snowLineDepthRange = PresetWidgets.createIntSlider(snow.depthRange, 1, 256, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH_RANGE, (slider, value) -> {
+			snow.depthRange = (int) slider.scaleValue(value);
+			return value;
+		});
 		this.customBiomeFeatures = PresetWidgets.createToggle(miscellaneous.customBiomeFeatures, RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES, (button, value) -> {
 			miscellaneous.customBiomeFeatures = value;
 		});
@@ -135,6 +150,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.left.addWidget(this.snowLine);
 		this.left.addWidget(this.snowLineHeight);
 		this.left.addWidget(this.snowLineVariation);
+		this.left.addWidget(this.snowLineDepth);
+		this.left.addWidget(this.snowLinePeakDepth);
+		this.left.addWidget(this.snowLineDepthRange);
 		this.left.addWidget(this.customBiomeFeatures);
 		this.left.addWidget(this.vanillaSprings);
 		this.left.addWidget(this.vanillaLavaLakes);

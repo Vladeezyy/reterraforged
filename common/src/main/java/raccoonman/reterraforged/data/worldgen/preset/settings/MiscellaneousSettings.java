@@ -109,35 +109,48 @@ public class MiscellaneousSettings {
 
 	/**
 	 * Snow above a height whatever the biome (a mountain keeps the biome of its climate, so a warm one had no snow on
-	 * its peaks): above Y {@code height}, give or take {@code variation} blocks, the ground and the trees get a layer of
-	 * snow and still water freezes. Off by default: ReTerraForged 0.0.6 had none.
+	 * its peaks): above Y {@code height}, give or take {@code variation} blocks, the ground and the trees get snow and
+	 * still water freezes. Off by default: ReTerraForged 0.0.6 had none. The snow is {@code depth} layers deep (of 8, a
+	 * full block) at the line and {@code peakDepth} layers {@code depthRange} blocks above it and higher, in between it
+	 * goes from one to the other; 1 and 1 (the default, presets made before 0.0.26): one layer everywhere.
 	 */
 	public static class SnowLine {
 		public static final Codec<SnowLine> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("enabled").forGetter((s) -> s.enabled),
 			Codec.INT.fieldOf("height").forGetter((s) -> s.height),
-			Codec.INT.fieldOf("variation").forGetter((s) -> s.variation)
+			Codec.INT.fieldOf("variation").forGetter((s) -> s.variation),
+			Codec.INT.optionalFieldOf("depth", 1).forGetter((s) -> s.depth),
+			Codec.INT.optionalFieldOf("peakDepth", 1).forGetter((s) -> s.peakDepth),
+			Codec.INT.optionalFieldOf("depthRange", 64).forGetter((s) -> s.depthRange)
 		).apply(instance, SnowLine::new));
 
 		public boolean enabled;
 		public int height;
 		public int variation;
+		public int depth;
+		public int peakDepth;
+		public int depthRange;
 
-		public SnowLine(boolean enabled, int height, int variation) {
+		public SnowLine(boolean enabled, int height, int variation, int depth, int peakDepth, int depthRange) {
 			this.enabled = enabled;
 			this.height = height;
 			this.variation = variation;
+			this.depth = depth;
+			this.peakDepth = peakDepth;
+			this.depthRange = depthRange;
 		}
 
 		public static SnowLine makeDefault() {
-			return new SnowLine(false, DEFAULT_HEIGHT, 12);
+			return new SnowLine(false, DEFAULT_HEIGHT, 12, 1, 1, DEFAULT_DEPTH_RANGE);
 		}
 
 		public SnowLine copy() {
-			return new SnowLine(this.enabled, this.height, this.variation);
+			return new SnowLine(this.enabled, this.height, this.variation, this.depth, this.peakDepth, this.depthRange);
 		}
 
 		public static final int DEFAULT_HEIGHT = 140;
+		public static final int DEFAULT_DEPTH_RANGE = 64;
+		public static final int MAX_DEPTH = 8;
 	}
 
 	/**
