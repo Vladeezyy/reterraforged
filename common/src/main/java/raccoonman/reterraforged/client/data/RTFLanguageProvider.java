@@ -69,6 +69,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_UNIT_Y, "Y %s");
 			this.add(RTFTranslationKeys.GUI_UNIT_SCALE, "×%s");
 			this.add(RTFTranslationKeys.GUI_UNIT_PERCENT, "%s%%");
+			this.add(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS, "%s of 8");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi", "Several continents");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.single", "One continent");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi_improved", "Several continents (improved)");
@@ -153,6 +154,9 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_SNOW_LINE, "Snow Line");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT, "Snow Line Height");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION, "Snow Line Variation");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH, "Snow Depth at the Line");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_PEAK_DEPTH, "Snow Depth on the Peaks");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH_RANGE, "Snow Depth Growth");
 			this.add(RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES, "Custom Biome Features");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS, "Vanilla Springs");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES, "Vanilla Lava Lakes");
@@ -341,6 +345,9 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_SNOW_LINE), "Snow on the ground above a height, whatever the biome: mountains in warm climates get snowy peaks. Off: snow only where the biome is cold (as in ReTerraForged 0.0.6).");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT), "The height above which the ground is snowy.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION), "How far the snow line goes up and down, so its edge is not a straight line.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH), "How deep the snow is at the snow line, in layers (8 layers: a full block). 1: a thin layer.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_PEAK_DEPTH), "How deep the snow is high above the snow line (see Snow Depth Growth). More than at the line: the snow gets deeper towards the peaks; less: thinner.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH_RANGE), "Over how many blocks above the snow line the snow goes from its depth at the line to its depth on the peaks.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES), "Use custom biome features in place of vanilla ones (such as trees)");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS), "Allow vanilla springs (water source blocks) to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES), "Allow vanilla lava-lakes to generate");
