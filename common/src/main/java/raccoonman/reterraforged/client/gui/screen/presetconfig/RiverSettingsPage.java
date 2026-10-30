@@ -19,6 +19,9 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.RiverSettings.Wetl
 class RiverSettingsPage extends PresetEditorPage {
 	private ValueButton<Integer> seedOffset;
 	private Slider riverCount;
+	private Slider valleyWidth;
+	private Slider valleySlope;
+	private CycleButton<Boolean> valleyFollowsMeanders;
 	
 	private Slider mainRiverBedDepth;
 	private Slider mainRiverMinBankHeight;
@@ -72,6 +75,22 @@ class RiverSettingsPage extends PresetEditorPage {
 			river.riverCount = (int) slider.scaleValue(value);
 			this.regenerate();
 			return value;
+		});
+		
+		// the valleys of all rivers and lakes; the defaults (x1, 90 degrees, off) are ReTerraForged 0.0.6's valleys
+		this.valleyWidth = PresetWidgets.createFloatSlider(river.valleyWidth, 0.5F, 3.0F, RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH, (slider, value) -> {
+			river.valleyWidth = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.valleySlope = PresetWidgets.createIntSlider(river.valleySlope, 10, RiverSettings.NO_SLOPE_LIMIT, RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, (slider, value) -> {
+			river.valleySlope = (int) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.valleyFollowsMeanders = PresetWidgets.createToggle(river.valleyFollowsMeanders, RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS, (button, value) -> {
+			river.valleyFollowsMeanders = value;
+			this.regenerate();
 		});
 		
 		River mainRivers = river.mainRivers;
@@ -205,6 +224,10 @@ class RiverSettingsPage extends PresetEditorPage {
 		
 		this.left.addWidget(this.seedOffset);
 		this.left.addWidget(this.riverCount);
+		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_VALLEYS));
+		this.left.addWidget(this.valleyWidth);
+		this.left.addWidget(this.valleySlope);
+		this.left.addWidget(this.valleyFollowsMeanders);
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_MAIN_RIVERS));
 		this.left.addWidget(this.mainRiverBedDepth);
 		this.left.addWidget(this.mainRiverMinBankHeight);

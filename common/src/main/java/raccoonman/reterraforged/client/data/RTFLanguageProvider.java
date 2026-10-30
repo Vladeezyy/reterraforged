@@ -70,6 +70,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_UNIT_SCALE, "×%s");
 			this.add(RTFTranslationKeys.GUI_UNIT_PERCENT, "%s%%");
 			this.add(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS, "%s of 8");
+			this.add(RTFTranslationKeys.GUI_UNIT_DEGREES, "%s°");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi", "Several continents");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.single", "One continent");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi_improved", "Several continents (improved)");
@@ -178,6 +179,8 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_STRATA_DECORATOR, "Strata Decorator");
 			this.add(RTFTranslationKeys.GUI_BUTTON_ORE_COMPATIBLE_STONE_ONLY, "Ore Compatible Stone Only");
 			this.add(RTFTranslationKeys.GUI_BUTTON_EROSION_DECORATOR, "Erosion Decorator");
+			this.add(RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS, "Valley Follows Meanders");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS), "On: the valley follows the river's meanders. Off (as in ReTerraForged 0.0.6): it also follows the straight line the river meanders around, so where the river bends away a dry valley floor is left beside it.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN, "Branch Size From Main River");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN), "On: branch rivers take the size of the river they branch from where they meet it, as in TerraForged; the branch river sliders above (except Fade) are not used. Off: branch rivers have the bed and bank sizes of these sliders.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION, "Plain Stone Erosion");
@@ -265,6 +268,8 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_TERRAIN_VERTICAL_SCALE, "Vertical Scale");
 			this.add(RTFTranslationKeys.GUI_SLIDER_TERRAIN_HORIZONTAL_SCALE, "Horizontal Scale");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT, "River Count");
+			this.add(RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH, "Valley Width");
+			this.add(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, "Steepest Valley Side");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH, "Bed Depth");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT, "Min Bank Height");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT, "Max Bank Height");
@@ -337,6 +342,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_LABEL_TORRIDONIAN, "Torridonian");
 			this.add(RTFTranslationKeys.GUI_LABEL_MOUNTAINS, "Mountains");
 			this.add(RTFTranslationKeys.GUI_LABEL_VOLCANO, "Volcano");
+			this.add(RTFTranslationKeys.GUI_LABEL_VALLEYS, "Valleys");
 			this.add(RTFTranslationKeys.GUI_LABEL_MAIN_RIVERS, "Main Rivers");
 			this.add(RTFTranslationKeys.GUI_LABEL_BRANCH_RIVERS, "Branch Rivers");
 			this.add(RTFTranslationKeys.GUI_LABEL_LAKES, "Lakes");
@@ -460,6 +466,8 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE), "Controls how much island edge area becomes beach.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_FAKE_WATER_HEIGHT_OFFSET), "Controls how far below sea level terrain must be before fake-water biome mapping applies.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT), "Controls the number of main rivers per continent.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH), "How wide the valleys of rivers and lakes are, times their width in ReTerraForged 0.0.6 (about 220 to 410 blocks from a river). In a wider valley tall terrain comes down to the water more gently. 1.00: as in 0.0.6.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE), "How steep the sides of river and lake valleys can be, in degrees. Steeper ground is cut back to this slope, up to twice the valley width away. 90°: no limit, as in ReTerraForged 0.0.6, where a valley through tall terrain can end in a cliff. If a cliff is left, widen the valleys too.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH), "Controls the depth of the river");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT), "Controls the height of river banks");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT), "Controls the height of river banks");
