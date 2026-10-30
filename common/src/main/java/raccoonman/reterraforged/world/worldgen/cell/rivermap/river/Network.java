@@ -134,8 +134,9 @@ public record Network(RiverCarver riverCarver, Lake[] lakes, Wetland[] wetlands,
         }
         
         private Boundsf.Builder recordBounds(Boundsf.Builder builder) {
-            builder.record(this.carver.river.minX, this.carver.river.minZ);
-            builder.record(this.carver.river.maxX, this.carver.river.maxZ);
+            float extra = this.carver.extraBounds();
+            builder.record(this.carver.river.minX - extra, this.carver.river.minZ - extra);
+            builder.record(this.carver.river.maxX + extra, this.carver.river.maxZ + extra);
             for (Builder child : this.children) {
                 child.recordBounds(builder);
             }
