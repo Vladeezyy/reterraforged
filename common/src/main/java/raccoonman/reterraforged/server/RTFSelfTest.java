@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
 import net.minecraft.commands.CommandSourceStack;
@@ -72,7 +73,11 @@ public final class RTFSelfTest {
 			String result = RTFPreviewMap.run(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"), IntegerArgumentType.getInteger(ctx, "zoom"), StringArgumentType.getString(ctx, "spec"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))))).then(Commands.literal("bench").executes(ctx -> {
+		}))))).then(Commands.literal("valleys").then(Commands.argument("name", StringArgumentType.word()).then(Commands.argument("x", IntegerArgumentType.integer()).then(Commands.argument("z", IntegerArgumentType.integer()).then(Commands.argument("seed", LongArgumentType.longArg()).then(Commands.argument("spec", StringArgumentType.greedyString()).executes(ctx -> {
+			String result = RTFValleyTest.run(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"), IntegerArgumentType.getInteger(ctx, "x"), IntegerArgumentType.getInteger(ctx, "z"), LongArgumentType.getLong(ctx, "seed"), StringArgumentType.getString(ctx, "spec"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))))))).then(Commands.literal("bench").executes(ctx -> {
 			String result = RTFBench.start(ctx.getSource().getServer(), 32);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
