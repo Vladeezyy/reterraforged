@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public class RiverSettings {
+	// the steepest valley side in degrees; 90: no limit (the valley's own shape, which can be a cliff)
+	public static final int NO_SLOPE_LIMIT = 90;
 	public static final Codec<RiverSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		Codec.INT.fieldOf("seedOffset").forGetter((o) -> o.seedOffset),
 		Codec.INT.fieldOf("riverCount").forGetter((o) -> o.riverCount),
@@ -13,10 +15,17 @@ public class RiverSettings {
 		Wetland.CODEC.fieldOf("wetlands").forGetter((o) -> o.wetlands),
 		// added in 0.0.20: off, the branch rivers take the sizes of their own sliders; on (presets saved before), the
 		// size of the river they branch from where they meet it, as in TerraForged (the branch sliders did nothing)
-		Codec.BOOL.optionalFieldOf("branchSizeFromMain", true).forGetter((o) -> o.branchSizeFromMain)
-	).apply(instance, (seedOffset, riverCount, mainRivers, branchRivers, lakes, wetlands, branchSizeFromMain) -> {
+		Codec.BOOL.optionalFieldOf("branchSizeFromMain", true).forGetter((o) -> o.branchSizeFromMain),
+		// added in 0.0.27 (#29), the defaults keep the valleys of ReTerraForged 0.0.6
+		Codec.FLOAT.optionalFieldOf("valleyWidth", 1.0F).forGetter((o) -> o.valleyWidth),
+		Codec.INT.optionalFieldOf("valleySlope", NO_SLOPE_LIMIT).forGetter((o) -> o.valleySlope),
+		Codec.BOOL.optionalFieldOf("valleyFollowsMeanders", false).forGetter((o) -> o.valleyFollowsMeanders)
+	).apply(instance, (seedOffset, riverCount, mainRivers, branchRivers, lakes, wetlands, branchSizeFromMain, valleyWidth, valleySlope, valleyFollowsMeanders) -> {
 		RiverSettings settings = new RiverSettings(seedOffset, riverCount, mainRivers, branchRivers, lakes, wetlands);
 		settings.branchSizeFromMain = branchSizeFromMain;
+		settings.valleyWidth = valleyWidth;
+		settings.valleySlope = valleySlope;
+		settings.valleyFollowsMeanders = valleyFollowsMeanders;
 		return settings;
 	}));
 	
@@ -27,6 +36,13 @@ public class RiverSettings {
     public Lake lakes;
     public Wetland wetlands;
     public boolean branchSizeFromMain = true;
+    // how wide the valleys of the rivers and lakes are, times their width in 0.0.6
+    public float valleyWidth = 1.0F;
+    // the steepest side of a valley in degrees (NO_SLOPE_LIMIT: as steep as its shape makes it)
+    public int valleySlope = NO_SLOPE_LIMIT;
+    // true: the valley follows the meandering river only; false: also the straight line the river meanders around,
+    // which leaves a dry valley floor beside the river where it meanders away (as in 0.0.6)
+    public boolean valleyFollowsMeanders = false;
     
     public RiverSettings(int seedOffset, int riverCount, River mainRivers, River branchRivers, Lake lakes, Wetland wetlands) {
         this.seedOffset = seedOffset;
@@ -37,9 +53,20 @@ public class RiverSettings {
         this.wetlands = wetlands;
     }
     
+    // the steepest valley side as height per horizontal block, 0 for no limit
+    public float valleySlopeGradient() {
+    	if (this.valleySlope >= NO_SLOPE_LIMIT) {
+    		return 0.0F;
+    	}
+    	return (float) Math.tan(Math.toRadians(Math.max(1, this.valleySlope)));
+    }
+    
     public RiverSettings copy() {
     	RiverSettings copy = new RiverSettings(this.seedOffset, this.riverCount, this.mainRivers.copy(), this.branchRivers.copy(), this.lakes.copy(), this.wetlands.copy());
     	copy.branchSizeFromMain = this.branchSizeFromMain;
+    	copy.valleyWidth = this.valleyWidth;
+    	copy.valleySlope = this.valleySlope;
+    	copy.valleyFollowsMeanders = this.valleyFollowsMeanders;
     	return copy;
     }
 

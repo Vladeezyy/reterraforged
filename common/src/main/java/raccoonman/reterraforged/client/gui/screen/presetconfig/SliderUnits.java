@@ -29,7 +29,8 @@ final class SliderUnits {
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_GLOBAL_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_GLOBAL_VERTICAL_SCALE,
 				RTFTranslationKeys.GUI_SLIDER_TERRAIN_BASE_SCALE, RTFTranslationKeys.GUI_SLIDER_TERRAIN_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_TERRAIN_HORIZONTAL_SCALE,
-				RTFTranslationKeys.GUI_SLIDER_ISLAND_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BASE_SCALE }) {
+				RTFTranslationKeys.GUI_SLIDER_ISLAND_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BASE_SCALE,
+				RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH }) {
 			UNITS.put(key, Unit.SCALE);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_CAVE_CARVER_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_DEEP_CAVE_CARVER_PROBABILITY,
@@ -41,6 +42,7 @@ final class SliderUnits {
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_PEAK_DEPTH }) {
 			UNITS.put(key, Unit.SNOW_LAYERS);
 		}
+		UNITS.put(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, Unit.DEGREES);
 	}
 
 	private SliderUnits() {
@@ -63,7 +65,8 @@ final class SliderUnits {
 			}
 		},
 		// snow layers of the 8 of a full block
-		SNOW_LAYERS(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS);
+		SNOW_LAYERS(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS),
+		DEGREES(RTFTranslationKeys.GUI_UNIT_DEGREES);
 
 		private final String key;
 

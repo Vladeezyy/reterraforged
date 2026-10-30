@@ -20,6 +20,11 @@ public class RiverCarver implements Comparable<RiverCarver> {
     private Range bedDepth;
     private Range banksDepth;
     private float waterLine;
+    // RiverConfig: the steepest valley side (height per block, 0: no limit), the squared distance it reaches, and a
+    // valley along the meandering river only
+    private float valleySlope;
+    private float valleyReach2;
+    private boolean valleyFollowsMeanders;
     public River river;
     public RiverWarp warp;
     public RiverConfig config;
@@ -30,7 +35,13 @@ public class RiverCarver implements Comparable<RiverCarver> {
         this.fadeInv = 1.0F / settings.fadeIn;
         this.bedWidth = new Range(0.25F, (float)(config.bedWidth * config.bedWidth));
         this.banksWidth = new Range(1.5625F, (float)(config.bankWidth * config.bankWidth));
-        this.valleyWidth = new Range(settings.valleySize * settings.valleySize, settings.valleySize * settings.valleySize);
+        float valleySize = settings.valleySize * config.valleyWidth;
+        this.valleyWidth = new Range(valleySize * valleySize, valleySize * valleySize);
+        // the slope limit reaches twice as far as the valley, so the tall ground beside it is cut back too
+        float valleyReach = 2.0F * valleySize;
+        this.valleySlope = config.valleySlope;
+        this.valleyReach2 = valleyReach * valleyReach;
+        this.valleyFollowsMeanders = config.valleyFollowsMeanders;
         this.river = river;
         this.warp = warp;
         this.config = config;
@@ -46,11 +57,18 @@ public class RiverCarver implements Comparable<RiverCarver> {
         return Integer.compare(this.config.order, o.config.order);
     }
     
-    // as in ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere
+    // as in ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere; the valley settings
+    // (width, steepest side, along the meanders only) are off by default
     public void carve(Cell cell, float px, float pz, float pt, float x, float z, float t) {
         float d2 = this.getDistance2(x, z, t);
         float pd2 = this.getDistance2(px, pz, pt);
-        float valleyAlpha = this.getDistanceAlpha(pt, Math.min(d2, pd2), this.valleyWidth);
+        // 0.0.6: the valley follows both the meandering river (x, z) and the straight line it meanders around (px, pz),
+        // so where the river meanders away a dry valley floor stays beside it
+        float valleyD2 = this.valleyFollowsMeanders ? d2 : Math.min(d2, pd2);
+        if (this.valleySlope > 0.0F) {
+            this.limitSlope(cell, t, valleyD2);
+        }
+        float valleyAlpha = this.getDistanceAlpha(pt, valleyD2, this.valleyWidth);
         if (valleyAlpha == 0.0F) {
             return;
         }
@@ -73,6 +91,26 @@ public class RiverCarver implements Comparable<RiverCarver> {
             cell.height = NoiseUtil.lerp(cell.height, bedHeight, bedAlpha);
             this.tag(cell, bedHeight);
         }
+    }
+    
+    // the ground is cut down to a cone around the river: it rises from the banks at the steepest slope and gets steeper
+    // until it no longer cuts anything twice as far as the valley reaches; lower ground is left as it is
+    private void limitSlope(Cell cell, float t, float dist2) {
+        if (dist2 >= this.valleyReach2) {
+            return;
+        }
+        float x2 = dist2 / this.valleyReach2;
+        float limit = this.getScaledSize(t, this.banksDepth) + this.valleySlope * (float) Math.sqrt(dist2) / (1.0F - x2 * x2);
+        if (cell.height > limit) {
+            cell.height = limit;
+        }
+    }
+    
+    // how much farther than the river's bounds (River pads them by twice 275 blocks, room for 0.0.6's widest valley of
+    // 412.5 blocks and the river's warp) the carving reaches with a wider valley or the slope limit
+    public float extraBounds() {
+        float reach2 = this.valleySlope > 0.0F ? this.valleyReach2 : this.valleyWidth.max();
+        return Math.max(0.0F, (float) Math.sqrt(reach2) - 275.0F * 1.5F);
     }
     
     public RiverConfig createForkConfig(float t, Levels levels) {

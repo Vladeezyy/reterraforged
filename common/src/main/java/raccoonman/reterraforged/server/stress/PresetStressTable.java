@@ -5,6 +5,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import raccoonman.reterraforged.data.worldgen.preset.settings.ClimateSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.ContinentType;
+import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
+import raccoonman.reterraforged.data.worldgen.preset.settings.RiverSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.SpawnType;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 
@@ -80,20 +82,23 @@ final class PresetStressTable {
 		Setting.ofBoolean("miscellaneous().erosionDecorator", (p, v) -> p.miscellaneous().erosionDecorator = v),
 		Setting.ofBoolean("miscellaneous().plainStoneErosion", (p, v) -> p.miscellaneous().plainStoneErosion = v),
 		Setting.ofBoolean("miscellaneous().naturalSnowDecorator", (p, v) -> p.miscellaneous().naturalSnowDecorator = v),
+		Setting.ofBoolean("miscellaneous().snowLine.enabled", (p, v) -> p.miscellaneous().snowLine.enabled = v),
+		Setting.ofInt("miscellaneous().snowLine.height", -64, 512, (p, v) -> p.miscellaneous().snowLine.height = v),
+		Setting.ofInt("miscellaneous().snowLine.variation", 0, 64, (p, v) -> p.miscellaneous().snowLine.variation = v),
+		Setting.ofInt("miscellaneous().snowLine.depth", 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, (p, v) -> p.miscellaneous().snowLine.depth = v),
+		Setting.ofInt("miscellaneous().snowLine.peakDepth", 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, (p, v) -> p.miscellaneous().snowLine.peakDepth = v),
+		Setting.ofInt("miscellaneous().snowLine.depthRange", 1, 256, (p, v) -> p.miscellaneous().snowLine.depthRange = v),
 		Setting.ofBoolean("miscellaneous().customBiomeFeatures", (p, v) -> p.miscellaneous().customBiomeFeatures = v),
 		Setting.ofBoolean("miscellaneous().vanillaSprings", (p, v) -> p.miscellaneous().vanillaSprings = v),
 		Setting.ofBoolean("miscellaneous().vanillaLavaLakes", (p, v) -> p.miscellaneous().vanillaLavaLakes = v),
 		Setting.ofBoolean("miscellaneous().vanillaLavaSprings", (p, v) -> p.miscellaneous().vanillaLavaSprings = v),
-		Setting.ofBoolean("miscellaneous().snowLine.enabled", (p, v) -> p.miscellaneous().snowLine.enabled = v),
-		Setting.ofInt("miscellaneous().snowLine.height", -64, 512, (p, v) -> p.miscellaneous().snowLine.height = v),
-		Setting.ofInt("miscellaneous().snowLine.variation", 0, 64, (p, v) -> p.miscellaneous().snowLine.variation = v),
-		Setting.ofInt("miscellaneous().snowLine.depth", 1, 8, (p, v) -> p.miscellaneous().snowLine.depth = v),
-		Setting.ofInt("miscellaneous().snowLine.peakDepth", 1, 8, (p, v) -> p.miscellaneous().snowLine.peakDepth = v),
-		Setting.ofInt("miscellaneous().snowLine.depthRange", 1, 256, (p, v) -> p.miscellaneous().snowLine.depthRange = v),
 		Setting.ofFloat("miscellaneous().mountainBiomeUsage", 0.0F, 1.0F, (p, v) -> p.miscellaneous().mountainBiomeUsage = v),
 		Setting.ofFloat("miscellaneous().volcanoBiomeUsage", 0.0F, 1.0F, (p, v) -> p.miscellaneous().volcanoBiomeUsage = v),
 		Setting.ofSeed("rivers().seedOffset", (p, v) -> p.rivers().seedOffset = v),
 		Setting.ofInt("rivers().riverCount", 0, 30, (p, v) -> p.rivers().riverCount = v),
+		Setting.ofFloat("rivers().valleyWidth", 0.5F, 3.0F, (p, v) -> p.rivers().valleyWidth = v),
+		Setting.ofInt("rivers().valleySlope", 10, RiverSettings.NO_SLOPE_LIMIT, (p, v) -> p.rivers().valleySlope = v),
+		Setting.ofBoolean("rivers().valleyFollowsMeanders", (p, v) -> p.rivers().valleyFollowsMeanders = v),
 		Setting.ofInt("rivers().mainRivers.bedDepth", 1, 10, (p, v) -> p.rivers().mainRivers.bedDepth = v),
 		Setting.ofInt("rivers().mainRivers.minBankHeight", 0, 10, (p, v) -> p.rivers().mainRivers.minBankHeight = v),
 		Setting.ofInt("rivers().mainRivers.maxBankHeight", 1, 10, (p, v) -> p.rivers().mainRivers.maxBankHeight = v),
@@ -105,8 +110,8 @@ final class PresetStressTable {
 		Setting.ofInt("rivers().branchRivers.maxBankHeight", 1, 10, (p, v) -> p.rivers().branchRivers.maxBankHeight = v),
 		Setting.ofInt("rivers().branchRivers.bedWidth", 1, 20, (p, v) -> p.rivers().branchRivers.bedWidth = v),
 		Setting.ofInt("rivers().branchRivers.bankWidth", 1, 50, (p, v) -> p.rivers().branchRivers.bankWidth = v),
-		Setting.ofFloat("rivers().branchRivers.fade", 0.0F, 1.0F, (p, v) -> p.rivers().branchRivers.fade = v),
 		Setting.ofBoolean("rivers().branchSizeFromMain", (p, v) -> p.rivers().branchSizeFromMain = v),
+		Setting.ofFloat("rivers().branchRivers.fade", 0.0F, 1.0F, (p, v) -> p.rivers().branchRivers.fade = v),
 		Setting.ofFloat("rivers().lakes.chance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.chance = v),
 		Setting.ofFloat("rivers().lakes.minStartDistance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.minStartDistance = v),
 		Setting.ofFloat("rivers().lakes.maxStartDistance", 0.0F, 1.0F, (p, v) -> p.rivers().lakes.maxStartDistance = v),

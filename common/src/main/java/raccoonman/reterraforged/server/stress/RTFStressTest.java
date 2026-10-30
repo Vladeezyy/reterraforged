@@ -246,18 +246,23 @@ public final class RTFStressTest {
 	 * A stress preset by name, for a real world (tools/stressworld.sh): "min" (every setting at its minimum), "max"
 	 * (every setting at its maximum) or "random:N" (the stress test's random combination number N).
 	 */
+	// "set:name=value;...": changes these settings of the preset (names as in PresetStressTable)
+	public static void applySettings(Preset preset, String spec) {
+		for (String assignment : spec.substring(4).split(";")) {
+			String[] kv = assignment.split("=", 2);
+			Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
+			Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
+			setting.set(preset, value);
+		}
+	}
+
 	public static Preset makePreset(String spec) {
 		// "set:caves().cheeseCaveProbability=0;caves().entranceCaveProbability=1": "Default" with these numeric settings
 		// changed (tools/servertest.sh PRESET=..., to see which setting a generation problem comes from)
 		if (spec.startsWith("set:")) {
 			Preset preset = Presets.makeDefault();
-			for (String assignment : spec.substring(4).split(";")) {
-				String[] kv = assignment.split("=", 2);
-				Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
-					.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
-				Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
-				setting.set(preset, value);
-			}
+			applySettings(preset, spec);
 			RTFCommon.LOGGER.info("[RTF] preset {}", spec);
 			return preset;
 		}

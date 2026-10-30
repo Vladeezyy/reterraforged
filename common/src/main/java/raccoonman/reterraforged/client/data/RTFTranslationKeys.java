@@ -39,6 +39,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_UNIT_SCALE = resolve("gui.unit.scale");
 	public static final String GUI_UNIT_PERCENT = resolve("gui.unit.percent");
 	public static final String GUI_UNIT_SNOW_LAYERS = resolve("gui.unit.snowLayers");
+	public static final String GUI_UNIT_DEGREES = resolve("gui.unit.degrees");
 	// + "<enum class, lower case>.<value, lower case>" (PresetWidgets.enumName)
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
@@ -89,6 +90,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_EROSION_DECORATOR = resolve("gui.button.erosionDecorator");
 	public static final String GUI_BUTTON_PLAIN_STONE_EROSION = resolve("gui.button.stoneErosion");
 	public static final String GUI_BUTTON_BRANCH_SIZE_FROM_MAIN = resolve("gui.button.branchSizeFromMain");
+	public static final String GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS = resolve("gui.button.valleyFollowsMeanders");
 	public static final String GUI_BUTTON_NATURAL_SNOW_DECORATOR = resolve("gui.button.naturalSnowDecorator");
 	public static final String GUI_BUTTON_SNOW_LINE = resolve("gui.button.snowLine");
 	public static final String GUI_BUTTON_CUSTOM_BIOME_FEATURES = resolve("gui.button.customBiomeFeatures");
@@ -164,6 +166,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_TERRAIN_VERTICAL_SCALE = resolve("gui.slider.terrain.verticalScale");
 	public static final String GUI_SLIDER_TERRAIN_HORIZONTAL_SCALE = resolve("gui.slider.terrain.horizontalScale");
 	public static final String GUI_SLIDER_RIVER_COUNT = resolve("gui.slider.riverCount");
+	public static final String GUI_SLIDER_VALLEY_WIDTH = resolve("gui.slider.valleyWidth");
+	public static final String GUI_SLIDER_VALLEY_SLOPE = resolve("gui.slider.valleySlope");
 	public static final String GUI_SLIDER_RIVER_BED_DEPTH = resolve("gui.slider.river.bedDepth");
 	public static final String GUI_SLIDER_RIVER_MIN_BANK_HEIGHT = resolve("gui.slider.river.minBankHeight");
 	public static final String GUI_SLIDER_RIVER_MAX_BANK_HEIGHT = resolve("gui.slider.river.maxBankHeight");
@@ -240,6 +244,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_LABEL_TORRIDONIAN = resolve("gui.label.torridonian");
 	public static final String GUI_LABEL_MOUNTAINS = resolve("gui.label.mountains");
 	public static final String GUI_LABEL_VOLCANO = resolve("gui.label.volcano");
+	public static final String GUI_LABEL_VALLEYS = resolve("gui.label.valleys");
 	public static final String GUI_LABEL_MAIN_RIVERS = resolve("gui.label.mainRivers");
 	public static final String GUI_LABEL_BRANCH_RIVERS = resolve("gui.label.branchRivers");
 	public static final String GUI_LABEL_LAKES = resolve("gui.label.lakes");

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import raccoonman.reterraforged.data.worldgen.preset.settings.RiverSettings;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.continent.Continent;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
@@ -41,11 +42,15 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
         this.minEdgeValue = context.preset.world().controlPoints.inland;
         this.seed = context.seed.root() + context.preset.rivers().seedOffset;
         this.count = context.preset.rivers().riverCount;
-        this.main = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().mainRivers.minBankHeight, context.preset.rivers().mainRivers.maxBankHeight).bankWidth(context.preset.rivers().mainRivers.bankWidth).bedWidth(context.preset.rivers().mainRivers.bedWidth).bedDepth(context.preset.rivers().mainRivers.bedDepth).fade(context.preset.rivers().mainRivers.fade).length(5000).main(true).order(0).build();
-        this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).build();
+        RiverSettings rivers = context.preset.rivers();
+        float valleySlope = rivers.valleySlopeGradient() * context.levels.unit;
+        this.main = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().mainRivers.minBankHeight, context.preset.rivers().mainRivers.maxBankHeight).bankWidth(context.preset.rivers().mainRivers.bankWidth).bedWidth(context.preset.rivers().mainRivers.bedWidth).bedDepth(context.preset.rivers().mainRivers.bedDepth).fade(context.preset.rivers().mainRivers.fade).length(5000).main(true).order(0).valley(rivers.valleyWidth, valleySlope, rivers.valleyFollowsMeanders).build();
+        this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).valley(rivers.valleyWidth, valleySlope, rivers.valleyFollowsMeanders).build();
         this.wetland = new WetlandConfig(context.preset.rivers().wetlands);
         this.branchSizeFromMain = context.preset.rivers().branchSizeFromMain;
         this.lake = LakeConfig.of(context.preset.rivers().lakes, context.levels);
+        this.lake.valleyWidth = rivers.valleyWidth;
+        this.lake.valleySlope = valleySlope;
     }
     
     @Override
