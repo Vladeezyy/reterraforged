@@ -95,6 +95,11 @@ def main():
             if path is None:
                 continue
             label = path[2:] if path.startswith('p.') else path
+            if kind in ('createFloatSlider', 'createIntSlider'):
+                # a range bound can be a constant of a settings class (RiverSettings.NO_SLOPE_LIMIT)
+                for type_name in set(re.findall(r'\b([A-Z]\w*)\.', args[1] + ' ' + args[2])):
+                    if type_name in page_imports:
+                        imports.add(page_imports[type_name])
             setter = '(p, v) -> ' + path + ' = v'
             getter = 'p -> ' + path
             if kind == 'createFloatSlider':
