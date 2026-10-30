@@ -14,6 +14,11 @@ public class RiverConfig {
     public int length;
     public int length2;
     public float fade;
+    // the valley settings (RiverSettings), the same for a river and its branches: width multiplier, steepest side
+    // as height per block (0: no limit), valley along the meandering river only
+    public float valleyWidth = 1.0F;
+    public float valleySlope = 0.0F;
+    public boolean valleyFollowsMeanders = false;
     
     private RiverConfig(Builder builder) {
         this.main = builder.main;
@@ -26,6 +31,9 @@ public class RiverConfig {
         this.length = builder.length;
         this.length2 = builder.length * builder.length;
         this.fade = builder.fade;
+        this.valleyWidth = builder.valleyWidth;
+        this.valleySlope = builder.valleySlope;
+        this.valleyFollowsMeanders = builder.valleyFollowsMeanders;
     }
     
     public RiverConfig(boolean main, int order, int bedWidth, int bankWidth, float bedHeight, float minBankHeight, float maxBankHeight, int length, int length2, float fade) {
@@ -52,7 +60,11 @@ public class RiverConfig {
     public RiverConfig createFork(int bedHeight, int bedWidth, int bankWidth, Levels levels) {
         int minBankHeight = Math.max(levels.groundLevel, levels.scale(this.minBankHeight) - 1);
         int maxBankHeight = Math.max(minBankHeight, levels.scale(this.maxBankHeight) - 1);
-        return new RiverConfig(false, this.order + 1, bedWidth, bankWidth, levels.scale(bedHeight), levels.scale(minBankHeight), levels.scale(maxBankHeight), this.length, this.length2, this.fade);
+        RiverConfig fork = new RiverConfig(false, this.order + 1, bedWidth, bankWidth, levels.scale(bedHeight), levels.scale(minBankHeight), levels.scale(maxBankHeight), this.length, this.length2, this.fade);
+        fork.valleyWidth = this.valleyWidth;
+        fork.valleySlope = this.valleySlope;
+        fork.valleyFollowsMeanders = this.valleyFollowsMeanders;
+        return fork;
     }
     
     public static Builder builder(Levels levels) {
@@ -69,6 +81,9 @@ public class RiverConfig {
         private int minBankHeight;
         private int length;
         private float fade;
+        private float valleyWidth;
+        private float valleySlope;
+        private boolean valleyFollowsMeanders;
         private Levels levels;
         
         private Builder(Levels levels) {
@@ -81,6 +96,9 @@ public class RiverConfig {
             this.minBankHeight = 1;
             this.length = 1000;
             this.fade = 0.2F;
+            this.valleyWidth = 1.0F;
+            this.valleySlope = 0.0F;
+            this.valleyFollowsMeanders = false;
             this.levels = levels;
         }
         
@@ -122,6 +140,13 @@ public class RiverConfig {
         
         public Builder fade(float value) {
             this.fade = value;
+            return this;
+        }
+
+        public Builder valley(float width, float slope, boolean followsMeanders) {
+            this.valleyWidth = width;
+            this.valleySlope = slope;
+            this.valleyFollowsMeanders = followsMeanders;
             return this;
         }
 
