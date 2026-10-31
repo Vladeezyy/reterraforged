@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "川と湖の谷の斜面がどこまで急になれるか（度）。これより急な地面は、谷の幅の2倍の距離までこの傾きに削られます。90°：制限なし（ReTerraForged 0.0.6 と同じで、高い地形を通る谷が崖で終わることがあります）。崖が残る場合は谷の幅も広げてください。",
   "reterraforged.gui.button.valleyFollowsMeanders": "谷が蛇行に沿う",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "オン：谷は川の蛇行に沿います。オフ（ReTerraForged 0.0.6 と同じ）：川が蛇行する中心の直線にも沿うため、川が離れた場所の横に乾いた谷底が残ります。",
+  "reterraforged.gui.slider.gorgeChance": "峡谷の割合",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "谷が峡谷になる川と支流の割合。水辺のすぐ近くが急斜面で、その先はゆるやかな谷になります。25 %：ReTerraForged 0.0.6 と同じ。",
   "reterraforged.gui.slider.rockMin": "岩の最低高度",
   "reterraforged.gui.slider.rockMin.tooltip": "地表が岩に移り変われるようになるY座標",
   "reterraforged.gui.slider.rockSteepness": "岩の傾斜",

@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Quão íngremes podem ser as encostas dos vales de rios e lagos, em graus. O terreno mais íngreme é cortado até essa inclinação a até duas larguras de vale de distância. 90°: sem limite, como em ReTerraForged 0.0.6, onde um vale em terreno alto pode terminar num penhasco. Se sobrar um penhasco, alargue os vales também.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Vale segue os meandros",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "Ligado: o vale segue os meandros do rio. Desligado (como em ReTerraForged 0.0.6): também a linha reta em torno da qual o rio serpenteia, então onde o rio se afasta fica ao lado dele um fundo de vale seco.",
+  "reterraforged.gui.slider.gorgeChance": "Proporção de gargantas",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "A parte dos rios e afluentes cujo vale é uma garganta: encostas íngremes junto à água e o resto do vale suave. 25 %: como em ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Rocha mín.",
   "reterraforged.gui.slider.rockMin.tooltip": "Nível Y a partir do qual a superfície pode passar a rocha",
   "reterraforged.gui.slider.rockSteepness": "Inclinação da rocha",

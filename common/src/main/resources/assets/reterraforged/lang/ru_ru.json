@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Насколько крутыми могут быть склоны долин рек и озёр, в градусах. Более крутая земля срезается до этого уклона на расстоянии до двух ширин долины. 90° — без ограничения, как в ReTerraForged 0.0.6: долина в высоких горах может обрываться стеной. Если стена осталась, расширьте и долины.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Долина по излучинам",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "Вкл.: долина идёт вдоль излучин реки. Выкл. (как в ReTerraForged 0.0.6): ещё и вдоль прямой, вокруг которой петляет река, поэтому там, где река уходит в сторону, рядом с ней остаётся сухое дно долины.",
+  "reterraforged.gui.slider.gorgeChance": "Доля ущелий",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "Какая доля рек и притоков течёт в ущелье: крутые склоны у самой воды, дальше долина пологая. 25 % — как в ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Мин. высота камня",
   "reterraforged.gui.slider.rockMin.tooltip": "Уровень Y, с которого поверхность может переходить в камень",
   "reterraforged.gui.slider.rockSteepness": "Крутизна камня",
