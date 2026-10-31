@@ -7,6 +7,9 @@ import java.util.Optional;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.SurfaceRules;
@@ -18,21 +21,42 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSetti
 import raccoonman.reterraforged.tags.RTFBlockTags;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.surface.rule.RTFSurfaceRules;
+import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
 
 //TODO add forest surfaces
 // maybe have a custom meadow or cherry forest surface ?
 public class PresetSurfaceRuleData {
     
-    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Noise> noise, HolderGetter<Biome> biomes) {
+    // base: the overworld's surface rules without ours (base(registries)); vanilla's in a world without mods
+    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<Noise> noise, SurfaceRules.RuleSource base) {
 		// the strata only with the strata decorator on, as in ReTerraForged 0.0.6 (the 1.21.1 port always added them)
 		if(!preset.miscellaneous().strataDecorator) {
-			return SurfaceRuleData.overworld(biomes);
+			return base;
 		}
 		return SurfaceRules.sequence(
-				SurfaceRuleData.overworld(biomes),
+				base,
 				makeStrataRule(preset, noise)
 		);
+    }
+
+    // the surface rules of the overworld noise settings the registries had before the preset: a datapack biome mod
+    // (Terralith) writes its biomes' surfaces (sand in its oases and sandstone valleys) there, and replacing them with
+    // vanilla's left those biomes grass (#28). Our strata are taken out (the registries of a world that has the preset
+    // already); without overworld noise settings, vanilla's.
+    public static SurfaceRules.RuleSource base(RegistryAccess registries) {
+		SurfaceRules.RuleSource rule = registries.registry(Registries.NOISE_SETTINGS)
+			.flatMap((settings) -> settings.getOptional(NoiseGeneratorSettings.OVERWORLD))
+			.map(NoiseGeneratorSettings::surfaceRule)
+			.orElse(null);
+		if(rule == null) {
+			return SurfaceRuleData.overworld(registries.lookupOrThrow(Registries.BIOME));
+		}
+		if(rule instanceof SurfaceRules.SequenceRuleSource sequence && sequence.sequence().stream().anyMatch((r) -> r instanceof StrataRule)) {
+			List<SurfaceRules.RuleSource> without = sequence.sequence().stream().filter((r) -> !(r instanceof StrataRule)).toList();
+			return without.size() == 1 ? without.get(0) : SurfaceRules.sequence(without.toArray(SurfaceRules.RuleSource[]::new));
+		}
+		return rule;
     }
     
 	private static SurfaceRules.RuleSource makeStrataRule(Preset preset, HolderGetter<Noise> noise) {

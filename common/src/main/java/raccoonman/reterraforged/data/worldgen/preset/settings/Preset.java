@@ -21,6 +21,7 @@ import raccoonman.reterraforged.data.worldgen.preset.PresetConfiguredFeatures;
 import raccoonman.reterraforged.data.worldgen.preset.PresetDimensionTypes;
 import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseGeneratorSettings;
+import raccoonman.reterraforged.data.worldgen.preset.PresetSurfaceRuleData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetPlacedFeatures;
 import raccoonman.reterraforged.data.worldgen.preset.PresetStructureRuleData;
@@ -74,7 +75,8 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 			PresetNoiseRouterData.bootstrap(preset, ctx);
 			TBNoiseRouterData.bootstrap(ctx);
 		});
-		this.addPatch(builder, Registries.NOISE_SETTINGS, PresetNoiseGeneratorSettings::bootstrap);
+		// the surface rules the overworld had before the preset (a datapack biome mod's, Terralith's) stay (#28)
+		this.addPatch(builder, Registries.NOISE_SETTINGS, (preset, ctx) -> PresetNoiseGeneratorSettings.bootstrap(preset, ctx, PresetSurfaceRuleData.base(registries)));
 		this.addPatch(builder, Registries.STRUCTURE_SET, (preset, ctx) -> PresetStructureSets.bootstrap(preset, ctx, registries));
 
 		Cloner.Factory factory = new Cloner.Factory();
