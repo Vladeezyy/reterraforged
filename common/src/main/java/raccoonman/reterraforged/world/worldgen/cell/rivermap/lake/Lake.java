@@ -1,6 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.cell.rivermap.lake;
 
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.rivermap.river.RiverCarver;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
@@ -92,18 +93,17 @@ public class Lake {
         cell.riverMask = Math.min(cell.riverMask, 1.0F - valleyAlpha);
     }
     
-    // as for the rivers: the ground around the lake is cut down to a cone rising from its banks at the steepest slope,
-    // steeper and steeper until it cuts nothing slopeReach past the shore
+    // as for the rivers: the ground above a cone rising from the lake's banks at the steepest slope is cut down to it,
+    // the cut fading out from half of slopeReach past the shore to slopeReach
     private void limitSlope(Cell cell, float distance2) {
         float shore = (float) Math.sqrt(distance2) - this.lakeRadius;
         if (shore <= 0.0F || shore >= this.slopeReach) {
             return;
         }
-        float x = shore / this.slopeReach;
-        float x2 = x * x;
-        float limit = this.getBankHeight(cell) + this.slope * shore / (1.0F - x2 * x2);
-        if (cell.height > limit) {
-            cell.height = limit;
+        float above = cell.height - (this.getBankHeight(cell) + this.slope * shore);
+        if (above > 0.0F) {
+            float x = shore / this.slopeReach;
+            cell.height -= above * RiverCarver.slopeLimitWeight(x * x);
         }
     }
     
