@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Maximale Größe des Sees",
   "reterraforged.gui.slider.lake.sizeMin": "Größe min.",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Minimale Größe des Sees",
+  "reterraforged.gui.slider.deepslateLevel": "Tiefenschiefer-Höhe",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "Die Höhe, auf der Stein in Tiefenschiefer übergeht: in den 8 Blöcken darüber wird Stein allmählich zu Tiefenschiefer, darunter ist alles Tiefenschiefer (auch die Erze). 0: wie in Vanilla.",
   "reterraforged.gui.slider.lavaLevel": "Lavaspiegel",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Legt den Lavaspiegel fest.",
   "reterraforged.gui.slider.macroNoiseSize": "Makrorausch-Größe",

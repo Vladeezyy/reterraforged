@@ -9,6 +9,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.material.VanillaMaterialRules;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.material.MaterialRules;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import net.minecraft.tags.TagKey;
@@ -27,7 +31,7 @@ public class PresetSurfaceRuleData {
     
     // 26.3: vanilla's overworld material rule, assembled like vanilla's (bedrock floor, ore veins, surface above the
     // preliminary surface, underground) so the ore veins follow the preset's large ore veins setting, then the strata
-    public static Holder<MaterialRule> overworld(Preset preset, HolderGetter<MaterialRule> rules, HolderGetter<Noise> noise) {
+    public static Holder<MaterialRule> overworld(Preset preset, HolderGetter<MaterialRule> rules, HolderGetter<Biome> biomes, HolderGetter<Noise> noise) {
     	List<MaterialRule> sequence = new ArrayList<>();
     	sequence.add(MaterialRules.getRule(rules, VanillaMaterialRules.BEDROCK_FLOOR));
     	if(preset.caves().largeOreVeins) {
@@ -35,7 +39,17 @@ public class PresetSurfaceRuleData {
     		sequence.add(MaterialRules.getRule(rules, vanillaRule("overworld/iron_ore_vein")));
     	}
     	sequence.add(MaterialRules.ifTrue(MaterialRules.abovePreliminarySurface(), MaterialRules.getRule(rules, vanillaRule("overworld/surface"))));
-    	sequence.add(MaterialRules.getRule(rules, vanillaRule("overworld/underground")));
+    	int deepslate = preset.world().properties.deepslateLevel;
+    	if(deepslate == 0) {
+    		sequence.add(MaterialRules.getRule(rules, vanillaRule("overworld/underground")));
+    	} else {
+    		// vanilla's underground (the sulfur caves' bands, then stone to deepslate from y 8 down to y 0) with the
+    		// deepslate at the preset's level, the same 8 blocks of gradient above it (#32)
+    		sequence.add(MaterialRules.sequence(
+    			MaterialRules.ifTrue(MaterialRules.isBiome(biomes, Biomes.SULFUR_CAVES), MaterialRules.getRule(rules, vanillaRule("overworld/sulfur_cave_bands"))),
+    			MaterialRules.ifTrue(MaterialRules.verticalGradient("deepslate", VerticalAnchor.absolute(deepslate), VerticalAnchor.absolute(deepslate + 8)), MaterialRules.state(Blocks.DEEPSLATE.defaultBlockState()))
+    		));
+    	}
     	// the strata only with the strata decorator on, as in ReTerraForged 0.0.6 (the 1.21.1 port always added them)
     	if(preset.miscellaneous().strataDecorator) {
     		sequence.add(makeStrataRule(preset, noise));

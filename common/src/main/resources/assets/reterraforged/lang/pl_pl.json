@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Największy rozmiar jeziora",
   "reterraforged.gui.slider.lake.sizeMin": "Rozmiar min.",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Najmniejszy rozmiar jeziora",
+  "reterraforged.gui.slider.deepslateLevel": "Poziom łupka głębinowego",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "Wysokość, na której kamień przechodzi w łupek głębinowy: w 8 blokach nad nią kamień stopniowo zmienia się w łupek, poniżej wszystko jest z łupka głębinowego (rudy też). 0: jak w wersji podstawowej.",
   "reterraforged.gui.slider.lavaLevel": "Poziom lawy",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Określa poziom lawy.",
   "reterraforged.gui.slider.macroNoiseSize": "Rozmiar makroszumu",

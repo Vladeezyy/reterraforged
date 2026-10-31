@@ -31,7 +31,7 @@ public class PresetNoiseGeneratorSettings {
 			NoiseSettings.create(-worldDepth, worldDepth + worldHeight), 
 			Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), 
 			PresetNoiseRouterData.overworld(preset, densityFunctions, noiseParams),
-			PresetSurfaceRuleData.overworld(preset, ctx.lookup(Registries.MATERIAL_RULE), noises),
+			PresetSurfaceRuleData.overworld(preset, ctx.lookup(Registries.MATERIAL_RULE), ctx.lookup(Registries.BIOME), noises),
 			PresetNoiseRouterData.spawnTarget(preset, densityFunctions), 
 			properties.seaLevel, 
 			false, 
