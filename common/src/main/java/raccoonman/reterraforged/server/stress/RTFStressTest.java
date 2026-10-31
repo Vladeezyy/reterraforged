@@ -267,6 +267,23 @@ public final class RTFStressTest {
 			RTFCommon.LOGGER.info("[RTF] showcase preset: Default, world height 384, biome size 300, mountain vertical scale 1.15");
 			return showcase;
 		}
+		// "file:<preset.json>[|set:...]": a preset file (the preset.json of an exported datapack, any Minecraft version:
+		// tools/servertest.sh PRESET=file:... exports it again for this one), with these settings changed
+		if (spec.startsWith("file:")) {
+			String[] parts = spec.substring(5).split("\\|", 2);
+			Preset preset;
+			try {
+				com.google.gson.JsonElement json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of(parts[0].trim())));
+				preset = Preset.DIRECT_CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json).getOrThrow();
+			} catch (java.io.IOException e) {
+				throw new IllegalArgumentException("cannot read " + parts[0], e);
+			}
+			if (parts.length > 1) {
+				applySettings(preset, parts[1].trim());
+			}
+			RTFCommon.LOGGER.info("[RTF] preset {}", spec);
+			return preset;
+		}
 		// "set:caves().cheeseCaveProbability=0;caves().entranceCaveProbability=1": "Default" with these numeric settings
 		// changed (tools/servertest.sh PRESET=..., to see which setting a generation problem comes from)
 		if (spec.startsWith("set:")) {
