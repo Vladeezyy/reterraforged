@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Наибольший размер озера",
   "reterraforged.gui.slider.lake.sizeMin": "Мин. размер",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Наименьший размер озера",
+  "reterraforged.gui.slider.deepslateLevel": "Уровень глубинного сланца",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "Высота, на которой камень сменяется глубинным сланцем: в 8 блоках над ней камень постепенно переходит в сланец, ниже всё из глубинного сланца (руды тоже). 0 — как в ванилле.",
   "reterraforged.gui.slider.lavaLevel": "Уровень лавы",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Уровень лавы.",
   "reterraforged.gui.slider.macroNoiseSize": "Размер макрошума",

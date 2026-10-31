@@ -116,8 +116,14 @@ public class WorldSettings {
     		Codec.INT.optionalFieldOf("oceanDepth", DEFAULT_OCEAN_DEPTH).forGetter((o) -> o.oceanDepth),
     		Codec.INT.optionalFieldOf("lavaLevel", -54).forGetter((o) -> o.lavaLevel),
     		// off in a preset saved before 0.0.23 (its worlds keep their snow line); the built-in presets have it on
-    		Codec.BOOL.optionalFieldOf("altitudeCoolingFollowsHeight", false).forGetter((o) -> o.altitudeCoolingFollowsHeight)
-    	).apply(instance, Properties::new));
+    		Codec.BOOL.optionalFieldOf("altitudeCoolingFollowsHeight", false).forGetter((o) -> o.altitudeCoolingFollowsHeight),
+    		// added in 0.0.27 (#32): 0 is vanilla's deepslate, from y 8 down to y 0
+    		Codec.INT.optionalFieldOf("deepslateLevel", 0).forGetter((o) -> o.deepslateLevel)
+    	).apply(instance, (spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight, deepslateLevel) -> {
+    		Properties properties = new Properties(spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight);
+    		properties.deepslateLevel = deepslateLevel;
+    		return properties;
+    	}));
     	
         public SpawnType spawnType;
         public int worldHeight;
@@ -127,6 +133,9 @@ public class WorldSettings {
         public int lavaLevel;
         // vanilla's cooling with height (rain to snow) counts the height as in a world of the vanilla height (AltitudeCooling)
         public boolean altitudeCoolingFollowsHeight;
+        // the Y where stone gives way to deepslate: the stone turns into it over the 8 blocks above it, below it is all
+        // deepslate (vanilla: 0)
+        public int deepslateLevel;
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int lavaLevel) {
         	this(spawnType, worldHeight, worldDepth, seaLevel, DEFAULT_OCEAN_DEPTH, lavaLevel);
@@ -147,7 +156,9 @@ public class WorldSettings {
         }
         
         public Properties copy() {
-        	return new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel, this.altitudeCoolingFollowsHeight);
+        	Properties copy = new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel, this.altitudeCoolingFollowsHeight);
+        	copy.deepslateLevel = this.deepslateLevel;
+        	return copy;
         }
         
         @Deprecated
