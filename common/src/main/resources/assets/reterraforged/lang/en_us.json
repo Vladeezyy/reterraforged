@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "The maximum size of the lake",
   "reterraforged.gui.slider.lake.sizeMin": "Size Min",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "The minimum size of the lake",
+  "reterraforged.gui.slider.deepslateLevel": "Deepslate Level",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "The height where stone gives way to deepslate: over the 8 blocks above it stone turns into deepslate, below it everything is deepslate (its ores too). 0: as in vanilla.",
   "reterraforged.gui.slider.lavaLevel": "Lava Level",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Controls the lava level.",
   "reterraforged.gui.slider.macroNoiseSize": "Macro Noise Size",

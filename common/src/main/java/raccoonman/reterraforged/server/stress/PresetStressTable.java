@@ -199,7 +199,8 @@ final class PresetStressTable {
 		Setting.ofInt("world().properties.worldDepth", 0, 1024, (p, v) -> p.world().properties.worldDepth = v).step(16),
 		Setting.ofInt("world().properties.seaLevel", 0, 255, (p, v) -> p.world().properties.seaLevel = v),
 		Setting.ofInt("world().properties.oceanDepth", 0, 160, (p, v) -> p.world().properties.oceanDepth = v),
-		Setting.ofInt("world().properties.lavaLevel", -1024, 128, (p, v) -> p.world().properties.lavaLevel = v)
+		Setting.ofInt("world().properties.lavaLevel", -1024, 128, (p, v) -> p.world().properties.lavaLevel = v),
+		Setting.ofInt("world().properties.deepslateLevel", -1024, 256, (p, v) -> p.world().properties.deepslateLevel = v)
 	);
 
 	private PresetStressTable() {

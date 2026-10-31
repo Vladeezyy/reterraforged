@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "湖泊的最大尺寸",
   "reterraforged.gui.slider.lake.sizeMin": "最小尺寸",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "湖泊的最小尺寸",
+  "reterraforged.gui.slider.deepslateLevel": "深板岩高度",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "石头变为深板岩的高度：其上方 8 格内石头逐渐变为深板岩，其下方全部为深板岩（矿石也为深层矿石）。0：与原版相同。",
   "reterraforged.gui.slider.lavaLevel": "熔岩层",
   "reterraforged.gui.slider.lavaLevel.tooltip": "控制熔岩层高度",
   "reterraforged.gui.slider.macroNoiseSize": "宏观噪声大小",

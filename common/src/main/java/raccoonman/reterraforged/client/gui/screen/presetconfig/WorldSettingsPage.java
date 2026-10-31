@@ -43,6 +43,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 	private Slider seaLevel;
 	private Slider oceanDepth;
 	private Slider lavaLevel;
+	private Slider deepslateLevel;
 	
 	public WorldSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -193,6 +194,10 @@ public class WorldSettingsPage extends PresetEditorPage {
 			properties.lavaLevel = (int) slider.scaleValue(value);
 			return value;
 		});
+		this.deepslateLevel = PresetWidgets.createIntSlider(properties.deepslateLevel, -1024, 256, RTFTranslationKeys.GUI_SLIDER_DEEPSLATE_LEVEL, (slider, value) -> {
+			properties.deepslateLevel = (int) slider.scaleValue(value);
+			return value;
+		});
 		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTINENT));
 		this.left.addWidget(this.continentType);
@@ -224,6 +229,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.seaLevel);
 		this.left.addWidget(this.oceanDepth);
 		this.left.addWidget(this.lavaLevel);
+		this.left.addWidget(this.deepslateLevel);
 	}
 
 	@Override
