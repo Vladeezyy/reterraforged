@@ -45,7 +45,7 @@ public final class RTFFloatingTest {
 		ServerLevel level = server.overworld();
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		String kind = rtf ? "rtf" : "vanilla";
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		int sea = level.getSeaLevel();
 		Map<String, Integer> byBiome = new TreeMap<>();
 		Map<String, Integer> byBlock = new TreeMap<>();
