@@ -290,9 +290,9 @@ public final class RTFWorldChecks {
 				land++;
 				heights.add(h);
 				Biome biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2).value();
-				if (biome.getPrecipitationAt(new BlockPos(x, sea + 1, z)) == Biome.Precipitation.RAIN) {
+				if (biome.getPrecipitationAt(new BlockPos(x, sea + 1, z), sea) == Biome.Precipitation.RAIN) {
 					rainLow++;
-					if (biome.getPrecipitationAt(new BlockPos(x, h, z)) == Biome.Precipitation.SNOW) snowHigh++;
+					if (biome.getPrecipitationAt(new BlockPos(x, h, z), sea) == Biome.Precipitation.SNOW) snowHigh++;
 				}
 			}
 		}
