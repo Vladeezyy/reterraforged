@@ -93,17 +93,24 @@ public class RiverCarver implements Comparable<RiverCarver> {
         }
     }
     
-    // the ground is cut down to a cone around the river: it rises from the banks at the steepest slope and gets steeper
-    // until it no longer cuts anything twice as far as the valley reaches; lower ground is left as it is
+    // the ground above a cone around the river, rising from the banks at the steepest slope, is cut down to it; from
+    // half the reach on the cut fades out, gone twice as far as the valley reaches (a cone that rose faster towards its
+    // end left a new wall there in tall terrain); lower ground is left as it is
     private void limitSlope(Cell cell, float t, float dist2) {
         if (dist2 >= this.valleyReach2) {
             return;
         }
-        float x2 = dist2 / this.valleyReach2;
-        float limit = this.getScaledSize(t, this.banksDepth) + this.valleySlope * (float) Math.sqrt(dist2) / (1.0F - x2 * x2);
-        if (cell.height > limit) {
-            cell.height = limit;
+        float dist = (float) Math.sqrt(dist2);
+        float above = cell.height - (this.getScaledSize(t, this.banksDepth) + this.valleySlope * dist);
+        if (above > 0.0F) {
+            cell.height -= above * slopeLimitWeight(dist2 / this.valleyReach2);
         }
+    }
+
+    // 1 up to half the reach, then down to 0 at the reach in an s-curve; x2: the squared share of the reach
+    public static float slopeLimitWeight(float x2) {
+        float fade = NoiseUtil.clamp(((float) Math.sqrt(x2) - 0.5F) * 2.0F, 0.0F, 1.0F);
+        return 1.0F - fade * fade * (3.0F - 2.0F * fade);
     }
     
     // how much farther than the river's bounds (River pads them by twice 275 blocks, room for 0.0.6's widest valley of
