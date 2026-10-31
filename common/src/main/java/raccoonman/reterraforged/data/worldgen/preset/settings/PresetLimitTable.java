@@ -69,6 +69,7 @@ final class PresetLimitTable {
 		PresetLimits.Limit.ofInt("rivers().riverCount", 0, 30, 1, p -> p.rivers().riverCount, (p, v) -> p.rivers().riverCount = v),
 		PresetLimits.Limit.ofFloat("rivers().valleyWidth", 0.5F, 3.0F, p -> p.rivers().valleyWidth, (p, v) -> p.rivers().valleyWidth = v),
 		PresetLimits.Limit.ofInt("rivers().valleySlope", 10, RiverSettings.NO_SLOPE_LIMIT, 1, p -> p.rivers().valleySlope, (p, v) -> p.rivers().valleySlope = v),
+		PresetLimits.Limit.ofFloat("rivers().gorgeChance", 0.0F, 0.95F, p -> p.rivers().gorgeChance, (p, v) -> p.rivers().gorgeChance = v),
 		PresetLimits.Limit.ofInt("rivers().mainRivers.bedDepth", 1, 10, 1, p -> p.rivers().mainRivers.bedDepth, (p, v) -> p.rivers().mainRivers.bedDepth = v),
 		PresetLimits.Limit.ofInt("rivers().mainRivers.minBankHeight", 0, 10, 1, p -> p.rivers().mainRivers.minBankHeight, (p, v) -> p.rivers().mainRivers.minBankHeight = v),
 		PresetLimits.Limit.ofInt("rivers().mainRivers.maxBankHeight", 1, 10, 1, p -> p.rivers().mainRivers.maxBankHeight, (p, v) -> p.rivers().mainRivers.maxBankHeight = v),

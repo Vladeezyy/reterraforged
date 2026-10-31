@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Lo empinadas que pueden ser las laderas de los valles de ríos y lagos, en grados. El terreno más empinado se recorta a esta pendiente hasta dos anchuras de valle de distancia. 90°: sin límite, como en ReTerraForged 0.0.6, donde un valle en terreno alto puede acabar en un acantilado. Si queda un acantilado, ensancha también los valles.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Valle sigue los meandros",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "Activado: el valle sigue los meandros del río. Desactivado (como en ReTerraForged 0.0.6): también la línea recta alrededor de la que serpentea el río, así que donde el río se aparta queda a su lado un fondo de valle seco.",
+  "reterraforged.gui.slider.gorgeChance": "Proporción de gargantas",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "La parte de ríos y afluentes cuyo valle es una garganta: laderas empinadas junto al agua y el resto del valle suave. 25 %: como en ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Roca mín.",
   "reterraforged.gui.slider.rockMin.tooltip": "Nivel Y desde el que la superficie puede pasar a roca",
   "reterraforged.gui.slider.rockSteepness": "Pendiente de roca",

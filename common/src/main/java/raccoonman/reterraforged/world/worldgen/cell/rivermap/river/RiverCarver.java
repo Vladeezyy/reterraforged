@@ -182,14 +182,21 @@ public class RiverCarver implements Comparable<RiverCarver> {
     }
     
     public static CurveFunction getValleyType(Random random) {
+        return getValleyType(random, 25);
+    }
+
+    // gorgeChance: the percent of valleys that are gorges (25 in ReTerraForged 0.0.6); the flat-floored ones keep their
+    // 5 %, the V-shaped and the usual ones share the rest 2 : 5 as in 0.0.6, so 25 picks exactly as before
+    public static CurveFunction getValleyType(Random random, int gorgeChance) {
         int value = random.nextInt(100);
         if (value < 5) {
             return CurveFunctions.scurve(0.4F, 1.0F);
         }
-        if (value < 30) {
+        int gorges = 5 + gorgeChance;
+        if (value < gorges) {
             return CurveFunctions.scurve(4.0F, 5.0F);
         }
-        if (value < 50) {
+        if (value < gorges + Math.round((95 - gorgeChance) * 20.0F / 70.0F)) {
             return CurveFunctions.scurve(3.0F, 0.25F);
         }
         return CurveFunctions.scurve(2.0F, -0.5F);

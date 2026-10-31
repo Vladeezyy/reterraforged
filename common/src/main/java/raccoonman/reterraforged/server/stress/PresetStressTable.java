@@ -99,6 +99,7 @@ final class PresetStressTable {
 		Setting.ofFloat("rivers().valleyWidth", 0.5F, 3.0F, (p, v) -> p.rivers().valleyWidth = v),
 		Setting.ofInt("rivers().valleySlope", 10, RiverSettings.NO_SLOPE_LIMIT, (p, v) -> p.rivers().valleySlope = v),
 		Setting.ofBoolean("rivers().valleyFollowsMeanders", (p, v) -> p.rivers().valleyFollowsMeanders = v),
+		Setting.ofFloat("rivers().gorgeChance", 0.0F, 0.95F, (p, v) -> p.rivers().gorgeChance = v),
 		Setting.ofInt("rivers().mainRivers.bedDepth", 1, 10, (p, v) -> p.rivers().mainRivers.bedDepth = v),
 		Setting.ofInt("rivers().mainRivers.minBankHeight", 0, 10, (p, v) -> p.rivers().mainRivers.minBankHeight = v),
 		Setting.ofInt("rivers().mainRivers.maxBankHeight", 1, 10, (p, v) -> p.rivers().mainRivers.maxBankHeight = v),

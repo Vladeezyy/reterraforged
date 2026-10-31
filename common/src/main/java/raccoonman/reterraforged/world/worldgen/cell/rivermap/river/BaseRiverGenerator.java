@@ -32,6 +32,8 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
     // false: the branch rivers that leave a main river have the sizes of the branch river sliders (their own branches
     // narrow down from them); true: the size of the main river where they meet it, as in TerraForged
     protected boolean branchSizeFromMain;
+    // the percent of valleys that are gorges (RiverSettings.gorgeChance)
+    protected int gorgeChance;
     protected T continent;
     protected Levels levels;
     
@@ -48,6 +50,7 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
         this.fork = RiverConfig.builder(context.levels).bankHeight(context.preset.rivers().branchRivers.minBankHeight, context.preset.rivers().branchRivers.maxBankHeight).bankWidth(context.preset.rivers().branchRivers.bankWidth).bedWidth(context.preset.rivers().branchRivers.bedWidth).bedDepth(context.preset.rivers().branchRivers.bedDepth).fade(context.preset.rivers().branchRivers.fade).length(4500).order(1).valley(rivers.valleyWidth, valleySlope, rivers.valleyFollowsMeanders).build();
         this.wetland = new WetlandConfig(context.preset.rivers().wetlands);
         this.branchSizeFromMain = context.preset.rivers().branchSizeFromMain;
+        this.gorgeChance = Math.round(NoiseUtil.clamp(rivers.gorgeChance, 0.0F, 0.95F) * 100.0F);
         this.lake = LakeConfig.of(context.preset.rivers().lakes, context.levels);
         this.lake.valleyWidth = rivers.valleyWidth;
         this.lake.valleySlope = valleySlope;
@@ -101,7 +104,7 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
                         River river = new River(x2, z2, x1, z1);
                         if (!this.riverOverlaps(river, parent, rivers)) {
                             float valleyWidth = 275.0f * River.FORK_VALLEY.next(random);
-                            RiverCarver.Settings settings = creatSettings(random);
+                            RiverCarver.Settings settings = this.valleySettings(random);
                             settings.connecting = true;
                             settings.fadeIn = config.fade;
                             settings.valleySize = valleyWidth;
@@ -197,6 +200,13 @@ public abstract class BaseRiverGenerator<T extends Continent> implements RiverGe
     public static RiverCarver.Settings creatSettings(Random random) {
         RiverCarver.Settings settings = new RiverCarver.Settings();
         settings.valleyCurve = RiverCarver.getValleyType(random);
+        return settings;
+    }
+
+    // as creatSettings, with the preset's share of gorges (the same random number drawn)
+    public RiverCarver.Settings valleySettings(Random random) {
+        RiverCarver.Settings settings = new RiverCarver.Settings();
+        settings.valleyCurve = RiverCarver.getValleyType(random, this.gorgeChance);
         return settings;
     }
 }
