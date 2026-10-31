@@ -25,8 +25,8 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 
 		// the altitude cooling scale: set from the overworld's preset before its spawn chunks, sent to joining players
 		// (raccoonman.reterraforged.world.worldgen.AltitudeCooling)
-		net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C().register(raccoonman.reterraforged.network.AltitudeCoolingPayload.TYPE, raccoonman.reterraforged.network.AltitudeCoolingPayload.STREAM_CODEC);
-		net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.LOAD.register((server, level) -> {
+		net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay().register(raccoonman.reterraforged.network.AltitudeCoolingPayload.TYPE, raccoonman.reterraforged.network.AltitudeCoolingPayload.STREAM_CODEC);
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents.LOAD.register((server, level) -> {
 			if (level.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
 				raccoonman.reterraforged.world.worldgen.AltitudeCooling.set(raccoonman.reterraforged.world.worldgen.AltitudeCooling.of(level));
 			}
