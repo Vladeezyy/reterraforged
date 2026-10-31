@@ -16,6 +16,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 
@@ -30,6 +31,11 @@ public final class RTFFloatingTest {
 	private static final int SQUARES = 4, SPACING = 3000, BAND = 4;
 
 	private RTFFloatingTest() {
+	}
+
+	// blocks motion and is no fluid (Heightmap's MOTION_BLOCKING test: the same on every version, blocksMotion was renamed)
+	private static boolean solid(BlockState state) {
+		return state.getFluidState().isEmpty() && Heightmap.Types.MOTION_BLOCKING.isOpaque().test(state);
 	}
 
 	public static String run(MinecraftServer server, int chunks) {
@@ -67,14 +73,14 @@ public final class RTFFloatingTest {
 								for (int y = sea - BAND; y <= sea + BAND; y++) {
 									pos.set(cx * 16 + x, y, cz * 16 + z);
 									BlockState state = chunk.getBlockState(pos);
-									if (state.isAir() || state.is(BlockTags.LEAVES) || state.is(BlockTags.ICE) || !state.blocksMotion() || !state.getFluidState().isEmpty()) continue;
+									if (state.isAir() || state.is(BlockTags.LEAVES) || state.is(BlockTags.ICE) || !solid(state)) continue;
 									// the top of the column: open to the sky above (plants and leaves do not count), not a cave roof
 									BlockState above = chunk.getBlockState(pos.move(0, 1, 0));
 									pos.move(0, -1, 0);
-									if (above.blocksMotion() && !above.is(BlockTags.LEAVES) && !above.is(BlockTags.LOGS)) continue;
+									if (solid(above) && !above.is(BlockTags.LEAVES) && !above.is(BlockTags.LOGS)) continue;
 									BlockState below = chunk.getBlockState(pos.move(0, -1, 0));
 									pos.move(0, 1, 0);
-									if (!below.getFluidState().is(FluidTags.WATER) || below.blocksMotion()) continue;
+									if (!below.getFluidState().is(FluidTags.WATER) || solid(below)) continue;
 									byBlock.merge(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(), 1, Integer::sum);
 									String biome = level.getBiome(pos).getRegisteredName();
 									byBiome.merge(biome, 1, Integer::sum);
