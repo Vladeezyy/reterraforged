@@ -64,6 +64,13 @@ class MixinRandomState {
 	// TerraBlender's region choice from the preset's biome regions (MixinParameterList)
 	@Nullable
 	private DensityFunction tbUniqueness;
+	// the registries of the last overworld ChunkMap set up, for a random state another mod creates itself with our
+	// noise settings and never hands to a ChunkMap (CityWorld's "Vanilla, cities apart" builds its own overworld
+	// generator): it reads the preset from them the first time its terrain is asked for
+	@Nullable
+	private static volatile RegistryAccess serverRegistries;
+	// initialize ran, or the lazy one was tried
+	private volatile boolean initialized;
 
 	// 26.3: density functions are compiled with this context; the mod's functions reach this RandomState through it
 	@ModifyArg(
@@ -80,12 +87,31 @@ class MixinRandomState {
 
 	public void reterraforged$RTFRandomState$initialize(ServerLevel level) {
 		RegistryAccess registries = level.registryAccess();
+		this.initialized = true;
 
 		if(!level.dimension().equals(Level.OVERWORLD)) {
 			this.clearGeneratorContext();
 			return;
 		}
+		serverRegistries = registries;
+		this.initialize(registries);
+	}
 
+	// a random state no ChunkMap set up: if its router has our cells, they are the overworld's preset's
+	@Nullable
+	private synchronized GeneratorContext initializeLazily() {
+		RegistryAccess registries = serverRegistries;
+		if(!this.initialized && registries != null) {
+			this.initialized = true;
+			this.initialize(registries);
+			if(this.generatorContext != null) {
+				RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
+			}
+		}
+		return this.generatorContext;
+	}
+
+	private void initialize(RegistryAccess registries) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
@@ -162,7 +188,11 @@ class MixinRandomState {
 
 	@Nullable
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
-		return this.generatorContext;
+		GeneratorContext context = this.generatorContext;
+		if(context == null && !this.initialized) {
+			context = this.initializeLazily();
+		}
+		return context;
 	}
 
 	@Nullable
