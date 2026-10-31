@@ -4,7 +4,8 @@
 # - legacy: a world made by the last release for this Minecraft version, opened with this build: the same ground as a
 #   new world of that preset (worlds made before keep their terrain);
 # - parity: NeoForge and Fabric make the same world.
-# The jars are kept as artifacts, and the server logs and world shapes of every test.
+# The jars are kept as artifacts, and the server logs and world shapes of every test; the new world's NeoForge export
+# (server-neoforge-new) holds the preset datapack a release ships.
 name: Build
 
 on:
@@ -110,6 +111,7 @@ jobs:
             run/server-*/*.log
             run/server-*/logs/latest.log
             run/server-*/rtf-*.txt
+            run/server-neoforge/reterraforged-preset.zip
           if-no-files-found: ignore
 
   parity:
