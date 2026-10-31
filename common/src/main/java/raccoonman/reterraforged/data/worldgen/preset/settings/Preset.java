@@ -76,7 +76,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 			TBNoiseRouterData.bootstrap(ctx);
 		});
 		// the surface rules the overworld had before the preset (a datapack biome mod's, Terralith's) stay (#28)
-		this.addPatch(builder, Registries.NOISE_SETTINGS, (preset, ctx) -> PresetNoiseGeneratorSettings.bootstrap(preset, ctx, PresetSurfaceRuleData.base(registries)));
+		this.addPatch(builder, Registries.NOISE_SETTINGS, (preset, ctx) -> PresetNoiseGeneratorSettings.bootstrap(preset, ctx, PresetSurfaceRuleData.rebind(PresetSurfaceRuleData.base(registries), registries, ctx)));
 		this.addPatch(builder, Registries.STRUCTURE_SET, (preset, ctx) -> PresetStructureSets.bootstrap(preset, ctx, registries));
 
 		Cloner.Factory factory = new Cloner.Factory();

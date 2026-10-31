@@ -7,7 +7,15 @@ import java.util.Optional;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.data.worldgen.SurfaceRuleData;
@@ -59,6 +67,20 @@ public class PresetSurfaceRuleData {
 		return rule;
     }
     
+    // 26.2: the rule from the registries refers to their biomes and noises, which the preset's patch cannot write (the
+    // export failed: "Couldn't generate file .../noise_settings/overworld.json: Element Reference{...}"); written with
+    // the registries and read back with the patch's own lookups, it refers to the patch's
+    public static SurfaceRules.RuleSource rebind(SurfaceRules.RuleSource rule, RegistryAccess registries, BootstrapContext<?> ctx) {
+		JsonElement json = SurfaceRules.RuleSource.CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE, registries), rule).getOrThrow();
+		RegistryOps<JsonElement> patchOps = RegistryOps.create(JsonOps.INSTANCE, new RegistryOps.RegistryInfoLookup() {
+			@Override
+			public <T> Optional<RegistryOps.RegistryInfo<T>> lookup(ResourceKey<? extends Registry<? extends T>> key) {
+				return Optional.of(new RegistryOps.RegistryInfo<>(new HolderOwner<T>() {}, ctx.lookup(key), Lifecycle.stable()));
+			}
+		});
+		return SurfaceRules.RuleSource.CODEC.parse(patchOps, json).getOrThrow();
+    }
+
 	private static SurfaceRules.RuleSource makeStrataRule(Preset preset, HolderGetter<Noise> noise) {
 		Holder<Noise> depth = noise.getOrThrow(PresetStrataNoise.STRATA_DEPTH);
 		MiscellaneousSettings miscellaneous = preset.miscellaneous();
