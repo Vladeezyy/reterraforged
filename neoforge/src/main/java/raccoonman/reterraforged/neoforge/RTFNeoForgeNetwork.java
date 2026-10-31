@@ -32,7 +32,7 @@ final class RTFNeoForgeNetwork {
 		NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> AltitudeCooling.reset());
 		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
 			if (event.getEntity() instanceof ServerPlayer player && player.connection.hasChannel(AltitudeCoolingPayload.TYPE)) {
-				PacketDistributor.sendToPlayer(player, new AltitudeCoolingPayload(AltitudeCooling.of(player.server.overworld())));
+				PacketDistributor.sendToPlayer(player, new AltitudeCoolingPayload(AltitudeCooling.of(player.level().getServer().overworld())));
 			}
 		});
 	}

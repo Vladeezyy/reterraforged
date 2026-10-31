@@ -45,7 +45,7 @@ public class PresetSurfaceRuleData {
     // vanilla's left those biomes grass (#28). Our strata are taken out (the registries of a world that has the preset
     // already); without overworld noise settings, vanilla's.
     public static SurfaceRules.RuleSource base(RegistryAccess registries) {
-		SurfaceRules.RuleSource rule = registries.registry(Registries.NOISE_SETTINGS)
+		SurfaceRules.RuleSource rule = registries.lookup(Registries.NOISE_SETTINGS)
 			.flatMap((settings) -> settings.getOptional(NoiseGeneratorSettings.OVERWORLD))
 			.map(NoiseGeneratorSettings::surfaceRule)
 			.orElse(null);

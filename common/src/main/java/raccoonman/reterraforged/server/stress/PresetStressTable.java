@@ -194,6 +194,7 @@ final class PresetStressTable {
 		Setting.ofFloat("world().controlPoints.inland", 0.0F, 1.0F, (p, v) -> p.world().controlPoints.inland = v),
 		Setting.ofEnum("world().properties.spawnType", SpawnType.values(), (p, v) -> p.world().properties.spawnType = v),
 		Setting.ofInt("world().properties.worldHeight", 16, 1024, (p, v) -> p.world().properties.worldHeight = v).step(16),
+		Setting.ofBoolean("world().properties.altitudeCoolingFollowsHeight", (p, v) -> p.world().properties.altitudeCoolingFollowsHeight = v),
 		Setting.ofInt("world().properties.worldDepth", 0, 1024, (p, v) -> p.world().properties.worldDepth = v).step(16),
 		Setting.ofInt("world().properties.seaLevel", 0, 255, (p, v) -> p.world().properties.seaLevel = v),
 		Setting.ofInt("world().properties.oceanDepth", 0, 160, (p, v) -> p.world().properties.oceanDepth = v),
