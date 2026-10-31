@@ -97,6 +97,14 @@ public final class RTFSelfTest {
 			String result = RTFHoleTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		}))).then(Commands.literal("floating").executes(ctx -> {
+			String result = RTFFloatingTest.run(ctx.getSource().getServer(), 16);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("chunks", IntegerArgumentType.integer(4, 64)).executes(ctx -> {
+			String result = RTFFloatingTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		}))).then(Commands.literal("heights").executes(ctx -> {
 			String result = RTFWorldChecks.heights(ctx.getSource().getServer(), "");
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
