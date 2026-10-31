@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Найбільший розмір озера",
   "reterraforged.gui.slider.lake.sizeMin": "Мін. розмір",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Найменший розмір озера",
+  "reterraforged.gui.slider.deepslateLevel": "Рівень глибинного сланцю",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "Висота, на якій камінь змінюється глибинним сланцем: у 8 блоках над нею камінь поступово переходить у сланець, нижче все з глибинного сланцю (руди теж). 0 — як у ванілі.",
   "reterraforged.gui.slider.lavaLevel": "Рівень лави",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Рівень лави.",
   "reterraforged.gui.slider.macroNoiseSize": "Розмір макрошуму",

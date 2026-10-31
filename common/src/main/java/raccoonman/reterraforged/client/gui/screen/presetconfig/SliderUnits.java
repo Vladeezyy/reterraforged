@@ -23,7 +23,7 @@ final class SliderUnits {
 				RTFTranslationKeys.GUI_SLIDER_ROCK_VARIANCE, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH_RANGE }) {
 			UNITS.put(key, Unit.BLOCKS);
 		}
-		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL, RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL, RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT,
+		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL, RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL, RTFTranslationKeys.GUI_SLIDER_DEEPSLATE_LEVEL, RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT,
 				RTFTranslationKeys.GUI_SLIDER_DIRT_MIN, RTFTranslationKeys.GUI_SLIDER_ROCK_MIN, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT }) {
 			UNITS.put(key, Unit.Y);
 		}

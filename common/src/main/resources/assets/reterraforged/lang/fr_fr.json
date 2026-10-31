@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Taille maximale du lac",
   "reterraforged.gui.slider.lake.sizeMin": "Taille min.",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Taille minimale du lac",
+  "reterraforged.gui.slider.deepslateLevel": "Niveau d'ardoise des abîmes",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "La hauteur où la roche laisse place à l'ardoise des abîmes : sur les 8 blocs au-dessus, la roche devient peu à peu de l'ardoise des abîmes, en dessous tout l'est (les minerais aussi). 0 : comme en vanilla.",
   "reterraforged.gui.slider.lavaLevel": "Niveau de lave",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Détermine le niveau de lave.",
   "reterraforged.gui.slider.macroNoiseSize": "Taille du macro-bruit",

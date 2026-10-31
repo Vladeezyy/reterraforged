@@ -6,6 +6,8 @@ accessible class net/minecraft/world/level/levelgen/SurfaceRules$SurfaceRule
 accessible class net/minecraft/world/level/levelgen/SurfaceRules$LazyCondition
 accessible class net/minecraft/world/level/levelgen/SurfaceRules$LazyXZCondition
 accessible class net/minecraft/world/level/levelgen/SurfaceRules$SequenceRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$TestRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$VerticalGradientConditionSource
 accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context updateXZ (II)V
 accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context noiseChunk Lnet/minecraft/world/level/levelgen/NoiseChunk;
 accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context randomState Lnet/minecraft/world/level/levelgen/RandomState;

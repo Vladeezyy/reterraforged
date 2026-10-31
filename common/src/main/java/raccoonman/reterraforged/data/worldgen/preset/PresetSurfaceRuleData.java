@@ -21,6 +21,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import raccoonman.reterraforged.RTFCommon;
@@ -38,6 +39,10 @@ public class PresetSurfaceRuleData {
     
     // base: the overworld's surface rules without ours (base(registries)); vanilla's in a world without mods
     public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<Noise> noise, SurfaceRules.RuleSource base) {
+		int deepslate = preset.world().properties.deepslateLevel;
+		if(deepslate != 0) {
+			base = moveDeepslate(base, deepslate);
+		}
 		// the strata only with the strata decorator on, as in ReTerraForged 0.0.6 (the 1.21.1 port always added them)
 		if(!preset.miscellaneous().strataDecorator) {
 			return base;
@@ -80,6 +85,21 @@ public class PresetSurfaceRuleData {
 		});
 		return SurfaceRules.RuleSource.CODEC.parse(patchOps, json).getOrThrow();
     }
+
+	// vanilla's deepslate rule (stone to deepslate from y 8 down to y 0, "deepslate" gradient) moved to the preset's
+	// level, the same 8 blocks of gradient above it (#32); found in a mod's rules too, as long as it keeps vanilla's
+	private static SurfaceRules.RuleSource moveDeepslate(SurfaceRules.RuleSource rule, int level) {
+		if(rule instanceof SurfaceRules.SequenceRuleSource sequence) {
+			return SurfaceRules.sequence(sequence.sequence().stream().map((r) -> moveDeepslate(r, level)).toArray(SurfaceRules.RuleSource[]::new));
+		}
+		if(rule instanceof SurfaceRules.TestRuleSource test) {
+			if(test.ifTrue() instanceof SurfaceRules.VerticalGradientConditionSource gradient && gradient.randomName().getPath().equals("deepslate")) {
+				return SurfaceRules.ifTrue(SurfaceRules.verticalGradient("deepslate", VerticalAnchor.absolute(level), VerticalAnchor.absolute(level + 8)), test.thenRun());
+			}
+			return SurfaceRules.ifTrue(test.ifTrue(), moveDeepslate(test.thenRun(), level));
+		}
+		return rule;
+	}
 
 	private static SurfaceRules.RuleSource makeStrataRule(Preset preset, HolderGetter<Noise> noise) {
 		Holder<Noise> depth = noise.getOrThrow(PresetStrataNoise.STRATA_DEPTH);

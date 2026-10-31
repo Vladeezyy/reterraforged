@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Tamanho máximo do lago",
   "reterraforged.gui.slider.lake.sizeMin": "Tamanho mín.",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Tamanho mínimo do lago",
+  "reterraforged.gui.slider.deepslateLevel": "Nível de ardósia profunda",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "A altura em que a pedra dá lugar à ardósia profunda: nos 8 blocos acima a pedra vai virando ardósia profunda, e abaixo tudo é ardósia profunda (os minérios também). 0: como no vanilla.",
   "reterraforged.gui.slider.lavaLevel": "Nível da lava",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Controla o nível da lava.",
   "reterraforged.gui.slider.macroNoiseSize": "Tamanho do macro-ruído",
