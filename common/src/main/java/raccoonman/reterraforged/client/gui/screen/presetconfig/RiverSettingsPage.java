@@ -22,6 +22,7 @@ class RiverSettingsPage extends PresetEditorPage {
 	private Slider valleyWidth;
 	private Slider valleySlope;
 	private CycleButton<Boolean> valleyFollowsMeanders;
+	private Slider gorgeChance;
 	
 	private Slider mainRiverBedDepth;
 	private Slider mainRiverMinBankHeight;
@@ -91,6 +92,12 @@ class RiverSettingsPage extends PresetEditorPage {
 		this.valleyFollowsMeanders = PresetWidgets.createToggle(river.valleyFollowsMeanders, RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS, (button, value) -> {
 			river.valleyFollowsMeanders = value;
 			this.regenerate();
+		});
+		
+		this.gorgeChance = PresetWidgets.createFloatSlider(river.gorgeChance, 0.0F, 0.95F, RTFTranslationKeys.GUI_SLIDER_GORGE_CHANCE, (slider, value) -> {
+			river.gorgeChance = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
 		});
 		
 		River mainRivers = river.mainRivers;
@@ -228,6 +235,7 @@ class RiverSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.valleyWidth);
 		this.left.addWidget(this.valleySlope);
 		this.left.addWidget(this.valleyFollowsMeanders);
+		this.left.addWidget(this.gorgeChance);
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_MAIN_RIVERS));
 		this.left.addWidget(this.mainRiverBedDepth);
 		this.left.addWidget(this.mainRiverMinBankHeight);

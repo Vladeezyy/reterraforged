@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Wie steil die Flanken von Fluss- und Seetälern sein dürfen, in Grad. Steileres Gelände wird bis zur doppelten Talbreite entfernt auf diese Neigung abgetragen. 90°: keine Grenze, wie in ReTerraForged 0.0.6, wo ein Tal durch hohes Gelände an einer Steilwand enden kann. Bleibt eine Steilwand, die Täler auch verbreitern.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Tal folgt den Mäandern",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "An: Das Tal folgt den Flussschleifen. Aus (wie in ReTerraForged 0.0.6): auch der geraden Linie, um die der Fluss mäandert; wo er seitlich ausschwingt, bleibt daneben ein trockener Talboden.",
+  "reterraforged.gui.slider.gorgeChance": "Schluchtanteil",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "Der Anteil der Flüsse und Nebenflüsse, deren Tal eine Schlucht ist: steile Hänge dicht am Wasser, der Rest des Tals sanft. 25 %: wie in ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Fels min.",
   "reterraforged.gui.slider.rockMin.tooltip": "Y-Höhe, ab der die Oberfläche in Fels übergehen kann",
   "reterraforged.gui.slider.rockSteepness": "Fels-Steilheit",

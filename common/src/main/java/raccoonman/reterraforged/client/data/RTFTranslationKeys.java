@@ -172,6 +172,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_RIVER_COUNT = resolve("gui.slider.riverCount");
 	public static final String GUI_SLIDER_VALLEY_WIDTH = resolve("gui.slider.valleyWidth");
 	public static final String GUI_SLIDER_VALLEY_SLOPE = resolve("gui.slider.valleySlope");
+	public static final String GUI_SLIDER_GORGE_CHANCE = resolve("gui.slider.gorgeChance");
 	public static final String GUI_SLIDER_RIVER_BED_DEPTH = resolve("gui.slider.river.bedDepth");
 	public static final String GUI_SLIDER_RIVER_MIN_BANK_HEIGHT = resolve("gui.slider.river.minBankHeight");
 	public static final String GUI_SLIDER_RIVER_MAX_BANK_HEIGHT = resolve("gui.slider.river.maxBankHeight");

@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Jak strome mogą być zbocza dolin rzek i jezior, w stopniach. Bardziej stromy teren jest ścinany do tego nachylenia w odległości do dwóch szerokości doliny. 90°: bez ograniczenia, jak w ReTerraForged 0.0.6, gdzie dolina w wysokim terenie może kończyć się urwiskiem. Jeśli urwisko zostało, poszerz też doliny.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Dolina wzdłuż meandrów",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "Wł.: dolina biegnie wzdłuż meandrów rzeki. Wył. (jak w ReTerraForged 0.0.6): także wzdłuż prostej, wokół której rzeka meandruje, więc tam, gdzie rzeka odbija w bok, obok zostaje suche dno doliny.",
+  "reterraforged.gui.slider.gorgeChance": "Udział wąwozów",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "Jaka część rzek i dopływów płynie wąwozem: strome zbocza tuż przy wodzie, dalej łagodna dolina. 25 %: jak w ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Skała min.",
   "reterraforged.gui.slider.rockMin.tooltip": "Poziom Y, od którego powierzchnia może przechodzić w skałę",
   "reterraforged.gui.slider.rockSteepness": "Nachylenie skał",
