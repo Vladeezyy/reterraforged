@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "강과 호수 계곡 비탈이 얼마나 가파를 수 있는지(도)입니다. 더 가파른 지면은 계곡 너비의 두 배 거리까지 이 경사로 깎입니다. 90°: 제한 없음(ReTerraForged 0.0.6과 같으며, 높은 지형을 지나는 계곡이 절벽으로 끝날 수 있음). 절벽이 남으면 계곡 너비도 넓히세요.",
   "reterraforged.gui.button.valleyFollowsMeanders": "계곡이 굽이를 따름",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "켜짐: 계곡이 강의 굽이를 따라갑니다. 꺼짐(ReTerraForged 0.0.6과 같음): 강이 굽이치는 중심 직선도 따라가므로, 강이 멀어지는 곳 옆에 마른 계곡 바닥이 남습니다.",
+  "reterraforged.gui.slider.gorgeChance": "협곡 비율",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "계곡이 협곡이 되는 강과 지류의 비율입니다. 물가 가까이는 가파르고 그 너머는 완만합니다. 25 %: ReTerraForged 0.0.6과 같음.",
   "reterraforged.gui.slider.rockMin": "바위 최저 높이",
   "reterraforged.gui.slider.rockMin.tooltip": "지표가 바위로 바뀔 수 있는 Y 높이",
   "reterraforged.gui.slider.rockSteepness": "바위 경사",

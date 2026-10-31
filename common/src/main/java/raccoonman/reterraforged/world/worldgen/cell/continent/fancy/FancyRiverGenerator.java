@@ -116,7 +116,7 @@ public class FancyRiverGenerator extends BaseRiverGenerator<FancyContinentGenera
 		if (this.riverOverlaps(river, null, roots)) {
 			return;
 		}
-		RiverCarver.Settings settings = BaseRiverGenerator.creatSettings(random);
+		RiverCarver.Settings settings = this.valleySettings(random);
 		settings.fadeIn = config.fade;
 		settings.valleySize = 275.0F * River.FORK_VALLEY.next(random);
 		RiverWarp riverWarp = RiverWarp.create(0.1F, 0.85F, random);

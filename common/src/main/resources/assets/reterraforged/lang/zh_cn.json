@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "河流与湖泊河谷谷坡最陡可达多少度。更陡的地面会在最远两倍河谷宽度的范围内被削到此坡度。90°：不限制（与 ReTerraForged 0.0.6 相同，穿过高地形的河谷可能以悬崖结束）。若仍有悬崖，请同时加宽河谷。",
   "reterraforged.gui.button.valleyFollowsMeanders": "河谷沿河曲延伸",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "开启：河谷沿河流的弯曲延伸。关闭（与 ReTerraForged 0.0.6 相同）：还会沿河流蜿蜒所绕的直线延伸，因此河流偏离处旁边会留下一段干涸的谷底。",
+  "reterraforged.gui.slider.gorgeChance": "峡谷比例",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "河谷为峡谷的河流与支流所占比例：紧邻水边的谷坡陡峭，其余部分平缓。25%：与 ReTerraForged 0.0.6 相同。",
   "reterraforged.gui.slider.rockMin": "岩石最小高度",
   "reterraforged.gui.slider.rockMin.tooltip": "控制地表可以过渡为岩石的Y轴高度\n低于此高度不会生成岩石",
   "reterraforged.gui.slider.rockSteepness": "岩石陡度",
