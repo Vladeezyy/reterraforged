@@ -132,15 +132,7 @@ public final class RTFValleyTest {
 	}
 
 	private static Preset load(String spec) throws IOException {
-		if (!spec.startsWith("file:")) {
-			return spec.equals("default") ? Presets.makeDefault() : RTFStressTest.makePreset(spec);
-		}
-		String[] parts = spec.substring(5).split("\\|", 2);
-		JsonElement json = JsonParser.parseString(Files.readString(Path.of(parts[0].trim())));
-		Preset preset = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
-		if (parts.length > 1) {
-			RTFStressTest.applySettings(preset, parts[1].trim());
-		}
-		return preset;
+		return spec.equals("default") ? Presets.makeDefault() : RTFStressTest.makePreset(spec);
 	}
+
 }
