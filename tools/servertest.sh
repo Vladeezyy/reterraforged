@@ -159,8 +159,15 @@ for loader in $LOADERS; do
         rm -f "$dir"/mods/reterraforged-*.jar; cp "$oldjar" "$dir/mods/"
         start_server "$dir" legacy-old.log
         if wait_for "$dir/legacy-old.log" 'Done (' 600; then
-            echo "rtf selftest" >> "$dir/console.in"
-            wait_for "$dir/legacy-old.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
+            # the old version generates the 81 chunks "rtf heights" reads (about 4 minutes faster than its self test,
+            # whose forest check is slow); LEGACY_SELFTEST=1: its self test, for releases before "rtf heights" (0.0.17)
+            if [ -n "$LEGACY_SELFTEST" ]; then
+                echo "rtf selftest" >> "$dir/console.in"
+                wait_for "$dir/legacy-old.log" 'RTF selftest\] \(PASS all\|FAIL [0-9]*/\)' 900
+            else
+                echo "rtf heights" >> "$dir/console.in"
+                wait_for "$dir/legacy-old.log" 'RTF heights\]' 600
+            fi
         fi
         stop_server "$dir" legacy-old.log
         rm -f "$dir"/mods/reterraforged-*.jar "$dir/rtf-heights-legacy.txt"; cp "$jar" "$dir/mods/"
