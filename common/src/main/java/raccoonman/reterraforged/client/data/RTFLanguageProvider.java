@@ -270,6 +270,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT, "River Count");
 			this.add(RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH, "Valley Width");
 			this.add(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, "Steepest Valley Side");
+			this.add(RTFTranslationKeys.GUI_SLIDER_GORGE_CHANCE, "Gorge Chance");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH, "Bed Depth");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT, "Min Bank Height");
 			this.add(RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT, "Max Bank Height");
@@ -468,6 +469,7 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT), "Controls the number of main rivers per continent.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH), "How wide the valleys of rivers and lakes are, times their width in ReTerraForged 0.0.6 (about 220 to 410 blocks from a river). In a wider valley tall terrain comes down to the water more gently. 1.00: as in 0.0.6.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE), "How steep the sides of river and lake valleys can be, in degrees. Steeper ground is cut back to this slope, up to twice the valley width away. 90°: no limit, as in ReTerraForged 0.0.6, where a valley through tall terrain can end in a cliff. If a cliff is left, widen the valleys too.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_GORGE_CHANCE), "The share of rivers and their branches whose valley is a gorge: steep sides close to the water, the rest of the valley gentle. 25 %: as in ReTerraForged 0.0.6.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH), "Controls the depth of the river");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT), "Controls the height of river banks");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT), "Controls the height of river banks");

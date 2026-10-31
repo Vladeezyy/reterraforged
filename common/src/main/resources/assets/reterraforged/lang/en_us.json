@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "How steep the sides of river and lake valleys can be, in degrees. Steeper ground is cut back to this slope, up to twice the valley width away. 90°: no limit, as in ReTerraForged 0.0.6, where a valley through tall terrain can end in a cliff. If a cliff is left, widen the valleys too.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Valley Follows Meanders",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "On: the valley follows the river's meanders. Off (as in ReTerraForged 0.0.6): it also follows the straight line the river meanders around, so where the river bends away a dry valley floor is left beside it.",
+  "reterraforged.gui.slider.gorgeChance": "Gorge Chance",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "The share of rivers and their branches whose valley is a gorge: steep sides close to the water, the rest of the valley gentle. 25 %: as in ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Rock Min",
   "reterraforged.gui.slider.rockMin.tooltip": "Controls the y level at which the surface can transition into rock",
   "reterraforged.gui.slider.rockSteepness": "Rock Steepness",

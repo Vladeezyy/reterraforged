@@ -291,6 +291,8 @@
   "reterraforged.gui.slider.valleySlope.tooltip": "Raideur maximale des versants des vallées de rivières et de lacs, en degrés. Le terrain plus raide est coupé à cette pente jusqu'à deux largeurs de vallée. 90° : aucune limite, comme dans ReTerraForged 0.0.6, où une vallée en relief élevé peut finir en falaise. S'il reste une falaise, élargissez aussi les vallées.",
   "reterraforged.gui.button.valleyFollowsMeanders": "Vallée suit les méandres",
   "reterraforged.gui.button.valleyFollowsMeanders.tooltip": "Activé : la vallée suit les méandres de la rivière. Désactivé (comme dans ReTerraForged 0.0.6) : aussi la ligne droite autour de laquelle la rivière serpente ; là où la rivière s'en écarte, un fond de vallée sec reste à côté.",
+  "reterraforged.gui.slider.gorgeChance": "Part de gorges",
+  "reterraforged.gui.slider.gorgeChance.tooltip": "La part des rivières et affluents dont la vallée est une gorge : versants raides au bord de l'eau, le reste de la vallée en pente douce. 25 % : comme dans ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Roche min.",
   "reterraforged.gui.slider.rockMin.tooltip": "Niveau Y à partir duquel la surface peut passer à la roche",
   "reterraforged.gui.slider.rockSteepness": "Pente de la roche",
