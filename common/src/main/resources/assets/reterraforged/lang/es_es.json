@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "Tamaño máximo del lago",
   "reterraforged.gui.slider.lake.sizeMin": "Tamaño mín.",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "Tamaño mínimo del lago",
+  "reterraforged.gui.slider.deepslateLevel": "Nivel de pizarra profunda",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "La altura a la que la piedra da paso a la pizarra profunda: en los 8 bloques por encima la piedra se va convirtiendo en pizarra profunda y por debajo todo lo es (también las menas). 0: como en vanilla.",
   "reterraforged.gui.slider.lavaLevel": "Nivel de lava",
   "reterraforged.gui.slider.lavaLevel.tooltip": "Controla el nivel de lava.",
   "reterraforged.gui.slider.macroNoiseSize": "Tamaño del macrorruido",

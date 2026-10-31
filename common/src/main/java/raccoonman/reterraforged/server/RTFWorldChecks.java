@@ -112,6 +112,28 @@ public final class RTFWorldChecks {
 		reexport(server, check);
 		strata(overworld, check);
 		snowLine(overworld, check);
+		deepslate(overworld, check);
+	}
+
+	// a preset with its own deepslate level (#32, tools/servertest.sh PRESET=set:world().properties.deepslateLevel=40):
+	// in the self test's chunks the stone 4 blocks below the level is deepslate, the rock 12 blocks above it is not
+	private static void deepslate(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || s.preset().world().properties.deepslateLevel == 0) return;
+		int y = s.preset().world().properties.deepslateLevel;
+		int below = 0, belowDeep = 0, above = 0, aboveDeep = 0;
+		for (int cx = AREA_MIN; cx <= AREA_MAX; cx++) for (int cz = AREA_MIN; cz <= AREA_MAX; cz++) {
+			ChunkAccess c = full(level, cx, cz);
+			for (int x = 0; x < 16; x += 3) for (int z = 0; z < 16; z += 3) {
+				BlockState low = c.getBlockState(new BlockPos(cx * 16 + x, y - 4, cz * 16 + z));
+				if (low.is(Blocks.STONE) || low.is(Blocks.DEEPSLATE)) { below++; if (low.is(Blocks.DEEPSLATE)) belowDeep++; }
+				BlockState high = c.getBlockState(new BlockPos(cx * 16 + x, y + 12, cz * 16 + z));
+				// above: any rock (the strata lay granite, diorite and andesite there), where the ground is higher
+				boolean underGround = c.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z) > y + 16;
+				if (underGround && !high.isAir() && high.getFluidState().isEmpty()) { above++; if (high.is(Blocks.DEEPSLATE)) aboveDeep++; }
+			}
+		}
+		check.accept("deepslate starts at the preset's level " + y + " (deepslate: " + belowDeep + "/" + below + " of the stone at y " + (y - 4) + ", " + aboveDeep + "/" + above + " of the rock at y " + (y + 12) + ")",
+			below > 50 && above > 50 && belowDeep >= below * 0.95 && aboveDeep <= above * 0.05);
 	}
 
 	// a preset exported again into the same file (the preset screen's "Export As Datapack" writes exports/<name>.zip)

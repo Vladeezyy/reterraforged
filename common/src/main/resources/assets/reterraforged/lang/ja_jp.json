@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "湖の最大の大きさ",
   "reterraforged.gui.slider.lake.sizeMin": "最小の大きさ",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "湖の最小の大きさ",
+  "reterraforged.gui.slider.deepslateLevel": "深層岩の高さ",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "石が深層岩に変わる高さ。その上の8ブロックで石が徐々に深層岩になり、それより下はすべて深層岩です（鉱石も深層岩版）。0：バニラと同じ。",
   "reterraforged.gui.slider.lavaLevel": "溶岩面",
   "reterraforged.gui.slider.lavaLevel.tooltip": "溶岩面の高さ。",
   "reterraforged.gui.slider.macroNoiseSize": "マクロノイズの大きさ",

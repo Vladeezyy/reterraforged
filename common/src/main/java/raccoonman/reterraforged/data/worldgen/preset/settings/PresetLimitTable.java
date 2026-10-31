@@ -157,7 +157,8 @@ final class PresetLimitTable {
 		PresetLimits.Limit.ofInt("world().properties.worldDepth", 0, 1024, 16, p -> p.world().properties.worldDepth, (p, v) -> p.world().properties.worldDepth = v),
 		PresetLimits.Limit.ofInt("world().properties.seaLevel", 0, 255, 1, p -> p.world().properties.seaLevel, (p, v) -> p.world().properties.seaLevel = v),
 		PresetLimits.Limit.ofInt("world().properties.oceanDepth", 0, 160, 1, p -> p.world().properties.oceanDepth, (p, v) -> p.world().properties.oceanDepth = v),
-		PresetLimits.Limit.ofInt("world().properties.lavaLevel", -1024, 128, 1, p -> p.world().properties.lavaLevel, (p, v) -> p.world().properties.lavaLevel = v)
+		PresetLimits.Limit.ofInt("world().properties.lavaLevel", -1024, 128, 1, p -> p.world().properties.lavaLevel, (p, v) -> p.world().properties.lavaLevel = v),
+		PresetLimits.Limit.ofInt("world().properties.deepslateLevel", -1024, 256, 1, p -> p.world().properties.deepslateLevel, (p, v) -> p.world().properties.deepslateLevel = v)
 	);
 
 	private PresetLimitTable() {

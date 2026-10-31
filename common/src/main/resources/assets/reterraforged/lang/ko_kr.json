@@ -250,6 +250,8 @@
   "reterraforged.gui.slider.lake.sizeMax.tooltip": "호수의 최대 크기",
   "reterraforged.gui.slider.lake.sizeMin": "최소 크기",
   "reterraforged.gui.slider.lake.sizeMin.tooltip": "호수의 최소 크기",
+  "reterraforged.gui.slider.deepslateLevel": "심층암 높이",
+  "reterraforged.gui.slider.deepslateLevel.tooltip": "돌이 심층암으로 바뀌는 높이입니다. 그 위 8블록에서 돌이 점차 심층암이 되고, 그 아래는 모두 심층암입니다(광석도 심층암 광석). 0: 바닐라와 같음.",
   "reterraforged.gui.slider.lavaLevel": "용암 높이",
   "reterraforged.gui.slider.lavaLevel.tooltip": "용암 높이를 정합니다.",
   "reterraforged.gui.slider.macroNoiseSize": "매크로 노이즈 크기",
