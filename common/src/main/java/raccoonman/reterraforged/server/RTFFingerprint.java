@@ -29,7 +29,9 @@ public final class RTFFingerprint {
 	// 6 x 6 chunks to the surface and 4 x 4 fully generated chunks in each of these places (chunk coordinates), far
 	// apart: plains, mountains, coasts and oceans of the test seed, away from the self test's chunks
 	private static final int[][] SURFACE_AREAS = { { 100, 100 }, { -400, 250 }, { 600, -700 }, { -1200, -1200 }, { 1500, 900 } };
-	private static final int[][] FULL_AREAS = { { 150, -150 }, { -300, -500 }, { 800, 300 }, { -900, 900 } };
+	// the last two: an old growth pine taiga and a windswept forest of the test seed (tools/servertest.sh SEED), whose
+	// trees come from the mod's templates (a large spruce template that pasted nothing went unnoticed before)
+	private static final int[][] FULL_AREAS = { { 150, -150 }, { -300, -500 }, { 800, 300 }, { -900, 900 }, { 267, -60 }, { 267, -36 } };
 
 	private RTFFingerprint() {
 	}
