@@ -49,7 +49,6 @@ public class Cell {
     public float moisture;
     public FakeWaterBiomeTarget fakeWaterBiome;
     
-    @Deprecated(forRemoval = true)
     public float beachNoise;
 
     public Cell() {
@@ -99,12 +98,10 @@ public class Cell {
         return this;
     }
 
-    @Deprecated(forRemoval = true)
     public boolean isAbsent() {
         return false;
     }
 
-    @Deprecated(forRemoval = true)
     public static Cell empty() {
         return Cell.EMPTY;
     }
