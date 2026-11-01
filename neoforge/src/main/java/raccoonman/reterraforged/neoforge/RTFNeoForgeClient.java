@@ -12,7 +12,8 @@ class RTFNeoForgeClient {
 	}
 
 	public static void registerPresetEditors(RegisterPresetEditorsEvent event) {
-		// TODO we probably shouldn't register this for the default preset
+		// the default world type's Customize button opens the mod's settings (whether the world uses them is the create
+		// world screen's switch, RTFCreateWorld)
 		event.register(WorldPresets.NORMAL, (screen, ctx) -> new PresetConfigScreen(screen));
 	}
 }

@@ -13,6 +13,7 @@ public class FakeWaterBiomeSettings {
 	
 	public boolean enableFakeWaterBiomes;
 	public boolean steppeBelowSeaLevelRiverBiomes;
+	// rivers, not oceans (the resolver answers RIVER for both; the name is the presets' key and stays)
 	public boolean badlandsBelowSeaLevelOceanBiomes;
 	public float heightOffset;
 	
