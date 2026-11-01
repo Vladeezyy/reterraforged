@@ -55,8 +55,9 @@ public class Cache<V extends ExpiringEntry> implements AutoCloseable {
         }
     }
     
-    public void remove(long key) {
-        this.map.remove(key, ExpiringEntry::close);
+    // removes the entry without closing it: a thread that took it may still use it
+    public void discard(long key) {
+        this.map.remove(key);
     }
     
     public V get(long key) {
