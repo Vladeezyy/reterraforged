@@ -2,15 +2,10 @@ package raccoonman.reterraforged.server;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.JsonOps;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
@@ -64,7 +59,8 @@ public final class RTFValleyTest {
 		boolean[] valley = new boolean[size * size];
 		for (int tz = 0; tz < TILES; tz++) for (int tx = 0; tx < TILES; tx++) {
 			float cx = x + (tx - (TILES - 1) / 2.0F) * tile * ZOOM, cz = z + (tz - (TILES - 1) / 2.0F) * tile * ZOOM;
-			try (Tile t = ctx.generator.generateZoomed(cx, cz, ZOOM, false).join()) {
+			{
+				Tile t = ctx.generator.generateZoomed(cx, cz, ZOOM, false).join();
 				int width = t.getBlockSize().size();
 				Cell[] cells = t.getBacking();
 				for (int pz = 0; pz < tile; pz++) for (int px = 0; px < tile; px++) {

@@ -3,7 +3,6 @@ package raccoonman.reterraforged.world.worldgen.densityfunction.tile.generation;
 import java.util.concurrent.CompletableFuture;
 
 import raccoonman.reterraforged.concurrent.ThreadPools;
-import raccoonman.reterraforged.concurrent.pool.ArrayPool;
 import raccoonman.reterraforged.world.worldgen.WorldFilters;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap;
@@ -16,8 +15,6 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile.Chunk;
 public class TileGenerator {
 	private Heightmap heightmap;
 	private WorldFilters filters;
-	private ArrayPool<Cell> cellPool;
-	private ArrayPool<Chunk> chunkPool;
 	private int tileChunks;
 	private int tileBorder;
 	private Size tileSizeBlocks;
@@ -25,21 +22,9 @@ public class TileGenerator {
 	private int batchSize;
 	private int batchCount;
 	
-	private static final int POOLED_TILES = 16;
-
 	public TileGenerator(Heightmap heightmap, WorldFilters filters, int tileChunks, int tileBorder, int batchCount) {
 		this.heightmap = heightmap;
 		this.filters = filters;
-		// the arrays of dropped tiles, kept for the next ones: a tile of the default size is about 5 MB of cells, and 100
-		// of them stayed in memory for good once a fast flight had made that many; a few cover the steady generation
-		this.cellPool = ArrayPool.of(POOLED_TILES, (length) -> {
-			Cell[] cells = new Cell[length];
-			for(int i = 0; i < cells.length; i++) {
-				cells[i] = new Cell();
-			}
-			return cells;
-		});
-		this.chunkPool = ArrayPool.of(POOLED_TILES, Chunk[]::new);
 		this.tileChunks = tileChunks;
 		this.tileBorder = tileBorder;
 		this.tileSizeBlocks = Size.blocks(tileChunks, tileBorder);
@@ -133,7 +118,12 @@ public class TileGenerator {
 	}
     
 	private Tile makeTile(int x, int z) {
-		return new Tile(x, z, this.tileChunks, this.tileBorder, this.tileSizeBlocks, this.tileSizeChunks, this.cellPool.get(this.tileSizeBlocks.arraySize()), this.chunkPool.get(this.tileSizeChunks.arraySize()));
+		// new arrays for every tile: a dropped tile may still be read, so its arrays are not reused
+		Cell[] cells = new Cell[this.tileSizeBlocks.arraySize()];
+		for (int i = 0; i < cells.length; i++) {
+			cells[i] = new Cell();
+		}
+		return new Tile(x, z, this.tileChunks, this.tileBorder, this.tileSizeBlocks, this.tileSizeChunks, cells, new Chunk[this.tileSizeChunks.arraySize()]);
 	}
 	
     private static int getBatchSize(int batchCount, Size chunkSize) {

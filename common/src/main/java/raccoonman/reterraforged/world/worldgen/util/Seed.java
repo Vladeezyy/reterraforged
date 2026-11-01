@@ -13,9 +13,6 @@ public class Seed {
         return this.value++;
     }
     
-    public int get() {
-        return this.value;
-    }
     
     public int root() {
         return this.root;

@@ -4,7 +4,6 @@ import java.util.function.LongFunction;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import java.util.function.Predicate;
-import java.util.function.Consumer;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import java.util.concurrent.locks.StampedLock;
 
@@ -50,20 +49,6 @@ public class StampedBoundLongMap<T> implements LongMap<T> {
 	}
 
 	@Override
-	public void remove(long key, Consumer<T> consumer) {
-		long stamp = this.lock.writeLock();
-		T t;
-		try {
-			t = this.map.remove(key);
-		} finally {
-			this.lock.unlockWrite(stamp);
-		}
-		if (t != null) {
-			consumer.accept(t);
-		}
-	}
-
-	@Override
 	public int removeIf(Predicate<T> predicate) {
 		long stamp = this.lock.writeLock();
 		try {
@@ -76,16 +61,6 @@ public class StampedBoundLongMap<T> implements LongMap<T> {
 				}
 			}
 			return startSize - this.map.size();
-		} finally {
-			this.lock.unlockWrite(stamp);
-		}
-	}
-
-	@Override
-	public void put(long key, T t) {
-		long stamp = this.lock.writeLock();
-		try {
-			this.map.put(key, t);
 		} finally {
 			this.lock.unlockWrite(stamp);
 		}
