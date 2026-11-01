@@ -47,6 +47,10 @@ public class FeatureTemplateManager {
 				RTFCommon.LOGGER.error("Could not read the feature template {}", location, e);
 				return Optional.empty();
 			}
-		}).orElse(new FeatureTemplate(ImmutableList.of()));
+		}).orElseGet(() -> {
+			// once per template (the manager keeps it): a missing file pastes nothing where the tree should stand
+			RTFCommon.LOGGER.warn("Feature template {} not found or unreadable: it places nothing", location);
+			return new FeatureTemplate(ImmutableList.of());
+		});
 	}
 }
