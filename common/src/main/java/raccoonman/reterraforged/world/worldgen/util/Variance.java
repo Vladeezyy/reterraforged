@@ -12,29 +12,14 @@ public record Variance(float min, float range) {
         return this.apply(value) * scaler;
     }
     
-    public float next(FastRandom random) {
-        return this.apply(random.nextFloat());
-    }
     
     public float next(Random random) {
         return this.apply(random.nextFloat());
     }
     
-    public float next(FastRandom random, float scalar) {
-        return this.apply(random.nextFloat(), scalar);
-    }
     
-    public float next(Random random, float scalar) {
-        return this.apply(random.nextFloat(), scalar);
-    }
     
-    public static Variance min(float min) {
-        return new Variance(min, 1.0F - min);
-    }
     
-    public static Variance range(float range) {
-        return new Variance(1.0F - range, range);
-    }
     
     public static Variance of(float min, float range) {
         return new Variance(min, range);

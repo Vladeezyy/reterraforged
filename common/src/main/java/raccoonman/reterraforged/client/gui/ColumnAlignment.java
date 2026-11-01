@@ -15,10 +15,6 @@ public class ColumnAlignment {
 	
 	private int leftInset;
 
-	public ColumnAlignment(Screen parent, int horizontalPadding, int verticalPadding, int horizontalMargin, int verticalMargin) {
-		this(parent, horizontalPadding, verticalPadding, horizontalMargin, verticalMargin, 0);
-	}
-
 	// leftInset: width kept free on the left of the columns (the tabs of the preset screen)
 	public ColumnAlignment(Screen parent, int horizontalPadding, int verticalPadding, int horizontalMargin, int verticalMargin, int leftInset) {
 		this.parent = parent;

@@ -14,11 +14,6 @@ public record Size(int size, int mask, int border, int total, int lowerBorder, i
         return i << 4;
     }
     
-    public static int count(int minX, int minZ, int maxX, int maxZ) {
-        int dx = maxX - minX;
-        int dz = maxZ - minZ;
-        return dx * dz;
-    }
     
     public static Size make(int size, int border) {
     	int total = size + 2 * border;

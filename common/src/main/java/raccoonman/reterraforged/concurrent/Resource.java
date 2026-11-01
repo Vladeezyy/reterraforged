@@ -23,8 +23,4 @@ public interface Resource<T> extends SafeCloseable {
     
     boolean isOpen();
     
-    @SuppressWarnings("unchecked")
-	public static <T> Resource<T> empty() {
-        return (Resource<T>) Resource.NONE;
-    }
 }

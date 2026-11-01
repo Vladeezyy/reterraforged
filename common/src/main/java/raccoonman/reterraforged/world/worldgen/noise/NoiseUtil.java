@@ -56,11 +56,6 @@ public class NoiseUtil {
         return (value < min) ? min : ((value > max) ? max : value);
     }
     
-    public static float dist2(float x1, float y1, float x2, float y2) {
-        float dx = x1 - x2;
-        float dy = y1 - y2;
-        return dx * dx + dy * dy;
-    }
     
     public static float div(int num, int denom) {
         return num / (float) denom;
@@ -95,9 +90,6 @@ public class NoiseUtil {
         return t * t * t * (t * (t * 6.0F - 15.0F) + 10.0F);
     }
     
-    public static float curve(float t, float steepness) {
-        return curve(t, 0.5F, steepness);
-    }
     
     public static float curve(float t, float mid, float steepness) {
         return 1.0F / (1.0F + exp(-steepness * (t - mid)));
@@ -154,13 +146,6 @@ public class NoiseUtil {
         return result;
     }
     
-    public static int hash(int x, int y) {
-        int hash = x;
-        hash ^= 31337 * y;
-        hash = hash * hash * hash * 60493;
-        hash ^= hash >> 13;
-        return hash;
-    }
     
     public static int hash2D(int seed, int x, int y) {
         int hash = seed;

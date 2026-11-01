@@ -21,9 +21,6 @@ public class Seed {
         return this.root;
     }
     
-    public Seed split() {
-        return new Seed(this.root);
-    }
     
     public Seed offset(int offset) {
         return new Seed(this.root + offset);

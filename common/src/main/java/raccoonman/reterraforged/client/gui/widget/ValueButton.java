@@ -18,13 +18,6 @@ public class ValueButton<T> extends Button {
 		this.setValue(initial);
 	}
 	
-	public ValueButton(int i, int j, int k, int l, Component component, OnPress onPress, CreateNarration createNarration, T initial) {
-		super(i, j, k, l, component, onPress, createNarration);
-
-		this.name = component;
-		this.setValue(initial);
-	}
-	
 	public void setValue(T value) {
 		this.value = value;
 		

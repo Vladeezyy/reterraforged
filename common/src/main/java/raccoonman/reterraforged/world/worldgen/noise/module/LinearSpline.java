@@ -1,9 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.noise.module;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -13,7 +11,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
-import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise.Visitor;
 
 public record LinearSpline(Noise input, List<Pair<Float, Noise>> points, float minValue, float maxValue) implements Noise {
@@ -68,10 +65,6 @@ public record LinearSpline(Noise input, List<Pair<Float, Noise>> points, float m
 		return CODEC;
 	}
 
-	public static LinearSpline.Builder builder(Noise noise) {
-		return new LinearSpline.Builder(noise);
-	}
-	
 	private static float min(List<Pair<Float, Noise>> points) {
 		return (float) points.stream().map(Pair::getSecond).mapToDouble(Noise::minValue).min().orElseThrow();
 	}
@@ -80,26 +73,4 @@ public record LinearSpline(Noise input, List<Pair<Float, Noise>> points, float m
 		return (float) points.stream().map(Pair::getSecond).mapToDouble(Noise::maxValue).max().orElseThrow();
 	}
 	
-	public static class Builder {
-		private Noise input;
-		private List<Pair<Float, Noise>> points;
-		
-		public Builder(Noise input) {
-			this.input = input;
-			this.points = new ArrayList<>();
-		}
-		
-		public Builder addPoint(float point, float value) {
-			return this.addPoint(point, Noises.constant(value));
-		}
-
-		public Builder addPoint(float point, Noise value) {
-			this.points.add(Pair.of(point, value));
-			return this;
-		}
-		
-		public LinearSpline build() {
-			return new LinearSpline(this.input, ImmutableList.copyOf(this.points));
-		}
-	}
 }

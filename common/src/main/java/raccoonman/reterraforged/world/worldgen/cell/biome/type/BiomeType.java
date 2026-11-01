@@ -68,9 +68,6 @@ public enum BiomeType {
         return this.color;
     }
     
-    public static BiomeType get(int id) {
-        return BiomeType.BIOMES[id];
-    }
     
     public static BiomeType get(float temperature, float moisture) {
         return getCurve(temperature, moisture);
@@ -138,13 +135,7 @@ public enum BiomeType {
     	return newNoisePairs;
     }
     
-    private static <T> Pair<T, T> range(T min, T max) {
-    	return Pair.of(min, max);
-    }
 
-    private static <T> Pair<T, T> constant(T value)	{
-    	return Pair.of(value, value);
-    }
     
     private static void init() {
         for (BiomeType type : values()) {
