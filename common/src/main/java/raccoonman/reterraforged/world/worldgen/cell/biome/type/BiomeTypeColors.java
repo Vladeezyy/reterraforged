@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.cell.biome.type;
 
+import raccoonman.reterraforged.RTFCommon;
 import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,8 +22,8 @@ public class BiomeTypeColors {
                 Color color = Color.decode("#" + entry.getValue().toString());
                 this.colors.put(entry.getKey().toString(), color);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | RuntimeException e) {
+            RTFCommon.LOGGER.error("Could not read the biome type colors (biomes.txt)", e);
         }
     }
     

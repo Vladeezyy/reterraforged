@@ -72,7 +72,7 @@ public class CacheEntry<T> implements ExpiringEntry {
 			try {
 				ac.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				raccoonman.reterraforged.RTFCommon.LOGGER.error("Could not close a cached value", e);
 			}
 		}
 	}

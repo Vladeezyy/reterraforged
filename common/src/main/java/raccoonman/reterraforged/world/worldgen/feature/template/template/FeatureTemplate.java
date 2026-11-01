@@ -24,6 +24,7 @@
 
 package raccoonman.reterraforged.world.worldgen.feature.template.template;
 
+import raccoonman.reterraforged.RTFCommon;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -312,7 +313,7 @@ public class FeatureTemplate {
             List<BlockInfo> blocks = relativize(blockInfos);
             return Optional.of(new FeatureTemplate(blocks));
         } catch (IOException e) {
-            e.printStackTrace();
+            RTFCommon.LOGGER.error("Could not read a feature template", e);
             return Optional.empty();
         }
     }
