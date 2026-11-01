@@ -17,7 +17,7 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class AdvancedContinentGenerator extends AbstractContinent implements SimpleContinent {
-    protected static float CENTER_CORRECTION = 0.35F;
+    protected static final float CENTER_CORRECTION = 0.35F;
     protected float frequency;
     protected float variance;
     protected int varianceSeed;
