@@ -118,6 +118,14 @@ public final class RTFSelfTest {
 			String result = RTFWorldChecks.heights(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		}))).then(Commands.literal("fingerprint").executes(ctx -> {
+			String result = RTFFingerprint.run(ctx.getSource().getServer(), "");
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("name", StringArgumentType.word()).executes(ctx -> {
+			String result = RTFFingerprint.run(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		}))).then(Commands.literal("weather").executes(ctx -> {
 			String result = RTFWorldChecks.weather(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
