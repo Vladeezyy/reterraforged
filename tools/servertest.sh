@@ -22,6 +22,7 @@
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
+# SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
@@ -209,6 +210,17 @@ for loader in $LOADERS; do
         wait_for "$dir/console.log" 'RTF fingerprint\]' 1200 && cp "$dir/rtf-fingerprint.txt" "run/fingerprint-$loader.txt" 2>/dev/null
         grep -o 'RTF fingerprint\].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
         [ -z "$FINGERPRINT_REF" ] || fingerprint=$($PY tools/comparefingerprint.py "$FINGERPRINT_REF" "run/fingerprint-$loader.txt")
+    fi
+    # SURFACEMAPS="<biome> ...": "rtf surfacemap <biome> 12" for each (the ground and the trees seen from above where the
+    # biome is), the maps and their block counts copied to run/surfacemap-<loader>/
+    if [ -n "$SURFACEMAPS" ]; then
+        mkdir -p "run/surfacemap-$loader"
+        for biome in $SURFACEMAPS; do
+            echo "rtf surfacemap $biome 12" >> "$dir/console.in"
+            wait_for "$dir/console.log" "RTF surfacemap\] [a-z]* $biome" 900
+            grep -o "RTF surfacemap\] [a-z]* $biome.*" "$dir/console.log" | tail -1 | sed 's/^/  /'
+            cp "$dir"/rtf-surfacemap-*-"${biome/:/_}".* "run/surfacemap-$loader/" 2>/dev/null
+        done
     fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
     if [ -n "$TILEBENCH" ]; then
