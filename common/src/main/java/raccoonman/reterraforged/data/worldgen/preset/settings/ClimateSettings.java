@@ -15,13 +15,22 @@ public class ClimateSettings {
 		RangeValue.CODEC.fieldOf("temperature").forGetter((o) -> o.temperature),
 		RangeValue.CODEC.fieldOf("moisture").forGetter((o) -> o.moisture),
 		BiomeShape.CODEC.fieldOf("biomeShape").forGetter((o) -> o.biomeShape),
-		BiomeNoise.CODEC.fieldOf("biomeEdgeShape").forGetter((o) -> o.biomeEdgeShape)
-	).apply(instance, ClimateSettings::new));
+		BiomeNoise.CODEC.fieldOf("biomeEdgeShape").forGetter((o) -> o.biomeEdgeShape),
+		// added in 0.0.28 (#35), off: the oceans' temperature as in ReTerraForged 0.0.6
+		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans)
+	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans) -> {
+		ClimateSettings settings = new ClimateSettings(temperature, moisture, biomeShape, biomeEdgeShape);
+		settings.warmRainforestOceans = warmRainforestOceans;
+		return settings;
+	}));
 	
 	public RangeValue temperature;
     public RangeValue moisture;
     public BiomeShape biomeShape;
     public BiomeNoise biomeEdgeShape;
+    // the oceans of the tropical rainforest regions are warm oceans, as those of the deserts are (their climate is one
+    // step cooler: lukewarm oceans)
+    public boolean warmRainforestOceans = false;
     
     public ClimateSettings(RangeValue temperature, RangeValue moisture, BiomeShape biomeShape, BiomeNoise biomeEdgeShape) {
     	this.temperature = temperature;
@@ -31,7 +40,9 @@ public class ClimateSettings {
     }
     
     public ClimateSettings copy() {
-    	return new ClimateSettings(this.temperature.copy(), this.moisture.copy(), this.biomeShape.copy(), this.biomeEdgeShape.copy());
+    	ClimateSettings copy = new ClimateSettings(this.temperature.copy(), this.moisture.copy(), this.biomeShape.copy(), this.biomeEdgeShape.copy());
+    	copy.warmRainforestOceans = this.warmRainforestOceans;
+    	return copy;
     }
     
     public static class RangeValue {
