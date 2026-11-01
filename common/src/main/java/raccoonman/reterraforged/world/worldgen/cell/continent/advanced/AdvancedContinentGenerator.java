@@ -1,6 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.cell.continent.advanced;
 
-import raccoonman.reterraforged.concurrent.Resource;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
@@ -107,22 +106,19 @@ public class AdvancedContinentGenerator extends AbstractContinent implements Sim
         cell.continentZ = this.getCorrectedContinentCenter(cellPointY, sumY / 8.0F);
     }
     
+    // a fresh cell for the answer (asked once per biome cell and for the spawn: a pool of cells is not worth it)
     @Override
     public float getEdgeValue(float x, float z) {
-        try (Resource<Cell> resource = Cell.getResource()) {
-            Cell cell = resource.get();
-            this.apply(cell, x, z);
-            return cell.continentEdge;
-        }
+        Cell cell = new Cell();
+        this.apply(cell, x, z);
+        return cell.continentEdge;
     }
     
     @Override
     public long getNearestCenter(float x, float z) {
-        try (Resource<Cell> resource = Cell.getResource()) {
-            Cell cell = resource.get();
-            this.apply(cell, x, z);
-            return PosUtil.pack(cell.continentX, cell.continentZ);
-        }
+        Cell cell = new Cell();
+        this.apply(cell, x, z);
+        return PosUtil.pack(cell.continentX, cell.continentZ);
     }
     
     @Override
