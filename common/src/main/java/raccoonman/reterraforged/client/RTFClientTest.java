@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -37,6 +38,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.client.gui.widget.WidgetList;
 
 /**
@@ -109,6 +112,7 @@ public final class RTFClientTest {
 			}
 			case 3 -> {
 				shoot(mc, "preset-screen");
+				checkPresetSave();
 				mc.setScreen(new TitleScreen());
 				next(20);
 			}
@@ -172,6 +176,24 @@ public final class RTFClientTest {
 			RTFCommon.LOGGER.info("[RTF clienttest] {}", message.getString());
 		});
 		shot++;
+	}
+
+	// a preset saved as the preset screen saves it (PresetEntry.save): the whole file, no temporary file left, read back
+	private static void checkPresetSave() {
+		PresetEntry entry = new PresetEntry(Component.literal("rtf-clienttest-save"), Presets.makeLegacyDefault(), false, (b) -> {});
+		java.nio.file.Path path = entry.getPath();
+		try {
+			entry.save();
+			boolean temp = java.nio.file.Files.exists(path.resolveSibling(path.getFileName() + ".tmp"));
+			try (java.io.Reader reader = java.nio.file.Files.newBufferedReader(path)) {
+				boolean read = Preset.DIRECT_CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, com.google.gson.JsonParser.parseReader(reader)).result().isPresent();
+				if (read && !temp) RTFCommon.LOGGER.info("[RTF clienttest] preset save PASS ({} bytes)", java.nio.file.Files.size(path));
+				else RTFCommon.LOGGER.error("[RTF clienttest] preset save FAIL: read back {}, temporary file left {}", read, temp);
+			}
+			java.nio.file.Files.deleteIfExists(path);
+		} catch (Exception e) {
+			RTFCommon.LOGGER.error("[RTF clienttest] preset save FAIL", e);
+		}
 	}
 
 	// selects the first preset in the list like a mouse click does (the next page needs the list selection)

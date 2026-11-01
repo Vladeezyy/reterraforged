@@ -235,10 +235,13 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private List<PresetEntry> listPresets(Path path) throws IOException	{
 		List<PresetEntry> presets = new ArrayList<>();
 		if(Files.exists(path)) {
-			for(Path presetPath : Files.list(path)
-				.filter(Files::isRegularFile)
-				.toList()
-			) {
+			// the presets' JSON files (not a temporary file a failed save left); the listing is closed (Files.list keeps
+			// the directory open until it is)
+			List<Path> files;
+			try (java.util.stream.Stream<Path> listing = Files.list(path)) {
+				files = listing.filter(Files::isRegularFile).filter(p -> p.getFileName().toString().endsWith(".json")).toList();
+			}
+			for(Path presetPath : files) {
 				// a broken or foreign file in the presets folder (not JSON, another encoding, not a preset) is skipped:
 				// the JSON parser throws for it, which used to crash the game when the preset screen opened
 				try(Reader reader = Files.newBufferedReader(presetPath)) {
@@ -296,17 +299,25 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			return PRESET_PATH.resolve(this.name.getString() + ".json");
 		}
 		
-		//FIXME delete old pack before save
+		// encoded first, written to a temporary file and moved over the old one: the file was opened (emptied) before the
+		// preset was encoded, so a failure left the player's preset an empty file
 		public void save() throws IOException {
 			if(!this.builtin) {
+				JsonElement element = Preset.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, this.preset).result().orElseThrow(() -> new IOException("could not encode preset " + this.name.getString()));
+				Path path = this.getPath();
+				Path temp = path.resolveSibling(path.getFileName() + ".tmp");
 				try(
-					Writer writer = Files.newBufferedWriter(this.getPath());
+					Writer writer = Files.newBufferedWriter(temp);
 					JsonWriter jsonWriter = new JsonWriter(writer);
 				) {
-					JsonElement element = Preset.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, this.preset).result().orElseThrow();
 					jsonWriter.setSerializeNulls(false);
 					jsonWriter.setIndent("  ");
 					GsonHelper.writeValue(jsonWriter, element, null);
+				}
+				try {
+					Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+				} catch (java.nio.file.AtomicMoveNotSupportedException e) {
+					Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 				}
 			}
 		}
