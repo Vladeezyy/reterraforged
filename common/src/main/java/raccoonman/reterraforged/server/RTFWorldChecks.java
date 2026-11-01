@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
@@ -113,6 +114,63 @@ public final class RTFWorldChecks {
 		strata(overworld, check);
 		snowLine(overworld, check);
 		deepslate(overworld, check);
+		swampTrees(overworld, check);
+		warmRainforestOceans(overworld, check);
+	}
+
+	// a preset with Warm Oceans by Rainforests (#35, tools/servertest.sh PRESET=set:climate().warmRainforestOceans=true):
+	// the sea of the tropical rainforest regions is warm ocean; over 32 x 32 km every 256 blocks, no chunks generated
+	private static void warmRainforestOceans(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || s.generatorContext() == null || !s.preset().climate().warmRainforestOceans) return;
+		var lookup = s.generatorContext().lookup;
+		int sea = level.getSeaLevel(), ocean = 0, warm = 0, rainforest = 0, seas = 0;
+		java.util.Map<String, Integer> other = new java.util.TreeMap<>();
+		for (int x = -16384; x <= 16384; x += 256) for (int z = -16384; z <= 16384; z += 256) {
+			raccoonman.reterraforged.world.worldgen.cell.Cell cell = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+			lookup.applyCell(cell, x, z, true);
+			boolean isSea = cell.terrain.isDeepOcean() || cell.terrain.isShallowOcean();
+			boolean isRainforest = cell.biome == raccoonman.reterraforged.world.worldgen.cell.biome.type.BiomeType.TROPICAL_RAINFOREST;
+			if (isSea) seas++;
+			if (isRainforest) rainforest++;
+			if (!isRainforest || !isSea) continue;
+			ocean++;
+			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, (sea - 8) >> 2, z >> 2);
+			if (biome.is(Biomes.WARM_OCEAN)) warm++; else other.merge(biome.getRegisteredName(), 1, Integer::sum);
+		}
+		check.accept("the sea of the rainforest regions is warm ocean (" + warm + "/" + ocean + (other.isEmpty() ? "" : ", else " + other) + "; " + rainforest + " rainforest and " + seas + " sea points)", ocean < 10 || warm >= ocean * 0.9);
+	}
+
+	// the trees of a swamp stand all over their chunks, not on a 16 block grid (all on the chunk's corner,
+	// ReTerraForged 0.0.6, #34): over 9 x 9 chunks of it, the trunks on the ground by their place in the chunk
+	private static void swampTrees(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().customBiomeFeatures) return;
+		// searched from 8 km east of the spawn: the chunks it generates must stay away from the shape "rtf heights" samples
+		// around the spawn (generated chunks leave eroded tiles in the cache, and a sample there can come out a block
+		// off, so NeoForge and Fabric did not compare)
+		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getSharedSpawnPos().offset(8192, 0, 0).atY(level.getSeaLevel()), 6400, 32, 64);
+		if (swamp == null) return;
+		int cx0 = swamp.getFirst().getX() >> 4, cz0 = swamp.getFirst().getZ() >> 4;
+		int trunks = 0, corner = 0;
+		java.util.Set<Integer> places = new java.util.HashSet<>();
+		for (int cx = cx0 - 4; cx <= cx0 + 4; cx++) for (int cz = cz0 - 4; cz <= cz0 + 4; cz++) {
+			ChunkAccess c = full(level, cx, cz);
+			for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
+				int top = c.getHeight(Heightmap.Types.OCEAN_FLOOR, x, z);
+				for (int y = top; y > top - 24; y--) {
+					BlockPos pos = new BlockPos(cx * 16 + x, y, cz * 16 + z);
+					if (!c.getBlockState(pos).is(BlockTags.LOGS)) continue;
+					BlockState below = c.getBlockState(pos.below());
+					if (below.is(BlockTags.LOGS) || below.isAir() || !below.getFluidState().isEmpty() && !below.blocksMotion()) continue;
+					if (!level.getBiome(pos).is(Biomes.SWAMP)) break;
+					trunks++;
+					places.add(x * 16 + z);
+					if (x == 0 && z == 0) corner++;
+					break;
+				}
+			}
+		}
+		check.accept("swamp trees are spread over their chunks (" + trunks + " trunks at " + places.size() + " places in the chunk, " + corner + " on its corner; swamp at "
+			+ swamp.getFirst().getX() + " " + swamp.getFirst().getZ() + ")", trunks < 5 || (places.size() >= 8 && corner * 2 < trunks));
 	}
 
 	// a preset with its own deepslate level (#32, tools/servertest.sh PRESET=set:world().properties.deepslateLevel=40):
@@ -289,7 +347,8 @@ public final class RTFWorldChecks {
 
 	/**
 	 * "rtf heights [name]": the world's shape in run/.../rtf-heights[-name].txt: the generator's ground height and the
-	 * biome at a 33 x 33 grid over 4 x 4 km (no chunks needed), then the top of the ground (no plants, trees or water) of
+	 * biome at a 33 x 33 grid over 4 x 4 km (no chunks needed; the raw estimate, not the eroded cell of a cached tile,
+	 * so the same whichever chunks were generated before), then the top of the ground (no plants, trees or water) of
 	 * the 81 chunks the self test generates, at 4 columns each. Chunks already saved, as by an older version of the mod,
 	 * are read as they are.
 	 */
@@ -330,12 +389,17 @@ public final class RTFWorldChecks {
 		var rs = level.getChunkSource().randomState();
 		List<String> lines = new ArrayList<>();
 		lines.add("# seed " + level.getSeed());
-		for (int x = -2048; x <= 2048; x += 128) {
-			for (int z = -2048; z <= 2048; z += 128) {
-				int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
-				Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2);
-				lines.add("base " + x + " " + z + " " + h + " " + biome.getRegisteredName());
+		WorldLookup.beginRaw();
+		try {
+			for (int x = -2048; x <= 2048; x += 128) {
+				for (int z = -2048; z <= 2048; z += 128) {
+					int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
+					Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2);
+					lines.add("base " + x + " " + z + " " + h + " " + biome.getRegisteredName());
+				}
 			}
+		} finally {
+			WorldLookup.endRaw();
 		}
 		for (int cx = AREA_MIN; cx <= AREA_MAX; cx++) for (int cz = AREA_MIN; cz <= AREA_MAX; cz++) {
 			ChunkAccess c = full(level, cx, cz);
