@@ -13,6 +13,9 @@ public class LakeConfig {
     public float bankMax;
     public float distanceMin;
     public float distanceMax;
+    // RiverSettings: the valley width multiplier and its steepest side (height per block, 0: no limit)
+    public float valleyWidth = 1.0F;
+    public float valleySlope = 0.0F;
     
     private LakeConfig(Builder builder) {
         this.depth = builder.depth;

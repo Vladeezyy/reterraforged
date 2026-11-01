@@ -1,18 +1,23 @@
 package raccoonman.reterraforged.client;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -37,7 +42,9 @@ import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScree
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
+import raccoonman.reterraforged.client.gui.screen.presetconfig.RenderMode;
 import raccoonman.reterraforged.client.gui.widget.WidgetList;
+import raccoonman.reterraforged.data.worldgen.preset.settings.ContinentType;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -61,8 +68,35 @@ public final class RTFGuiTest {
 	private static int round;
 	private static int expectedScale;
 	private static int timeout;
+	// tooltips to see on the screenshots: an enum option (what it does, its old name), greyed-out sliders (what they
+	// need), the structure placement seed
+	private static final List<TooltipShot> TOOLTIP_SHOTS = List.of(
+		new TooltipShot("WorldSettingsPage", "continent-type", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof ContinentType),
+		new TooltipShot("WorldSettingsPage", "render-mode", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof RenderMode),
+		new TooltipShot("IslandSettingsPage", "island-density", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY)),
+		new TooltipShot("StructureSettingsPage", "placement-seed", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_SALT))
+	);
+	private static final Set<String> TOOLTIPS_SHOT = new HashSet<>();
+	@Nullable
+	private static String tooltipShot;
+
+	private record TooltipShot(String page, String name, Predicate<AbstractWidget> widget) {
+	}
 
 	private RTFGuiTest() {
+	}
+
+	// the mouse to a point of the window (in pixels): the screens read its position from MouseHandler for hovering
+	private static void moveMouse(Minecraft mc, double x, double y) {
+		try {
+			Field xpos = MouseHandler.class.getDeclaredField("xpos"), ypos = MouseHandler.class.getDeclaredField("ypos");
+			xpos.setAccessible(true);
+			ypos.setAccessible(true);
+			xpos.setDouble(mc.mouseHandler, x);
+			ypos.setDouble(mc.mouseHandler, y);
+		} catch (ReflectiveOperationException e) {
+			fail("cannot move the mouse: " + e);
+		}
 	}
 
 	public static void tick(Minecraft mc) {
@@ -131,8 +165,28 @@ public final class RTFGuiTest {
 				}
 			}
 			case 7 -> {
-				// every page forward with ">>", each scrolled down with the mouse wheel first
+				// every page forward with ">>", each scrolled down with the mouse wheel first; on the way a screenshot
+				// of some tooltips (the mouse on the widget, the shot a few ticks later)
 				LinkedPageScreen screen = (LinkedPageScreen) mc.screen;
+				if (tooltipShot != null) {
+					shoot(mc, tooltipShot);
+					tooltipShot = null;
+					moveMouse(mc, 0, 0);
+				}
+				for (TooltipShot tooltip : TOOLTIP_SHOTS) {
+					if (tooltip.page().equals(page(mc)) && TOOLTIPS_SHOT.add(tooltip.name())) {
+						AbstractWidget widget = find(mc.screen, tooltip.widget());
+						if (widget == null) {
+							fail("no widget for the tooltip " + tooltip.name() + " on " + page(mc));
+							continue;
+						}
+						double scale = mc.getWindow().getGuiScale();
+						moveMouse(mc, (widget.getX() + widget.getWidth() / 2.0) * scale, (widget.getY() + widget.getHeight() / 2.0) * scale);
+						tooltipShot = "gui-tooltip-" + tooltip.name();
+						wait = 5;
+						return;
+					}
+				}
 				if (screen.nextButton.active) {
 					scrollDown(mc);
 					SCROLLS.put(page(mc), screen.getCurrentPage().getScroll());

@@ -246,18 +246,40 @@ public final class RTFStressTest {
 	 * A stress preset by name, for a real world (tools/stressworld.sh): "min" (every setting at its minimum), "max"
 	 * (every setting at its maximum) or "random:N" (the stress test's random combination number N).
 	 */
+	// "set:name=value;...": changes these settings of the preset (names as in PresetStressTable)
+	public static void applySettings(Preset preset, String spec) {
+		for (String assignment : spec.substring(4).split(";")) {
+			String[] kv = assignment.split("=", 2);
+			Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
+			Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
+			setting.set(preset, value);
+		}
+	}
+
 	public static Preset makePreset(String spec) {
+		// "file:<preset.json>[|set:...]": a preset file (the preset.json of an exported datapack, any Minecraft version:
+		// tools/servertest.sh PRESET=file:... exports it again for this one), with these settings changed
+		if (spec.startsWith("file:")) {
+			String[] parts = spec.substring(5).split("\\|", 2);
+			Preset preset;
+			try {
+				com.google.gson.JsonElement json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of(parts[0].trim())));
+				preset = Preset.DIRECT_CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json).getOrThrow();
+			} catch (java.io.IOException e) {
+				throw new IllegalArgumentException("cannot read " + parts[0], e);
+			}
+			if (parts.length > 1) {
+				applySettings(preset, parts[1].trim());
+			}
+			RTFCommon.LOGGER.info("[RTF] preset {}", spec);
+			return preset;
+		}
 		// "set:caves().cheeseCaveProbability=0;caves().entranceCaveProbability=1": "Default" with these numeric settings
 		// changed (tools/servertest.sh PRESET=..., to see which setting a generation problem comes from)
 		if (spec.startsWith("set:")) {
 			Preset preset = Presets.makeDefault();
-			for (String assignment : spec.substring(4).split(";")) {
-				String[] kv = assignment.split("=", 2);
-				Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
-					.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
-				Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
-				setting.set(preset, value);
-			}
+			applySettings(preset, spec);
 			RTFCommon.LOGGER.info("[RTF] preset {}", spec);
 			return preset;
 		}

@@ -19,6 +19,10 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.RiverSettings.Wetl
 class RiverSettingsPage extends PresetEditorPage {
 	private ValueButton<Integer> seedOffset;
 	private Slider riverCount;
+	private Slider valleyWidth;
+	private Slider valleySlope;
+	private CycleButton<Boolean> valleyFollowsMeanders;
+	private Slider gorgeChance;
 	
 	private Slider mainRiverBedDepth;
 	private Slider mainRiverMinBankHeight;
@@ -70,6 +74,28 @@ class RiverSettingsPage extends PresetEditorPage {
 		});
 		this.riverCount = PresetWidgets.createIntSlider(river.riverCount, 0, 30, RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT, (slider, value) -> {
 			river.riverCount = (int) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		
+		// the valleys of all rivers and lakes; the defaults (x1, 90 degrees, off) are ReTerraForged 0.0.6's valleys
+		this.valleyWidth = PresetWidgets.createFloatSlider(river.valleyWidth, 0.5F, 3.0F, RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH, (slider, value) -> {
+			river.valleyWidth = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.valleySlope = PresetWidgets.createIntSlider(river.valleySlope, 10, RiverSettings.NO_SLOPE_LIMIT, RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, (slider, value) -> {
+			river.valleySlope = (int) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.valleyFollowsMeanders = PresetWidgets.createToggle(river.valleyFollowsMeanders, RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS, (button, value) -> {
+			river.valleyFollowsMeanders = value;
+			this.regenerate();
+		});
+		
+		this.gorgeChance = PresetWidgets.createFloatSlider(river.gorgeChance, 0.0F, 0.95F, RTFTranslationKeys.GUI_SLIDER_GORGE_CHANCE, (slider, value) -> {
+			river.gorgeChance = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
@@ -205,6 +231,11 @@ class RiverSettingsPage extends PresetEditorPage {
 		
 		this.left.addWidget(this.seedOffset);
 		this.left.addWidget(this.riverCount);
+		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_VALLEYS));
+		this.left.addWidget(this.valleyWidth);
+		this.left.addWidget(this.valleySlope);
+		this.left.addWidget(this.valleyFollowsMeanders);
+		this.left.addWidget(this.gorgeChance);
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_MAIN_RIVERS));
 		this.left.addWidget(this.mainRiverBedDepth);
 		this.left.addWidget(this.mainRiverMinBankHeight);
@@ -252,10 +283,10 @@ class RiverSettingsPage extends PresetEditorPage {
 
 
 	private void updateBranchSliders(boolean sizeFromMain) {
-		this.branchRiverBedDepth.active = !sizeFromMain;
-		this.branchRiverMinBankHeight.active = !sizeFromMain;
-		this.branchRiverMaxBankHeight.active = !sizeFromMain;
-		this.branchRiverBedWidth.active = !sizeFromMain;
-		this.branchRiverBankWidth.active = !sizeFromMain;
+		PresetWidgets.setUsable(this.branchRiverBedDepth, RTFTranslationKeys.GUI_SLIDER_RIVER_BED_DEPTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverMinBankHeight, RTFTranslationKeys.GUI_SLIDER_RIVER_MIN_BANK_HEIGHT, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverMaxBankHeight, RTFTranslationKeys.GUI_SLIDER_RIVER_MAX_BANK_HEIGHT, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverBedWidth, RTFTranslationKeys.GUI_SLIDER_RIVER_BED_WIDTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
+		PresetWidgets.setUsable(this.branchRiverBankWidth, RTFTranslationKeys.GUI_SLIDER_RIVER_BANK_WIDTH, !sizeFromMain, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF);
 	}
 }

@@ -22,7 +22,9 @@ public class RTFNeoForge {
 
     	if (dist == Dist.CLIENT) {
     		modEventBus.addListener(RTFNeoForgeClient::registerPresetEditors);
+    		RTFNeoForgeClient.registerEvents();
     	}
+    	RTFNeoForgeNetwork.register(modEventBus);
     	modEventBus.addListener(RTFNeoForge::gatherData);
     	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent event) -> raccoonman.reterraforged.server.RTFSelfTest.register(event.getDispatcher()));
     	RegistryUtilImpl.register(modEventBus);

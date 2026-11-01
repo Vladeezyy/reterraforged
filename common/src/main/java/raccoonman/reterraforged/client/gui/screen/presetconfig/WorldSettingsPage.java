@@ -38,10 +38,12 @@ public class WorldSettingsPage extends PresetEditorPage {
 	
 	private CycleButton<SpawnType> spawnType;
 	private Slider worldHeight;
+	private CycleButton<Boolean> altitudeCooling;
 	private Slider worldDepth;
 	private Slider seaLevel;
 	private Slider oceanDepth;
 	private Slider lavaLevel;
+	private Slider deepslateLevel;
 	
 	public WorldSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -170,6 +172,9 @@ public class WorldSettingsPage extends PresetEditorPage {
 			this.regenerate();
 			return slider.getSliderValue(nearestMultiple);
 		});
+		this.altitudeCooling = PresetWidgets.createToggle(properties.altitudeCoolingFollowsHeight, RTFTranslationKeys.GUI_BUTTON_ALTITUDE_COOLING, (button, value) -> {
+			properties.altitudeCoolingFollowsHeight = value;
+		});
 		this.worldDepth = PresetWidgets.createIntSlider(properties.worldDepth, 0, 1024, RTFTranslationKeys.GUI_SLIDER_WORLD_DEPTH, (slider, value) -> {
 			int nearestMultiple = getNearestMultiple(slider, (float) value, 16);
 			properties.worldDepth = nearestMultiple;
@@ -189,6 +194,10 @@ public class WorldSettingsPage extends PresetEditorPage {
 			properties.lavaLevel = (int) slider.scaleValue(value);
 			return value;
 		});
+		this.deepslateLevel = PresetWidgets.createIntSlider(properties.deepslateLevel, -1024, 256, RTFTranslationKeys.GUI_SLIDER_DEEPSLATE_LEVEL, (slider, value) -> {
+			properties.deepslateLevel = (int) slider.scaleValue(value);
+			return value;
+		});
 		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTINENT));
 		this.left.addWidget(this.continentType);
@@ -202,6 +211,8 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.continentNoiseLacunarity);
 
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTROL_POINTS));
+		PresetWidgets.setUsable(this.islandInland, RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND, preset.island().enableArchipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandCoast, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST, preset.island().enableArchipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
 		this.left.addWidget(this.islandInland);
 		this.left.addWidget(this.islandCoast);
 		this.left.addWidget(this.deepOcean);
@@ -213,10 +224,12 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_PROPERTIES));
 		this.left.addWidget(this.spawnType);
 		this.left.addWidget(this.worldHeight);
+		this.left.addWidget(this.altitudeCooling);
 		this.left.addWidget(this.worldDepth);
 		this.left.addWidget(this.seaLevel);
 		this.left.addWidget(this.oceanDepth);
 		this.left.addWidget(this.lavaLevel);
+		this.left.addWidget(this.deepslateLevel);
 	}
 
 	@Override

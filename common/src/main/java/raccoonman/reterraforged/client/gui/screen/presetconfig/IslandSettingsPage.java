@@ -29,6 +29,21 @@ public class IslandSettingsPage extends PresetEditorPage {
 		super(screen, preset);
 	}
 
+	// the archipelago is all these sliders shape: without it they do nothing
+	private void updateIslandSliders(boolean archipelago) {
+		PresetWidgets.setUsable(this.islandDensity, RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandSize, RTFTranslationKeys.GUI_SLIDER_ISLAND_SIZE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandHeight, RTFTranslationKeys.GUI_SLIDER_ISLAND_HEIGHT, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandBaseScale, RTFTranslationKeys.GUI_SLIDER_ISLAND_BASE_SCALE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandVerticalScale, RTFTranslationKeys.GUI_SLIDER_ISLAND_VERTICAL_SCALE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.islandHorizontalScale, RTFTranslationKeys.GUI_SLIDER_ISLAND_HORIZONTAL_SCALE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.mountainChance, RTFTranslationKeys.GUI_SLIDER_ISLAND_MOUNTAIN_CHANCE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.volcanoChance, RTFTranslationKeys.GUI_SLIDER_ISLAND_VOLCANO_CHANCE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.offshoreDepth, RTFTranslationKeys.GUI_SLIDER_ISLAND_OFFSHORE_DEPTH, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.beachWidth, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_WIDTH, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.beachCoverage, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+	}
+
 	@Override
 	public Component title() {
 		return Component.translatable(RTFTranslationKeys.GUI_ISLAND_SETTINGS_TITLE);
@@ -43,6 +58,7 @@ public class IslandSettingsPage extends PresetEditorPage {
 		
 		this.enableArchipelago = PresetWidgets.createToggle(island.enableArchipelago, RTFTranslationKeys.GUI_BUTTON_ENABLE_ARCHIPELAGO, (button, value) -> {
 			island.enableArchipelago = value;
+			this.updateIslandSliders(value);
 			this.regenerate();
 		});
 		this.islandDensity = PresetWidgets.createFloatSlider(island.islandDensity, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY, (slider, value) -> {
@@ -101,6 +117,7 @@ public class IslandSettingsPage extends PresetEditorPage {
 			return value;
 		});
 
+		this.updateIslandSliders(island.enableArchipelago);
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_ISLAND));
 		this.left.addWidget(this.enableArchipelago);
 		this.left.addWidget(this.islandDensity);

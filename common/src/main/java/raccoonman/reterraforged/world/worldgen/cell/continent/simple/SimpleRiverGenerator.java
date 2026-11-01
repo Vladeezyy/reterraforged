@@ -41,7 +41,7 @@ public class SimpleRiverGenerator extends BaseRiverGenerator<SimpleContinent> {
 			float z3 = z + dz * length;
 			float valleyWidth = 275.0F * River.MAIN_VALLEY.next(random);
 			River river = new River((float) (int) x2, (float) (int) z2, (float) (int) x3, (float) (int) z3);
-			RiverCarver.Settings settings = BaseRiverGenerator.creatSettings(random);
+			RiverCarver.Settings settings = this.valleySettings(random);
 			settings.fadeIn = this.main.fade;
 			settings.valleySize = valleyWidth;
 			RiverWarp riverWarp = RiverWarp.create(0.1F, 0.85F, random);

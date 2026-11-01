@@ -23,24 +23,26 @@ final class SliderUnits {
 				RTFTranslationKeys.GUI_SLIDER_ROCK_VARIANCE, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_VARIATION, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH_RANGE }) {
 			UNITS.put(key, Unit.BLOCKS);
 		}
-		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL, RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL, RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT,
+		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SEA_LEVEL, RTFTranslationKeys.GUI_SLIDER_LAVA_LEVEL, RTFTranslationKeys.GUI_SLIDER_DEEPSLATE_LEVEL, RTFTranslationKeys.GUI_SLIDER_WORLD_HEIGHT,
 				RTFTranslationKeys.GUI_SLIDER_DIRT_MIN, RTFTranslationKeys.GUI_SLIDER_ROCK_MIN, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT }) {
 			UNITS.put(key, Unit.Y);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_GLOBAL_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_GLOBAL_VERTICAL_SCALE,
 				RTFTranslationKeys.GUI_SLIDER_TERRAIN_BASE_SCALE, RTFTranslationKeys.GUI_SLIDER_TERRAIN_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_TERRAIN_HORIZONTAL_SCALE,
-				RTFTranslationKeys.GUI_SLIDER_ISLAND_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BASE_SCALE }) {
+				RTFTranslationKeys.GUI_SLIDER_ISLAND_HORIZONTAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VERTICAL_SCALE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BASE_SCALE,
+				RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH }) {
 			UNITS.put(key, Unit.SCALE);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_CAVE_CARVER_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_DEEP_CAVE_CARVER_PROBABILITY,
 				RTFTranslationKeys.GUI_SLIDER_RAVINE_CARVER_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_CHEESE_CAVE_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_SPAGHETTI_CAVE_PROBABILITY,
 				RTFTranslationKeys.GUI_SLIDER_NOODLE_CAVE_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_ENTRANCE_CAVE_PROBABILITY, RTFTranslationKeys.GUI_SLIDER_LAKE_CHANCE,
-				RTFTranslationKeys.GUI_SLIDER_ISLAND_MOUNTAIN_CHANCE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VOLCANO_CHANCE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE }) {
+				RTFTranslationKeys.GUI_SLIDER_GORGE_CHANCE, RTFTranslationKeys.GUI_SLIDER_ISLAND_MOUNTAIN_CHANCE, RTFTranslationKeys.GUI_SLIDER_ISLAND_VOLCANO_CHANCE, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE }) {
 			UNITS.put(key, Unit.PERCENT);
 		}
 		for (String key : new String[] { RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_DEPTH, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_PEAK_DEPTH }) {
 			UNITS.put(key, Unit.SNOW_LAYERS);
 		}
+		UNITS.put(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, Unit.DEGREES);
 	}
 
 	private SliderUnits() {
@@ -63,7 +65,8 @@ final class SliderUnits {
 			}
 		},
 		// snow layers of the 8 of a full block
-		SNOW_LAYERS(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS);
+		SNOW_LAYERS(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS),
+		DEGREES(RTFTranslationKeys.GUI_UNIT_DEGREES);
 
 		private final String key;
 

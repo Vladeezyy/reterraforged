@@ -112,6 +112,28 @@ public final class RTFWorldChecks {
 		reexport(server, check);
 		strata(overworld, check);
 		snowLine(overworld, check);
+		deepslate(overworld, check);
+	}
+
+	// a preset with its own deepslate level (#32, tools/servertest.sh PRESET=set:world().properties.deepslateLevel=40):
+	// in the self test's chunks the stone 4 blocks below the level is deepslate, the rock 12 blocks above it is not
+	private static void deepslate(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || s.preset().world().properties.deepslateLevel == 0) return;
+		int y = s.preset().world().properties.deepslateLevel;
+		int below = 0, belowDeep = 0, above = 0, aboveDeep = 0;
+		for (int cx = AREA_MIN; cx <= AREA_MAX; cx++) for (int cz = AREA_MIN; cz <= AREA_MAX; cz++) {
+			ChunkAccess c = full(level, cx, cz);
+			for (int x = 0; x < 16; x += 3) for (int z = 0; z < 16; z += 3) {
+				BlockState low = c.getBlockState(new BlockPos(cx * 16 + x, y - 4, cz * 16 + z));
+				if (low.is(Blocks.STONE) || low.is(Blocks.DEEPSLATE)) { below++; if (low.is(Blocks.DEEPSLATE)) belowDeep++; }
+				BlockState high = c.getBlockState(new BlockPos(cx * 16 + x, y + 12, cz * 16 + z));
+				// above: any rock (the strata lay granite, diorite and andesite there), where the ground is higher
+				boolean underGround = c.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z) > y + 16;
+				if (underGround && !high.isAir() && high.getFluidState().isEmpty()) { above++; if (high.is(Blocks.DEEPSLATE)) aboveDeep++; }
+			}
+		}
+		check.accept("deepslate starts at the preset's level " + y + " (deepslate: " + belowDeep + "/" + below + " of the stone at y " + (y - 4) + ", " + aboveDeep + "/" + above + " of the rock at y " + (y + 12) + ")",
+			below > 50 && above > 50 && belowDeep >= below * 0.95 && aboveDeep <= above * 0.05);
 	}
 
 	// a preset exported again into the same file (the preset screen's "Export As Datapack" writes exports/<name>.zip)
@@ -271,6 +293,37 @@ public final class RTFWorldChecks {
 	 * the 81 chunks the self test generates, at 4 columns each. Chunks already saved, as by an older version of the mod,
 	 * are read as they are.
 	 */
+	/**
+	 * "rtf weather": on land points of an 8 x 8 km grid (every 64 blocks, base heights, no chunks generated), how often
+	 * the ground's biome rains at sea level but snows at the ground's height, where vanilla cools a biome with altitude
+	 * (rain is heard only where it rains on the ground near the player; snow has no sound)
+	 */
+	public static String weather(MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		var gen = level.getChunkSource().getGenerator();
+		var rs = level.getChunkSource().randomState();
+		int sea = gen.getSeaLevel();
+		int land = 0, rainLow = 0, snowHigh = 0;
+		List<Integer> heights = new ArrayList<>();
+		for (int x = -4096; x <= 4096; x += 64) {
+			for (int z = -4096; z <= 4096; z += 64) {
+				int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
+				if (h <= sea) continue;
+				land++;
+				heights.add(h);
+				Biome biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2).value();
+				if (biome.getPrecipitationAt(new BlockPos(x, sea + 1, z)) == Biome.Precipitation.RAIN) {
+					rainLow++;
+					if (biome.getPrecipitationAt(new BlockPos(x, h, z)) == Biome.Precipitation.SNOW) snowHigh++;
+				}
+			}
+		}
+		heights.sort(null);
+		int median = heights.isEmpty() ? 0 : heights.get(heights.size() / 2), p90 = heights.isEmpty() ? 0 : heights.get(heights.size() * 9 / 10);
+		return String.format("[RTF weather] land %d, ground y median %d, 90%% %d; rainy biomes %d, of them snowing at the ground's height %d (%.1f%%)",
+			land, median, p90, rainLow, snowHigh, rainLow == 0 ? 0.0 : 100.0 * snowHigh / rainLow);
+	}
+
 	public static String heights(MinecraftServer server, String name) {
 		ServerLevel level = server.overworld();
 		var gen = level.getChunkSource().getGenerator();

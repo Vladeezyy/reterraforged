@@ -19,6 +19,7 @@
 		"MixinRegistrySetBuilder$EmptyTagLookup",
 		"MixinSpawnFinder",
 		"MixinClimateSampler",
+		"MixinBiome",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
 		"terrablender.MixinTargetPoint",

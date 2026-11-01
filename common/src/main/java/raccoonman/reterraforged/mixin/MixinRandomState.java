@@ -63,6 +63,13 @@ class MixinRandomState {
 	
 	private long seed;
 	private NoiseGeneratorSettings noiseGeneratorSettings;
+	// the registries of the last overworld ChunkMap set up, for a random state another mod creates itself with our
+	// noise settings and never hands to a ChunkMap (CityWorld's "Vanilla, cities apart" builds its own overworld
+	// generator): it reads the preset from them the first time its terrain is asked for
+	@Nullable
+	private static volatile RegistryAccess serverRegistries;
+	// initialize ran, or the lazy one was tried
+	private volatile boolean initialized;
 	
 	@Redirect(
 		at = @At(
@@ -89,6 +96,9 @@ class MixinRandomState {
 					MixinRandomState.this.hasContext |= true;
 					return new CellSampler(() -> {
 						GeneratorContext context = MixinRandomState.this.generatorContext;
+						if(context == null && !MixinRandomState.this.initialized) {
+							context = MixinRandomState.this.initializeLazily();
+						}
 						return context != null ? context.lookup : null;
 					}, marker.field());
 				}
@@ -105,12 +115,29 @@ class MixinRandomState {
 
 	public void reterraforged$RTFRandomState$initialize(ServerLevel level) {
 		RegistryAccess registries = level.registryAccess();
+		this.initialized = true;
 
 		if(!level.dimension().equals(Level.OVERWORLD)) {
 			this.clearGeneratorContext();
 			return;
 		}
+		serverRegistries = registries;
+		this.initialize(registries);
+	}
 
+	// a random state no ChunkMap set up: our noise settings are the overworld's, so it gets the overworld's preset
+	@Nullable
+	private synchronized GeneratorContext initializeLazily() {
+		RegistryAccess registries = serverRegistries;
+		if(!this.initialized && registries != null) {
+			this.initialized = true;
+			RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
+			this.initialize(registries);
+		}
+		return this.generatorContext;
+	}
+
+	private void initialize(RegistryAccess registries) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);

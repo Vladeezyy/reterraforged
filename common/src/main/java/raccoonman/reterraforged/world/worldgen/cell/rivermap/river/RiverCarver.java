@@ -20,6 +20,11 @@ public class RiverCarver implements Comparable<RiverCarver> {
     private Range bedDepth;
     private Range banksDepth;
     private float waterLine;
+    // RiverConfig: the steepest valley side (height per block, 0: no limit), the squared distance it reaches, and a
+    // valley along the meandering river only
+    private float valleySlope;
+    private float valleyReach2;
+    private boolean valleyFollowsMeanders;
     public River river;
     public RiverWarp warp;
     public RiverConfig config;
@@ -30,7 +35,13 @@ public class RiverCarver implements Comparable<RiverCarver> {
         this.fadeInv = 1.0F / settings.fadeIn;
         this.bedWidth = new Range(0.25F, (float)(config.bedWidth * config.bedWidth));
         this.banksWidth = new Range(1.5625F, (float)(config.bankWidth * config.bankWidth));
-        this.valleyWidth = new Range(settings.valleySize * settings.valleySize, settings.valleySize * settings.valleySize);
+        float valleySize = settings.valleySize * config.valleyWidth;
+        this.valleyWidth = new Range(valleySize * valleySize, valleySize * valleySize);
+        // the slope limit reaches twice as far as the valley, so the tall ground beside it is cut back too
+        float valleyReach = 2.0F * valleySize;
+        this.valleySlope = config.valleySlope;
+        this.valleyReach2 = valleyReach * valleyReach;
+        this.valleyFollowsMeanders = config.valleyFollowsMeanders;
         this.river = river;
         this.warp = warp;
         this.config = config;
@@ -46,11 +57,18 @@ public class RiverCarver implements Comparable<RiverCarver> {
         return Integer.compare(this.config.order, o.config.order);
     }
     
-    // as in ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere
+    // as in ReTerraForged 0.0.6: the river carves its valley, banks and bed the same everywhere; the valley settings
+    // (width, steepest side, along the meanders only) are off by default
     public void carve(Cell cell, float px, float pz, float pt, float x, float z, float t) {
         float d2 = this.getDistance2(x, z, t);
         float pd2 = this.getDistance2(px, pz, pt);
-        float valleyAlpha = this.getDistanceAlpha(pt, Math.min(d2, pd2), this.valleyWidth);
+        // 0.0.6: the valley follows both the meandering river (x, z) and the straight line it meanders around (px, pz),
+        // so where the river meanders away a dry valley floor stays beside it
+        float valleyD2 = this.valleyFollowsMeanders ? d2 : Math.min(d2, pd2);
+        if (this.valleySlope > 0.0F) {
+            this.limitSlope(cell, t, valleyD2);
+        }
+        float valleyAlpha = this.getDistanceAlpha(pt, valleyD2, this.valleyWidth);
         if (valleyAlpha == 0.0F) {
             return;
         }
@@ -73,6 +91,33 @@ public class RiverCarver implements Comparable<RiverCarver> {
             cell.height = NoiseUtil.lerp(cell.height, bedHeight, bedAlpha);
             this.tag(cell, bedHeight);
         }
+    }
+    
+    // the ground above a cone around the river, rising from the banks at the steepest slope, is cut down to it; from
+    // half the reach on the cut fades out, gone twice as far as the valley reaches (a cone that rose faster towards its
+    // end left a new wall there in tall terrain); lower ground is left as it is
+    private void limitSlope(Cell cell, float t, float dist2) {
+        if (dist2 >= this.valleyReach2) {
+            return;
+        }
+        float dist = (float) Math.sqrt(dist2);
+        float above = cell.height - (this.getScaledSize(t, this.banksDepth) + this.valleySlope * dist);
+        if (above > 0.0F) {
+            cell.height -= above * slopeLimitWeight(dist2 / this.valleyReach2);
+        }
+    }
+
+    // 1 up to half the reach, then down to 0 at the reach in an s-curve; x2: the squared share of the reach
+    public static float slopeLimitWeight(float x2) {
+        float fade = NoiseUtil.clamp(((float) Math.sqrt(x2) - 0.5F) * 2.0F, 0.0F, 1.0F);
+        return 1.0F - fade * fade * (3.0F - 2.0F * fade);
+    }
+    
+    // how much farther than the river's bounds (River pads them by twice 275 blocks, room for 0.0.6's widest valley of
+    // 412.5 blocks and the river's warp) the carving reaches with a wider valley or the slope limit
+    public float extraBounds() {
+        float reach2 = this.valleySlope > 0.0F ? this.valleyReach2 : this.valleyWidth.max();
+        return Math.max(0.0F, (float) Math.sqrt(reach2) - 275.0F * 1.5F);
     }
     
     public RiverConfig createForkConfig(float t, Levels levels) {
@@ -137,14 +182,21 @@ public class RiverCarver implements Comparable<RiverCarver> {
     }
     
     public static CurveFunction getValleyType(Random random) {
+        return getValleyType(random, 25);
+    }
+
+    // gorgeChance: the percent of valleys that are gorges (25 in ReTerraForged 0.0.6); the flat-floored ones keep their
+    // 5 %, the V-shaped and the usual ones share the rest 2 : 5 as in 0.0.6, so 25 picks exactly as before
+    public static CurveFunction getValleyType(Random random, int gorgeChance) {
         int value = random.nextInt(100);
         if (value < 5) {
             return CurveFunctions.scurve(0.4F, 1.0F);
         }
-        if (value < 30) {
+        int gorges = 5 + gorgeChance;
+        if (value < gorges) {
             return CurveFunctions.scurve(4.0F, 5.0F);
         }
-        if (value < 50) {
+        if (value < gorges + Math.round((95 - gorgeChance) * 20.0F / 70.0F)) {
             return CurveFunctions.scurve(3.0F, 0.25F);
         }
         return CurveFunctions.scurve(2.0F, -0.5F);

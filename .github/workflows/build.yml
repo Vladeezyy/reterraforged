@@ -1,5 +1,11 @@
-# Build on every push and pull request, then the release jars on real NeoForge and Fabric servers
-# (tools/servertest.sh, structures left out). The jars are kept as artifacts.
+# Build on every push and pull request, then the release jars on real NeoForge and Fabric servers, both at once
+# (tools/servertest.sh, structures left out):
+# - new: a new world with this build's preset: the self test, rtf weather;
+# - legacy: a world made by the last release for this Minecraft version, opened with this build: the same ground as a
+#   new world of that preset (worlds made before keep their terrain);
+# - parity: NeoForge and Fabric make the same world.
+# The jars are kept as artifacts, and the server logs and world shapes of every test; the new world's NeoForge export
+# (server-neoforge-new) holds the preset datapack a release ships.
 name: Build
 
 on:
@@ -15,7 +21,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
+    outputs:
+      java: ${{ steps.props.outputs.java }}
+      mc: ${{ steps.props.outputs.mc }}
     steps:
       - uses: actions/checkout@v7
 
@@ -25,11 +34,13 @@ jobs:
         id: props
         run: |
           sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          mc=$(sed -n 's/^minecraft_version=//p' gradle.properties | tr -d '[:space:]')
           v=$(sed -n 's/^java_version=//p' gradle.properties | tr -d '[:space:]')
           if [ -z "$v" ]; then
-            case "$(sed -n 's/^minecraft_version=//p' gradle.properties)" in 26*) v=25 ;; *) v=21 ;; esac
+            case "$mc" in 26*) v=25 ;; *) v=21 ;; esac
           fi
           echo "java=$v" >> "$GITHUB_OUTPUT"
+          echo "mc=$mc" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v6
         with:
@@ -44,23 +55,7 @@ jobs:
       - name: Build
         run: chmod +x gradlew && { ./gradlew build --console=plain || { echo "build failed, trying again"; sleep 30; ./gradlew build --console=plain; }; }
 
-      # tools/servertest.sh: the release jars on real NeoForge and Fabric servers:
-      # preset export, "rtf selftest", the world shape on both loaders (the structure pass is too long here)
-      - name: Server test
-        run: SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh
-
-      - name: Upload server logs
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: server-logs
-          path: |
-            run/**/*.log
-            run/**/logs/latest.log
-          if-no-files-found: ignore
-
       - name: Upload jars
-        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: jars
@@ -68,3 +63,72 @@ jobs:
             */build/libs/*.jar
             build/libs/*.jar
           if-no-files-found: ignore
+
+  server-test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [neoforge, fabric]
+        world: [new, legacy]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: jars
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ needs.build.outputs.java }}
+
+      # legacy: the last release for this Minecraft version (v<version>-<mc>); none yet: nothing to compare with
+      - name: Server test
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MC: ${{ needs.build.outputs.mc }}
+        run: |
+          sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          if [ "${{ matrix.world }}" = legacy ]; then
+            last=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' | grep -- "-$MC\$" | sed 's/^v//; s/-[^-]*$//' | sort -V | tail -1)
+            if [ -z "$last" ]; then echo "no release for $MC yet, nothing to compare"; exit 0; fi
+            echo "worlds of $last"
+            LEGACY=$last SKIP_SELFTEST=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
+          else
+            WEATHER=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
+          fi
+
+      - name: Upload the world shape and logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-${{ matrix.loader }}-${{ matrix.world }}
+          path: |
+            run/heights-*.txt
+            run/server-*/*.log
+            run/server-*/logs/latest.log
+            run/server-*/rtf-*.txt
+            run/server-neoforge/reterraforged-preset.zip
+          if-no-files-found: ignore
+
+  parity:
+    needs: server-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: server-*-new
+          path: shapes
+
+      # the new worlds of both loaders: the same heights, ground and biomes
+      - name: NeoForge and Fabric make the same world
+        run: |
+          r=$(python3 tools/compareheights.py shapes/server-neoforge-new/heights-neoforge.txt shapes/server-fabric-new/heights-fabric.txt all)
+          echo "NeoForge and Fabric: $r"
+          [[ "$r" == PASS* ]]

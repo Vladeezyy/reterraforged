@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
@@ -16,7 +17,8 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public class PresetNoiseGeneratorSettings {
 	
-	public static void bootstrap(Preset preset, BootstrapContext<NoiseGeneratorSettings> ctx) {
+	// baseSurface: the overworld's surface rules without ours (PresetSurfaceRuleData.base)
+	public static void bootstrap(Preset preset, BootstrapContext<NoiseGeneratorSettings> ctx, SurfaceRules.RuleSource baseSurface) {
 		HolderGetter<DensityFunction> densityFunctions = ctx.lookup(Registries.DENSITY_FUNCTION);
 		HolderGetter<NormalNoise.NoiseParameters> noiseParams = ctx.lookup(Registries.NOISE);
 		HolderGetter<Noise> noises = ctx.lookup(RTFRegistries.NOISE);
@@ -32,7 +34,7 @@ public class PresetNoiseGeneratorSettings {
 			NoiseSettings.create(-worldDepth, worldDepth + worldHeight, 1, 2), 
 			Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), 
 			PresetNoiseRouterData.overworld(preset, densityFunctions, noiseParams, noises),
-			PresetSurfaceRuleData.overworld(preset, densityFunctions, noises),
+			PresetSurfaceRuleData.overworld(preset, noises, baseSurface),
 			properties.spawnType.getParameterPoints(), 
 			properties.seaLevel, 
 			false, 

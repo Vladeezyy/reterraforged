@@ -77,15 +77,16 @@ public class StructureSettingsPage extends PresetEditorPage {
 			ValueButton<Integer> salt = PresetWidgets.createRandomButton(RTFTranslationKeys.GUI_BUTTON_SALT, entry.salt, (value) -> {
 				entry.salt = value;
 			});
-			CycleButton<Boolean> disabled = PresetWidgets.createToggle(entry.disabled, RTFTranslationKeys.GUI_BUTTON_DISABLED, (button, value) -> {
-				entry.disabled = value;
+			// "Generates: On" rather than "Disabled: Off"
+			CycleButton<Boolean> generates = PresetWidgets.createToggle(!entry.disabled, RTFTranslationKeys.GUI_BUTTON_GENERATES, (button, value) -> {
+				entry.disabled = !value;
 			});
 			
 			this.left.addWidget(PresetWidgets.createLabel(structureSetName(key.location().getNamespace(), key.location().getPath())));
 			this.left.addWidget(spacing);
 			this.left.addWidget(separation);
 			this.left.addWidget(salt);
-			this.left.addWidget(disabled);
+			this.left.addWidget(generates);
 		});
 	}
 
