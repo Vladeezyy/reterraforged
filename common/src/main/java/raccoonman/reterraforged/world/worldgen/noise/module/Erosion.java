@@ -10,7 +10,7 @@ import net.minecraft.util.StringRepresentable;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 
-public record Erosion(Noise input, int seed, int octaves, float strength, float gridSize, float amplitude, float lacunarity, float distanceFallOff, BlendMode blendMode, ThreadLocal<float[]> cache) implements Noise {
+public record Erosion(Noise input, int seed, int octaves, float strength, float gridSize, float amplitude, float lacunarity, float distanceFallOff, BlendMode blendMode, ThreadLocal<Scratch> cache) implements Noise {
 	public static final MapCodec<Erosion> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Noise.HOLDER_HELPER_CODEC.fieldOf("input").forGetter(Erosion::input),
 		Codec.INT.fieldOf("seed").forGetter(Erosion::seed),
@@ -24,7 +24,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 	).apply(instance, Erosion::new));
 
 	public Erosion(Noise input, int seed, int octaves, float strength, float gridSize, float amplitude, float lacunarity, float distanceFallOff, BlendMode blendMode) {
-		this(input, seed, octaves, strength, gridSize, amplitude, lacunarity, distanceFallOff, blendMode, ThreadLocal.withInitial(() -> new float[3 * 5 * 5]));
+		this(input, seed, octaves, strength, gridSize, amplitude, lacunarity, distanceFallOff, blendMode, ThreadLocal.withInitial(() -> new Scratch(octaves)));
 	}
 
 	@Override
@@ -59,13 +59,13 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 		return o instanceof Erosion other && other.input.equals(this.input) && other.seed == this.seed && other.octaves == this.octaves && other.strength == this.strength && other.gridSize == this.gridSize && other.amplitude == this.amplitude && other.lacunarity == this.lacunarity && other.distanceFallOff == this.distanceFallOff && other.blendMode.equals(this.blendMode);
 	}
 	
-	private float getErosionValue(float x, float y, float[] cache) {
+	private float getErosionValue(float x, float y, Scratch cache) {
 		float sum = 0.0F;
 		float max = 0.0F;
 		float gain = 1.0F;
 		float distance = this.gridSize;
 		for (int i = 0; i < this.octaves; ++i) {
-			float value = this.getSingleErosionValue(x, y, distance, cache);
+			float value = this.getSingleErosionValue(x, y, distance, cache.cells, cache.heights[i]);
 			value *= gain;
 			sum += value;
 			max += gain;
@@ -79,7 +79,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 
 	// cache: the heights of the 5 x 5 cells around (0 - 24, -1 until sampled), then their points' x (25 - 49) and z
 	// (50 - 74), worked out once (each cell was looked up for every one of its up to 9 neighbours)
-	private float getSingleErosionValue(float x, float y, float gridSize, float[] cache) {
+	private float getSingleErosionValue(float x, float y, float gridSize, float[] cache, Heights heights) {
 		Arrays.fill(cache, 0, 25, -1.0F);
 		int pix = NoiseUtil.floor(x / gridSize);
 		int piy = NoiseUtil.floor(y / gridSize);
@@ -107,7 +107,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 						int b = a + dy2 * 5 + dx2;
 						float candidateX = cache[25 + b];
 						float candidateY = cache[50 + b];
-						float height = getNoiseValue(dx1 + dx2, dy1 + dy2, candidateX, candidateY, this.input, cache);
+						float height = getNoiseValue(dx1 + dx2, dy1 + dy2, pix, piy, candidateX, candidateY, this.input, cache, heights);
 						if (height < lowestNeighbour) {
 							lowestNeighbour = height;
 							bx = candidateX;
@@ -124,14 +124,54 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 		return NoiseUtil.clamp(sqrt(minHeight2) / gridSize, 0.0F, 1.0F);
 	}
 
-	private static float getNoiseValue(int dx, int dy, float px, float py, Noise module, float[] cache) {
+	private static float getNoiseValue(int dx, int dy, int pix, int piy, float px, float py, Noise module, float[] cache, Heights heights) {
 		int index = (dy + 2) * 5 + (dx + 2);
 		float value = cache[index];
 		if (value == -1.0F) {
-			value = module.compute(px, py, 0);
+			value = heights.get(pix + dx, piy + dy, px, py, module);
 			cache[index] = value;
 		}
 		return value;
+	}
+
+	/**
+	 * The input's height at the grid points of one octave, for the next samples: the points of neighbouring samples are
+	 * mostly the same (a point is its cell's, at the same place for every sample), and the input was worked out up to 25
+	 * times per sample and octave. Direct-mapped by the cell; a point's height depends on its cell only.
+	 */
+	static final class Heights {
+		private static final int SIZE = 1024;
+		private final long[] cells = new long[SIZE];
+		private final float[] values = new float[SIZE];
+
+		Heights() {
+			java.util.Arrays.fill(this.cells, Long.MIN_VALUE);
+		}
+
+		float get(int cellX, int cellY, float px, float py, Noise module) {
+			int slot = (cellX * 73856093 ^ cellY * 19349663) & (SIZE - 1);
+			long key = ((long) cellX << 32) | (cellY & 0xFFFFFFFFL);
+			if (this.cells[slot] == key) {
+				return this.values[slot];
+			}
+			float value = module.compute(px, py, 0);
+			this.cells[slot] = key;
+			this.values[slot] = value;
+			return value;
+		}
+	}
+
+	/** One thread's arrays: the 5 x 5 cells of the sample (see getSingleErosionValue) and the heights of every octave */
+	static final class Scratch {
+		final float[] cells = new float[3 * 5 * 5];
+		final Heights[] heights;
+
+		Scratch(int octaves) {
+			this.heights = new Heights[Math.max(octaves, 0)];
+			for (int i = 0; i < this.heights.length; i++) {
+				this.heights[i] = new Heights();
+			}
+		}
 	}
 
 	private static float sd(float px, float py, float ax, float ay, float bx, float by) {
