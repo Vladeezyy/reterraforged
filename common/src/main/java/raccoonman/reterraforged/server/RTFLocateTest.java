@@ -9,7 +9,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -42,13 +42,13 @@ public final class RTFLocateTest {
 	private static String test(MinecraftServer server, String structureId, String biomeId) {
 		ServerLevel level = server.overworld();
 		String kind = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null ? "rtf" : "vanilla";
-		Optional<Holder.Reference<Structure>> structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(ResourceKey.create(Registries.STRUCTURE, ResourceLocation.parse(structureId)));
+		Optional<Holder.Reference<Structure>> structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(ResourceKey.create(Registries.STRUCTURE, Identifier.parse(structureId)));
 		if (structure.isEmpty()) {
 			return "[RTF locate] FAIL no structure " + structureId;
 		}
-		ResourceKey<Biome> biome = ResourceKey.create(Registries.BIOME, ResourceLocation.parse(biomeId));
+		ResourceKey<Biome> biome = ResourceKey.create(Registries.BIOME, Identifier.parse(biomeId));
 		long start = System.nanoTime();
-		BlockPos spawn = level.getSharedSpawnPos();
+		BlockPos spawn = level.getRespawnData().pos();
 		Pair<BlockPos, Holder<Biome>> place = level.findClosestBiome3d((b) -> b.is(biome), spawn.atY(level.getSeaLevel()), 6400, 32, 64);
 		if (place == null) {
 			return "[RTF locate] " + kind + " " + structureId + ": no " + biomeId + " within 6400 blocks";
