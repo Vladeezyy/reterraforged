@@ -17,6 +17,11 @@
 # world; SKIP_STRUCTURES=1 leaves the structure test out, SKIP_SELFTEST=1 the self test (quick runs that only need the
 # world's shape: with both about 1 minute a loader instead of 6; compare such heights only with another SKIP_SELFTEST
 # run: a few "base" samples come out 1-2 blocks off when the self test has generated the chunks around them). tools/uiparity.sh: the preset screen's world.
+# FINGERPRINT=1 hashes every block and biome of chunks in several places first ("rtf fingerprint", run/fingerprint-<loader>.txt);
+# FINGERPRINT_REF=<file> the generation must be the same as that run's (tools/comparefingerprint.py). Fingerprints run
+# with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
+# the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
+# EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -97,6 +102,7 @@ fi
 echo $$ > run/.servertest.lock/pid
 trap 'rm -rf run/.servertest.lock' EXIT
 
+[ -z "$FINGERPRINT$FINGERPRINT_REF" ] || EXTRA_JVM="$EXTRA_JVM -Dmax.bg.threads=1"
 kill_servers
 for loader in $LOADERS; do
     dir=run/server-$loader
@@ -108,7 +114,7 @@ for loader in $LOADERS; do
                 (cd "$dir" && "$JAVA" -jar ../neoforge-installer.jar --installServer > installer.log 2>&1)
             fi
             jar=$(ls -t neoforge/build/libs/reterraforged-*-neoforge-*.jar | head -1)
-            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
+            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP $EXTRA_JVM @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
         fabric)
             # FABRIC_LOADER= / FABRIC_API= other versions than gradle.properties' (mods that need newer ones): the
             # installed pair is remembered and replaced when it differs
@@ -119,7 +125,7 @@ for loader in $LOADERS; do
                 echo "$FABRIC_LOADER $FABRIC_API" > "$dir/fabric-versions.txt"
             fi
             jar=$(ls -t fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)
-            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP -jar fabric-server-launch.jar nogui) ;;
+            start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP $EXTRA_JVM -jar fabric-server-launch.jar nogui) ;;
     esac
     rm -f "$dir"/mods/reterraforged-*.jar
     cp "$jar" "$dir/mods/"
@@ -193,6 +199,16 @@ for loader in $LOADERS; do
     if ! wait_for "$dir/console.log" 'Done (' 600; then
         echo "$loader: server did not start"; grep -m5 -E "Exception|Error" "$dir/console.log"; FAILS=$((FAILS+1)); stop_server "$dir" console.log; continue
     fi
+    # FINGERPRINT=1: the hash of every block and biome of chunks in several places (RTFFingerprint), first thing in the
+    # new world; FINGERPRINT_REF=<file>: must be the same as that run's (a change of the code keeps the generation)
+    fingerprint=PASS
+    if [ -n "$FINGERPRINT" ] || [ -n "$FINGERPRINT_REF" ]; then
+        rm -f "$dir/rtf-fingerprint.txt" "run/fingerprint-$loader.txt"
+        echo "rtf fingerprint" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF fingerprint\]' 1200 && cp "$dir/rtf-fingerprint.txt" "run/fingerprint-$loader.txt" 2>/dev/null
+        grep -o 'RTF fingerprint\].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
+        [ -z "$FINGERPRINT_REF" ] || fingerprint=$($PY tools/comparefingerprint.py "$FINGERPRINT_REF" "run/fingerprint-$loader.txt")
+    fi
     if [ -n "$SKIP_SELFTEST" ]; then
         line="RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked"
     else
@@ -250,6 +266,7 @@ for loader in $LOADERS; do
         legacy=$($PY tools/compareheights.py "run/heights-legacy-$loader.txt" "run/heights-$loader.txt" ground)
         echo "  a world of $LEGACY opened with this build, against a new one: $legacy"
     fi
+    [ -z "$FINGERPRINT_REF" ] || echo "  generation against $FINGERPRINT_REF: $fingerprint"
     shape=PASS
     if [ -n "$HEIGHTS_REF" ]; then
         shape=$($PY tools/compareheights.py "$HEIGHTS_REF" "run/heights-$loader.txt" "${HEIGHTS_MODE:-heights}")
@@ -281,7 +298,7 @@ print("PASS" if not bad else "FAIL " + ", ".join(bad))' "$ref" "$got")
         echo "  biomes of other mods: $biomemods (tables: $dir/rtf-biomemods-*.txt)"
     fi
     # LEGACY: the self test judges the old preset (no bee nest tree before 0.0.12, forge: biome modifiers before 0.0.10), only the ground is compared
-    [[ ( -n "$LEGACY" || -n "$SKIP_SELFTEST" || "$line" == *"PASS all"* ) && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS && "$extremes" == *PASS* && "$shape" == PASS* && "$legacy" == PASS* ]] || FAILS=$((FAILS+1))
+    [[ ( -n "$LEGACY" || -n "$SKIP_SELFTEST" || "$line" == *"PASS all"* ) && "$errors" == 0 && "$structures" == *"PASS"* && "$biomemods" == PASS && "$extremes" == *PASS* && "$shape" == PASS* && "$legacy" == PASS* && "$fingerprint" == PASS* ]] || FAILS=$((FAILS+1))
 done
 # both loaders on the same seed and preset: the same world (heights, ground and biomes)
 if [[ " $LOADERS " == *" neoforge "* && " $LOADERS " == *" fabric "* && -f run/heights-neoforge.txt && -f run/heights-fabric.txt ]]; then
