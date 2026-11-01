@@ -18,7 +18,9 @@
 # world's shape: with both about 1 minute a loader instead of 6; compare such heights only with another SKIP_SELFTEST
 # run: a few "base" samples come out 1-2 blocks off when the self test has generated the chunks around them). tools/uiparity.sh: the preset screen's world.
 # FINGERPRINT=1 hashes every block and biome of chunks in several places first ("rtf fingerprint", run/fingerprint-<loader>.txt);
-# FINGERPRINT_REF=<file> the generation must be the same as that run's (tools/comparefingerprint.py). Fingerprints run
+# FINGERPRINT_REF=<file> the generation must be the same as that run's (tools/comparefingerprint.py); the reference of
+# this Minecraft version is tools/fingerprint/<mc>.txt (the same on both loaders; retake it, with the reason in the
+# commit, when a change is meant to change the world). Fingerprints run
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
