@@ -38,6 +38,7 @@ class ClimateSettingsPage extends PresetEditorPage {
 	private Slider biomeEdgeGain;
 	private Slider biomeEdgeLacunarity;
 	private Slider biomeEdgeStrength;
+	private CycleButton<Boolean> warmRainforestOceans;
 
 	public ClimateSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -186,6 +187,12 @@ class ClimateSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.moistureMax);
 		this.left.addWidget(this.moistureBias);
 		
+		this.warmRainforestOceans = PresetWidgets.createToggle(climate.warmRainforestOceans, RTFTranslationKeys.GUI_BUTTON_WARM_RAINFOREST_OCEANS, (button, value) -> {
+			climate.warmRainforestOceans = value;
+			this.regenerate();
+		});
+		this.left.addWidget(this.warmRainforestOceans);
+
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_BIOME_SHAPE));
 		this.left.addWidget(this.biomeSize);
 		this.left.addWidget(this.macroNoiseSize);
