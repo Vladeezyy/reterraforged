@@ -25,17 +25,21 @@ public class TileGenerator {
 	private int batchSize;
 	private int batchCount;
 	
+	private static final int POOLED_TILES = 16;
+
 	public TileGenerator(Heightmap heightmap, WorldFilters filters, int tileChunks, int tileBorder, int batchCount) {
 		this.heightmap = heightmap;
 		this.filters = filters;
-		this.cellPool = ArrayPool.of(100, (length) -> {
+		// the arrays of dropped tiles, kept for the next ones: a tile of the default size is about 5 MB of cells, and 100
+		// of them stayed in memory for good once a fast flight had made that many; a few cover the steady generation
+		this.cellPool = ArrayPool.of(POOLED_TILES, (length) -> {
 			Cell[] cells = new Cell[length];
 			for(int i = 0; i < cells.length; i++) {
 				cells[i] = new Cell();
 			}
 			return cells;
 		});
-		this.chunkPool = ArrayPool.of(100, Chunk[]::new);
+		this.chunkPool = ArrayPool.of(POOLED_TILES, Chunk[]::new);
 		this.tileChunks = tileChunks;
 		this.tileBorder = tileBorder;
 		this.tileSizeBlocks = Size.blocks(tileChunks, tileBorder);
