@@ -30,7 +30,7 @@ public record SurfaceSettings(Erosion erosion) {
     	public float rockSteepness;
     	public float dirtSteepness;
     	public float screeSteepness;
-    	public float screeValue; //TODO
+    	public float screeValue;
     	
         public Erosion(int rockVariance, int rockMin, int dirtVariance, int dirtMin, float rockSteepness, float dirtSteepness, float screeSteepness) {
         	this.rockVariance = rockVariance;
