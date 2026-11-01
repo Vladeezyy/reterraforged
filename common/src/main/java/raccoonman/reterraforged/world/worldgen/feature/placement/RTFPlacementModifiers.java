@@ -18,7 +18,8 @@ public class RTFPlacementModifiers {
     }
     
     @SafeVarargs
-    @Deprecated(forRemoval = true) // use biome modifiers to remove features instead
+    // the presets switch vanilla's springs, lava lakes and stone blobs off in the overworld with it (biome modifiers
+    // could do it too)
 	public static BlacklistDimensionFilter blacklistDimensions(ResourceKey<LevelStem>... levels) {
     	return new BlacklistDimensionFilter(ImmutableList.copyOf(levels));
     }
