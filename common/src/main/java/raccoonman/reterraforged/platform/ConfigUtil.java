@@ -27,9 +27,9 @@ public class ConfigUtil {
 	static {
 		if(!Files.exists(RTF_CONFIG_PATH)) {
 			try {
-				Files.createDirectory(RTF_CONFIG_PATH);
+				Files.createDirectories(RTF_CONFIG_PATH);
 			} catch (IOException e) {
-				e.printStackTrace();
+				RTFCommon.LOGGER.error("Could not create the config folder {}", RTF_CONFIG_PATH, e);
 			}
 		}
 	}
