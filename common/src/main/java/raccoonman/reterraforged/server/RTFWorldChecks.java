@@ -139,11 +139,14 @@ public final class RTFWorldChecks {
 		check.accept("the sea of the rainforest regions is warm ocean (" + warm + "/" + ocean + (other.isEmpty() ? "" : ", else " + other) + "; " + rainforest + " rainforest and " + seas + " sea points)", ocean < 10 || warm >= ocean * 0.9);
 	}
 
-	// the trees of the nearest swamp stand all over their chunks, not on a 16 block grid (all on the chunk's corner,
+	// the trees of a swamp stand all over their chunks, not on a 16 block grid (all on the chunk's corner,
 	// ReTerraForged 0.0.6, #34): over 9 x 9 chunks of it, the trunks on the ground by their place in the chunk
 	private static void swampTrees(ServerLevel level, BiConsumer<String, Boolean> check) {
 		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().customBiomeFeatures) return;
-		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getRespawnData().pos().atY(level.getSeaLevel()), 6400, 32, 64);
+		// searched from 8 km east of the spawn: the chunks it generates must stay away from the shape "rtf heights" samples
+		// around the spawn (generated chunks leave eroded tiles in the cache, and a sample there can come out a block
+		// off, so NeoForge and Fabric did not compare)
+		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getRespawnData().pos().offset(8192, 0, 0).atY(level.getSeaLevel()), 6400, 32, 64);
 		if (swamp == null) return;
 		int cx0 = swamp.getFirst().getX() >> 4, cz0 = swamp.getFirst().getZ() >> 4;
 		int trunks = 0, corner = 0;
