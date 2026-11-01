@@ -143,7 +143,7 @@ public final class RTFWorldChecks {
 	// ReTerraForged 0.0.6, #34): over 9 x 9 chunks of it, the trunks on the ground by their place in the chunk
 	private static void swampTrees(ServerLevel level, BiConsumer<String, Boolean> check) {
 		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().customBiomeFeatures) return;
-		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getSharedSpawnPos().atY(level.getSeaLevel()), 6400, 32, 64);
+		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getRespawnData().pos().atY(level.getSeaLevel()), 6400, 32, 64);
 		if (swamp == null) return;
 		int cx0 = swamp.getFirst().getX() >> 4, cz0 = swamp.getFirst().getZ() >> 4;
 		int trunks = 0, corner = 0;
@@ -156,7 +156,7 @@ public final class RTFWorldChecks {
 					BlockPos pos = new BlockPos(cx * 16 + x, y, cz * 16 + z);
 					if (!c.getBlockState(pos).is(BlockTags.LOGS)) continue;
 					BlockState below = c.getBlockState(pos.below());
-					if (below.is(BlockTags.LOGS) || below.isAir() || !below.getFluidState().isEmpty() && !below.blocksMotion()) continue;
+					if (below.is(BlockTags.LOGS) || below.isAir() || !below.getFluidState().isEmpty() && !Heightmap.Types.MOTION_BLOCKING.isOpaque().test(below)) continue;
 					if (!level.getBiome(pos).is(Biomes.SWAMP)) break;
 					trunks++;
 					places.add(x * 16 + z);
