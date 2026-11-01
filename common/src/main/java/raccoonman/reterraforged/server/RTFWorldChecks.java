@@ -113,6 +113,37 @@ public final class RTFWorldChecks {
 		strata(overworld, check);
 		snowLine(overworld, check);
 		deepslate(overworld, check);
+		swampTrees(overworld, check);
+	}
+
+	// the trees of the nearest swamp stand all over their chunks, not on a 16 block grid (all on the chunk's corner,
+	// ReTerraForged 0.0.6, #34): over 9 x 9 chunks of it, the trunks on the ground by their place in the chunk
+	private static void swampTrees(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || !s.preset().miscellaneous().customBiomeFeatures) return;
+		var swamp = level.findClosestBiome3d((b) -> b.is(Biomes.SWAMP), level.getSharedSpawnPos().atY(level.getSeaLevel()), 6400, 32, 64);
+		if (swamp == null) return;
+		int cx0 = swamp.getFirst().getX() >> 4, cz0 = swamp.getFirst().getZ() >> 4;
+		int trunks = 0, corner = 0;
+		java.util.Set<Integer> places = new java.util.HashSet<>();
+		for (int cx = cx0 - 4; cx <= cx0 + 4; cx++) for (int cz = cz0 - 4; cz <= cz0 + 4; cz++) {
+			ChunkAccess c = full(level, cx, cz);
+			for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
+				int top = c.getHeight(Heightmap.Types.OCEAN_FLOOR, x, z);
+				for (int y = top; y > top - 24; y--) {
+					BlockPos pos = new BlockPos(cx * 16 + x, y, cz * 16 + z);
+					if (!c.getBlockState(pos).is(BlockTags.LOGS)) continue;
+					BlockState below = c.getBlockState(pos.below());
+					if (below.is(BlockTags.LOGS) || below.isAir() || !below.getFluidState().isEmpty() && !below.blocksMotion()) continue;
+					if (!level.getBiome(pos).is(Biomes.SWAMP)) break;
+					trunks++;
+					places.add(x * 16 + z);
+					if (x == 0 && z == 0) corner++;
+					break;
+				}
+			}
+		}
+		check.accept("swamp trees are spread over their chunks (" + trunks + " trunks at " + places.size() + " places in the chunk, " + corner + " on its corner; swamp at "
+			+ swamp.getFirst().getX() + " " + swamp.getFirst().getZ() + ")", trunks < 5 || (places.size() >= 8 && corner * 2 < trunks));
 	}
 
 	// a preset with its own deepslate level (#32, tools/servertest.sh PRESET=set:world().properties.deepslateLevel=40):
