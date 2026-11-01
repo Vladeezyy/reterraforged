@@ -35,8 +35,11 @@ public final class RTFBench {
 			double seconds = (System.nanoTime() - start) / 1.0E9;
 			int chunks = size * size;
 			long heap = (runtime.totalMemory() - runtime.freeMemory()) >> 20;
-			RTFCommon.LOGGER.info(String.format(Locale.ROOT, "[RTF bench] %s: %d chunks in %.1f s, %.1f chunks/s, %.1f ms per chunk, heap in use %d MB of %d MB, %d cores",
-				rtf ? "ReTerraForged" : "vanilla", chunks, seconds, chunks / seconds, seconds * 1000.0 / chunks, heap, runtime.maxMemory() >> 20, runtime.availableProcessors()));
+			// what stays in memory: the heap after a full collection (the generated chunks and the generator's caches)
+			System.gc();
+			long live = (runtime.totalMemory() - runtime.freeMemory()) >> 20;
+			RTFCommon.LOGGER.info(String.format(Locale.ROOT, "[RTF bench] %s: %d chunks in %.1f s, %.1f chunks/s, %.1f ms per chunk, heap in use %d MB of %d MB (%d MB after a GC), %d cores",
+				rtf ? "ReTerraForged" : "vanilla", chunks, seconds, chunks / seconds, seconds * 1000.0 / chunks, heap, runtime.maxMemory() >> 20, live, runtime.availableProcessors()));
 		}, "RTF bench");
 		thread.setDaemon(true);
 		thread.start();
