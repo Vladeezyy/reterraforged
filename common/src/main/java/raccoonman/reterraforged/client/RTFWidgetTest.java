@@ -56,7 +56,6 @@ public final class RTFWidgetTest {
 	private static int widgets;
 	private static Map<String, String> before;
 	private static Map<String, String> edited;
-	private static double sliderBefore;
 	private static String shownBefore;
 	private static Object cycleStart;
 	private static double sliderStart;
@@ -242,7 +241,6 @@ public final class RTFWidgetTest {
 	private static void use(Minecraft mc, AbstractWidget widget, double fraction) {
 		PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
 		before = flatten(RTFGuiTest.preset(mc));
-		sliderBefore = widget instanceof Slider slider ? slider.getValue() : 0;
 		shownBefore = shown(widget);
 		generationBefore = page.previewGeneration();
 		hashBefore = page.previewHash();
