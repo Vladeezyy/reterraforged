@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 New versions are released for 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3; 1.21.3 to 1.21.10 stay at 0.0.25.
@@ -78,6 +78,8 @@ The mod only affects new worlds created with its preset. It does not change an e
   default; with tall or stretched terrain they replace the sheer walls a river cut through a mountain range.
 - **Deepslate Level** (0.0.27, World page, [#32](https://github.com/Vladeezyy/reterraforged/issues/32)): the height
   where stone gives way to deepslate; 0 is vanilla's.
+- **Warm Oceans by Rainforests** (0.0.28, Climate page, [#35](https://github.com/Vladeezyy/reterraforged/issues/35)): the sea
+  of tropical rainforest regions is warm ocean, with coral reefs; off by default (lukewarm, as in 0.0.6).
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -125,6 +127,11 @@ New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so 
 **Seams on cliffs, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): with mods that repaint
 mountain surfaces, such as William Wythers' Overhauled Overworld, the rock of steep slopes came out in chunk-sized
 squares and stripes.
+
+**Trees and swamps, 0.0.28** ([#34](https://github.com/Vladeezyy/reterraforged/issues/34)): the trees of
+swamps, plains, savannas, meadows, windswept hills and snowy plains all stood on the corner of their chunk, a 16-block
+grid; rivers kept vanilla's oaks by the water; swamp huts (and other mods' swamp structures) never generated, because
+the wetlands counted as river for structures.
 
 **Preset screen:**
 - on 1.21.11+ the sliders changed nothing;
@@ -670,16 +677,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.27](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.27-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.28](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.28-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Новые версии выходят для 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3; 1.21.3–1.21.10 остаются на 0.0.25.
@@ -715,6 +722,9 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
   высоком или растянутом рельефе настройки убирают отвесные стены, которые река прорезала в горах.
 - **Уровень глубинного сланца** (0.0.27, страница «Мир», [#32](https://github.com/Vladeezyy/reterraforged/issues/32)):
   высота, на которой камень сменяется глубинным сланцем; 0 — как в ванилле.
+- **Тёплые океаны у тропических лесов** (0.0.28, страница «Климат», [#35](https://github.com/Vladeezyy/reterraforged/issues/35)): море
+  в регионах тропических лесов — тёплый океан с коралловыми рифами; по умолчанию выключено (умеренно тёплый, как
+  в 0.0.6).
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
@@ -761,6 +771,11 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 **Швы на склонах, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): с модами, которые
 перекрашивают поверхность гор, например William Wythers' Overhauled Overworld, камень крутых склонов выходил
 квадратами и полосами по чанкам.
+
+**Деревья и болота, 0.0.28** ([#34](https://github.com/Vladeezyy/reterraforged/issues/34)): деревья
+болот, равнин, саванн, лугов, ветреных холмов и заснеженных равнин стояли в углу своего чанка, сеткой через 16 блоков;
+у рек оставались ванильные дубы у воды; хижины ведьм (и болотные постройки других модов) не генерировались: для
+построек заболоченные земли считались рекой.
 
 **Экран пресетов:**
 - на 1.21.11+ ползунки ничего не меняли;
