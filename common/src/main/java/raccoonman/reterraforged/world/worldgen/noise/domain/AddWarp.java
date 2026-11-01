@@ -23,6 +23,13 @@ public record AddWarp(Domain input1, Domain input2) implements Domain {
 	}
 
 	@Override
+	public long getOffsets(float x, float z, int seed) {
+		long offsets1 = this.input1.getOffsets(x, z, seed);
+		long offsets2 = this.input2.getOffsets(x, z, seed);
+		return Domain.pack(Domain.offsetX(offsets1) + Domain.offsetX(offsets2), Domain.offsetZ(offsets1) + Domain.offsetZ(offsets2));
+	}
+
+	@Override
 	public Domain mapAll(Visitor visitor) {
 		return new AddWarp(this.input1.mapAll(visitor), this.input2.mapAll(visitor));
 	}

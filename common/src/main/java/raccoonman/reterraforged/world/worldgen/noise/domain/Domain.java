@@ -19,6 +19,32 @@ public interface Domain {
     
     MapCodec<? extends Domain> codec();
 
+    /**
+     * Both offsets at once, packed (offsetX / offsetZ read them): a warp whose X and Z share work (the same distance,
+     * angle or inner warp) does it once instead of twice. The same values as getOffsetX and getOffsetZ.
+     */
+    default long getOffsets(float x, float z, int seed) {
+        return pack(this.getOffsetX(x, z, seed), this.getOffsetZ(x, z, seed));
+    }
+
+    /** The warped place, packed as getOffsets: x + its offset X, z + its offset Z */
+    default long warp(float x, float z, int seed) {
+        long offsets = this.getOffsets(x, z, seed);
+        return pack(x + offsetX(offsets), z + offsetZ(offsets));
+    }
+
+    static long pack(float x, float z) {
+        return ((long) Float.floatToRawIntBits(x) << 32) | (Float.floatToRawIntBits(z) & 0xFFFFFFFFL);
+    }
+
+    static float offsetX(long packed) {
+        return Float.intBitsToFloat((int) (packed >>> 32));
+    }
+
+    static float offsetZ(long packed) {
+        return Float.intBitsToFloat((int) packed);
+    }
+
     default float getX(float x, float z, int seed) {
         return x + this.getOffsetX(x, z, seed);
     }

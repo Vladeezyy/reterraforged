@@ -24,7 +24,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 	).apply(instance, Erosion::new));
 
 	public Erosion(Noise input, int seed, int octaves, float strength, float gridSize, float amplitude, float lacunarity, float distanceFallOff, BlendMode blendMode) {
-		this(input, seed, octaves, strength, gridSize, amplitude, lacunarity, distanceFallOff, blendMode, ThreadLocal.withInitial(() -> new float[5 * 5]));
+		this(input, seed, octaves, strength, gridSize, amplitude, lacunarity, distanceFallOff, blendMode, ThreadLocal.withInitial(() -> new float[3 * 5 * 5]));
 	}
 
 	@Override
@@ -77,28 +77,36 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 		return sum / max;
 	}
 
+	// cache: the heights of the 5 x 5 cells around (0 - 24, -1 until sampled), then their points' x (25 - 49) and z
+	// (50 - 74), worked out once (each cell was looked up for every one of its up to 9 neighbours)
 	private float getSingleErosionValue(float x, float y, float gridSize, float[] cache) {
-		Arrays.fill(cache, -1.0F);
+		Arrays.fill(cache, 0, 25, -1.0F);
 		int pix = NoiseUtil.floor(x / gridSize);
 		int piy = NoiseUtil.floor(y / gridSize);
+		for (int dy = -2; dy <= 2; ++dy) {
+			for (int dx = -2; dx <= 2; ++dx) {
+				int px = pix + dx;
+				int py = piy + dy;
+				Vec2f vec = NoiseUtil.cell(this.seed, px, py);
+				int index = (dy + 2) * 5 + (dx + 2);
+				cache[25 + index] = (px + vec.x()) * gridSize;
+				cache[50 + index] = (py + vec.y()) * gridSize;
+			}
+		}
 		float minHeight2 = Float.MAX_VALUE;
 		for (int dy1 = -1; dy1 <= 1; ++dy1) {
 			for (int dx1 = -1; dx1 <= 1; ++dx1) {
-				int pax = pix + dx1;
-				int pay = piy + dy1;
-				Vec2f vec1 = NoiseUtil.cell(this.seed, pax, pay);
-				float ax = (pax + vec1.x()) * gridSize;
-				float ay = (pay + vec1.y()) * gridSize;
+				int a = (dy1 + 2) * 5 + (dx1 + 2);
+				float ax = cache[25 + a];
+				float ay = cache[50 + a];
 				float bx = ax;
 				float by = ay;
 				float lowestNeighbour = Float.MAX_VALUE;
 				for (int dy2 = -1; dy2 <= 1; ++dy2) {
 					for (int dx2 = -1; dx2 <= 1; ++dx2) {
-						int pbx = pax + dx2;
-						int pby = pay + dy2;
-						Vec2f vec2 = (pbx == pax && pby == pay) ? vec1 : NoiseUtil.cell(this.seed, pbx, pby);
-						float candidateX = (pbx + vec2.x()) * gridSize;
-						float candidateY = (pby + vec2.y()) * gridSize;
+						int b = a + dy2 * 5 + dx2;
+						float candidateX = cache[25 + b];
+						float candidateY = cache[50 + b];
 						float height = getNoiseValue(dx1 + dx2, dy1 + dy2, candidateX, candidateY, this.input, cache);
 						if (height < lowestNeighbour) {
 							lowestNeighbour = height;

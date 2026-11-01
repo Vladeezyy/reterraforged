@@ -14,7 +14,8 @@ record Warp(Noise input, Domain domain) implements Noise {
 	
 	@Override
 	public float compute(float x, float z, int seed) {
-		return this.input.compute(this.domain.getX(x, z, seed), this.domain.getZ(x, z, seed), seed);
+		long warped = this.domain.warp(x, z, seed);
+		return this.input.compute(Domain.offsetX(warped), Domain.offsetZ(warped), seed);
 	}
 
 	@Override
