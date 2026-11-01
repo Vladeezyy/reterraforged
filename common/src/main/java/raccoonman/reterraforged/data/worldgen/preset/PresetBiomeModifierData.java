@@ -45,6 +45,8 @@ public class PresetBiomeModifierData {
 	public static final ResourceKey<BiomeModifier> REPLACE_JUNGLE_TREES = createKey("replace_jungle_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_JUNGLE_EDGE_TREES = createKey("replace_jungle_edge_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_WOODED_BADLANDS_TREES = createKey("replace_wooded_badlands_trees");
+	public static final ResourceKey<BiomeModifier> REPLACE_RIVER_TREES = createKey("replace_river_trees");
+	public static final ResourceKey<BiomeModifier> REPLACE_FROZEN_RIVER_TREES = createKey("replace_frozen_river_trees");
 
 	
 	public static final ResourceKey<BiomeModifier> ADD_FOREST_GRASS = createKey("add_forest_grass");
@@ -151,6 +153,13 @@ public class PresetBiomeModifierData {
 			)));
 			ctx.register(REPLACE_WOODED_BADLANDS_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, woodedBadlands, Map.of(
 				VegetationPlacements.TREES_BADLANDS, woodedBadlandsTrees
+			)));
+			// vanilla's trees by the water of rivers (its oaks, also on frozen rivers) are ours too (#34)
+			ctx.register(REPLACE_RIVER_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, HolderSet.direct(biomes.getOrThrow(Biomes.RIVER)), Map.of(
+				VegetationPlacements.TREES_WATER, placedFeatures.getOrThrow(PresetPlacedFeatures.RIVER_TREES)
+			)));
+			ctx.register(REPLACE_FROZEN_RIVER_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, HolderSet.direct(biomes.getOrThrow(Biomes.FROZEN_RIVER)), Map.of(
+				VegetationPlacements.TREES_WATER, placedFeatures.getOrThrow(PresetPlacedFeatures.FROZEN_RIVER_TREES)
 			)));
 
 			
