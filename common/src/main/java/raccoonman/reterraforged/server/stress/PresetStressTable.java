@@ -46,6 +46,7 @@ final class PresetStressTable {
 		Setting.ofFloat("climate().biomeEdgeShape.gain", 0.0F, 5.5F, (p, v) -> p.climate().biomeEdgeShape.gain = v),
 		Setting.ofFloat("climate().biomeEdgeShape.lacunarity", 0.0F, 10.5F, (p, v) -> p.climate().biomeEdgeShape.lacunarity = v),
 		Setting.ofInt("climate().biomeEdgeShape.strength", 1, 500, (p, v) -> p.climate().biomeEdgeShape.strength = v),
+		Setting.ofBoolean("climate().warmRainforestOceans", (p, v) -> p.climate().warmRainforestOceans = v),
 		Setting.ofBoolean("fakeWaterBiomes().enableFakeWaterBiomes", (p, v) -> p.fakeWaterBiomes().enableFakeWaterBiomes = v),
 		Setting.ofBoolean("fakeWaterBiomes().steppeBelowSeaLevelRiverBiomes", (p, v) -> p.fakeWaterBiomes().steppeBelowSeaLevelRiverBiomes = v),
 		Setting.ofBoolean("fakeWaterBiomes().badlandsBelowSeaLevelOceanBiomes", (p, v) -> p.fakeWaterBiomes().badlandsBelowSeaLevelOceanBiomes = v),

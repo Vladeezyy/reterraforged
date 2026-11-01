@@ -181,6 +181,8 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_EROSION_DECORATOR, "Erosion Decorator");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS, "Valley Follows Meanders");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS), "On: the valley follows the river's meanders. Off (as in ReTerraForged 0.0.6): it also follows the straight line the river meanders around, so where the river bends away a dry valley floor is left beside it.");
+			this.add(RTFTranslationKeys.GUI_BUTTON_WARM_RAINFOREST_OCEANS, "Warm Oceans by Rainforests");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_WARM_RAINFOREST_OCEANS), "On: the oceans of tropical rainforest regions are warm oceans (with coral reefs), as those of deserts. Off (as in ReTerraForged 0.0.6): lukewarm oceans, as next to jungles in vanilla.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN, "Branch Size From Main River");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN), "On: branch rivers take the size of the river they branch from where they meet it, as in TerraForged; the branch river sliders above (except Fade) are not used. Off: branch rivers have the bed and bank sizes of these sliders.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION, "Plain Stone Erosion");
