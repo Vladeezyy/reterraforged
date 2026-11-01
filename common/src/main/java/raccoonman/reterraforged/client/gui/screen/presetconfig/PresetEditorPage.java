@@ -80,7 +80,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 			try {
 				this.preview.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				RTFCommon.LOGGER.error("Could not close the preset preview", e);
 			}
 		}
 
@@ -104,11 +104,16 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	public void onClose() {
 		super.onClose();
 	
+		// the preview is closed (its texture freed) even when the preset could not be saved
 		try {
 			this.preset.save();
+		} catch (Exception e) {
+			RTFCommon.LOGGER.error("Could not save the preset {}", this.preset.getName().getString(), e);
+		}
+		try {
 			this.preview.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Could not close the preset preview", e);
 		}
 	}
 	
@@ -119,7 +124,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		try {
 			this.screen.applyPreset(this.preset);
 		} catch (IOException e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Could not apply the preset {}", this.preset.getName().getString(), e);
 		}
 	}
 	
@@ -171,7 +176,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        try {
 				CacheManager.clear();
 			} catch (Exception e) {
-				e.printStackTrace();
+				RTFCommon.LOGGER.error("Could not clear the generator caches for the preview", e);
 			}
 			PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.DEFAULT_FILE_PATH)
 				.resultOrPartial(RTFCommon.LOGGER::error)
@@ -212,7 +217,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    	try {
 	   CacheManager.clear();
 	  } catch (Exception e) {
-	   e.printStackTrace();
+	   RTFCommon.LOGGER.error("Could not clear the generator caches", e);
 	  }
 	    }
 	
