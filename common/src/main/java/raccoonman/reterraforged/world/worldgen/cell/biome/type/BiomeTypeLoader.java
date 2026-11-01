@@ -10,8 +10,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 
 public class BiomeTypeLoader {
-    private static BiomeTypeLoader instance;
-    private BiomeType[][] map;
+    private final BiomeType[][] map;
     
     public BiomeTypeLoader() {
         this.map = new BiomeType[256][256];
@@ -97,10 +96,13 @@ public class BiomeTypeLoader {
         return new Color(r, g, b);
     }
     
+    // made on first use by the class loader, once for all threads: the check-then-create before could hand another
+    // generation thread the loader before its map was filled (asked for every cell of a tile, from several threads)
+    private static final class Holder {
+        private static final BiomeTypeLoader INSTANCE = new BiomeTypeLoader();
+    }
+
     public static BiomeTypeLoader getInstance() {
-        if (BiomeTypeLoader.instance == null) {
-            BiomeTypeLoader.instance = new BiomeTypeLoader();
-        }
-        return BiomeTypeLoader.instance;
+        return Holder.INSTANCE;
     }
 }

@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 public class LongIterSet {
-	public static long NULL = Long.MAX_VALUE;
+	public static final long NULL = Long.MAX_VALUE;
 	private int size;
 	private int index;
 	private long[] order;
