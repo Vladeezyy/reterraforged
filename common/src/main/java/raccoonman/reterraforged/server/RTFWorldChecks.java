@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
@@ -346,7 +347,8 @@ public final class RTFWorldChecks {
 
 	/**
 	 * "rtf heights [name]": the world's shape in run/.../rtf-heights[-name].txt: the generator's ground height and the
-	 * biome at a 33 x 33 grid over 4 x 4 km (no chunks needed), then the top of the ground (no plants, trees or water) of
+	 * biome at a 33 x 33 grid over 4 x 4 km (no chunks needed; the raw estimate, not the eroded cell of a cached tile,
+	 * so the same whichever chunks were generated before), then the top of the ground (no plants, trees or water) of
 	 * the 81 chunks the self test generates, at 4 columns each. Chunks already saved, as by an older version of the mod,
 	 * are read as they are.
 	 */
@@ -387,12 +389,17 @@ public final class RTFWorldChecks {
 		var rs = level.getChunkSource().randomState();
 		List<String> lines = new ArrayList<>();
 		lines.add("# seed " + level.getSeed());
-		for (int x = -2048; x <= 2048; x += 128) {
-			for (int z = -2048; z <= 2048; z += 128) {
-				int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
-				Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2);
-				lines.add("base " + x + " " + z + " " + h + " " + biome.getRegisteredName());
+		WorldLookup.beginRaw();
+		try {
+			for (int x = -2048; x <= 2048; x += 128) {
+				for (int z = -2048; z <= 2048; z += 128) {
+					int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
+					Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, h >> 2, z >> 2);
+					lines.add("base " + x + " " + z + " " + h + " " + biome.getRegisteredName());
+				}
 			}
+		} finally {
+			WorldLookup.endRaw();
 		}
 		for (int cx = AREA_MIN; cx <= AREA_MAX; cx++) for (int cz = AREA_MIN; cz <= AREA_MAX; cz++) {
 			ChunkAccess c = full(level, cx, cz);

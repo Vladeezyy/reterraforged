@@ -1,9 +1,9 @@
 """Compares two "rtf heights" files (RTFWorldChecks.heights): tools/compareheights.py <a> <b> [heights|ground|all|world]
 
 heights: the generator's ground height at the grid (the world's shape), ground: the top of the ground in the generated
-chunks, all: both and the biomes, world: like all, but the generator's height may be 1 block off (it is an estimate:
-WorldLookup takes the eroded cell of a tile already in the cache and the raw one otherwise, so it depends on which
-chunks were generated before; the blocks are not affected). Prints "PASS ..." or "FAIL ..." with the first differences.
+chunks, all: both and the biomes, world: like all, but the generator's height may be 1 block off (files written before 0.0.28
+took the estimate from the eroded cell of a tile already in the cache and the raw one otherwise, so it depended on which
+chunks were generated before; since 0.0.28 it is always the raw one). Prints "PASS ..." or "FAIL ..." with the first differences.
 """
 import sys
 
