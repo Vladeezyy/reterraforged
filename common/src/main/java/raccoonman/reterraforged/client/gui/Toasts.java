@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.client.gui;
 
+import raccoonman.reterraforged.RTFCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId;
@@ -17,7 +18,8 @@ public final class Toasts {
 		try {
 			r.run();
 		} catch(Exception e) {
-			e.printStackTrace();
+			// errorMessage is the toast's translation key
+			RTFCommon.LOGGER.error("{}", Component.translatable(errorMessage).getString(), e);
 			String message = e.getMessage();
 			Component messageComponent;
 			if(message != null) {
