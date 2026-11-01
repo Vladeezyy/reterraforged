@@ -29,6 +29,14 @@ record DomainWarp(Noise x, Noise z, Noise mappedX, Noise mappedZ, Noise distance
 		return this.mappedZ.compute(x, z, seed) * this.distance.compute(x, z, seed);
 	}
 
+	// the distance once for both
+	@Override
+	public long getOffsets(float x, float z, int seed) {
+		float mappedX = this.mappedX.compute(x, z, seed);
+		float distance = this.distance.compute(x, z, seed);
+		return Domain.pack(mappedX * distance, this.mappedZ.compute(x, z, seed) * distance);
+	}
+
 	@Override
 	public Domain mapAll(Visitor visitor) {
 		return new DomainWarp(this.x.mapAll(visitor), this.z.mapAll(visitor), this.mappedX.mapAll(visitor), this.mappedZ.mapAll(visitor), this.distance.mapAll(visitor));
