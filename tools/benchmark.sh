@@ -6,7 +6,8 @@
 # per second; the server runs with spark ("spark tps" during the generation: TPS, tick times, CPU; printed in the
 # console, nothing is uploaded) and a Java Flight Recorder recording,
 # whose hottest methods are printed. Both are downloaded/kept in run/ and taken out of the server's mods afterwards.
-# SIZE=n changes the square (n x n chunks); MODES="reterraforged" measures one world only.
+# SIZE=n changes the square (n x n chunks); MODES="reterraforged" measures one world only; CORES=n lets the server
+# see n cores (a small server: fewer generation threads, and the tiles are waited for).
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
 LOADER=${1:-neoforge}
@@ -58,8 +59,8 @@ for mode in ${MODES:-reterraforged vanilla}; do
     printf "online-mode=false\nserver-port=$PORT\nlevel-seed=20261013\nspawn-protection=0\nmax-tick-time=-1\nlevel-name=$world\n" > "$dir/server.properties"
     jfr="-XX:StartFlightRecording=filename=../../$OUT/$mode.jfr,settings=profile,dumponexit=true"
     case $LOADER in
-        neoforge) start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx4G "$jfr" @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
-        fabric) start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx4G "$jfr" -jar fabric-server-launch.jar nogui) ;;
+        neoforge) start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx4G "$jfr" ${CORES:+-XX:ActiveProcessorCount=$CORES} @libraries/net/neoforged/neoforge/$NEOFORGE/$ARGS_FILE nogui) ;;
+        fabric) start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx4G "$jfr" ${CORES:+-XX:ActiveProcessorCount=$CORES} -jar fabric-server-launch.jar nogui) ;;
     esac
     start_server bench.log
     if ! wait_for bench.log 'Done (' 600; then echo "$mode: server did not start"; kill_servers; continue; fi
