@@ -97,6 +97,11 @@ public final class RTFSelfTest {
 			String result = RTFHoleTest.run(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		}))).then(Commands.literal("locate").then(Commands.argument("structure and biome", StringArgumentType.greedyString()).executes(ctx -> {
+			String[] args = StringArgumentType.getString(ctx, "structure and biome").trim().split("\\s+");
+			String result = args.length == 2 ? RTFLocateTest.run(ctx.getSource().getServer(), args[0], args[1]) : "[RTF locate] FAIL usage: rtf locate <structure> <biome>";
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		}))).then(Commands.literal("floating").executes(ctx -> {
 			String result = RTFFloatingTest.run(ctx.getSource().getServer(), 16);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);

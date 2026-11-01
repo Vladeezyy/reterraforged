@@ -42,7 +42,9 @@ record CellTest(float cutoff, Set<Terrain> terrainTypeBlacklist) implements Stru
 				if(cell.fakeWaterBiome != FakeWaterBiomeTarget.NONE) {
 					return false;
 				}
-				if(cell.riverMask < this.cutoff) {
+				// no structures in rivers and their valleys; a wetland is land too (its valley mask is 0 all over), and the
+				// swamps grow there: the swamp huts (and the swamp structures of other mods) were never placed (#34)
+				if(cell.riverMask < this.cutoff && !cell.terrain.isWetland()) {
 					return false;
 				}
 				// as in ReTerraForged 0.0.6: no structures on the blacklisted terrain (mountains); for structures that

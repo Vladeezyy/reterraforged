@@ -9,6 +9,7 @@ import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -67,6 +68,8 @@ public class PresetPlacedFeatures {
 	public static final ResourceKey<PlacedFeature> WOODED_BADLANDS_TREES = createKey("wooded_badlands_trees");
 	public static final ResourceKey<PlacedFeature> SAVANNA_TREES = createKey("savanna_trees");
 	public static final ResourceKey<PlacedFeature> SWAMP_TREES = createKey("swamp_trees");
+	public static final ResourceKey<PlacedFeature> RIVER_TREES = createKey("river_trees");
+	public static final ResourceKey<PlacedFeature> FROZEN_RIVER_TREES = createKey("frozen_river_trees");
 	public static final ResourceKey<PlacedFeature> MEADOW_TREES = createKey("meadow_trees");
 	public static final ResourceKey<PlacedFeature> FIR_TREES = createKey("fir_trees");
 	public static final ResourceKey<PlacedFeature> WINDSWEPT_HILLS_FIR_TREES = createKey("windswept_hills_fir_trees");
@@ -147,21 +150,27 @@ public class PresetPlacedFeatures {
             PlacementUtils.register(ctx, FOREST_GRASS, features.getOrThrow(PresetConfiguredFeatures.FOREST_GRASS), worldSurfaceSquaredWithCount(7));
             PlacementUtils.register(ctx, BIRCH_FOREST_GRASS, features.getOrThrow(PresetConfiguredFeatures.BIRCH_FOREST_GRASS), worldSurfaceSquaredWithCount(7));
             
-            // as in ReTerraForged 0.0.6: plains, badlands and swamp trees on the world surface after their count
-            PlacementUtils.register(ctx, PLAINS_TREES, features.getOrThrow(PresetConfiguredFeatures.PLAINS_TREES), RTFPlacementModifiers.countExtra(0, 0.02F, 1), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+            // the trees placed by a count or a rarity are spread over the chunk (InSquarePlacement): ReTerraForged 0.0.6
+            // put them all on the chunk's corner, so swamps, plains, savannas, meadows, windswept hills and snowy plains
+            // had their trees on a 16 block grid (#34). The poisson placements spread their own.
+            PlacementUtils.register(ctx, PLAINS_TREES, features.getOrThrow(PresetConfiguredFeatures.PLAINS_TREES), RTFPlacementModifiers.countExtra(0, 0.02F, 1), InSquarePlacement.spread(), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+            // the rivers' own trees (vanilla's trees_water: one tree in about ten chunks, on dry ground by the water) are
+            // ours: oaks on rivers, pines on frozen rivers (#34)
+            PlacementUtils.register(ctx, RIVER_TREES, features.getOrThrow(PresetConfiguredFeatures.PLAINS_TREES), VegetationPlacements.treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
+            PlacementUtils.register(ctx, FROZEN_RIVER_TREES, features.getOrThrow(PresetConfiguredFeatures.PINE), VegetationPlacements.treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
           	PlacementUtils.register(ctx, FOREST_TREES, features.getOrThrow(PresetConfiguredFeatures.FOREST_TREES), RTFPlacementModifiers.poisson(7, 0.25F, 0.3F, 150, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
           	PlacementUtils.register(ctx, FLOWER_FOREST_TREES, features.getOrThrow(PresetConfiguredFeatures.FLOWER_FOREST_TREES), RTFPlacementModifiers.poisson(8, 0.2F, 0.1F, 500, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
           	PlacementUtils.register(ctx, BIRCH_TREES, features.getOrThrow(PresetConfiguredFeatures.BIRCH_TREES), RTFPlacementModifiers.poisson(6, 0.25F, 0.25F, 175, 0.9F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, DARK_FOREST_TREES, features.getOrThrow(PresetConfiguredFeatures.DARK_FOREST_TREES), RTFPlacementModifiers.poisson(5, 0.3F, 0.2F, 300, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
-        	PlacementUtils.register(ctx, SAVANNA_TREES, features.getOrThrow(PresetConfiguredFeatures.SAVANNA_TREES), PlacementUtils.HEIGHTMAP, RTFPlacementModifiers.countExtra(0, 0.1F, 1), BiomeFilter.biome());
+        	PlacementUtils.register(ctx, SAVANNA_TREES, features.getOrThrow(PresetConfiguredFeatures.SAVANNA_TREES), RTFPlacementModifiers.countExtra(0, 0.1F, 1), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
         	PlacementUtils.register(ctx, WOODED_BADLANDS_TREES, features.getOrThrow(PresetConfiguredFeatures.WOODED_BADLANDS_TREES), RTFPlacementModifiers.poisson(8, 0.2F, 0.8F, 0.25F, 150, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
-        	PlacementUtils.register(ctx, SWAMP_TREES, features.getOrThrow(PresetConfiguredFeatures.SWAMP_TREES), RTFPlacementModifiers.countExtra(3, 0.05F, 1), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
-        	PlacementUtils.register(ctx, MEADOW_TREES, features.getOrThrow(PresetConfiguredFeatures.MEADOW_TREE), RarityFilter.onAverageOnceEvery(30), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+        	PlacementUtils.register(ctx, SWAMP_TREES, features.getOrThrow(PresetConfiguredFeatures.SWAMP_TREES), RTFPlacementModifiers.countExtra(3, 0.05F, 1), InSquarePlacement.spread(), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+        	PlacementUtils.register(ctx, MEADOW_TREES, features.getOrThrow(PresetConfiguredFeatures.MEADOW_TREE), RarityFilter.onAverageOnceEvery(30), InSquarePlacement.spread(), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, FIR_TREES, features.getOrThrow(PresetConfiguredFeatures.FIR_TREES), RTFPlacementModifiers.poisson(4, 0.25F, 0.3F, 300, 0.6F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
-        	PlacementUtils.register(ctx, WINDSWEPT_HILLS_FIR_TREES, features.getOrThrow(PresetConfiguredFeatures.FIR_TREES), RarityFilter.onAverageOnceEvery(30), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+        	PlacementUtils.register(ctx, WINDSWEPT_HILLS_FIR_TREES, features.getOrThrow(PresetConfiguredFeatures.FIR_TREES), RarityFilter.onAverageOnceEvery(30), InSquarePlacement.spread(), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, PINE_TREES, features.getOrThrow(PresetConfiguredFeatures.PINE), RTFPlacementModifiers.poisson(7, 0.25F, 0.25F, 250, 0.7F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, SPRUCE_TREES, features.getOrThrow(PresetConfiguredFeatures.PINE), RTFPlacementModifiers.poisson(7, 0.3F, 0.25F, 250, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
-        	PlacementUtils.register(ctx, SPRUCE_TUNDRA_TREES, features.getOrThrow(PresetConfiguredFeatures.PINE), RarityFilter.onAverageOnceEvery(80), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
+        	PlacementUtils.register(ctx, SPRUCE_TUNDRA_TREES, features.getOrThrow(PresetConfiguredFeatures.PINE), RarityFilter.onAverageOnceEvery(80), InSquarePlacement.spread(), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, REDWOOD_TREES, features.getOrThrow(PresetConfiguredFeatures.REDWOOD_TREES), RTFPlacementModifiers.poisson(6, 0.3F, 0.25F, 250, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, JUNGLE_TREES, features.getOrThrow(PresetConfiguredFeatures.JUNGLE_TREES), RTFPlacementModifiers.poisson(6, 0.4F, 0.2F, 400, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
         	PlacementUtils.register(ctx, JUNGLE_EDGE_TREES, features.getOrThrow(PresetConfiguredFeatures.JUNGLE_EDGE_TREES), RTFPlacementModifiers.poisson(8, 0.35F, 0.25F, 350, 0.75F), HeightmapPlacement.onHeightmap(Types.WORLD_SURFACE), BiomeFilter.biome());
