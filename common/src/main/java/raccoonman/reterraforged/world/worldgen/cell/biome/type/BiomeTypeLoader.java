@@ -7,7 +7,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 
 public class BiomeTypeLoader {
     private final BiomeType[][] map;
@@ -19,28 +18,6 @@ public class BiomeTypeLoader {
     
     public BiomeType[][] getTypeMap() {
         return this.map;
-    }
-    
-    public Vec2f[] getRanges(BiomeType type) {
-        float minTemp = 1.0F;
-        float maxTemp = 0.0F;
-        float minMoist = 1.0F;
-        float maxMoist = 0.0F;
-        for (int moist = 0; moist < this.map.length; ++moist) {
-            BiomeType[] row = this.map[moist];
-            for (int temp = 0; temp < row.length; ++temp) {
-                BiomeType t = row[temp];
-                if (t == type) {
-                    float temperature = temp / (float)(row.length - 1);
-                    float moisture = moist / (float)(this.map.length - 1);
-                    minTemp = Math.min(minTemp, temperature);
-                    maxTemp = Math.max(maxTemp, temperature);
-                    minMoist = Math.min(minMoist, moisture);
-                    maxMoist = Math.max(maxMoist, moisture);
-                }
-            }
-        }
-        return new Vec2f[] { new Vec2f(minTemp, maxTemp), new Vec2f(minMoist, maxMoist) };
     }
     
     private void generateTypeMap() {

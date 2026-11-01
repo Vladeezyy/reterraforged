@@ -10,7 +10,6 @@ import com.mojang.datafixers.util.Pair;
 import raccoonman.reterraforged.world.worldgen.biome.Humidity;
 import raccoonman.reterraforged.world.worldgen.biome.Temperature;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 
 public enum BiomeType {
     TROPICAL_RAINFOREST(new Color(7, 83, 48), new Color(7, 83, 48), range(Temperature.LEVEL_3, Temperature.LEVEL_3, Humidity.LEVEL_3, Humidity.LEVEL_4)), 
@@ -27,14 +26,9 @@ public enum BiomeType {
 
     public static final int RESOLUTION = 256;
     public static final int MAX = 255;
-    private static final BiomeType[] BIOMES = values();
     private List<Pair<Temperature, Humidity>> noisePairs;
     private Color lookup;
     private Color color;
-    private float minTemp;
-    private float maxTemp;
-    private float minMoist;
-    private float maxMoist;
 
     @SafeVarargs
 	private BiomeType(Color lookup, Color color, Pair<Temperature, Humidity>... noisePairs) {
@@ -133,21 +127,5 @@ public enum BiomeType {
     		newNoisePairs.add(noisePair);
     	}
     	return newNoisePairs;
-    }
-    
-
-    
-    private static void init() {
-        for (BiomeType type : values()) {
-            Vec2f[] ranges = BiomeTypeLoader.getInstance().getRanges(type);
-            type.minTemp = ranges[0].x();
-            type.maxTemp = ranges[0].y();
-            type.minMoist = ranges[1].x();
-            type.maxMoist = ranges[1].y();
-        }
-    }
-    
-    static {
-        init();
     }
 }
