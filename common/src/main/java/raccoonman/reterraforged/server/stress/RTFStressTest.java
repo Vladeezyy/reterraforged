@@ -345,7 +345,8 @@ public final class RTFStressTest {
 
 		// the preview of the preset screen
 		GeneratorContext preview = GeneratorContext.makeUncached(patched, noises, SEED, 4, 0, config.batchCount());
-		try (Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join()) {
+		{
+			Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join();
 			String problem = checkCells(tile, "preview");
 			if (problem != null) {
 				return problem;

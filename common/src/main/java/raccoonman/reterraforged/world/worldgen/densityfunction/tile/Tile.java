@@ -1,26 +1,20 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction.tile;
 
-import java.util.Arrays;
-
-import raccoonman.reterraforged.concurrent.Resource;
-import raccoonman.reterraforged.concurrent.cache.SafeCloseable;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.CellLookup;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Filterable;
 
-public class Tile implements SafeCloseable, Filterable, CellLookup {
+public class Tile implements Filterable, CellLookup {
 	private int x, z;
 	private int chunkX, chunkZ;
 	private int size;
 	private int border;
 	private Size blockSize;
 	private Size chunkSize;
-	private Resource<Cell[]> cacheResource;
-	private Resource<Chunk[]> chunkResource;
 	private Cell[] cache;
 	private Chunk[] chunks;
 	
-	public Tile(int x, int z, int size, int border, Size blockSize, Size chunkSize, Resource<Cell[]> cacheResource, Resource<Chunk[]> chunkResource) {
+	public Tile(int x, int z, int size, int border, Size blockSize, Size chunkSize, Cell[] cells, Chunk[] chunks) {
 		this.x = x;
 		this.z = z;
         this.chunkX = x << size;
@@ -29,10 +23,8 @@ public class Tile implements SafeCloseable, Filterable, CellLookup {
         this.border = border;
 		this.blockSize = blockSize;
 		this.chunkSize = chunkSize;
-		this.cacheResource = cacheResource;
-		this.chunkResource = chunkResource;
-		this.cache = cacheResource.get();
-		this.chunks = chunkResource.get();
+		this.cache = cells;
+		this.chunks = chunks;
 	}
 	
 	public int getX() {
@@ -109,16 +101,6 @@ public class Tile implements SafeCloseable, Filterable, CellLookup {
         return Tile.this.cache[index];
 	}
 
-	@Override
-	public void close() {
-        for (Cell cell : this.cache) {
-        	cell.reset();
-        }
-        Arrays.fill(this.chunks, null);
-		this.cacheResource.close();
-		this.chunkResource.close();
-	}
-	
     private Chunk computeChunk(int index, int chunkX, int chunkZ) {
         Chunk chunk = this.chunks[index];
         if (chunk == null) {

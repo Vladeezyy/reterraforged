@@ -44,13 +44,18 @@ public class TileCache implements TileFactory {
 		}
 	}
 
+	/**
+	 * A chunk of the tile has its features: once all of them have, the tile leaves the cache. It is not closed or its
+	 * arrays reused: other threads may still read it (the next tile's chunks at the border, biome and structure height
+	 * lookups), and its cells were reset under them, then filled with another tile's.
+	 */
 	@Override
 	public void drop(int tileX, int tileZ) {
 		long packedTilePos = PosUtil.pack(tileX, tileZ);
-		//TODO i dont think get should be able to return null here
+		// null when the tile already left the cache (unused for a minute, or the cache was full)
 		CacheEntry<Entry> entry = this.cache.get(packedTilePos);
 		if(entry != null && entry.get().drop()) {
-			this.cache.remove(packedTilePos);
+			this.cache.discard(packedTilePos);
 		}
 	}
 
@@ -78,12 +83,7 @@ public class TileCache implements TileFactory {
 		}
 		
 		public boolean drop() {
-			if(this.refCount.incrementAndGet() >= this.chunkCount) {
-				this.tile.close();
-				return true;
-			} else {
-				return false;
-			}
+			return this.refCount.incrementAndGet() >= this.chunkCount;
 		}
 	}
 }

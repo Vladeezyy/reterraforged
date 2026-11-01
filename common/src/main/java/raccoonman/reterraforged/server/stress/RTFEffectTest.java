@@ -238,7 +238,8 @@ public final class RTFEffectTest {
 		Map<String, Object[]> cells = new LinkedHashMap<>();
 		// the preview of the preset screen (12800 blocks across) and the world tile at the spawn (with the filters)
 		GeneratorContext preview = GeneratorContext.makeUncached(patched, noises, SEED, 4, 0, config.batchCount());
-		try (Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join()) {
+		{
+			Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join();
 			cells(tile, "preview", cells);
 		}
 		GeneratorContext world = GeneratorContext.makeCached(patched, noises, SEED, config.tileSize(), config.batchCount(), false);
@@ -260,7 +261,8 @@ public final class RTFEffectTest {
 		Preset patched = patch.lookupOrThrow(RTFRegistries.PRESET).getOrThrow(Preset.KEY).value();
 		GeneratorContext preview = GeneratorContext.makeUncached(patched, patch.lookupOrThrow(RTFRegistries.NOISE), SEED, 4, 0, PerformanceConfig.makeDefault().batchCount());
 		Levels levels = new Levels(patched.world().properties.terrainScaler(), patched.world().properties.seaLevel);
-		try (Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join()) {
+		{
+			Tile tile = preview.generator.generateZoomed(0, 0, 50, false).join();
 			int size = tile.getBlockSize().size();
 			int[] found = { -1, -1, -1 };
 			float[] highest = { Float.NEGATIVE_INFINITY };
