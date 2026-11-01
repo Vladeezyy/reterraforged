@@ -55,6 +55,22 @@ public class Erosion implements Filter {
         final int mapSize = size.total();
         final float maxPos = (float)(mapSize - 2);
         final Cell[] cells = map.getBacking();
+        // the droplets read and change the heights of the cells: in arrays they stay in the CPU's cache (the Cell
+        // objects are spread over the heap). What does not change while eroding (the terrain's strength, the mask)
+        // is worked out once. The same float operations in the same order: the result is the same to the bit.
+        final Scratch scratch = SCRATCH.get().of(cells.length);
+        final float[] height = scratch.height;
+        final float[] sediment = scratch.sediment;
+        final float[] heightErosion = scratch.heightErosion;
+        final float[] strength = scratch.strength;
+        for (int n = 0; n < cells.length; n++) {
+            final Cell cell = cells[n];
+            height[n] = cell.height;
+            sediment[n] = cell.sediment;
+            heightErosion[n] = cell.heightErosion;
+            scratch.mask[n] = cell.erosionMask;
+            strength[n] = cell.erosionMask ? 0.0F : Modifier.strength(cell);
+        }
         final TerrainPos gradient1 = new TerrainPos();
         final TerrainPos gradient2 = new TerrainPos();
         final FastRandom random = new FastRandom();
@@ -72,13 +88,20 @@ public class Erosion implements Filter {
                     float posZ = (float)(relZ + random.nextInt(16));
                     posX = NoiseUtil.clamp(posX, 1.0f, maxPos);
                     posZ = NoiseUtil.clamp(posZ, 1.0f, maxPos);
-                    this.applyDrop(posX, posZ, cells, mapSize, gradient1, gradient2);
+                    this.applyDrop(posX, posZ, scratch, mapSize, gradient1, gradient2);
                 }
             }
         }
+        for (int n = 0; n < cells.length; n++) {
+            final Cell cell = cells[n];
+            cell.height = height[n];
+            cell.sediment = sediment[n];
+            cell.heightErosion = heightErosion[n];
+        }
     }
     
-    private void applyDrop(float posX, float posY, final Cell[] cells, final int mapSize, final TerrainPos gradient1, final TerrainPos gradient2) {
+    private void applyDrop(float posX, float posY, final Scratch scratch, final int mapSize, final TerrainPos gradient1, final TerrainPos gradient2) {
+        final float[] cells = scratch.height;
         float dirX = 0.0f;
         float dirY = 0.0f;
         float sediment = 0.0f;
@@ -114,20 +137,20 @@ public class Erosion implements Filter {
             if (sediment > sedimentCapacity || deltaHeight > 0.0f) {
                 final float amountToDeposit = (deltaHeight > 0.0f) ? Math.min(deltaHeight, sediment) : ((sediment - sedimentCapacity) * this.depositSpeed);
                 sediment -= amountToDeposit;
-                this.deposit(cells[dropletIndex], amountToDeposit * (1.0f - cellOffsetX) * (1.0f - cellOffsetY));
-                this.deposit(cells[dropletIndex + 1], amountToDeposit * cellOffsetX * (1.0f - cellOffsetY));
-                this.deposit(cells[dropletIndex + mapSize], amountToDeposit * (1.0f - cellOffsetX) * cellOffsetY);
-                this.deposit(cells[dropletIndex + mapSize + 1], amountToDeposit * cellOffsetX * cellOffsetY);
+                this.deposit(scratch, dropletIndex, amountToDeposit * (1.0f - cellOffsetX) * (1.0f - cellOffsetY));
+                this.deposit(scratch, dropletIndex + 1, amountToDeposit * cellOffsetX * (1.0f - cellOffsetY));
+                this.deposit(scratch, dropletIndex + mapSize, amountToDeposit * (1.0f - cellOffsetX) * cellOffsetY);
+                this.deposit(scratch, dropletIndex + mapSize + 1, amountToDeposit * cellOffsetX * cellOffsetY);
             }
             else {
                 final float amountToErode = Math.min((sedimentCapacity - sediment) * this.erodeSpeed, -deltaHeight);
-                for (int brushPointIndex = 0; brushPointIndex < this.erosionBrushIndices[dropletIndex].length; ++brushPointIndex) {
-                    final int nodeIndex = this.erosionBrushIndices[dropletIndex][brushPointIndex];
-                    final Cell cell = cells[nodeIndex];
-                    final float brushWeight = this.erosionBrushWeights[dropletIndex][brushPointIndex];
-                    final float weighedErodeAmount = amountToErode * brushWeight;
-                    final float deltaSediment = Math.min(cell.height, weighedErodeAmount);
-                    this.erode(cell, deltaSediment);
+                final int[] brushIndices = this.erosionBrushIndices[dropletIndex];
+                final float[] brushWeights = this.erosionBrushWeights[dropletIndex];
+                for (int brushPointIndex = 0; brushPointIndex < brushIndices.length; ++brushPointIndex) {
+                    final int nodeIndex = brushIndices[brushPointIndex];
+                    final float weighedErodeAmount = amountToErode * brushWeights[brushPointIndex];
+                    final float deltaSediment = Math.min(cells[nodeIndex], weighedErodeAmount);
+                    this.erode(scratch, nodeIndex, deltaSediment);
                     sediment += deltaSediment;
                 }
             }
@@ -179,19 +202,40 @@ public class Erosion implements Filter {
         }
     }
     
-    private void deposit(final Cell cell, final float amount) {
-        if (!cell.erosionMask) {
-            final float change = this.modifier.modify(cell, amount);
-            cell.height += change;
-            cell.sediment += change;
+    // Modifier.modify on the arrays: getValueModifier(height) * strength * amount
+    private void deposit(final Scratch scratch, final int n, final float amount) {
+        if (!scratch.mask[n]) {
+            final float change = this.modifier.getValueModifier(scratch.height[n]) * scratch.strength[n] * amount;
+            scratch.height[n] += change;
+            scratch.sediment[n] += change;
         }
     }
     
-    private void erode(final Cell cell, final float amount) {
-        if (!cell.erosionMask) {
-            final float change = this.modifier.modify(cell, amount);
-            cell.height -= change;
-            cell.heightErosion -= change;
+    private void erode(final Scratch scratch, final int n, final float amount) {
+        if (!scratch.mask[n]) {
+            final float change = this.modifier.getValueModifier(scratch.height[n]) * scratch.strength[n] * amount;
+            scratch.height[n] -= change;
+            scratch.heightErosion[n] -= change;
+        }
+    }
+
+    private static final ThreadLocal<Scratch> SCRATCH = ThreadLocal.withInitial(Scratch::new);
+
+    /** The arrays of one thread, kept for the next tile of the same size */
+    private static class Scratch {
+        private float[] height = new float[0];
+        private float[] sediment, heightErosion, strength;
+        private boolean[] mask;
+
+        private Scratch of(int length) {
+            if (this.height.length != length) {
+                this.height = new float[length];
+                this.sediment = new float[length];
+                this.heightErosion = new float[length];
+                this.strength = new float[length];
+                this.mask = new boolean[length];
+            }
+            return this;
         }
     }
     
@@ -205,16 +249,16 @@ public class Erosion implements Filter {
         private float gradientX;
         private float gradientY;
         
-        private TerrainPos at(final Cell[] nodes, final int mapSize, final float posX, final float posY) {
+        private TerrainPos at(final float[] heights, final int mapSize, final float posX, final float posY) {
             final int coordX = (int)posX;
             final int coordY = (int)posY;
             final float x = posX - coordX;
             final float y = posY - coordY;
             final int nodeIndexNW = coordY * mapSize + coordX;
-            final float heightNW = nodes[nodeIndexNW].height;
-            final float heightNE = nodes[nodeIndexNW + 1].height;
-            final float heightSW = nodes[nodeIndexNW + mapSize].height;
-            final float heightSE = nodes[nodeIndexNW + mapSize + 1].height;
+            final float heightNW = heights[nodeIndexNW];
+            final float heightNE = heights[nodeIndexNW + 1];
+            final float heightSW = heights[nodeIndexNW + mapSize];
+            final float heightSE = heights[nodeIndexNW + mapSize + 1];
             this.gradientX = (heightNE - heightNW) * (1.0f - y) + (heightSE - heightSW) * y;
             this.gradientY = (heightSW - heightNW) * (1.0f - x) + (heightSE - heightNE) * x;
             this.height = heightNW * (1.0f - x) * (1.0f - y) + heightNE * x * (1.0f - y) + heightSW * (1.0f - x) * y + heightSE * x * y;
