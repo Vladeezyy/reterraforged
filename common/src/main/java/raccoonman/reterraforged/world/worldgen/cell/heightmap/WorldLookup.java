@@ -7,6 +7,9 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache;
 
 public class WorldLookup {
+	// "rtf heights" (RTFWorldChecks.heights): on this thread the cells are computed, never taken from a cached tile, so
+	// the estimate is the same whichever chunks were generated before
+	private static volatile Thread rawThread;
 	private float waterLevel;
 	private float beachLevel;
 	private TileCache cache;
@@ -21,6 +24,14 @@ public class WorldLookup {
 		this.levels = context.levels;
 	}
 	
+	public static void beginRaw() {
+		rawThread = Thread.currentThread();
+	}
+
+	public static void endRaw() {
+		rawThread = null;
+	}
+
 	public Heightmap getHeightmap() {
 		return this.heightmap;
 	}
@@ -33,7 +44,8 @@ public class WorldLookup {
 		if (load && this.computeAccurate(cell, x, z)) {
 			return true;
 		}
-		if (this.computeCached(cell, x, z)) {
+		Thread raw = rawThread;
+		if ((raw == null || raw != Thread.currentThread()) && this.computeCached(cell, x, z)) {
 			return true;
 		}
 		return this.compute(cell, x, z, applyClimate);
