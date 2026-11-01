@@ -26,7 +26,9 @@ public class PresetTemplatePaths {
 	public static final List<ResourceLocation> PINE = tree("pine", "huangshan_pine_1", "huangshan_pine_2", "huangshan_pine_3", "scots_pine_1", "scots_pine_2", "scots_pine_small_1", "scots_pine_small_2", "scots_pine_1", "scots_pine_2");
 	public static final List<ResourceLocation> SPRUCE_BUSH = tree("spruce/bush", "spruce_bush_1", "spruce_bush_2");
 	public static final List<ResourceLocation> SPRUCE_SMALL = union(tree("spruce/small", "spruce_small_1", "spruce_small_2", "spruce_small_3", "spruce_small_4"), SPRUCE_BUSH);
-	public static final List<ResourceLocation> SPRUCE_LARGE = tree("spruce/large", "spruce_large_1", "spruce_large_2", "spruce_large_3", "spruce_large_4", "spruce_large_5");
+	// the files are spruce_1 to spruce_5: ReTerraForged 0.0.6 named spruce_large_1 to 5, which never existed, so the
+	// large spruces of the fir and redwood forests pasted nothing
+	public static final List<ResourceLocation> SPRUCE_LARGE = tree("spruce/large", "spruce_1", "spruce_2", "spruce_3", "spruce_4", "spruce_5");
 	public static final List<ResourceLocation> REDWOOD_LARGE = tree("redwood/large", "redwood_tall_1", "redwood_tall_2", "redwood_tall_3", "redwood_tall_4");
 	public static final List<ResourceLocation> REDWOOD_HUGE = tree("redwood/huge", "redwood_massive_1", "redwood_massive_2", "redwood_massive_3", "redwood_massive_4", "redwood_massive_5", "redwood_massive_6");
 	public static final List<ResourceLocation> JUNGLE_SMALL = tree("jungle/small", "jungle_small_1", "jungle_small_2", "jungle_small_3");
