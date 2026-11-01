@@ -188,9 +188,6 @@ public class ClimateSettings {
 				return this.name;
 			}
         	
-        	public Noise build(int seed, BiomeNoise settings) {
-        		return this.factory.apply(seed, settings);
-        	}
         }
     }
 }

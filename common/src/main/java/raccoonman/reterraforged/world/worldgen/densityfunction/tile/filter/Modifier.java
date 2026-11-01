@@ -6,9 +6,6 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 public interface Modifier {
     float getValueModifier(float value);
     
-    default float modify(Cell cell, float value) {
-        return this.getValueModifier(cell.height) * strength(cell) * value;
-    }
 
     /** How strongly the cell's terrain and rivers let it change: does not depend on its height */
     static float strength(Cell cell) {

@@ -1,9 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -13,7 +11,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunctions;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public record LinearSplineFunction(DensityFunction input, List<Pair<Double, DensityFunction>> points, double minValue, double maxValue) implements DensityFunction {
@@ -71,10 +68,6 @@ public record LinearSplineFunction(DensityFunction input, List<Pair<Double, Dens
 		return new KeyDispatchDataCodec<>(CODEC);
 	}
 
-	public static LinearSplineFunction.Builder builder(DensityFunction input) {
-		return new LinearSplineFunction.Builder(input);
-	}
-	
 	private static float min(List<Pair<Double, DensityFunction>> points) {
 		return (float) points.stream().map(Pair::getSecond).mapToDouble(DensityFunction::minValue).min().orElseThrow();
 	}
@@ -83,26 +76,4 @@ public record LinearSplineFunction(DensityFunction input, List<Pair<Double, Dens
 		return (float) points.stream().map(Pair::getSecond).mapToDouble(DensityFunction::maxValue).max().orElseThrow();
 	}
 	
-	public static class Builder {
-		private DensityFunction input;
-		private List<Pair<Double, DensityFunction>> points;
-		
-		public Builder(DensityFunction input) {
-			this.input = input;
-			this.points = new ArrayList<>();
-		}
-		
-		public Builder addPoint(double point, double value) {
-			return this.addPoint(point, DensityFunctions.constant(value));
-		}
-
-		public Builder addPoint(double point, DensityFunction value) {
-			this.points.add(Pair.of(point, value));
-			return this;
-		}
-		
-		public LinearSplineFunction build() {
-			return new LinearSplineFunction(this.input, ImmutableList.copyOf(this.points));
-		}
-	}
 }

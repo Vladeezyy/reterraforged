@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 
 import com.mojang.serialization.MapCodec;
 import dev.architectury.injectables.annotations.ExpectPlatform;
@@ -39,18 +38,9 @@ public class BiomeModifiers {
 		throw new UnsupportedOperationException();
 	}
 
-	@SafeVarargs
-	public static BiomeModifier add(Order order, GenerationStep.Decoration step, Holder<PlacedFeature>... features) {
-		return add(order, step, HolderSet.direct(features));
-	}
 	
 	public static BiomeModifier add(Order order, GenerationStep.Decoration step, HolderSet<PlacedFeature> features) {
 		return add(order, step, Optional.empty(), features);
-	}
-
-	@SafeVarargs
-	public static BiomeModifier add(Order order, GenerationStep.Decoration step, Filter.Behavior filterBehavior, HolderSet<Biome> biomes, Holder<PlacedFeature>... features) {
-		return add(order, step, filterBehavior, biomes, HolderSet.direct(features));
 	}
 
 	public static BiomeModifier add(Order order, GenerationStep.Decoration step, Filter.Behavior filterBehavior, HolderSet<Biome> biomes, HolderSet<PlacedFeature> features) {
@@ -60,10 +50,6 @@ public class BiomeModifiers {
 	@ExpectPlatform
 	public static BiomeModifier add(Order order, GenerationStep.Decoration step, Optional<Pair<Filter.Behavior, HolderSet<Biome>>> biomes, HolderSet<PlacedFeature> features) {
 		throw new UnsupportedOperationException();
-	}
-
-	public static BiomeModifier replace(GenerationStep.Decoration step, Map<ResourceKey<PlacedFeature>, Holder<PlacedFeature>> replacements) {
-		return replace(step, Optional.empty(), replacements);
 	}
 
 	public static BiomeModifier replace(GenerationStep.Decoration step, HolderSet<Biome> biomes, Map<ResourceKey<PlacedFeature>, Holder<PlacedFeature>> replacements) {

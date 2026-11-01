@@ -1,6 +1,5 @@
 package raccoonman.reterraforged.concurrent.cache.map;
 
-import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.function.Consumer;
@@ -22,7 +21,4 @@ public interface LongMap<T> {
     
     T computeIfAbsent(long key, LongFunction<T> computer);
     
-    default <V> V map(long key, LongFunction<T> factory, Function<T, V> mapper) {
-        return mapper.apply(this.computeIfAbsent(key, factory));
-    }
 }
