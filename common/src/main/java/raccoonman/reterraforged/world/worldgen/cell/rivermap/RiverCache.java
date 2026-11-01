@@ -11,7 +11,7 @@ public class RiverCache {
     protected Cache<Rivermap> cache;
     
     public RiverCache(RiverGenerator generator) {
-        this.cache = new Cache<>(32, 5L, 1L, TimeUnit.MINUTES, StampedLongMap::new);
+        this.cache = new Cache<>(32, 5L, 1L, TimeUnit.MINUTES, StampedLongMap::unbounded);
         this.generator = generator;
     }
     
