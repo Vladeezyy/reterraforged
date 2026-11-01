@@ -20,8 +20,7 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import raccoonman.reterraforged.RTFCommon;
 
-//this is only public so the initializer class can call register
-//TODO make this non public
+// public: Architectury calls the @ExpectPlatform implementations, and the mod's initializer calls register
 public final class RegistryUtilImpl {
 	private static final List<Registry<?>> BUILTIN_REGISTRIES = Collections.synchronizedList(new ArrayList<>());
 	private static final List<DataRegistry<?>> DATA_REGISTRIES = Collections.synchronizedList(new ArrayList<>());
