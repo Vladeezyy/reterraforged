@@ -279,7 +279,7 @@ public class Erosion implements Filter {
         private final FilterSettings.Erosion settings;
         
         private Factory(final int seed, final FilterSettings filters, final Levels levels) {
-            this.seed = seed + 12768;
+            this.seed = seed + SEED_OFFSET;
             this.settings = filters.erosion.copy();
             this.modifier = Modifier.range(levels.ground, levels.ground(15));
         }
