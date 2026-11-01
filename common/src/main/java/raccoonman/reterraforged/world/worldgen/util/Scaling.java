@@ -16,12 +16,6 @@ public record Scaling(int worldHeight, float unit, int waterY, int groundY, int 
         return (value - this.water) / this.elevationRange;
     }
     
-    public float elevation(int y) {
-        if (y <= this.waterY) {
-            return 0.0F;
-        }
-        return this.scale(y - this.waterY) / this.elevationRange;
-    }
     
     public float blocks(int level) {
         return NoiseUtil.div(level, this.worldHeight);

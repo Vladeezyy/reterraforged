@@ -45,7 +45,4 @@ public record White(float frequency) implements Noise {
         return NoiseUtil.valCoord2D(seed, xi, zi);
     }
 	
-	public static float sample(float x, float z, int seed, int offset) {
-		return sample(x, z, NoiseUtil.hash(seed, offset));
-	}
 }

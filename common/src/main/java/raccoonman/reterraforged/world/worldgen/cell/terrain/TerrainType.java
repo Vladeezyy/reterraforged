@@ -1,8 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.cell.terrain;
 
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.function.Consumer;
 import java.util.List;
 
@@ -43,9 +41,6 @@ public class TerrainType {
         TerrainType.REGISTRY.forEach(action);
     }
     
-    public static Optional<Terrain> find(Predicate<Terrain> filter) {
-        return TerrainType.REGISTRY.stream().filter(filter).findFirst();
-    }
     
     public static Terrain get(String name) {
         for (Terrain terrain : TerrainType.REGISTRY) {
@@ -56,26 +51,7 @@ public class TerrainType {
         return null;
     }
     
-    public static Terrain get(int id) {
-        synchronized (TerrainType.LOCK) {
-            if (id >= 0 && id < TerrainType.REGISTRY.size()) {
-                return TerrainType.REGISTRY.get(id);
-            }
-            return TerrainType.NONE;
-        }
-    }
     
-    public static Terrain register(Terrain instance) {
-        synchronized (TerrainType.LOCK) {
-            Terrain current = get(instance.getName());
-            if (current != null) {
-                return current;
-            }
-            Terrain terrain = instance.withId(TerrainType.REGISTRY.size());
-            TerrainType.REGISTRY.add(terrain);
-            return terrain;
-        }
-    }
     
     public static Terrain registerComposite(Terrain a, Terrain b) {
         if (a == b) {

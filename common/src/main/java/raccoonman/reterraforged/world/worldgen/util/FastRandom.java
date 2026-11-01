@@ -8,19 +8,12 @@ public class FastRandom {
         this(System.currentTimeMillis(), -7046029254386353131L);
     }
     
-    public FastRandom(long seed) {
-        this(seed, -7046029254386353131L);
-    }
     
     public FastRandom(long seed, long gamma) {
         this.seed = seed;
         this.gamma = gamma;
     }
     
-    public FastRandom seed(long seed) {
-        this.seed = seed;
-        return this;
-    }
     
     public FastRandom seed(long seed, long gamma) {
         this.seed = seed;
@@ -28,10 +21,6 @@ public class FastRandom {
         return this;
     }
     
-    public FastRandom gamma(long gamma) {
-        this.gamma = gamma;
-        return this;
-    }
     
     public int nextInt() {
         return mix32(this.nextSeed());

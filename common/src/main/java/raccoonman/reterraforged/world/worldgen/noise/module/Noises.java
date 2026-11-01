@@ -164,17 +164,8 @@ public class Noises {
 		return shiftSeed(new Simplex2(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
 	}
 	
-	public static Noise simplexRidge(int seed, int scale, int octaves) {
-		return simplexRidge(seed, scale, octaves, 2.0F);
-	}
 
-	public static Noise simplexRidge(int seed, int scale, int octaves, float lacunarity) {
-		return simplexRidge(seed, scale, octaves, lacunarity, 0.975F);
-	}
 	
-	public static Noise simplexRidge(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return shiftSeed(new SimplexRidge(frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3), seed);
-	}
 	
 	public static Noise worley(int seed, int scale) {
 		return worley(seed, scale, CellFunction.CELL_VALUE, DistanceFunction.EUCLIDEAN, zero());
@@ -216,9 +207,6 @@ public class Noises {
 		return shiftSeed(new Cubic(frequencyOf(scale), octaves, lacunarity, gain), seed);
 	}
 	
-	public static Noise line(float x1, float z1, float x2, float z2, Noise radiusSq, Noise fadeIn, Noise fadeOut, float feather) {
-		return new Line(x1, z1, x2, z2, radiusSq, fadeIn, fadeOut, feather);
-	}
 	
 	public static Noise shiftSeed(Noise input, int seed) {
 		return new ShiftSeed(input, seed);
@@ -280,9 +268,6 @@ public class Noises {
         return new Terrace(input, lowerCurve, upperCurve, lowerHeight, blendRange, steps);
     }
 
-	public static Noise advancedTerrace(Noise input, float modulation, float mask, float slope, float blendMin, float blendMax, int steps, int octaves) {
-        return advancedTerrace(input, constant(modulation), constant(mask), constant(slope), blendMin, blendMax, steps, octaves);
-    }
 	
     public static Noise advancedTerrace(Noise input, Noise modulation, Noise mask, Noise slope, float blendMin, float blendMax, int steps, int octaves) {
         return new AdvancedTerrace(input, modulation, mask, slope, blendMin, blendMax, steps, octaves);
@@ -320,17 +305,11 @@ public class Noises {
 		return steps(input, constant(steps), constant(slopeMin), constant(slopeMax), slopeCurve);
 	}
 
-	public static Noise steps(Noise input, Noise steps, Noise slopeMin, Noise slopeMax) {
-		return new Steps(input, steps, slopeMin, slopeMax, Interpolation.LINEAR);
-	}
 	
 	public static Noise steps(Noise input, Noise steps, Noise slopeMin, Noise slopeMax, CurveFunction slopeCurve) {
 		return new Steps(input, steps, slopeMin, slopeMax, slopeCurve);
 	}
 	
-	public static Noise abs(Noise input) {
-		return new Abs(input);
-	}
 	
 	public static Noise map(Noise input, float from, float to) {
 		return map(input, constant(from), constant(to));
@@ -363,17 +342,11 @@ public class Noises {
 		return new Threshold(input, lower, upper, threshold);
 	}
 	
-	public static Noise min(Noise input1, float input2) {
-		return min(input1, constant(input2));
-	}
 	
 	public static Noise min(Noise input1, Noise input2) {
 		return new Min(input1, input2);
 	}
 
-	public static Noise max(Noise input1, float input2) {
-		return max(input1, constant(input2));
-	}
 	
 	public static Noise max(Noise input1, Noise input2) {
 		return new Max(input1, input2);
