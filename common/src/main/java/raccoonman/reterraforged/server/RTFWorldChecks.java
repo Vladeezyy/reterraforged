@@ -114,6 +114,29 @@ public final class RTFWorldChecks {
 		snowLine(overworld, check);
 		deepslate(overworld, check);
 		swampTrees(overworld, check);
+		warmRainforestOceans(overworld, check);
+	}
+
+	// a preset with Warm Oceans by Rainforests (#35, tools/servertest.sh PRESET=set:climate().warmRainforestOceans=true):
+	// the sea of the tropical rainforest regions is warm ocean; over 32 x 32 km every 256 blocks, no chunks generated
+	private static void warmRainforestOceans(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || s.generatorContext() == null || !s.preset().climate().warmRainforestOceans) return;
+		var lookup = s.generatorContext().lookup;
+		int sea = level.getSeaLevel(), ocean = 0, warm = 0, rainforest = 0, seas = 0;
+		java.util.Map<String, Integer> other = new java.util.TreeMap<>();
+		for (int x = -16384; x <= 16384; x += 256) for (int z = -16384; z <= 16384; z += 256) {
+			raccoonman.reterraforged.world.worldgen.cell.Cell cell = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+			lookup.applyCell(cell, x, z, true);
+			boolean isSea = cell.terrain.isDeepOcean() || cell.terrain.isShallowOcean();
+			boolean isRainforest = cell.biome == raccoonman.reterraforged.world.worldgen.cell.biome.type.BiomeType.TROPICAL_RAINFOREST;
+			if (isSea) seas++;
+			if (isRainforest) rainforest++;
+			if (!isRainforest || !isSea) continue;
+			ocean++;
+			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, (sea - 8) >> 2, z >> 2);
+			if (biome.is(Biomes.WARM_OCEAN)) warm++; else other.merge(biome.getRegisteredName(), 1, Integer::sum);
+		}
+		check.accept("the sea of the rainforest regions is warm ocean (" + warm + "/" + ocean + (other.isEmpty() ? "" : ", else " + other) + "; " + rainforest + " rainforest and " + seas + " sea points)", ocean < 10 || warm >= ocean * 0.9);
 	}
 
 	// the trees of the nearest swamp stand all over their chunks, not on a 16 block grid (all on the chunk's corner,

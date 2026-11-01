@@ -30,6 +30,8 @@ public class ClimateModule {
 	private Noise moisture;
 	private Noise temperature;
 	private Noise macroBiomeNoise;
+	// ClimateSettings.warmRainforestOceans
+	private boolean warmRainforestOceans;
 	private Continent continent;
 	private ControlPoints controlPoints;
 	private Levels levels;
@@ -48,6 +50,7 @@ public class ClimateModule {
 		int warpScale = climateSettings.biomeShape.biomeWarpScale;
 		
 		this.continent = continent;
+		this.warmRainforestOceans = climateSettings.warmRainforestOceans;
 		this.seed = seed.next();
 		this.biomeFreq = 1.0F / biomeSize;
 		this.controlPoints = controlPoints;
@@ -144,6 +147,10 @@ public class ClimateModule {
 
         cell.temperature = cell.biome.getTemperature(cell.biomeRegionId);
         cell.moisture = cell.biome.getMoisture(cell.biomeRegionId);
+        // the ocean of a rainforest region as warm as a desert's (#35): only the sea, the land keeps its biomes
+        if (this.warmRainforestOceans && cell.biome == BiomeType.TROPICAL_RAINFOREST && (cell.terrain.isDeepOcean() || cell.terrain.isShallowOcean())) {
+        	cell.temperature = Temperature.LEVEL_4.mid();
+        }
 
 		// as in ReTerraForged 0.0.6: a mountain keeps the climate of its biome cell (no single biome type from the
 		// region's center, which made snowy peaks next to deserts)
