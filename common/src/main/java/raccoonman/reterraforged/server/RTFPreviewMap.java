@@ -55,7 +55,8 @@ public final class RTFPreviewMap {
 		double landSum = 0, depthSum = 0, depthMax = 0, landMax = 0;
 		for (int tz = 0; tz < TILES; tz++) for (int tx = 0; tx < TILES; tx++) {
 			float cx = (tx - (TILES - 1) / 2.0F) * tile * zoom, cz = (tz - (TILES - 1) / 2.0F) * tile * zoom;
-			try (Tile t = ctx.generator.generateZoomed(cx, cz, zoom, false).join()) {
+			{
+				Tile t = ctx.generator.generateZoomed(cx, cz, zoom, false).join();
 				int width = t.getBlockSize().size();
 				Cell[] cells = t.getBacking();
 				for (int z = 0; z < tile; z++) for (int x = 0; x < tile; x++) {

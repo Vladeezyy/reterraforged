@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
-import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 
 /**
  * "rtf tilebench [tiles]" (with -Drtf.selftest=true, tools/tilebench.sh): the time the generator takes for a tile (its
@@ -34,9 +33,8 @@ public final class RTFTileBench {
 				// tiles 40 apart: no river or continent region is shared with the one before
 				int tileX = 2000 + 40 * i, tileZ = -3000 + 17 * i;
 				long t0 = System.nanoTime();
-				Tile tile = context.generator.generate(tileX, tileZ).join();
+				context.generator.generate(tileX, tileZ).join();
 				long t1 = System.nanoTime();
-				tile.close();
 				if (i >= 0) {
 					ms[i] = (t1 - t0) / 1.0E6;
 				}
