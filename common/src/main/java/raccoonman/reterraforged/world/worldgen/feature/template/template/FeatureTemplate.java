@@ -388,13 +388,6 @@ public class FeatureTemplate {
         return new BlockPos(x, y, z);
     }
 
-    public interface PasteProvider {
-        PasteFunction get(FeatureTemplate template);
-    }
-
-    public interface PasteFunction {
-        <T extends TemplateContext> boolean paste(LevelAccessor world, BlockPos origin, Mirror mirror, Rotation rotation, TemplatePlacement<T> placement, PasteConfig config);
-    }
     
     public interface BlockSetter {
     	void setBlock(BlockPos pos, BlockState state, int flags);

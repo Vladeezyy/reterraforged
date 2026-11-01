@@ -23,14 +23,6 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
         super(minecraft, i, j, k, l);
     }
 
-    public void select(T widget) {
-    	for(Entry<T> entry : this.children()) {
-    		if(entry.widget.equals(widget)) {
-    			this.setSelected(entry);
-    			return;
-    		}
-    	}
-    }
     
     // scrolls the list so the widget is shown (its position is set when it is drawn next)
     public void reveal(T widget) {

@@ -1,7 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.feature.template.placement;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
@@ -13,9 +11,7 @@ public class TemplatePlacements {
 		register("tree", TreePlacement.CODEC);
 	}
 	
-	public static AnyPlacement any() {
-		return new AnyPlacement();
-	}	
+	
 	
 	public static TreePlacement tree() {
 		return new TreePlacement();

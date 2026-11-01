@@ -16,9 +16,6 @@ public class CacheManager {
 	// weakly: the manager must not keep caches alive (see Cache.Poller)
 	private static final Set<Cache<?>> CACHES = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 	
-    public static <V extends ExpiringEntry> Cache<V> createCache(long expireTime, long pollInterval, TimeUnit unit) {
-    	return createCache(256, expireTime, pollInterval, unit);
-    }
 	
 	public static <V extends ExpiringEntry> Cache<V> createCache(int capacity, long expireTime, long pollInterval, TimeUnit unit) {
 		return createCache(capacity, expireTime, pollInterval, unit, StampedBoundLongMap::new);

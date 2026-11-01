@@ -58,8 +58,4 @@ public class Terrain implements ITerrain.Delegate {
         return this.getName();
     }
     
-    public Terrain withId(int id) {
-        ITerrain delegate = (this.delegate instanceof Terrain) ? this.delegate : this;
-        return new Terrain(id, this.name, this.type, delegate);
-    }
 }

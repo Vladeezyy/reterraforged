@@ -44,13 +44,7 @@ public class Populators {
 		return TerrainPopulator.make(type, ground, horizontal(height, settings), horizontal(erosion, settings), horizontal(weirdness, settings), settings);
 	}
 
-	public static CellPopulator makeDeepOcean(@Deprecated int seed, float seaLevel) {
-		return makeDeepOcean(seed, seaLevel, WorldSettings.Properties.DEFAULT_OCEAN_DEPTH);
-	}
 	
-	public static CellPopulator makeDeepOcean(@Deprecated int seed, float seaLevel, int oceanDepth) {
-		return makeDeepOcean(seed, seaLevel, oceanDepth, 0.0F);
-	}
 
 	// floor: the lowest sea floor (Heightmap.oceanFloor); below 0 only matters with an ocean depth above the default
 	public static CellPopulator makeDeepOcean(@Deprecated int seed, float seaLevel, int oceanDepth, float floor) {

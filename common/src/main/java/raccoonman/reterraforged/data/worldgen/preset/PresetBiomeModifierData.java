@@ -192,10 +192,6 @@ public class PresetBiomeModifierData {
 		return BiomeModifiers.add(Order.APPEND, step, HolderSet.direct(features));
 	}
 	
-	@SafeVarargs
-	private static BiomeModifier append(GenerationStep.Decoration step, Filter.Behavior filterBehavior, HolderSet<Biome> biomes, Holder<PlacedFeature>... features) {
-		return BiomeModifiers.add(Order.APPEND, step, filterBehavior, biomes, HolderSet.direct(features));
-	}
 	
 	private static ResourceKey<BiomeModifier> createKey(String name) {
         return ResourceKey.create(RTFRegistries.BIOME_MODIFIER, RTFCommon.location(name));

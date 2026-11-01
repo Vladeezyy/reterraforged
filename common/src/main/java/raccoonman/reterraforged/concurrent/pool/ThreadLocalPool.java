@@ -13,9 +13,6 @@ public class ThreadLocalPool<T> {
     private Consumer<T> cleaner;
     private ThreadLocal<Pool<T>> local;
     
-    public ThreadLocalPool(int size, Supplier<T> factory) {
-        this(size, factory, t -> {});
-    }
     
     public ThreadLocalPool(int size, Supplier<T> factory, Consumer<T> cleaner) {
         this.size = size;

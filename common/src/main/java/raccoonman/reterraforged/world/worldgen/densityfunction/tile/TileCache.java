@@ -24,9 +24,6 @@ public class TileCache implements TileFactory {
 		this.generator = generator;
 	}
 	
-	public TileGenerator getGenerator() {
-		return this.generator;
-	}
 	
 	@Nullable
 	public Tile provideIfPresent(int tileX, int tileZ) {

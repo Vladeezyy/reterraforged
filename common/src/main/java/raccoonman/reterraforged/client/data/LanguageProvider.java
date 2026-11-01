@@ -14,11 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 
 public abstract class LanguageProvider implements DataProvider {
     private final Map<String, String> data = new TreeMap<>();
@@ -55,18 +50,6 @@ public abstract class LanguageProvider implements DataProvider {
         return DataProvider.saveStable(cache, json, target);
     }
 
-    public void add(Block key, String name) {
-        add(key.getDescriptionId(), name);
-    }
-
-    public void add(Item key, String name) {
-        add(key.getDescriptionId(), name);
-    }
-
-    public void add(ItemStack key, String name) {
-        add(key.getDescriptionId(), name);
-    }
-
     //public void addEnchantment(Supplier<? extends Enchantment> key, String name) {
     //    add(key.get(), name);
     //}
@@ -84,14 +67,6 @@ public abstract class LanguageProvider implements DataProvider {
         add(key.getTranslationKey(), name);
     }
     */
-
-    public void add(MobEffect key, String name) {
-        add(key.getDescriptionId(), name);
-    }
-
-    public void add(EntityType<?> key, String name) {
-        add(key.getDescriptionId(), name);
-    }
 
     public void add(String key, String value) {
         if (data.put(key, value) != null)
