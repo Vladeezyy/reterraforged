@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.fabric.mixin;
 
+import raccoonman.reterraforged.RTFCommon;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
@@ -89,7 +90,7 @@ public class MixinBiomeModificationImpl {
 		try {
 			return CTOR.newInstance(phase, id, selector, modifier);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Could not make Fabric's biome modifier record for {}", id, e);
 			return null;
 		}
 	}
@@ -99,7 +100,7 @@ public class MixinBiomeModificationImpl {
 		try {
 			ctor = Class.forName("net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl$ModifierRecord").getDeclaredConstructor(ModificationPhase.class, Identifier.class, Predicate.class, BiConsumer.class);
 		} catch (NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Fabric API's biome modification internals changed: the ReTerraForged biome modifiers will not apply", e);
 			ctor = null;
 		}
 		CTOR = ctor;
