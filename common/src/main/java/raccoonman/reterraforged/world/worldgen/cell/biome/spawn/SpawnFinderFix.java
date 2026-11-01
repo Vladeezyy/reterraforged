@@ -10,7 +10,6 @@ import net.minecraft.world.level.biome.Climate.Sampler;
 import net.minecraft.world.level.biome.Climate.TargetPoint;
 import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 	
-@Deprecated(forRemoval = true)
 public class SpawnFinderFix {
 	// above the distance and climate fitness of any spot within the search (10^8 at 2500 blocks)
 	private static final long WATER_PENALTY = 1_000_000_000_000L;
