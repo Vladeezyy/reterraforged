@@ -26,6 +26,14 @@ record DirectionWarp(Noise direction, Noise strength) implements Domain {
         return NoiseUtil.cos(angle) * this.strength.compute(x, z, seed);
 	}
 
+	// the angle and the strength once for both
+	@Override
+	public long getOffsets(float x, float z, int seed) {
+        float angle = this.direction.compute(x, z, seed) * 6.2831855F;
+        float strength = this.strength.compute(x, z, seed);
+        return Domain.pack(NoiseUtil.sin(angle) * strength, NoiseUtil.cos(angle) * strength);
+	}
+
 	@Override
 	public Domain mapAll(Visitor visitor) {
 		return new DirectionWarp(this.direction.mapAll(visitor), this.strength.mapAll(visitor));

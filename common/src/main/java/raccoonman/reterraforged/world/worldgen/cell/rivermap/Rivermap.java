@@ -25,8 +25,9 @@ public class Rivermap implements ExpiringEntry {
     }
     
     public void apply(Cell cell, float x, float z) {
-        float rx = this.riverWarp.getX(x, z, 0);
-        float rz = this.riverWarp.getZ(x, z, 0);
+        long warped = this.riverWarp.warp(x, z, 0);
+        float rx = Domain.offsetX(warped);
+        float rz = Domain.offsetZ(warped);
         float lx = this.lakeWarp.getOffsetX(rx, rz, 0);
         float lz = this.lakeWarp.getOffsetZ(rx, rz, 0);
         for (Network network : this.networks) {
