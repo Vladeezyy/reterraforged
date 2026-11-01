@@ -21,6 +21,7 @@
 # FINGERPRINT_REF=<file> the generation must be the same as that run's (tools/comparefingerprint.py). Fingerprints run
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
+# TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
@@ -208,6 +209,12 @@ for loader in $LOADERS; do
         wait_for "$dir/console.log" 'RTF fingerprint\]' 1200 && cp "$dir/rtf-fingerprint.txt" "run/fingerprint-$loader.txt" 2>/dev/null
         grep -o 'RTF fingerprint\].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
         [ -z "$FINGERPRINT_REF" ] || fingerprint=$($PY tools/comparefingerprint.py "$FINGERPRINT_REF" "run/fingerprint-$loader.txt")
+    fi
+    # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
+    if [ -n "$TILEBENCH" ]; then
+        echo "rtf tilebench $TILEBENCH" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF tilebench\] [0-9]' 1200
+        grep -o 'RTF tilebench\] [0-9].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
     fi
     if [ -n "$SKIP_SELFTEST" ]; then
         line="RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked"
