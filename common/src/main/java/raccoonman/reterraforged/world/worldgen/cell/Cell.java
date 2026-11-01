@@ -1,8 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.cell;
 
-import raccoonman.reterraforged.concurrent.Resource;
-import raccoonman.reterraforged.concurrent.SimpleResource;
-import raccoonman.reterraforged.concurrent.pool.ThreadLocalPool;
 import raccoonman.reterraforged.world.worldgen.cell.biome.type.BiomeType;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Terrain;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
@@ -17,10 +14,6 @@ public class Cell {
             return true;
         }
     };
-    private static final ThreadLocalPool<Cell> POOL = new ThreadLocalPool<>(32, Cell::new, Cell::reset);
-    public static final ThreadLocal<Resource<Cell>> LOCAL = ThreadLocal.withInitial(() -> {
-        return new SimpleResource<>(new Cell(), Cell::reset);
-    });
     public float height;
     public float heightErosion;
     public float sediment;
@@ -106,14 +99,6 @@ public class Cell {
         return Cell.EMPTY;
     }
 
-    public static Resource<Cell> getResource() {
-        Resource<Cell> resource = Cell.LOCAL.get();
-        if (resource.isOpen()) {
-            return Cell.POOL.get();
-        }
-        return resource;
-    }
-    
     public interface Visitor {
         void visit(Cell cell, int x, int z);
     }

@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 
 /**
  * Cache entry that wraps a CompletableFuture and exposes the same surface the
- * rest of ReTerraForged expects (get / isDone / timestamp / close).
+ * rest of ReTerraForged expects (get / isDone / timestamp).
  *
  * <p>Historical note: this used to extend {@code LazyCallable}, which held a
  * StampedLock write lock across {@code ForkJoinTask.join()}. Under the vanilla
@@ -51,30 +51,6 @@ public class CacheEntry<T> implements ExpiringEntry {
 	@Override
 	public long getTimestamp() {
 		return this.timestamp;
-	}
-
-	@Override
-	public void close() {
-		if (!this.future.isDone()) {
-			return;
-		}
-		T value;
-		try {
-			value = this.future.getNow(null);
-		} catch (Throwable t) {
-			return;
-		}
-		if (value instanceof SafeCloseable safe) {
-			safe.close();
-			return;
-		}
-		if (value instanceof AutoCloseable ac) {
-			try {
-				ac.close();
-			} catch (Exception e) {
-				raccoonman.reterraforged.RTFCommon.LOGGER.error("Could not close a cached value", e);
-			}
-		}
 	}
 
 	public static <T> CacheEntry<T> supply(Future<T> task) {
