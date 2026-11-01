@@ -33,6 +33,14 @@ public class ClimateModule {
 	// ClimateSettings.warmRainforestOceans
 	private boolean warmRainforestOceans;
 	private Continent continent;
+	private final ThreadLocal<Region> region = ThreadLocal.withInitial(Region::new);
+
+	/** The last biome cell of a thread and its values */
+	private static final class Region {
+		private boolean valid;
+		private int cellX, cellZ;
+		private float id, moisture, temperature, macroBiome, continentEdge;
+	}
 	private ControlPoints controlPoints;
 	private Levels levels;
 	
@@ -129,13 +137,25 @@ public class ClimateModule {
 				}
 			}
 		}
-		cell.biomeRegionId = this.cellValue(this.seed , cellX, cellZ);
-		cell.regionMoisture = this.moisture.compute(centerX, centerZ, 0);
-		cell.regionTemperature = this.temperature.compute(centerX, centerZ, 0);
-		cell.macroBiomeId = this.macroBiomeNoise.compute(centerX, centerZ, 0);
-		int posX = NoiseUtil.floor(centerX / this.biomeFreq);
-		int posZ = NoiseUtil.floor(centerZ / this.biomeFreq);
-		float continentEdge = this.continent.getLandValue(posX, posZ);
+		// what depends on the biome cell only (its center): worked out once while the cells stay in the same one
+		Region region = this.region.get();
+		if (!region.valid || region.cellX != cellX || region.cellZ != cellZ) {
+			region.id = this.cellValue(this.seed , cellX, cellZ);
+			region.moisture = this.moisture.compute(centerX, centerZ, 0);
+			region.temperature = this.temperature.compute(centerX, centerZ, 0);
+			region.macroBiome = this.macroBiomeNoise.compute(centerX, centerZ, 0);
+			int posX = NoiseUtil.floor(centerX / this.biomeFreq);
+			int posZ = NoiseUtil.floor(centerZ / this.biomeFreq);
+			region.continentEdge = this.continent.getLandValue(posX, posZ);
+			region.cellX = cellX;
+			region.cellZ = cellZ;
+			region.valid = true;
+		}
+		cell.biomeRegionId = region.id;
+		cell.regionMoisture = region.moisture;
+		cell.regionTemperature = region.temperature;
+		cell.macroBiomeId = region.macroBiome;
+		float continentEdge = region.continentEdge;
 		if (mask) {
 			cell.biomeRegionEdge = this.edgeValue(edgeDistance, edgeDistance2);
 			this.modifyTerrain(cell, continentEdge);
@@ -160,8 +180,8 @@ public class ClimateModule {
 			cell.temperature = Temperature.LEVEL_3.mid();
 			cell.moisture = Humidity.LEVEL_1.mid();
 		} else if (cell.terrain == TerrainType.ISLAND || cell.terrain == TerrainType.ISLAND_MOUNTAINS) {
-			float islTemp = this.temperature.compute(centerX, centerZ, 0);
-			float islMoist = this.moisture.compute(centerX, centerZ, 0);
+			float islTemp = region.temperature;
+			float islMoist = region.moisture;
 			cell.biome = BiomeType.get(islTemp, islMoist);
 			cell.temperature = cell.biome.getTemperature(cell.biomeRegionId);
 			cell.moisture = cell.biome.getMoisture(cell.biomeRegionId);
