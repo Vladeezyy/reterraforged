@@ -18,7 +18,8 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-//TODO remove all the seed parameters
+// The seed parameters stay although their noises take their own seeds: the noises draw the next numbers from them
+// (seed.next()), so taking them away shifts every later seed and changes every world
 public class Populators {
 	@Deprecated
 	public static final Noise DEFAULT_EROSION = Erosion.LEVEL_4.source();

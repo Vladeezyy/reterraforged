@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.feature.template.template;
 
+import raccoonman.reterraforged.RTFCommon;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class FeatureTemplateManager {
 			try(InputStream stream = resource.open()) {
 				return FeatureTemplate.load(stream);
 			} catch (IOException e) {
-				e.printStackTrace();
+				RTFCommon.LOGGER.error("Could not read the feature template {}", location, e);
 				return Optional.empty();
 			}
 		}).orElse(new FeatureTemplate(ImmutableList.of()));
