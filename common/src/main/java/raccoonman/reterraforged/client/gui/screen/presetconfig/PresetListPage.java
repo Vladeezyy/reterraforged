@@ -76,7 +76,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			if(!Files.exists(PRESET_PATH)) Files.createDirectory(PRESET_PATH);
 			if(!Files.exists(EXPORT_PATH)) Files.createDirectory(EXPORT_PATH);
 		} catch(IOException e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Could not create the presets folder {} or the export folder {}", PRESET_PATH, EXPORT_PATH, e);
 		}
 	}
 
@@ -149,7 +149,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		try {
 			this.rebuildPresets();
 		} catch (IOException e) {
-			e.printStackTrace();
+			RTFCommon.LOGGER.error("Could not list the presets", e);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			try {
 				this.screen.applyPreset(this.screen.editable(selected.getWidget()));
 			} catch (IOException e) {
-				e.printStackTrace();
+				RTFCommon.LOGGER.error("Could not apply the preset {}", selected.getWidget().getName().getString(), e);
 			}
 		}
 	}
