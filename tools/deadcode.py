@@ -27,6 +27,8 @@ for m in MODULES:
 declared = []          # (class, name, descriptor, flags)
 refs = set()           # (name, descriptor)
 ctor_refs = set()      # (class, descriptor) of constructors called
+field_refs = set()     # (class, name) of fields read or written
+fields = []            # (class, name, flags)
 records = set()
 class_refs = {}        # class -> set of classes referring to it
 for i in range(0, len(classes), 200):
@@ -47,6 +49,14 @@ for i in range(0, len(classes), 200):
             refs.add((mr.group(2).strip('"'), mr.group(3)))
             if mr.group(2).strip('"') == '<init>':
                 ctor_refs.add((mr.group(1), mr.group(3)))
+            continue
+        fr = re.search(r'= Fieldref\s+#\d+\.#\d+\s+// ([\w/$]+)\.("?[\w$]+"?):', line)
+        if fr:
+            field_refs.add((fr.group(1), fr.group(2).strip('"')))
+            continue
+        fd = re.match(r'^  (?! )((?:public |protected |private |static |final |volatile |transient )*)[\w.$<>\[\], ?]+ ([\w$]+);$', line)
+        if fd and current and not any(c in line for c in '#=:/('):
+            fields.append((current, fd.group(2), fd.group(1)))
             continue
         cr = re.search(r'= Class\s+#\d+\s+// "?\[*L?([\w/$]+)', line)
         if cr and current:
@@ -135,3 +145,20 @@ for c in sorted(dead_classes):
 print('# methods nothing calls: %d' % len(dead_methods))
 for d in sorted(dead_methods):
     print('method ' + d)
+
+# fields nothing reads or writes outside their declaration (a field written only counts as used: assignments are
+# Fieldrefs too; constant fields inlined by javac have no Fieldref, so static final primitives and strings are left out)
+field_names = {(c, n) for c, n in field_refs}
+by_name = {n for _, n in field_refs}
+dead_fields = []
+for cls, name, flags in fields:
+    if not cls.startswith(PKG) or cls.split('$')[0] in mixins or name.startswith('$') or name in ('CODEC', 'MAP_CODEC'):
+        continue
+    if 'static' in flags and 'final' in flags:
+        continue
+    if name in by_name:
+        continue
+    dead_fields.append('%s.%s' % (cls, name))
+print('# fields nothing refers to: %d' % len(dead_fields))
+for f in sorted(dead_fields):
+    print('field ' + f)

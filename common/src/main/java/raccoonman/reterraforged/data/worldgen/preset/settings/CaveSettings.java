@@ -31,9 +31,6 @@ public class CaveSettings {
 	public boolean largeOreVeins;
 	public boolean legacyCarverDistribution;
 	public CompatibilityMode compatibilityMode;
-	
-	//TODO
-	public boolean minCaveBiomeDepth;
 
 	public CaveSettings(float entranceCaveProbability, float cheeseCaveDepthOffset, float cheeseCaveProbability, float spaghettiCaveProbability, float noodleCaveProbability, float caveCarverProbability, float deepCaveCarverProbability, float ravineProbability, boolean largeOreVeins, boolean legacyCarverDistribution) {
 		this(entranceCaveProbability, cheeseCaveDepthOffset, cheeseCaveProbability, spaghettiCaveProbability, noodleCaveProbability, caveCarverProbability, deepCaveCarverProbability, ravineProbability, largeOreVeins, legacyCarverDistribution, CompatibilityMode.AUTO);
