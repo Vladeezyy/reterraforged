@@ -51,8 +51,9 @@ public class AdvancedContinentGenerator extends AbstractContinent implements Sim
     
     @Override
     public void apply(Cell cell, float x, float y) {
-        float wx = this.warp.getX(x, y, 0);
-        float wy = this.warp.getZ(x, y, 0);
+        long warped = this.warp.warp(x, y, 0);
+        float wx = Domain.offsetX(warped);
+        float wy = Domain.offsetZ(warped);
         x = wx * this.frequency;
         y = wy * this.frequency;
         int xi = NoiseUtil.floor(x);
