@@ -1,13 +1,9 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import raccoonman.reterraforged.platform.RegistryUtil;
-import raccoonman.reterraforged.world.worldgen.noise.module.Noise;	
 
 public class RTFDensityFunctions {
 
@@ -16,10 +12,6 @@ public class RTFDensityFunctions {
 		register("cell", CellSampler.Marker.CODEC);
 		register("clamp_to_nearest_unit", ClampToNearestUnit.CODEC);
 		register("linear_spline", LinearSplineFunction.CODEC);
-	}
-	
-	public static NoiseFunction.Marker noise(Holder<Noise> noise) {
-		return new NoiseFunction.Marker(noise);
 	}
 	
 	public static CellSampler.Marker cell(CellSampler.Field field) {

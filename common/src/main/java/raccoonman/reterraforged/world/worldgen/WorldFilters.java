@@ -33,9 +33,6 @@ public class WorldFilters {
         this.smoothingIterations = context.preset.filters().smoothing.iterations;
     }
     
-    public FilterSettings getSettings() {
-        return this.settings;
-    }
     
     public void apply(Tile tile, boolean optionalFilters) {
         int regionX = tile.getX();

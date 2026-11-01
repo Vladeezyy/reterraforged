@@ -38,13 +38,7 @@ public class Slider extends AbstractSliderButton {
     	return this.value;
     }
     
-	public double getMin() {
-		return this.min;
-	}
 
-	public double getMax() {
-		return this.max;
-	}
     
     public double getSliderValue(float value) {
     	return (Mth.clamp(value, this.min, this.max) - this.min) / (this.max - this.min);
@@ -69,10 +63,6 @@ public class Slider extends AbstractSliderButton {
     	this.valueText = valueText;
     	this.updateMessage();
     	return this;
-    }
-
-    public Format getFormat() {
-    	return this.format;
     }
 
     @Override

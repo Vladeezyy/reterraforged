@@ -69,9 +69,6 @@ public class RiverWarp {
         return NoiseUtil.map(t, 0.0F, 0.075F, 0.075F);
     }
     
-    public static RiverWarp create(float fade, Random random) {
-        return create(fade, 1.0F - fade, random);
-    }
     
     public static RiverWarp create(float lower, float upper, Random random) {
         float scale = 125.0F + random.nextInt(50);

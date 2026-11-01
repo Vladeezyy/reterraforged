@@ -1,7 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.cell.rivermap.river;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Variance;
@@ -68,20 +67,7 @@ public class River {
         return PosUtil.packf(this.x1 + this.dx * distance, this.z1 + this.dz * distance);
     }
     
-    public long pos(float distance, RiverWarp warp) {
-        float x = this.x1 + this.dx * distance;
-        float z = this.z1 + this.dz * distance;
-        if (warp.test(distance)) {
-            long offset = warp.getOffset(x, z, distance, this);
-            x -= PosUtil.unpackLeftf(offset);
-            z -= PosUtil.unpackRightf(offset);
-        }
-        return PosUtil.packf(x, z);
-    }
     
-    public boolean intersects(River other) {
-        return Line.intersect(other.x1, other.z1, other.x2, other.z2, this.x1, this.z1, this.x2, this.z2);
-    }
     
     public boolean intersects(River other, float extend) {
         float extendA = this.length == 0.0F ? 0.0F : NoiseUtil.clamp(extend / this.length, 0.0F, 1.0F);
@@ -105,21 +91,8 @@ public class River {
         return x >= this.minX && x <= this.maxX && z >= this.minZ && z <= this.maxZ;
     }
     
-    public boolean overlaps(River other) {
-        return this.overlaps(other.minX, other.minZ, other.maxX, other.maxZ);
-    }
     
-    public boolean overlaps(float minX, float minY, float maxX, float maxY) {
-        return this.minX < maxX && this.maxX > minX && this.minZ < maxY && this.maxZ > minY;
-    }
     
-    public boolean overlaps(Vec2f center, float radius) {
-        float minX = center.x() - radius;
-        float maxX = center.x() + radius;
-        float minY = center.y() - radius;
-        float maxY = center.y() + radius;
-        return this.overlaps(minX, minY, maxX, maxY);
-    }
     
     @Override
     public String toString() {

@@ -42,10 +42,6 @@ public class ArrayPool<T> {
 		return new ArrayPool<>(size, constructor);
 	}
 
-	public static <T> ArrayPool<T> of(int size, Supplier<T> supplier, IntFunction<T[]> constructor) {
-		return new ArrayPool<>(size, new ArrayConstructor<>(supplier, constructor));
-	}
-
 	public static class Item<T> implements Resource<T[]> {
 		private T[] value;
 		private ArrayPool<T> pool;

@@ -181,10 +181,6 @@ public class RiverCarver implements Comparable<RiverCarver> {
         return modifier;
     }
     
-    public static CurveFunction getValleyType(Random random) {
-        return getValleyType(random, 25);
-    }
-
     // gorgeChance: the percent of valleys that are gorges (25 in ReTerraForged 0.0.6); the flat-floored ones keep their
     // 5 %, the V-shaped and the usual ones share the rest 2 : 5 as in 0.0.6, so 25 picks exactly as before
     public static CurveFunction getValleyType(Random random, int gorgeChance) {
@@ -202,22 +198,7 @@ public class RiverCarver implements Comparable<RiverCarver> {
         return CurveFunctions.scurve(2.0F, -0.5F);
     }
     
-    public static RiverCarver create(float x1, float z1, float x2, float z2, RiverConfig config, Levels levels, Random random) {
-        River river = new River(x1, z1, x2, z2);
-        RiverWarp warp = RiverWarp.create(0.35F, random);
-        float valleyWidth = 275.0F * River.MAIN_VALLEY.next(random);
-        Settings settings = creatSettings(random);
-        settings.connecting = false;
-        settings.fadeIn = config.fade;
-        settings.valleySize = valleyWidth;
-        return new RiverCarver(river, warp, config, settings, levels);
-    }
     
-    private static Settings creatSettings(Random random) {
-        Settings settings = new Settings();
-        settings.valleyCurve = getValleyType(random);
-        return settings;
-    }
     
     public static class Settings {
         public float valleySize;

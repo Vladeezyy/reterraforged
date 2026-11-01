@@ -1,7 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.cell.rivermap.river;
 
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
-import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public class RiverConfig {
     public int order;
@@ -49,13 +48,6 @@ public class RiverConfig {
         this.fade = fade;
     }
     
-    public RiverConfig createFork(float connectWidth, Levels levels) {
-        if (this.bankWidth < connectWidth) {
-            return this;
-        }
-        float scale = this.bankWidth / connectWidth;
-        return this.createFork(levels.scale(this.bedHeight), NoiseUtil.round(this.bedWidth / scale), NoiseUtil.round(this.bankWidth / scale), levels);
-    }
     
     public RiverConfig createFork(int bedHeight, int bedWidth, int bankWidth, Levels levels) {
         int minBankHeight = Math.max(levels.groundLevel, levels.scale(this.minBankHeight) - 1);

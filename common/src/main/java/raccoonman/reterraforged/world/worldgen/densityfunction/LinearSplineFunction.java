@@ -1,9 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -14,7 +12,6 @@ import net.minecraft.util.Interval;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
-import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import net.minecraft.world.level.levelgen.densityfunction.DfRewriteRule;
@@ -101,30 +98,4 @@ public record LinearSplineFunction(DensityFunction input, List<Pair<Double, Dens
 		}
 	}
 
-	public static LinearSplineFunction.Builder builder(DensityFunction input) {
-		return new LinearSplineFunction.Builder(input);
-	}
-	
-	public static class Builder {
-		private DensityFunction input;
-		private List<Pair<Double, DensityFunction>> points;
-		
-		public Builder(DensityFunction input) {
-			this.input = input;
-			this.points = new ArrayList<>();
-		}
-		
-		public Builder addPoint(double point, double value) {
-			return this.addPoint(point, DensityFunctions.constant((float) value));
-		}
-
-		public Builder addPoint(double point, DensityFunction value) {
-			this.points.add(Pair.of(point, value));
-			return this;
-		}
-		
-		public LinearSplineFunction build() {
-			return new LinearSplineFunction(this.input, ImmutableList.copyOf(this.points));
-		}
-	}
 }

@@ -89,24 +89,8 @@ public class Island {
 		return this.min;
 	}
 
-	public Vec2f getMax() {
-		return this.max;
-	}
-
 	public Vec2f getCenter() {
 		return this.center;
-	}
-
-	public boolean overlaps(Island other) {
-		return this.overlaps(other.min, other.max);
-	}
-
-	public boolean overlaps(Vec2f min, Vec2f max) {
-		return this.min.x() < max.x() && this.max.x() > min.x() && this.min.y() < max.y() && this.max.y() > min.y();
-	}
-
-	public boolean contains(Vec2f vec) {
-		return this.contains(vec.x(), vec.y());
 	}
 
 	public boolean contains(float x, float z) {
