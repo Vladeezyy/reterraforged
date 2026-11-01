@@ -1,20 +1,35 @@
 package raccoonman.reterraforged.concurrent.cache.map;
 
-import java.util.concurrent.locks.StampedLock;
 import java.util.function.LongFunction;
-import java.util.function.Predicate;
-
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import java.util.function.Predicate;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import java.util.concurrent.locks.StampedLock;
 
+/**
+ * A long-keyed map behind a StampedLock: bounded (the oldest entry leaves when it is full, the tile cache) or unbounded
+ * (the river cache). It was two copies of the same class.
+ */
 public class StampedLongMap<T> implements LongMap<T> {
-	private StampedLock lock;
-	private Long2ObjectOpenHashMap<T> map;
+	private final int capacity;
+	private final StampedLock lock;
+	private final Long2ObjectLinkedOpenHashMap<T> map;
 
-	public StampedLongMap(int size) {
-		this.map = new Long2ObjectOpenHashMap<>(size);
+	private StampedLongMap(int size, int capacity) {
+		this.capacity = capacity;
 		this.lock = new StampedLock();
+		this.map = new Long2ObjectLinkedOpenHashMap<>(size);
+	}
+
+	/** At most size entries: the oldest leaves for a new one */
+	public static <T> StampedLongMap<T> bounded(int size) {
+		return new StampedLongMap<>(size, size);
+	}
+
+	/** Sized for size entries at first, grows as needed */
+	public static <T> StampedLongMap<T> unbounded(int size) {
+		return new StampedLongMap<>(size, Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -54,7 +69,8 @@ public class StampedLongMap<T> implements LongMap<T> {
 			int startSize = this.map.size();
 			ObjectIterator<Long2ObjectMap.Entry<T>> iterator = this.map.long2ObjectEntrySet().fastIterator();
 			while (iterator.hasNext()) {
-				if (predicate.test(iterator.next().getValue())) {
+				Long2ObjectMap.Entry<T> entry = (Long2ObjectMap.Entry<T>) iterator.next();
+				if (predicate.test((T) entry.getValue())) {
 					iterator.remove();
 				}
 			}
@@ -87,6 +103,9 @@ public class StampedLongMap<T> implements LongMap<T> {
 		}
 		long writeStamp = this.lock.writeLock();
 		try {
+			if (this.map.size() >= this.capacity) {
+				this.map.removeFirst();
+			}
 			return this.map.computeIfAbsent(key, func);
 		} finally {
 			this.lock.unlockWrite(writeStamp);

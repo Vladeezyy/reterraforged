@@ -9,16 +9,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 
 import raccoonman.reterraforged.concurrent.cache.map.LongMap;
-import raccoonman.reterraforged.concurrent.cache.map.StampedBoundLongMap;
+import raccoonman.reterraforged.concurrent.cache.map.StampedLongMap;
 
-@Deprecated
+// the tile caches of the worlds, so the preset screen can drop the ones of a world that was left
 public class CacheManager {
 	// weakly: the manager must not keep caches alive (see Cache.Poller)
 	private static final Set<Cache<?>> CACHES = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 	
 	
 	public static <V extends ExpiringEntry> Cache<V> createCache(int capacity, long expireTime, long pollInterval, TimeUnit unit) {
-		return createCache(capacity, expireTime, pollInterval, unit, StampedBoundLongMap::new);
+		return createCache(capacity, expireTime, pollInterval, unit, StampedLongMap::bounded);
 	}
 	
 	public static <V extends ExpiringEntry> Cache<V> createCache(int capacity, long expireTime, long pollInterval, TimeUnit unit, IntFunction<LongMap<V>> mapFunc) {
