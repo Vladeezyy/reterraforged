@@ -3,13 +3,11 @@ package raccoonman.reterraforged.world.worldgen.densityfunction;
 import java.util.function.Supplier;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.KeyDispatchCodec;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.StringRepresentable;
@@ -43,7 +41,7 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 		if(worldLookup == null) {
 			return 0.0D;
 		}
-		Cell cell = CELL.get().getAndUpdate(worldLookup, ctx.blockX(), ctx.blockZ(), true);
+		Cell cell = CELL.get().getAndUpdate(worldLookup, ctx.blockX(), ctx.blockZ(), true, WorldLookup.inStructureGeneration());
 		return this.field.read(cell, worldLookup.getHeightmap());
 	}
 
@@ -64,13 +62,15 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 
 	public static class Cache2d {
 		private long lastPos = Long.MAX_VALUE;
+		private boolean lastTiles;
 		private Cell cell = new Cell();
 		
-		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate) {
-			
+		// tiles: the cell of the place's tile (generated if it is not cached), else computed without the tile
+		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate, boolean tiles) {
 			long packedPos = PosUtil.pack(blockX, blockZ);
-			if(this.lastPos != packedPos) {
-				lookup.applyCell(this.cell.reset(), blockX, blockZ, false, sampleClimate);
+			if(this.lastPos != packedPos || this.lastTiles != tiles) {
+				lookup.applyCell(this.cell.reset(), blockX, blockZ, tiles, sampleClimate);
+				this.lastTiles = tiles;
 				lookup.getHeightmap().fakeWaterBiomeResolver().apply(this.cell);
 				this.lastPos = packedPos;
 				if (this.cell.fakeWaterBiome.isRiver()) {
@@ -116,7 +116,9 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 			}
 			Cell cell = (this.chunk != null && this.chunkX == chunkX && this.chunkZ == chunkZ) ? 
 				this.chunk.getCell(blockX, blockZ) :
-				this.cache2d.getAndUpdate(worldLookup, blockX, blockZ, false);
+				// a chunk being generated reads its neighbours' places (the aquifers) from their tiles too; a one-cell
+				// base height query (chunk null) only during structure generation
+				this.cache2d.getAndUpdate(worldLookup, blockX, blockZ, false, this.chunk != null || WorldLookup.inStructureGeneration());
 			return CellSampler.this.field.read(cell, worldLookup.getHeightmap());
 		}
 
