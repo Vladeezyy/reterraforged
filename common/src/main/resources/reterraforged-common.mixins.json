@@ -9,6 +9,7 @@
 		"MixinNoiseChunk",
 		"MixinNoiseBasedChunkGenerator",
 		"MixinChunkGenerator",
+		"MixinMultiNoiseBiomeSource",
 		"MixinChunkAccess",
 		"MixinRandomState",
 		"MixinChunkMap",
