@@ -11,16 +11,22 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class ClimateSettings {
+	public static final int MAX_LOWLAND_SWAMPS = 16, MAX_SWAMP_HEIGHT = 64;
 	public static final Codec<ClimateSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		RangeValue.CODEC.fieldOf("temperature").forGetter((o) -> o.temperature),
 		RangeValue.CODEC.fieldOf("moisture").forGetter((o) -> o.moisture),
 		BiomeShape.CODEC.fieldOf("biomeShape").forGetter((o) -> o.biomeShape),
 		BiomeNoise.CODEC.fieldOf("biomeEdgeShape").forGetter((o) -> o.biomeEdgeShape),
 		// added in 0.0.28 (#35), off: the oceans' temperature as in ReTerraForged 0.0.6
-		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans)
-	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans) -> {
+		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans),
+		// added in 0.0.29 (#28), 0 (off) for presets saved before: their worlds keep their swamps
+		Codec.intRange(0, MAX_LOWLAND_SWAMPS).optionalFieldOf("lowlandSwamps", 0).forGetter((o) -> o.lowlandSwamps),
+		Codec.intRange(0, MAX_SWAMP_HEIGHT).optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight)
+	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight) -> {
 		ClimateSettings settings = new ClimateSettings(temperature, moisture, biomeShape, biomeEdgeShape);
 		settings.warmRainforestOceans = warmRainforestOceans;
+		settings.lowlandSwamps = lowlandSwamps;
+		settings.swampMaxHeight = swampMaxHeight;
 		return settings;
 	}));
 	
@@ -31,6 +37,14 @@ public class ClimateSettings {
     // the oceans of the tropical rainforest regions are warm oceans, as those of the deserts are (their climate is one
     // step cooler: lukewarm oceans)
     public boolean warmRainforestOceans = false;
+    // Lowland Swamps: wet, warm land up to this many blocks above the sea gets the swamps' climate, as vanilla's flat
+    // lowlands have it; 0 (off, as in ReTerraForged 0.0.6): only the wetlands of the river networks have it, and the
+    // swamps are narrow strips along the rivers, too narrow for big swamp structures
+    public int lowlandSwamps = 0;
+    // Highest Swamps: a swamp biome more than this many blocks above the sea is replaced by the biome a less eroded
+    // place there would have (biome mods such as Terralith put their swamps on erosion that ReTerraForged's hills have);
+    // 0: no limit
+    public int swampMaxHeight = 0;
     
     public ClimateSettings(RangeValue temperature, RangeValue moisture, BiomeShape biomeShape, BiomeNoise biomeEdgeShape) {
     	this.temperature = temperature;
@@ -42,6 +56,8 @@ public class ClimateSettings {
     public ClimateSettings copy() {
     	ClimateSettings copy = new ClimateSettings(this.temperature.copy(), this.moisture.copy(), this.biomeShape.copy(), this.biomeEdgeShape.copy());
     	copy.warmRainforestOceans = this.warmRainforestOceans;
+    	copy.lowlandSwamps = this.lowlandSwamps;
+    	copy.swampMaxHeight = this.swampMaxHeight;
     	return copy;
     }
     
