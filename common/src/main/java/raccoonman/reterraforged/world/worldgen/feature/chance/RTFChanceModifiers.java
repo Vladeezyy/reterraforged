@@ -1,7 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.feature.chance;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
