@@ -7,9 +7,11 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache;
 
 public class WorldLookup {
-	// "rtf heights" (RTFWorldChecks.heights): on this thread the cells are computed, never taken from a cached tile, so
-	// the estimate is the same whichever chunks were generated before
-	private static volatile Thread rawThread;
+	// the structure starts of chunks being generated (ChunkGenerator.createStructures, MixinChunkGenerator): there the
+	// lookups read the tiles, as the chunks' own terrain does; elsewhere (/locate, explorer maps, dolphins, the
+	// strongholds' biome search) they compute the cell without the tile's erosion and beach detection. They used to take
+	// the tile when it happened to be cached: structures and their heights depended on the order chunks were generated in
+	private static final ThreadLocal<int[]> STRUCTURE_GENERATION = ThreadLocal.withInitial(() -> new int[1]);
 	private final float waterLevel;
 	private final float beachLevel;
 	private final TileCache cache;
@@ -24,12 +26,16 @@ public class WorldLookup {
 		this.levels = context.levels;
 	}
 	
-	public static void beginRaw() {
-		rawThread = Thread.currentThread();
+	public static void beginStructureGeneration() {
+		STRUCTURE_GENERATION.get()[0]++;
 	}
 
-	public static void endRaw() {
-		rawThread = null;
+	public static void endStructureGeneration() {
+		STRUCTURE_GENERATION.get()[0]--;
+	}
+
+	public static boolean inStructureGeneration() {
+		return STRUCTURE_GENERATION.get()[0] > 0;
 	}
 
 	public Heightmap getHeightmap() {
@@ -42,10 +48,6 @@ public class WorldLookup {
 
 	public boolean applyCell(Cell cell, int x, int z, boolean load, boolean applyClimate) {
 		if (load && this.computeAccurate(cell, x, z)) {
-			return true;
-		}
-		Thread raw = rawThread;
-		if ((raw == null || raw != Thread.currentThread()) && this.computeCached(cell, x, z)) {
 			return true;
 		}
 		return this.compute(cell, x, z, applyClimate);
@@ -63,23 +65,6 @@ public class WorldLookup {
 			cell.terrain = TerrainType.BEACH;
 		}
 		return cell.terrain != null;
-	}
-
-	private boolean computeCached(Cell cell, int x, int z) {
-		int rx = this.cache.chunkToTile(x >> 4);
-		int rz = this.cache.chunkToTile(z >> 4);
-		Tile tile = this.cache.provideIfPresent(rx, rz);
-		if (tile != null) {
-			Cell c = tile.lookup(x, z);
-			if (c != null) {
-				cell.copyFrom(c);
-			}
-			if (cell.terrain != null && cell.terrain == TerrainType.ISLAND_BEACH && cell.height > this.waterLevel && cell.height <= this.beachLevel) {
-				cell.terrain = TerrainType.BEACH;
-			}
-			return cell.terrain != null;
-		}
-		return false;
 	}
 
 	private boolean compute(Cell cell, int x, int z, boolean applyClimate) {

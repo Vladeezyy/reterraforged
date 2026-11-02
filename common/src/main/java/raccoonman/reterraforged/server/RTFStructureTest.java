@@ -138,7 +138,7 @@ public final class RTFStructureTest {
 		String terrain = "?";
 		if ((Object) level.getChunkSource().randomState() instanceof RTFRandomState state && state.generatorContext() != null) {
 			Cell cell = new Cell();
-			state.generatorContext().lookup.applyCell(cell.reset(), box.getCenter().getX(), box.getCenter().getZ(), false);
+			state.generatorContext().lookup.applyCell(cell.reset(), box.getCenter().getX(), box.getCenter().getZ(), true, false);
 			terrain = cell.terrain.getName();
 			if (target.kind() != Kind.OTHER && cell.terrain.isMountain()) {
 				return name + " at " + box.getCenter().getX() + ", " + box.getCenter().getZ() + " starts on " + terrain;
