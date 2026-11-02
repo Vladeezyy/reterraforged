@@ -6,11 +6,11 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 
 public class Island {
-	private int id;
+	private final int id;
 	private Segment[] segments;
 	private final float coast2;
 	private final float deepOcean2;
-	private float shallowOcean;
+	private final float shallowOcean;
 	private final float shallowOcean2;
 	private final float radius;
 	private final float deepMod;

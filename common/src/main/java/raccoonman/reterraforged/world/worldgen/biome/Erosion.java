@@ -9,8 +9,8 @@ public enum Erosion implements BiomeParameter {
     LEVEL_5(0.45F, 0.55F),
     LEVEL_6(0.55F, 1.0F);
 	
-	private float min;
-	private float max;
+	private final float min;
+	private final float max;
 	
 	private Erosion(float min, float max) {
 		this.min = min;

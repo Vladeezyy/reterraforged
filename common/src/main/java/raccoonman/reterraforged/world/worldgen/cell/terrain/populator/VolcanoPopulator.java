@@ -18,20 +18,20 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
-    private Noise cone;
-    private Noise height;
-    private Noise lowlands;
+    private final Noise cone;
+    private final Noise height;
+    private final Noise lowlands;
     private final float inversionPoint;
     private final float blendLower;
     private final float blendUpper;
     private final float blendRange;
-    private float bias;
+    private final float bias;
     private final Terrain inner;
     private final Terrain outer;
     
-    private float weight;
-    private float baseScale;
-    private float verticalScale;
+    private final float weight;
+    private final float baseScale;
+    private final float verticalScale;
     
     // the volcano terrain settings: weight, and since they did nothing before, base scale (the ground under it),
     // vertical scale (the cone's height) and horizontal scale (the cone's and the lowlands' size); at 1 a volcano is

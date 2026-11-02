@@ -7,8 +7,8 @@ public enum Temperature implements BiomeParameter {
 	LEVEL_3(0.2F, 0.55F),
 	LEVEL_4(0.55F, 1.0F);
 	
-	private float min;
-	private float max;
+	private final float min;
+	private final float max;
 	
 	private Temperature(float min, float max) {
 		this.min = min;

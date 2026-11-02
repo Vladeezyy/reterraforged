@@ -12,19 +12,19 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 
 public class RiverCarver implements Comparable<RiverCarver> {
     public final boolean main;
-    private float fade;
+    private final float fade;
     private final float fadeInv;
-    private Range bedWidth;
+    private final Range bedWidth;
     private final Range banksWidth;
-    private Range valleyWidth;
-    private Range bedDepth;
+    private final Range valleyWidth;
+    private final Range bedDepth;
     private final Range banksDepth;
     private final float waterLine;
     // RiverConfig: the steepest valley side (height per block, 0: no limit), the squared distance it reaches, and a
     // valley along the meandering river only
-    private float valleySlope;
+    private final float valleySlope;
     private final float valleyReach2;
-    private boolean valleyFollowsMeanders;
+    private final boolean valleyFollowsMeanders;
     public final River river;
     public final RiverWarp warp;
     public final RiverConfig config;
