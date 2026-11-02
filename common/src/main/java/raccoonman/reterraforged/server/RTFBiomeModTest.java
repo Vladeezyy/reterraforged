@@ -65,7 +65,7 @@ public final class RTFBiomeModTest {
 
 	// the vanilla biome table bands of a climate point: temperature 0-4, humidity 0-4, continentalness 0-6 (mushroom
 	// fields, deep ocean, ocean, coast, near, mid, far inland), erosion 0-6, weirdness 0-7 (valley 4 and 5 around 0)
-	private static int[] bands(Climate.TargetPoint point) {
+	static int[] bands(Climate.TargetPoint point) {
 		return new int[] {
 			band(point.temperature(), -0.45F, -0.15F, 0.2F, 0.55F),
 			band(point.humidity(), -0.35F, -0.1F, 0.1F, 0.3F),
