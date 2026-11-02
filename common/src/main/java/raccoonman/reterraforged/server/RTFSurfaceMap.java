@@ -145,7 +145,7 @@ public final class RTFSurfaceMap {
 
 	// the nearest dry place of the biome, nearest ring first, heights from the generator's cells: getBaseHeight builds a
 	// whole noise chunk for every point (minutes for a biome a few kilometres away)
-	private static BlockPos find(ServerLevel level, ResourceKey<Biome> key, int radius) {
+	static BlockPos find(ServerLevel level, ResourceKey<Biome> key, int radius) {
 		GeneratorContext ctx = ((RTFRandomState) (Object) level.getChunkSource().randomState()).generatorContext();
 		Cell cell = new Cell();
 		BlockPos spawn = level.getSharedSpawnPos();
