@@ -6,10 +6,10 @@ import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.ArchipelagoPopulator;
 
 public class IslandBlender implements CellPopulator {
-	private CellPopulator baseTerrain;
-	private ArchipelagoPopulator archipelago;
+	private final CellPopulator baseTerrain;
+	private final ArchipelagoPopulator archipelago;
 	@SuppressWarnings("unused")
-	private Levels levels;
+	private final Levels levels;
 	
 	public IslandBlender(CellPopulator baseTerrain, ArchipelagoPopulator archipelago, Levels levels) {
 		this.baseTerrain = baseTerrain;

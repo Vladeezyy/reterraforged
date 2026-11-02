@@ -11,8 +11,8 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class FastPoisson {
     public static final ThreadLocal<FastPoisson> LOCAL_POISSON = ThreadLocal.withInitial(FastPoisson::new);
-    private LongList chunk;
-    private LongIterSet region;
+    private final LongList chunk;
+    private final LongIterSet region;
     
     public FastPoisson() {
         this.chunk = new LongArrayList();

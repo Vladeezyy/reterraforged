@@ -13,10 +13,10 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class FancyContinentGenerator implements Continent {
-    private float frequency;
+    private final float frequency;
     private Domain warp;
-    private FancyContinent source;
-    private RiverCache riverCache;
+    private final FancyContinent source;
+    private final RiverCache riverCache;
     
     public FancyContinentGenerator(Seed seed, GeneratorContext context) {
         WorldSettings settings = context.preset.world();

@@ -31,7 +31,7 @@ public enum Order implements StringRepresentable {
 
 	public static final Codec<Order> CODEC = StringRepresentable.fromEnum(Order::values);
 	
-	private String name;
+	private final String name;
 	
 	private Order(String name) {
 		this.name = name;

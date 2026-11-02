@@ -13,9 +13,9 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class TileCache implements TileFactory {
 	private int tileSize;
-	private boolean queue;
-	private Cache<CacheEntry<Entry>> cache;
-	private TileGenerator generator;
+	private final boolean queue;
+	private final Cache<CacheEntry<Entry>> cache;
+	private final TileGenerator generator;
 	
 	public TileCache(int tileSize, boolean queue, TileGenerator generator) {
 		this.tileSize = tileSize;
@@ -71,9 +71,9 @@ public class TileCache implements TileFactory {
 	}
 	
 	private class Entry {
-		private AtomicInteger refCount;
-		private int chunkCount;
-		private Tile tile;
+		private final AtomicInteger refCount;
+		private final int chunkCount;
+		private final Tile tile;
 		
 		public Entry(Tile tile) {
 			int tileSize = tile.getChunksSize().size();

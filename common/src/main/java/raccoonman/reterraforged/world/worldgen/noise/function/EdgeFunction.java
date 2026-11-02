@@ -118,7 +118,7 @@ public enum EdgeFunction implements StringRepresentable {
 
 	public static final Codec<EdgeFunction> CODEC = StringRepresentable.fromEnum(EdgeFunction::values);
 
-	private String name;
+	private final String name;
 
 	private EdgeFunction(String name) {
 		this.name = name;

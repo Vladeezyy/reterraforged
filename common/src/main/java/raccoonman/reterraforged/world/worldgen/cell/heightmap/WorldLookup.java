@@ -10,11 +10,11 @@ public class WorldLookup {
 	// "rtf heights" (RTFWorldChecks.heights): on this thread the cells are computed, never taken from a cached tile, so
 	// the estimate is the same whichever chunks were generated before
 	private static volatile Thread rawThread;
-	private float waterLevel;
-	private float beachLevel;
-	private TileCache cache;
-	private Heightmap heightmap;
-	private Levels levels;
+	private final float waterLevel;
+	private final float beachLevel;
+	private final TileCache cache;
+	private final Heightmap heightmap;
+	private final Levels levels;
 	
 	public WorldLookup(GeneratorContext context) {
 		this.cache = context.cache;

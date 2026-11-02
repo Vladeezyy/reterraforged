@@ -13,22 +13,22 @@ public class River {
     public static final Variance MAIN_SPACING = Variance.of(0.1F, 0.25F);
     public static final Variance FORK_SPACING = Variance.of(0.25F, 0.25F);
 
-    public float x1;
-    public float z1;
-    public float x2;
-    public float z2;
-    public float dx;
-    public float dz;
-    public float ndx;
-    public float ndz;
-    public float normX;
-    public float normZ;
-    public float length;
-    public float length2;
-    public float minX;
-    public float minZ;
-    public float maxX;
-    public float maxZ;
+    public final float x1;
+    public final float z1;
+    public final float x2;
+    public final float z2;
+    public final float dx;
+    public final float dz;
+    public final float ndx;
+    public final float ndz;
+    public final float normX;
+    public final float normZ;
+    public final float length;
+    public final float length2;
+    public final float minX;
+    public final float minZ;
+    public final float maxX;
+    public final float maxZ;
     
     public River(float x1, float z1, float x2, float z2) {
         this(x1, z1, x2, z2, 275.0F);

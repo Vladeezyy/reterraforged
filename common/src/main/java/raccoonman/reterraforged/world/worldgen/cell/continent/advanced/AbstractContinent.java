@@ -11,14 +11,14 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public abstract class AbstractContinent implements SimpleContinent {
-    protected int seed;
-    protected int skippingSeed;
+    protected final int seed;
+    protected final int skippingSeed;
     protected int continentScale;
-    protected float jitter;
-    protected boolean hasSkipping;
-    protected float skipThreshold;
-    protected RiverCache riverCache;
-    protected ControlPoints controlPoints;
+    protected final float jitter;
+    protected final boolean hasSkipping;
+    protected final float skipThreshold;
+    protected final RiverCache riverCache;
+    protected final ControlPoints controlPoints;
     
     public AbstractContinent(Seed seed, GeneratorContext context) {
         WorldSettings settings = context.preset.world();

@@ -2,16 +2,16 @@ package raccoonman.reterraforged.world.worldgen.cell.heightmap;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
-public class Levels {
-    public int worldHeight;
-    public float unit;
-    public int waterY;
-    private int groundY;
-    public int groundLevel;
-    public int waterLevel;
-    public float ground;
-    public float water;
-    private float elevationRange;
+public final class Levels {
+    public final int worldHeight;
+    public final float unit;
+    public final int waterY;
+    private final int groundY;
+    public final int groundLevel;
+    public final int waterLevel;
+    public final float ground;
+    public final float water;
+    private final float elevationRange;
     
     public Levels(int height, int seaLevel) {
         this.worldHeight = Math.max(1, height);

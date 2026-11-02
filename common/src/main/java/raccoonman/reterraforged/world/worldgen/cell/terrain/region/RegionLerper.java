@@ -5,8 +5,8 @@ import raccoonman.reterraforged.world.worldgen.cell.CellPopulator;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public class RegionLerper implements CellPopulator {
-    private CellPopulator lower;
-    private CellPopulator upper;
+    private final CellPopulator lower;
+    private final CellPopulator upper;
     
     public RegionLerper(CellPopulator lower, CellPopulator upper) {
         this.lower = lower;
