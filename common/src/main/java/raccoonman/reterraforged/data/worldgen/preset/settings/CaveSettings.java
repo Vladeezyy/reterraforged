@@ -61,7 +61,7 @@ public class CaveSettings {
 
 		public static final Codec<CompatibilityMode> CODEC = StringRepresentable.fromEnum(CompatibilityMode::values);
 
-		private String name;
+		private final String name;
 
 		private CompatibilityMode(String name) {
 			this.name = name;

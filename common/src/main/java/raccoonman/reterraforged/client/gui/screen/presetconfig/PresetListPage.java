@@ -55,7 +55,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private Button openExportFolder;
 	// selected when the list is shown: the preset whose settings pages "<<" came back from
 	@Nullable
-	private String selectName;
+	private final String selectName;
 	@Nullable
 	private PresetEntry selected;
 	
@@ -259,9 +259,9 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	}
 	
 	public static class PresetEntry extends Label {
-		private Component name;
-		private Preset preset;
-		private boolean builtin;
+		private final Component name;
+		private final Preset preset;
+		private final boolean builtin;
 		
 		public PresetEntry(Component name, Preset preset, boolean builtin, OnPress onPress) {
 			super(-1, -1, -1, -1, onPress, name);
