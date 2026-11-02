@@ -35,10 +35,10 @@ public class RiverSettings {
 	
     public int seedOffset;
     public int riverCount;
-    public River mainRivers;
-    public River branchRivers;
-    public Lake lakes;
-    public Wetland wetlands;
+    public final River mainRivers;
+    public final River branchRivers;
+    public final Lake lakes;
+    public final Wetland wetlands;
     public boolean branchSizeFromMain = true;
     // how wide the valleys of the rivers and lakes are, times their width in 0.0.6
     public float valleyWidth = 1.0F;

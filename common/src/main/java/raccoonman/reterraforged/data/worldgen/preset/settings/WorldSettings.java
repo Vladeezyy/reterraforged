@@ -13,9 +13,9 @@ public class WorldSettings {
 		Properties.CODEC.fieldOf("properties").forGetter((o) -> o.properties)
 	).apply(instance, WorldSettings::new));
 	
-    public Continent continent;
-    public ControlPoints controlPoints;
-    public Properties properties;
+    public final Continent continent;
+    public final ControlPoints controlPoints;
+    public final Properties properties;
     
     public WorldSettings(Continent continent, ControlPoints controlPoints, Properties properties) {
         this.continent = continent;

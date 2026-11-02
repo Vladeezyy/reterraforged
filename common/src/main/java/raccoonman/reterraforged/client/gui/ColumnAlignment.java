@@ -6,14 +6,14 @@ import net.minecraft.client.gui.screens.Screen;
 import raccoonman.reterraforged.mixin.ScreenInvoker;
 
 public class ColumnAlignment {
-	private Screen parent;
-	private int horizontalPadding;
-	private int verticalPadding;
-	private int horizontalMargin;
-	private int verticalMargin;
+	private final Screen parent;
+	private final int horizontalPadding;
+	private final int verticalPadding;
+	private final int horizontalMargin;
+	private final int verticalMargin;
 	private int left;
 	
-	private int leftInset;
+	private final int leftInset;
 
 	// leftInset: width kept free on the left of the columns (the tabs of the preset screen)
 	public ColumnAlignment(Screen parent, int horizontalPadding, int verticalPadding, int horizontalMargin, int verticalMargin, int leftInset) {

@@ -9,8 +9,8 @@ public class FilterSettings {
 		Smoothing.CODEC.fieldOf("smoothing").forGetter((o) -> o.smoothing)
 	).apply(instance, FilterSettings::new));
 	
-    public Erosion erosion;
-    public Smoothing smoothing;
+    public final Erosion erosion;
+    public final Smoothing smoothing;
     
     public FilterSettings(Erosion erosion, Smoothing smoothing) {
     	this.erosion = erosion;

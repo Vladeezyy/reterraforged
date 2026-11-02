@@ -17,16 +17,16 @@ public class TerrainSettings {
 		Terrain.CODEC.fieldOf("volcano").forGetter((o) -> o.volcano)		
 	).apply(instance, TerrainSettings::new));
 	
-    public General general;
-    public Terrain steppe;
-    public Terrain plains;
-    public Terrain hills;
-    public Terrain dales;
-    public Terrain plateau;
-    public Terrain badlands;
-    public Terrain torridonian;
-    public Terrain mountains;
-    public Terrain volcano;
+    public final General general;
+    public final Terrain steppe;
+    public final Terrain plains;
+    public final Terrain hills;
+    public final Terrain dales;
+    public final Terrain plateau;
+    public final Terrain badlands;
+    public final Terrain torridonian;
+    public final Terrain mountains;
+    public final Terrain volcano;
     
     public TerrainSettings(General general, Terrain steppe, Terrain plains, Terrain hills, Terrain dales, Terrain plateau, Terrain badlands, Terrain torridonian, Terrain mountains, Terrain volcano) {
     	this.general = general;

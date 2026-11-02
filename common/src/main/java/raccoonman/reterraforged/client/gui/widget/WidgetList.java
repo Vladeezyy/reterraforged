@@ -127,7 +127,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     public static class Entry<T extends AbstractWidget> extends ContainerObjectSelectionList.Entry<Entry<T>> {
-        private T widget;
+        private final T widget;
 
         public Entry(T widget) {
             this.widget = widget;

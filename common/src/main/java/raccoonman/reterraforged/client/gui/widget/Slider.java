@@ -13,10 +13,10 @@ import net.minecraft.util.Mth;
 public class Slider extends AbstractSliderButton {
     private double min;
     private double max;
-	private Component name;
-	private Format format;
+	private final Component name;
+	private final Format format;
 	@Nullable
-	private Callback callback;
+	private final Callback callback;
 	// the value as shown, with its unit ("64 blocks", "Y 63"); without one the plain number
 	@Nullable
 	private Function<String, Component> valueText;
