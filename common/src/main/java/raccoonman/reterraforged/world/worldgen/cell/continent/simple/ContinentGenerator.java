@@ -23,15 +23,15 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 public abstract class ContinentGenerator implements SimpleContinent {
     protected final int seed;
     protected final float frequency;
-    protected int continentScale;
+    protected final int continentScale;
     private final DistanceFunction distanceFunc;
     private final ControlPoints controlPoints;
     private final float clampMin;
     private final float clampMax;
     private final float clampRange;
     private final float offsetAlpha;
-    protected Domain warp;
-    protected Noise shape;
+    protected final Domain warp;
+    protected final Noise shape;
     protected final RiverCache cache;
     
     public ContinentGenerator(Seed seed, GeneratorContext context) {
@@ -66,6 +66,26 @@ public abstract class ContinentGenerator implements SimpleContinent {
     
     @Override
     public void apply(Cell cell, float x, float y) {
+        this.locate(cell, x, y);
+    }
+    
+    // a fresh cell for the answer (river generation and the climate's land value ask these, not every cell)
+    @Override
+    public float getEdgeValue(float x, float y) {
+        Cell cell = new Cell();
+        this.locate(cell, x, y);
+        return cell.continentEdge;
+    }
+    
+    @Override
+    public long getNearestCenter(float x, float z) {
+        Cell cell = new Cell();
+        this.locate(cell, x, z);
+        return PosUtil.pack(cell.continentX, cell.continentZ);
+    }
+    
+    // the nearest continent cell: its id, center and edge value (SingleContinentGenerator.apply overrides apply, not this)
+    private void locate(Cell cell, float x, float y) {
         float ox = this.warp.getOffsetX(x, y, 0);
         float oz = this.warp.getOffsetZ(x, y, 0);
         float px = x + ox;
@@ -106,73 +126,6 @@ public abstract class ContinentGenerator implements SimpleContinent {
         cell.continentX = (int) (centerX / this.frequency);
         cell.continentZ = (int) (centerY / this.frequency);
         cell.continentEdge *= this.getShape(x, y, cell.continentEdge);
-    }
-    
-    @Override
-    public float getEdgeValue(float x, float y) {
-        float ox = this.warp.getOffsetX(x, y, 0);
-        float oz = this.warp.getOffsetZ(x, y, 0);
-        float px = x + ox;
-        float py = y + oz;
-        px *= this.frequency;
-        py *= this.frequency;
-        int xr = NoiseUtil.floor(px);
-        int yr = NoiseUtil.floor(py);
-        float edgeDistance = 999999.0F;
-        float edgeDistance2 = 999999.0F;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                int cx = xr + dx;
-                int cy = yr + dy;
-                Vec2f vec = NoiseUtil.cell(this.seed, cx, cy);
-                float cxf = cx + vec.x() * this.offsetAlpha;
-                float cyf = cy + vec.y() * this.offsetAlpha;
-                float distance = this.distanceFunc.apply(cxf - px, cyf - py);
-                if (distance < edgeDistance) {
-                    edgeDistance2 = edgeDistance;
-                    edgeDistance = distance;
-                }
-                else if (distance < edgeDistance2) {
-                    edgeDistance2 = distance;
-                }
-            }
-        }
-        float edgeValue = this.cellEdgeValue(edgeDistance, edgeDistance2);
-        float shapeNoise = this.getShape(x, y, edgeValue);
-        return edgeValue * shapeNoise;
-    }
-    
-    @Override
-    public long getNearestCenter(float x, float z) {
-        float ox = this.warp.getOffsetX(x, z, 0);
-        float oz = this.warp.getOffsetZ(x, z, 0);
-        float px = x + ox;
-        float py = z + oz;
-        px *= this.frequency;
-        py *= this.frequency;
-        float centerX = px;
-        float centerY = py;
-        int xr = NoiseUtil.floor(px);
-        int yr = NoiseUtil.floor(py);
-        float edgeDistance = 999999.0F;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                int cx = xr + dx;
-                int cy = yr + dy;
-                Vec2f vec = NoiseUtil.cell(this.seed, cx, cy);
-                float cxf = cx + vec.x() * this.offsetAlpha;
-                float cyf = cy + vec.y() * this.offsetAlpha;
-                float distance = this.distanceFunc.apply(cxf - px, cyf - py);
-                if (distance < edgeDistance) {
-                    edgeDistance = distance;
-                    centerX = cxf;
-                    centerY = cyf;
-                }
-            }
-        }
-        int conX = (int)(centerX / this.frequency);
-        int conZ = (int)(centerY / this.frequency);
-        return PosUtil.pack(conX, conZ);
     }
     
     @Override
