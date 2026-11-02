@@ -14,7 +14,7 @@ public class RiverWarp {
     private final float lowerRange;
     private final float upperRange;
     private final float frequency;
-    private float scale;
+    private final float scale;
     
     public RiverWarp(int seed, float lower, float upper, float frequency, float scale) {
         this.seed = seed;

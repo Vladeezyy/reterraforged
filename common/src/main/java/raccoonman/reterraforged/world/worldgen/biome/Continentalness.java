@@ -9,8 +9,8 @@ public enum Continentalness implements BiomeParameter {
 	MID_INLAND(0.03F, 0.3F),
 	FAR_INLAND(0.3F, 1.0F);
 
-	private float min;
-	private float max;
+	private final float min;
+	private final float max;
 	
 	private Continentalness(float min, float max) {
 		this.min = min;

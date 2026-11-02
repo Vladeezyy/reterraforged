@@ -95,7 +95,7 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 		@Nullable
 		private final Tile.Chunk chunk;
 		private final Cache2d cache2d;
-		private int chunkX, chunkZ;
+		private final int chunkX, chunkZ;
 		
 		public CacheChunk(@Nullable Tile.Chunk chunk, @Nullable Cache2d cache2d, int chunkX, int chunkZ) {
 			this.chunk = chunk;

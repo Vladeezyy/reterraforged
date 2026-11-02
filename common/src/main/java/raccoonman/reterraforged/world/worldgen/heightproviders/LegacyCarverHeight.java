@@ -16,7 +16,7 @@ public class LegacyCarverHeight extends HeightProvider {
 		Codec.INT.fieldOf("variation_range").forGetter((h) -> h.variationRange)
 	).apply(instance, LegacyCarverHeight::new));
 	
-	private int min;
+	private final int min;
 	private final int variationMin;
 	private final int variationRange;
 	

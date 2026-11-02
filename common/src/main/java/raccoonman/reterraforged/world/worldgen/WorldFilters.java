@@ -14,10 +14,10 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Steep
 public class WorldFilters {
     private final Smoothing smoothing;
     private final Steepness steepness;
-    private BeachDetect beach;
+    private final BeachDetect beach;
     private final NoiseCorrection corrections;
     private final FilterSettings settings;
-    private WorldErosion<Erosion> erosion;
+    private final WorldErosion<Erosion> erosion;
     private final int erosionIterations;
     private final int smoothingIterations;
     

@@ -2,7 +2,7 @@ package raccoonman.reterraforged.world.worldgen.cell.terrain;
 
 public class CompositeTerrain extends Terrain {
     private final boolean flat;
-    private float erosion;
+    private final float erosion;
     
     CompositeTerrain(int id, Terrain a, Terrain b) {
         super(id, a.getName() + "-" + b.getName(), getDominant(a, b));

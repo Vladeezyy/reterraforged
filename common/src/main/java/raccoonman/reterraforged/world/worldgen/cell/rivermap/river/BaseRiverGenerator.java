@@ -22,18 +22,18 @@ import raccoonman.reterraforged.world.worldgen.util.Variance;
 
 public abstract class BaseRiverGenerator<T extends Continent> implements RiverGenerator {
     protected final int count;
-    protected int continentScale;
+    protected final int continentScale;
     protected final float minEdgeValue;
     protected final int seed;
     protected final LakeConfig lake;
     protected final RiverConfig main;
-    protected RiverConfig fork;
+    protected final RiverConfig fork;
     protected final WetlandConfig wetland;
     // false: the branch rivers that leave a main river have the sizes of the branch river sliders (their own branches
     // narrow down from them); true: the size of the main river where they meet it, as in TerraForged
-    protected boolean branchSizeFromMain;
+    protected final boolean branchSizeFromMain;
     // the percent of valleys that are gorges (RiverSettings.gorgeChance)
-    protected int gorgeChance;
+    protected final int gorgeChance;
     protected final T continent;
     protected final Levels levels;
     
