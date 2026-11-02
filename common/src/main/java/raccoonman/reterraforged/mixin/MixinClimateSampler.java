@@ -1,5 +1,11 @@
 package raccoonman.reterraforged.mixin;
 
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+
+import raccoonman.reterraforged.world.worldgen.biome.SwampHeights;
+
 import java.util.function.BiPredicate;
 
 import org.jetbrains.annotations.Nullable;
@@ -33,5 +39,11 @@ class MixinClimateSampler {
 	@Nullable
 	public BiPredicate<Integer, Integer> reterraforged$RTFClimateSampler$getSpawnWater() {
 		return this.spawnWater;
+	}
+
+	// Highest Swamps: the erosion offset while a swamp is picked again (SwampHeights), the point as it is otherwise
+	@ModifyReturnValue(method = "sample", at = @At("RETURN"))
+	private Climate.TargetPoint sample(Climate.TargetPoint point) {
+		return SwampHeights.offset(point);
 	}
 }

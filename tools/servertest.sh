@@ -232,7 +232,7 @@ for loader in $LOADERS; do
         echo "rtf swamps" >> "$dir/console.in"
         wait_for "$dir/console.log" 'RTF swamps\] [0-9F]' 1200
         grep -o 'RTF swamps\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-400 | sed 's/^/  /'
-        cp "$dir/rtf-swamps.txt" "run/swamps-$loader.txt" 2>/dev/null
+        cp "$dir/rtf-swamps.txt" "run/swamps-$loader.txt" 2>/dev/null; cp "$dir/rtf-swamps.png" "run/swamps-$loader.png" 2>/dev/null
     fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
     if [ -n "$TILEBENCH" ]; then

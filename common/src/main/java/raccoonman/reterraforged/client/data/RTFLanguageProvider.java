@@ -183,6 +183,10 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS), "On: the valley follows the river's meanders. Off (as in ReTerraForged 0.0.6): it also follows the straight line the river meanders around, so where the river bends away a dry valley floor is left beside it.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_WARM_RAINFOREST_OCEANS, "Warm Oceans by Rainforests");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_WARM_RAINFOREST_OCEANS), "On: the oceans of tropical rainforest regions are warm oceans (with coral reefs), as those of deserts. Off (as in ReTerraForged 0.0.6): lukewarm oceans, as next to jungles in vanilla.");
+			this.add(RTFTranslationKeys.GUI_SLIDER_LOWLAND_SWAMPS, "Lowland Swamps");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_LOWLAND_SWAMPS), "Wet, not cold, flat land up to this many blocks above the sea gets the climate of swamps, as vanilla's flat lowlands do, so swamps (and the biome mods' swamps) can be wide enough for big swamp structures. Off (as in ReTerraForged 0.0.6): only the wetlands along the rivers are swamps.");
+			this.add(RTFTranslationKeys.GUI_SLIDER_SWAMP_MAX_HEIGHT, "Highest Swamps");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SWAMP_MAX_HEIGHT), "A swamp biome more than this many blocks above the sea is replaced by the biome a rougher place there would have. Biome mods such as Terralith put their swamps on hills in ReTerraForged worlds. Off: no limit.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN, "Branch Size From Main River");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BRANCH_SIZE_FROM_MAIN), "On: branch rivers take the size of the river they branch from where they meet it, as in TerraForged; the branch river sliders above (except Fade) are not used. Off: branch rivers have the bed and bank sizes of these sliders.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION, "Plain Stone Erosion");

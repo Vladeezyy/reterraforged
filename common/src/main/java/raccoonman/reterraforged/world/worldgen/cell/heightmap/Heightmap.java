@@ -9,6 +9,8 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.biome.Erosion;
+import raccoonman.reterraforged.world.worldgen.biome.Humidity;
+import raccoonman.reterraforged.world.worldgen.biome.Temperature;
 import raccoonman.reterraforged.world.worldgen.biome.Weirdness;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.CellPopulator;
@@ -20,6 +22,7 @@ import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Blender;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.IslandBlender;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Populators;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainCategory;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.fakewater.FakeWaterBiomeResolver;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.ArchipelagoPopulator;
@@ -35,7 +38,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask) {
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop) {
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyTerrain(cell, x, z);
@@ -108,6 +111,14 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         }
         
         this.climate.apply(cell, x, z, applyClimate);
+        // Lowland Swamps (ClimateSettings.lowlandSwamps): wet, not cold, flat or rolling land a few blocks above the
+        // sea gets the swamps' climate as vanilla's flat lowlands do (the highest erosion, a valley's weirdness), so the
+        // swamps can be wide; the climate is from the height before the tile's erosion, the same with and without tiles
+        if (applyClimate && cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && isLowland(cell)
+        	&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min()) {
+        	cell.erosion = Erosion.LEVEL_6.mid();
+        	cell.weirdness = Weirdness.VALLEY.mid();
+        }
         this.fakeWaterBiomeResolver.apply(cell);
 
         if(cell.riverMask >= riverValleyThreshold && cell.macroBiomeId > 0.5F) { 
@@ -115,6 +126,11 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         }
 	}
 	
+	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
+	private static boolean isLowland(Cell cell) {
+		return (cell.terrain.getDelegate() == TerrainCategory.FLATLAND || cell.terrain.getDelegate() == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
+	}
+
 	public static Heightmap make(GeneratorContext ctx) {
     	HolderGetter<Noise> noiseLookup = ctx.noiseLookup;
     	
@@ -177,7 +193,10 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         FakeWaterBiomeResolver fakeWaterBiomeResolver = new FakeWaterBiomeResolver(ctx.preset.fakeWaterBiomes(), ctx.levels);
         // large patches, about the size of a mountain range; its own seed, so the other noises keep theirs
         Noise mountainBiomeMask = Noises.perlin(ctx.seed.offset(5781).next(), 700, 2);
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask);
+        // off: no height is at most the water's
+        int lowlandSwamps = preset.climate().lowlandSwamps;
+        float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop);
 	}
 
 	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above

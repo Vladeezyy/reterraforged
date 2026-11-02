@@ -92,6 +92,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_EROSION_DECORATOR = resolve("gui.button.erosionDecorator");
 	public static final String GUI_BUTTON_PLAIN_STONE_EROSION = resolve("gui.button.stoneErosion");
 	public static final String GUI_BUTTON_WARM_RAINFOREST_OCEANS = resolve("gui.button.warmRainforestOceans");
+	public static final String GUI_SLIDER_LOWLAND_SWAMPS = resolve("gui.slider.lowlandSwamps");
+	public static final String GUI_SLIDER_SWAMP_MAX_HEIGHT = resolve("gui.slider.swampMaxHeight");
 	public static final String GUI_BUTTON_BRANCH_SIZE_FROM_MAIN = resolve("gui.button.branchSizeFromMain");
 	public static final String GUI_BUTTON_VALLEY_FOLLOWS_MEANDERS = resolve("gui.button.valleyFollowsMeanders");
 	public static final String GUI_BUTTON_NATURAL_SNOW_DECORATOR = resolve("gui.button.naturalSnowDecorator");
