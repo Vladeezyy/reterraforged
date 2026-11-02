@@ -32,7 +32,6 @@ public class RTFPlacementModifiers {
 		 return new FastPoissonModifier(radius, scale, jitter, biomeFade, densityVariationScale, densityVariation);
 	}
     
-    @Deprecated
     public static LegacyCountExtraModifier countExtra(int count, float extraChance, int extraCount) {
     	return new LegacyCountExtraModifier(count, extraChance, extraCount);
     }

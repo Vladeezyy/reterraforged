@@ -74,7 +74,6 @@ public record BushFeature(BushFeature.Config config) implements Feature {
 	}
 
     private boolean place(LevelAccessor world, BlockPos.MutableBlockPos center, BlockPos.MutableBlockPos pos, RandomSource random, Config config) {
-//        center.setY(world.getHeight(Heightmap.Types.WORLD_SURFACE, center.getX(), center.getZ()));
 
         // don't replace solid blocks
         if (!BlockUtils.canTreeReplace(world, center)) {

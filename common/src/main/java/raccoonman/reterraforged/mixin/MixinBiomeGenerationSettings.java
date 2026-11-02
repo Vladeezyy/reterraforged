@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 //TODO do this with access wideners instead
-@Deprecated
 @Mixin(BiomeGenerationSettings.class)
 public interface MixinBiomeGenerationSettings {
 	@Accessor
