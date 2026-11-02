@@ -3,11 +3,11 @@ package raccoonman.reterraforged.world.worldgen.cell.continent.advanced;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.cell.continent.ContinentDistances;
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 import raccoonman.reterraforged.world.worldgen.cell.continent.simple.SimpleRiverGenerator;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.RiverCache;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
-import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public abstract class AbstractContinent implements SimpleContinent {
@@ -34,58 +34,12 @@ public abstract class AbstractContinent implements SimpleContinent {
     
     @Override
     public float getDistanceToOcean(int cx, int cz, float dx, float dz) {
-        float high = this.getDistanceToEdge(cx, cz, dx, dz);
-        float low = 0.0F;
-        for (int i = 0; i < 50; ++i) {
-            float mid = (low + high) / 2.0F;
-            float x = cx + dx * mid;
-            float z = cz + dz * mid;
-            float edge = this.getEdgeValue(x, z);
-            if (edge > this.controlPoints.shallowOcean) {
-                low = mid;
-            } else {
-                high = mid;
-            }
-            if (high - low < 10.0F) {
-                break;
-            }
-        }
-        return high;
+        return ContinentDistances.toOcean(this, this.controlPoints.shallowOcean, cx, cz, dx, dz);
     }
     
     @Override
     public float getDistanceToEdge(int cx, int cz, float dx, float dz) {
-        float distance = (float)(this.continentScale * 4);
-        for (int i = 0; i < 10; ++i) {
-            float x = cx + dx * distance;
-            float z = cz + dz * distance;
-            long centerPos = this.getNearestCenter(x, z);
-            int conX = PosUtil.unpackLeft(centerPos);
-            int conZ = PosUtil.unpackRight(centerPos);
-            distance += distance;
-            if (conX != cx || conZ != cz) {
-                float low = 0.0f;
-                float high = distance;
-                for (int j = 0; j < 50; ++j) {
-                    float mid = (low + high) / 2.0F;
-                    float px = cx + dx * mid;
-                    float pz = cz + dz * mid;
-                    centerPos = this.getNearestCenter(px, pz);
-                    conX = PosUtil.unpackLeft(centerPos);
-                    conZ = PosUtil.unpackRight(centerPos);
-                    if (conX == cx && conZ == cz) {
-                        low = mid;
-                    } else {
-                        high = mid;
-                    }
-                    if (high - low < 50.0F) {
-                        break;
-                    }
-                }
-                return high;
-            }
-        }
-        return distance;
+        return ContinentDistances.toEdge(this, this.continentScale, cx, cz, dx, dz);
     }
 
     protected boolean isDefaultContinent(int cellX, int cellY) {

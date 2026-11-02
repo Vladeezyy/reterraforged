@@ -1,6 +1,14 @@
 package raccoonman.reterraforged.world.worldgen.feature.chance;
 
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 
 public abstract class RangeChanceModifier implements ChanceModifier {
 	protected final float from;
@@ -21,7 +29,7 @@ public abstract class RangeChanceModifier implements ChanceModifier {
     }
 
     private float apply(float value) {
-    	float max = this.exclusive ? 0 : 1;;
+    	float max = this.exclusive ? 0 : 1;
     	float range = Math.abs(max - this.from);
         if (this.from < this.to) {
             if (value <= this.from) {
@@ -41,5 +49,24 @@ public abstract class RangeChanceModifier implements ChanceModifier {
             return 1 - ((value - this.to) / range);
         }
         return 0F;
+    }
+
+    /** The cell of the world's tile at the feature's origin (only ReTerraForged worlds place these modifiers) */
+    protected static Cell cellAt(GeneratorContext generatorContext, BlockPos pos) {
+        int x = pos.getX();
+        int z = pos.getZ();
+        int chunkX = SectionPos.blockToSectionCoord(x);
+        int chunkZ = SectionPos.blockToSectionCoord(z);
+        Tile.Chunk chunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
+        return chunk.getCell(x, z);
+    }
+
+    protected static GeneratorContext generatorContext(FeaturePlaceContext<?> placeCtx) {
+        @Nullable
+        GeneratorContext generatorContext;
+        if((Object) placeCtx.level().getLevel().getChunkSource().randomState() instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
+            return generatorContext;
+        }
+        throw new UnsupportedOperationException();
     }
 }
