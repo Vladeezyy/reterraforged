@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.server;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,18 +8,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.RandomState;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+import raccoonman.reterraforged.world.worldgen.biome.SwampHeights;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 
@@ -26,17 +27,17 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
  * "rtf swamps" (with -Drtf.selftest=true, tools/servertest.sh SWAMPS=1, with MODS=... for other mods' swamps): where
  * the swamp biomes are (issue #28: the swamps of the biome mods along the rivers, too narrow for big swamp structures,
  * and swamps up on high ground). Samples the biome at the surface on a 16 x 16 km grid every 64 blocks from the
- * generator. For each swamp biome (tagged c:is_swamp or named like one): its share of the land, how much of it lies in
+ * generator. For each swamp biome (SwampHeights.isSwamp: tagged c:is_swamp or named like one): its share of the land, how much of it lies in
  * river valleys (the river mask under the valley threshold) and on wetland terrain against the land as a whole, its
  * height above the sea, how much of it is wide (the 8 neighbours 64 blocks away the same biome: room for a big
- * structure) and the climate bands it comes from. Writes rtf-swamps.txt and prints "[RTF swamps] ...".
+ * structure) and the climate bands it comes from. Writes rtf-swamps.txt, rtf-swamps.png (one pixel a point: sea blue,
+ * river valleys grey-green, land pale, swamps dark green, swamps more than 20 blocks above the sea orange) and prints
+ * "[RTF swamps] ...".
  */
 public final class RTFSwampTest {
 	private static final int RADIUS = 8192, STEP = 64;
 	// Heightmap.applyRivers: below this river mask the cell is in a river's valley (its erosion and weirdness set)
 	private static final float VALLEY = 0.675F;
-	private static final TagKey<Biome> IS_SWAMP = TagKey.create(Registries.BIOME, ResourceLocation.parse("c:is_swamp"));
-	private static final String[] SWAMP_NAMES = { "swamp", "marsh", "bayou", "bog", "fen", "mire", "wetland", "mangrove", "moor" };
 
 	private RTFSwampTest() {
 	}
@@ -56,15 +57,10 @@ public final class RTFSwampTest {
 		}
 	}
 
-	private static boolean swamp(Holder<Biome> biome) {
-		if (biome.is(IS_SWAMP)) {
-			return true;
-		}
-		String path = biome.unwrapKey().map((k) -> k.location().getPath()).orElse("");
-		for (String n : SWAMP_NAMES) {
-			if (path.contains(n)) return true;
-		}
-		return false;
+	// land: lighter higher up
+	private static int grey(int aboveSea) {
+		int v = Math.max(120, Math.min(245, 245 - aboveSea));
+		return v << 16 | v << 8 | (v - 10);
 	}
 
 	private static String test(MinecraftServer server) throws IOException {
@@ -77,6 +73,7 @@ public final class RTFSwampTest {
 		int n = RADIUS * 2 / STEP + 1;
 		String[][] grid = new String[n][n];
 		boolean[][] isSwamp = new boolean[n][n];
+		BufferedImage image = new BufferedImage(n, n, BufferedImage.TYPE_INT_RGB);
 		Cell[][] cells = new Cell[n][n];
 		Climate.TargetPoint[][] points = new Climate.TargetPoint[n][n];
 		int land = 0, landValley = 0, landWetland = 0;
@@ -85,12 +82,16 @@ public final class RTFSwampTest {
 			Cell cell = new Cell();
 			ctx.lookup.applyCell(cell, x, z, false);
 			cells[i][j] = cell;
+			// the map: sea blue, river valleys grey-green, other land pale by height, swamps dark green
+			int h = ctx.levels.scale(cell.height) - ctx.levels.waterLevel;
+			image.setRGB(i, j, cell.height <= ctx.levels.water ? 0x3d6fb8 : cell.riverMask < VALLEY ? 0x9fb39a : grey(h));
 			if (cell.height <= ctx.levels.water) continue;
 			int y = ctx.levels.scale(cell.height);
 			CellSampler.clearThreadLocalCache();
 			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, y >> 2, z >> 2);
 			grid[i][j] = biome.unwrapKey().map((k) -> k.location().toString()).orElse("?");
-			isSwamp[i][j] = swamp(biome);
+			isSwamp[i][j] = SwampHeights.isSwamp(biome);
+			if (isSwamp[i][j]) image.setRGB(i, j, h > 20 ? 0xc2410c : 0x2f5d1e);
 			points[i][j] = randomState.sampler().sample(x >> 2, y >> 2, z >> 2);
 			land++;
 			if (cell.riverMask < VALLEY) landValley++;
@@ -139,6 +140,7 @@ public final class RTFSwampTest {
 			if (top.length() < 600) top.append(" | ").append(line);
 		}
 		java.nio.file.Files.write(server.getServerDirectory().resolve("rtf-swamps.txt"), lines);
+		ImageIO.write(image, "png", server.getServerDirectory().resolve("rtf-swamps.png").toFile());
 		String r = String.format(Locale.ROOT, "[RTF swamps] %d swamp biomes, %.1f%% of the land; in river valleys %.0f%% (the land %.0f%%), wide %.0f%%%s",
 			stats.size(), 100.0 * swampTotal / land, swampTotal == 0 ? 0 : 100.0 * swampValley / swampTotal, 100.0 * landValley / land,
 			swampTotal == 0 ? 0 : 100.0 * swampWide / swampTotal, top);

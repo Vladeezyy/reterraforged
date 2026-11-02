@@ -19,7 +19,10 @@ public class Presets {
 
 	// the "Default" of ReTerraForged 0.0.6: TerraForged's default settings
 	public static Preset makeDefault() {
-		return makeLegacyDefault();
+		Preset preset = makeLegacyDefault();
+		// new presets keep the biome mods' swamps low (#28); without them all swamps are that low anyway
+		preset.climate().swampMaxHeight = 12;
+		return preset;
 	}
 
 	public static Preset makeLegacyDefault() {
