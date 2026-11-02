@@ -11,7 +11,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class FancyContinent implements RiverGenerator {
-	private Island[] islands;
+	private final Island[] islands;
 	private final FancyRiverGenerator riverGenerator;
 
 	public FancyContinent(int seed, int nodes, float radius, GeneratorContext context, FancyContinentGenerator continent) {

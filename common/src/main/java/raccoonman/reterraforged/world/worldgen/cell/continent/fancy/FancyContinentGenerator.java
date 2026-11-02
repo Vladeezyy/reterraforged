@@ -14,7 +14,7 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class FancyContinentGenerator implements Continent {
     private final float frequency;
-    private Domain warp;
+    private final Domain warp;
     private final FancyContinent source;
     private final RiverCache riverCache;
     

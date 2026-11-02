@@ -13,7 +13,7 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 public abstract class AbstractContinent implements SimpleContinent {
     protected final int seed;
     protected final int skippingSeed;
-    protected int continentScale;
+    protected final int continentScale;
     protected final float jitter;
     protected final boolean hasSkipping;
     protected final float skipThreshold;
