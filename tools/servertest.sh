@@ -26,6 +26,7 @@
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
 # TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
+# SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
@@ -223,6 +224,17 @@ for loader in $LOADERS; do
             wait_for "$dir/console.log" "RTF surfacemap\] [a-z]* $biome" 900
             grep -o "RTF surfacemap\] [a-z]* $biome.*" "$dir/console.log" | tail -1 | sed 's/^/  /'
             cp "$dir"/rtf-surfacemap-*-"${biome/:/_}".* "run/surfacemap-$loader/" 2>/dev/null
+        done
+    fi
+    # SNOWGRID="<biome> ...": "rtf snowgrid <biome> 12" for each (the snow layers on chunk edges against inside, #28),
+    # the maps copied to run/snowgrid-<loader>/
+    if [ -n "$SNOWGRID" ]; then
+        mkdir -p "run/snowgrid-$loader"
+        for biome in $SNOWGRID; do
+            echo "rtf snowgrid $biome 12" >> "$dir/console.in"
+            wait_for "$dir/console.log" "RTF snowgrid\] $biome" 900
+            grep -o "RTF snowgrid\] $biome.*" "$dir/console.log" | tail -1 | sed 's/^/  /'
+            cp "$dir"/rtf-snowgrid-"${biome/:/_}".png "run/snowgrid-$loader/" 2>/dev/null
         done
     fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
