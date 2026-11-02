@@ -14,7 +14,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 public class FeatureTemplateManager {
 	private ResourceManager resourceManager;
-	private Map<ResourceLocation, FeatureTemplate> cache;
+	private final Map<ResourceLocation, FeatureTemplate> cache;
 	
 	public FeatureTemplateManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;

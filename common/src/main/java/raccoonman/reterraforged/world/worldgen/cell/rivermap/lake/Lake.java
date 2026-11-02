@@ -9,21 +9,21 @@ import raccoonman.reterraforged.world.worldgen.util.Boundsf;
 
 public class Lake {
     protected float valley;
-    protected float valley2;
-    protected float lakeDistance2;
+    protected final float valley2;
+    protected final float lakeDistance2;
     protected float valleyDistance2;
-    protected float bankAlphaMin;
-    protected float bankAlphaMax;
-    protected float bankAlphaRange;
+    protected final float bankAlphaMin;
+    protected final float bankAlphaMax;
+    protected final float bankAlphaRange;
     private float depth;
     private float bankMin;
     private float bankMax;
     // LakeConfig: the lake's radius, the steepest valley side (height per block, 0: no limit) and how far past the
     // shore that limit reaches
-    private float lakeRadius;
-    private float slope;
-    private float slopeReach;
-    protected Vec2f center;
+    private final float lakeRadius;
+    private final float slope;
+    private final float slopeReach;
+    protected final Vec2f center;
     
     public Lake(Vec2f center, float radius, float multiplier, LakeConfig config) {
         float lake = radius * multiplier;

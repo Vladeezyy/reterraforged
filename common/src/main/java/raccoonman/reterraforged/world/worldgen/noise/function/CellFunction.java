@@ -41,7 +41,7 @@ public enum CellFunction implements StringRepresentable {
 	
 	public static final Codec<CellFunction> CODEC = StringRepresentable.fromEnum(CellFunction::values);
     
-	private String name;
+	private final String name;
 	
 	private CellFunction(String name) {
 		this.name = name;

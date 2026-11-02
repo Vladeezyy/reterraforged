@@ -36,7 +36,7 @@ public record Filter(HolderSet<Biome> biomes, Behavior behavior) {
 		
 		public static final Codec<Behavior> CODEC = StringRepresentable.fromEnum(Behavior::values);
 		
-		private String name;
+		private final String name;
 		
 		private Behavior(String name) {
 			this.name = name;

@@ -30,10 +30,10 @@ public record ConditionalFlatCache(DensityFunction function) implements MarkerFu
 	}
 	
 	public class Cache implements MarkerFunction.Mapped {
-		private int firstBlockX;
-		private int firstBlockZ;
-		private int width;
-		private float[] cache;
+		private final int firstBlockX;
+		private final int firstBlockZ;
+		private final int width;
+		private final float[] cache;
 		
 		public Cache(int firstBlockX, int firstBlockZ, int width) {
 			this.firstBlockX = firstBlockX;

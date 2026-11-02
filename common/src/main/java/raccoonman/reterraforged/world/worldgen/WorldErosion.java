@@ -5,9 +5,9 @@ import java.util.function.IntFunction;
 
 public class WorldErosion<T> {
 	private volatile T value;
-	private IntFunction<T> factory;
-	private Validator<T> validator;
-	private StampedLock lock;
+	private final IntFunction<T> factory;
+	private final Validator<T> validator;
+	private final StampedLock lock;
 
 	public WorldErosion(IntFunction<T> factory, Validator<T> validator) {
 		this.value = null;

@@ -22,9 +22,9 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class ClimateModule {
-	private int seed;
+	private final int seed;
 	private float biomeFreq;
-	private float warpStrength;
+	private final float warpStrength;
 	private Noise warpX;
 	private Noise warpZ;
 	private Noise moisture;
@@ -32,7 +32,7 @@ public class ClimateModule {
 	private Noise macroBiomeNoise;
 	// ClimateSettings.warmRainforestOceans
 	private boolean warmRainforestOceans;
-	private Continent continent;
+	private final Continent continent;
 	private final ThreadLocal<Region> region = ThreadLocal.withInitial(Region::new);
 
 	/** The last biome cell of a thread and its values */
@@ -41,8 +41,8 @@ public class ClimateModule {
 		private int cellX, cellZ;
 		private float id, moisture, temperature, macroBiome, continentEdge;
 	}
-	private ControlPoints controlPoints;
-	private Levels levels;
+	private final ControlPoints controlPoints;
+	private final Levels levels;
 	
 	public ClimateModule(Seed seed, Continent continent, WorldSettings.ControlPoints controlPoints, ClimateSettings climateSettings, Levels levels) {
 		int biomeSize = climateSettings.biomeShape.biomeSize;

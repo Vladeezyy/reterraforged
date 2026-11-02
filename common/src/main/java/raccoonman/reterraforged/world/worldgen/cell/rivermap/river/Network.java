@@ -77,10 +77,10 @@ public record Network(RiverCarver riverCarver, Lake[] lakes, Wetland[] wetlands,
     }
     
     public static class Builder {
-        public RiverCarver carver;
-        public List<Lake> lakes;
-        public List<Wetland> wetlands;
-        public List<Builder> children;
+        public final RiverCarver carver;
+        public final List<Lake> lakes;
+        public final List<Wetland> wetlands;
+        public final List<Builder> children;
         private float minX;
         private float minZ;
         private float maxX;

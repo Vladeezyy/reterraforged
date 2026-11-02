@@ -26,9 +26,9 @@ public enum BiomeType {
 
     public static final int RESOLUTION = 256;
     public static final int MAX = 255;
-    private List<Pair<Temperature, Humidity>> noisePairs;
-    private Color lookup;
-    private Color color;
+    private final List<Pair<Temperature, Humidity>> noisePairs;
+    private final Color lookup;
+    private final Color color;
 
     @SafeVarargs
 	private BiomeType(Color lookup, Color color, Pair<Temperature, Humidity>... noisePairs) {

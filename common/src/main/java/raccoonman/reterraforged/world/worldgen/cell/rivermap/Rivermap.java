@@ -8,12 +8,12 @@ import raccoonman.reterraforged.world.worldgen.cell.rivermap.river.Network;
 import raccoonman.reterraforged.world.worldgen.noise.domain.Domain;
 
 public class Rivermap implements ExpiringEntry {
-    private int x;
-    private int z;
-    private Domain lakeWarp;
-    private Domain riverWarp;
-    private Network[] networks;
-    private long timestamp;
+    private final int x;
+    private final int z;
+    private final Domain lakeWarp;
+    private final Domain riverWarp;
+    private final Network[] networks;
+    private final long timestamp;
     
     public Rivermap(int x, int z, Network[] networks, GenWarp warp) {
         this.timestamp = System.currentTimeMillis();

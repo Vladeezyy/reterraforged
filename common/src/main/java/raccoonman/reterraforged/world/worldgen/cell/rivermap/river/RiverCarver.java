@@ -11,23 +11,23 @@ import raccoonman.reterraforged.world.worldgen.noise.function.CurveFunctions;
 import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 
 public class RiverCarver implements Comparable<RiverCarver> {
-    public boolean main;
+    public final boolean main;
     private float fade;
-    private float fadeInv;
+    private final float fadeInv;
     private Range bedWidth;
-    private Range banksWidth;
+    private final Range banksWidth;
     private Range valleyWidth;
     private Range bedDepth;
-    private Range banksDepth;
-    private float waterLine;
+    private final Range banksDepth;
+    private final float waterLine;
     // RiverConfig: the steepest valley side (height per block, 0: no limit), the squared distance it reaches, and a
     // valley along the meandering river only
     private float valleySlope;
-    private float valleyReach2;
+    private final float valleyReach2;
     private boolean valleyFollowsMeanders;
-    public River river;
-    public RiverWarp warp;
-    public RiverConfig config;
+    public final River river;
+    public final RiverWarp warp;
+    public final RiverConfig config;
     public CurveFunction valleyCurve;
     
     public RiverCarver(River river, RiverWarp warp, RiverConfig config, Settings settings, Levels levels) {

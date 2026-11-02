@@ -13,21 +13,21 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class ArchipelagoPopulator implements CellPopulator {
-	private IslandSettings settings;
-	private Levels levels;
-	private ControlPoints controlPoints;
+	private final IslandSettings settings;
+	private final Levels levels;
+	private final ControlPoints controlPoints;
 	
-	private Noise sizeNoise;
-	private Noise densityNoise;
-	private Noise ridgeHeight;
-	private Noise hillHeight;
-	private Noise volcanoHeight;
-	private Noise mountainSelector;
-	private Noise volcanoSelector;
-	private Noise islandErosion;
-	private Noise islandWeirdness;
-	private Noise beachErosion;
-	private Noise beachWeirdness;
+	private final Noise sizeNoise;
+	private final Noise densityNoise;
+	private final Noise ridgeHeight;
+	private final Noise hillHeight;
+	private final Noise volcanoHeight;
+	private final Noise mountainSelector;
+	private final Noise volcanoSelector;
+	private final Noise islandErosion;
+	private final Noise islandWeirdness;
+	private final Noise beachErosion;
+	private final Noise beachWeirdness;
 	
 	public ArchipelagoPopulator(IslandSettings settings, Levels levels, ControlPoints controlPoints) {
 		this.settings = settings;
