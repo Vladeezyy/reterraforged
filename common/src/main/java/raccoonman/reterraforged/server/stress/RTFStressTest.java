@@ -287,10 +287,11 @@ public final class RTFStressTest {
 		String name = switch (spec) {
 			case "min" -> "every setting at its minimum";
 			case "max" -> "every setting at its maximum";
-			default -> spec.startsWith("random:") ? "random #" + spec.substring(7) + " " : null;
+			// "preset:Legacy Beautiful": one of the built-in presets as it is
+			default -> spec.startsWith("random:") ? "random #" + spec.substring(7) + " " : spec.startsWith("preset:") ? "preset " + spec.substring(7) : null;
 		};
 		if (name == null) {
-			throw new IllegalArgumentException("unknown stress preset " + spec + " (min, max, random:N, set:name=value;...)");
+			throw new IllegalArgumentException("unknown stress preset " + spec + " (min, max, random:N, preset:<name>, set:name=value;...)");
 		}
 		Variant variant = variants.stream().filter((v) -> v.name().startsWith(name) || v.name().equals(name.trim())).findFirst().orElseThrow();
 		RTFCommon.LOGGER.info("[RTF] stress preset {}: {}", spec, variant.changes());
