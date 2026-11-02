@@ -17,7 +17,7 @@ public class StructureSettings {
 		Codec.unboundedMap(ResourceKey.codec(Registries.STRUCTURE_SET), StructureSetEntry.CODEC).fieldOf("structures").forGetter((s) -> s.entries)
 	).apply(instance, StructureSettings::new));
 	
-	public Map<ResourceKey<StructureSet>, StructureSetEntry> entries;
+	public final Map<ResourceKey<StructureSet>, StructureSetEntry> entries;
 	
 	public StructureSettings(Map<ResourceKey<StructureSet>, StructureSetEntry> entries) {
 		this.entries = new HashMap<>(entries);

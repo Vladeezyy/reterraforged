@@ -47,7 +47,7 @@ public class MiscellaneousSettings {
 	public boolean vanillaLavaSprings;
     public float mountainBiomeUsage;
     public float volcanoBiomeUsage;
-    public Strata strata;
+    public final Strata strata;
     public SnowLine snowLine = SnowLine.makeDefault();
 	
 	public MiscellaneousSettings(
