@@ -1,7 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.feature.placement;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -35,7 +34,6 @@ public class RTFPlacementModifiers {
 		 return new FastPoissonModifier(radius, scale, jitter, biomeFade, densityVariationScale, densityVariation);
 	}
     
-    @Deprecated
     public static LegacyCountExtraModifier countExtra(int count, float extraChance, int extraCount) {
     	return new LegacyCountExtraModifier(count, extraChance, extraCount);
     }

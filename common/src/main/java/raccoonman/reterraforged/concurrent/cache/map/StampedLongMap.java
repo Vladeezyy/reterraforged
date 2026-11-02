@@ -69,8 +69,8 @@ public class StampedLongMap<T> implements LongMap<T> {
 			int startSize = this.map.size();
 			ObjectIterator<Long2ObjectMap.Entry<T>> iterator = this.map.long2ObjectEntrySet().fastIterator();
 			while (iterator.hasNext()) {
-				Long2ObjectMap.Entry<T> entry = (Long2ObjectMap.Entry<T>) iterator.next();
-				if (predicate.test((T) entry.getValue())) {
+				Long2ObjectMap.Entry<T> entry = iterator.next();
+				if (predicate.test(entry.getValue())) {
 					iterator.remove();
 				}
 			}

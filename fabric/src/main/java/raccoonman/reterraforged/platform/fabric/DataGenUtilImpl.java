@@ -51,7 +51,7 @@ public class DataGenUtilImpl {
 				@SuppressWarnings("unchecked")
 				class HolderLookupAdapterButWithCursedPatchForOwnerJuggling implements RegistryOps.RegistryInfoLookup {
 					private final HolderLookup.Provider lookupProvider;
-					private final Map<ResourceKey<? extends Registry<?>>, Optional<? extends RegistryOps.RegistryInfo<?>>> lookups = new ConcurrentHashMap();
+					private final Map<ResourceKey<? extends Registry<?>>, Optional<? extends RegistryOps.RegistryInfo<?>>> lookups = new ConcurrentHashMap<>();
 
 					public HolderLookupAdapterButWithCursedPatchForOwnerJuggling(HolderLookup.Provider provider) {
 						this.lookupProvider = provider;

@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-import org.apache.commons.compress.utils.FileNameUtils;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.JsonElement;
@@ -245,7 +244,8 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 				// a broken or foreign file in the presets folder (not JSON, another encoding, not a preset) is skipped:
 				// the JSON parser throws for it, which used to crash the game when the preset screen opened
 				try(Reader reader = Files.newBufferedReader(presetPath)) {
-					String base = FileNameUtils.getBaseName(presetPath.toString());
+					String fileName = presetPath.getFileName().toString();
+					String base = fileName.substring(0, fileName.length() - ".json".length());
 					DataResult<Preset> result = Preset.DIRECT_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
 					Optional<Error<Preset>> error = result.error();
 					if(error.isPresent()) {

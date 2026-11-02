@@ -52,7 +52,6 @@ class MixinRandomState {
 	@Final
     private SurfaceSystem surfaceSystem;
 	
-	@Deprecated
 	private boolean hasContext;
 	@Nullable
 	private GeneratorContext generatorContext;
@@ -93,7 +92,7 @@ class MixinRandomState {
 					return new NoiseFunction(marker.noise(), (int) seed);
 				}
 				if(function instanceof CellSampler.Marker marker) {
-					MixinRandomState.this.hasContext |= true;
+					MixinRandomState.this.hasContext = true;
 					return new CellSampler(() -> {
 						GeneratorContext context = MixinRandomState.this.generatorContext;
 						if(context == null && !MixinRandomState.this.initialized) {
@@ -153,7 +152,7 @@ class MixinRandomState {
 			});
 		}
 		
-		presets.get(Preset.KEY).ifPresentOrElse((presetHolder) -> {
+		presets.get(Preset.KEY).ifPresent((presetHolder) -> {
 			this.preset = presetHolder.value();
 
 			if(this.hasContext) {
@@ -173,10 +172,6 @@ class MixinRandomState {
 						return cell.height <= spawnContext.levels.water;
 					});
 				}
-			}
-		}, () -> {
-			if(this.hasContext) {
-//				throw new IllegalStateException("Missing preset!");
 			}
 		});
 	}

@@ -48,7 +48,6 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 	// a preset read from a file is held to the preset screen's ranges (PresetLimits)
 	public static final Codec<Preset> DIRECT_CODEC = RECORD_CODEC.xmap((preset) -> PresetLimits.clamp(PresetMigration.migrate(preset)), (preset) -> preset);
 	
-	@Deprecated
 	public static final ResourceKey<Preset> KEY = RTFRegistries.createKey(RTFRegistries.PRESET, "preset");
 	
 	public Preset copy() {
