@@ -1,7 +1,5 @@
 package raccoonman.reterraforged.registries;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -32,7 +30,6 @@ public class RTFRegistries {
 	public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIER = createKey(BiomeModifiers.registryNamespace() + ":biome_modifier");
 	public static final ResourceKey<Registry<StructureRule>> STRUCTURE_RULE = createKey("worldgen/structure_rule");
 
-	@Deprecated
 	public static final ResourceKey<Registry<Preset>> PRESET = createKey("worldgen/preset");
 	
 	public static <T> ResourceKey<T> createKey(ResourceKey<? extends Registry<T>> registryKey, String valueKey) {
