@@ -16,7 +16,6 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
-import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 
 /**
  * "rtf fingerprint [name]" (with -Drtf.selftest=true, tools/fingerprint.sh): a hash of every block and biome of chunks
@@ -62,8 +61,7 @@ public final class RTFFingerprint {
 		long t2 = System.nanoTime();
 		var gen = level.getChunkSource().getGenerator();
 		var rs = level.getChunkSource().randomState();
-		WorldLookup.beginRaw();
-		try {
+		{
 			for (int x = -16384; x <= 16384; x += 512) {
 				for (int z = -16384; z <= 16384; z += 512) {
 					int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
@@ -72,8 +70,6 @@ public final class RTFFingerprint {
 					all = all * 31 + h * 31L + biome.hashCode();
 				}
 			}
-		} finally {
-			WorldLookup.endRaw();
 		}
 		long t3 = System.nanoTime();
 		Path out = server.getServerDirectory().resolve("rtf-fingerprint" + (name.isEmpty() ? "" : "-" + name) + ".txt").toAbsolutePath();
