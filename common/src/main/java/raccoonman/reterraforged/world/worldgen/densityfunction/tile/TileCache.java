@@ -12,7 +12,7 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.generation.T
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class TileCache implements TileFactory {
-	private int tileSize;
+	private final int tileSize;
 	private final boolean queue;
 	private final Cache<CacheEntry<Entry>> cache;
 	private final TileGenerator generator;

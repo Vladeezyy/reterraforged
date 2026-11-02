@@ -20,9 +20,9 @@ public class Wetland {
     private final float moundMin;
     private final float moundMax;
     private final float moundVariance;
-    private Noise moundShape;
-    private Noise moundHeight;
-    private Noise terrainEdge;
+    private final Noise moundShape;
+    private final Noise moundHeight;
+    private final Noise terrainEdge;
 
     // as in ReTerraForged 0.0.6
     public Wetland(int seed, Vec2f a, Vec2f b, float radius, Levels levels) {

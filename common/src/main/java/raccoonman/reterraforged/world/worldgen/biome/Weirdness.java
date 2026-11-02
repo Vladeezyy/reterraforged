@@ -15,8 +15,8 @@ public enum Weirdness implements BiomeParameter {
     HIGH_SLICE_VARIANT_DESCENDING(0.7666667F, 0.93333334F),
     MID_SLICE_VARIANT_DESCENDING(0.93333334F, 1.0F);
 	
-    private float min;
-    private float max;
+    private final float min;
+    private final float max;
 
     private Weirdness(float min, float max) {
     	this.min = min;

@@ -34,7 +34,7 @@ public class FastPoissonModifier extends PlacementModifier {
 	).apply(instance, FastPoissonModifier::new));
 	
 	protected final int radius;
-	protected float scale;
+	protected final float scale;
 	protected final float jitter;
 	protected final float biomeFade;
 	protected final int densityVariationScale;

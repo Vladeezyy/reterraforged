@@ -17,10 +17,10 @@ public class Cache<V extends ExpiringEntry> implements AutoCloseable {
 		return thread;
 	});
 	
-    private LongMap<V> map;
-    private long lifetimeMS;
+    private final LongMap<V> map;
+    private final long lifetimeMS;
     private volatile long timeout;
-    private ScheduledFuture<?> poll;
+    private final ScheduledFuture<?> poll;
     
     public Cache(int capacity, long expireTime, long pollInterval, TimeUnit unit, IntFunction<LongMap<V>> mapFunc) {
         this.timeout = 0L;
