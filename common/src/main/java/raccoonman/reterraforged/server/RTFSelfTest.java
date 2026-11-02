@@ -93,7 +93,11 @@ public final class RTFSelfTest {
 			String result = RTFTileBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "tiles"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("structures").executes(ctx -> {
+		}))).then(Commands.literal("tilecache").executes(ctx -> {
+			String result = RTFTileCacheTest.start(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})).then(Commands.literal("structures").executes(ctx -> {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
