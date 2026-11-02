@@ -88,15 +88,6 @@ class MixinParameterList<T> {
 				this.isDirectUndergroundCompatEnabled()
 			);
 		}
-//
-//    	registryAccess.lookup(RTFRegistries.PRESET).flatMap((registry) -> {
-//    		return registry.get(Preset.KEY);
-//    	}).ifPresent((holder) -> {
-//    		Preset preset = holder.value();
-//        	TBCompat.setSurfaceRules(preset, (defaultRules) -> {
-//        		return RTFSurfaceRuleData.overworld(preset, registryAccess.lookupOrThrow(Registries.DENSITY_FUNCTION), registryAccess.lookupOrThrow(RTFRegistries.NOISE), defaultRules);
-//            });
-//    	});
     }
 
 	// the point findValuePositional looks up, for getUniqueness below: a @Redirect of its getUniqueness call needs the

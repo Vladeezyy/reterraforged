@@ -13,9 +13,7 @@ import net.minecraft.world.level.biome.Climate.ParameterPoint;
 import net.minecraft.world.level.biome.Climate.Sampler;
 import raccoonman.reterraforged.world.worldgen.cell.biome.spawn.SpawnFinderFix;
 
-// FIXME the mixin that we should actually be using just refuses to work for some reason
-
-//@Mixin(targets = "net.minecraft.world.level.biome.Climate$SpawnFinder")
+// the whole spawn search is replaced (a @ModifyArg of the search center in Climate.SpawnFinder's constructor did not apply)
 @Mixin(Climate.class)
 class MixinSpawnFinder {
 
@@ -23,39 +21,4 @@ class MixinSpawnFinder {
     private static void findSpawnPosition(List<ParameterPoint> list, Sampler sampler, CallbackInfoReturnable<BlockPos> callback) {
     	callback.setReturnValue(new SpawnFinderFix(list, sampler).result.location());
     }
-//	@ModifyArg(
-//		at = @At(
-//			value = "INVOKE",
-//			target = "Lnet/minecraft/world/level/biome/Climate$SpawnFinder;getSpawnPositionAndFitness(Ljava/util/List;Lnet/minecraft/world/level/biome/Climate$Sampler;II)Lnet/minecraft/world/level/biome/Climate$SpawnFinder$Result;"
-//		),
-//		method = "<init>",
-//		index = 2,
-//		require = 1
-//	)
-//	private static int modifyX(List<ParameterPoint> points, Climate.Sampler sampler, int x, int z) {
-//		if((Object) sampler instanceof RTFClimateSampler rtfClimateSampler) {
-//			BlockPos center = rtfClimateSampler.getSpawnSearchCenter();
-//			return center != null ? center.getX() : 0;
-//		} else {
-//			return 0;
-//		}
-//	}
-//	
-//	@ModifyArg(
-//		at = @At(
-//			value = "INVOKE",
-//			target = "Lnet/minecraft/world/level/biome/Climate$SpawnFinder;getSpawnPositionAndFitness(Ljava/util/List;Lnet/minecraft/world/level/biome/Climate$Sampler;II)Lnet/minecraft/world/level/biome/Climate$SpawnFinder$Result;"
-//		),
-//		method = "<init>",
-//		index = 3,
-//		require = 1
-//	)
-//	private static int modifyZ(List<ParameterPoint> points, Climate.Sampler sampler, int x, int z) {
-//		if((Object) sampler instanceof RTFClimateSampler rtfClimateSampler) {
-//			BlockPos center = rtfClimateSampler.getSpawnSearchCenter();
-//			return center != null ? center.getZ() : 0;
-//		} else {
-//			return 0;
-//		}
-//	}
 }

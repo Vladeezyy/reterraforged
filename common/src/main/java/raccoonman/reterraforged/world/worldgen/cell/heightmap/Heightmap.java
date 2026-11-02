@@ -165,7 +165,6 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         CellPopulator coast = Populators.makeCoast(ctx.levels);
         
         //pass coast/ocean spline to makeIslandPopulator instead of deepOcean
-//        CellPopulator islandsOceans = new ContinentLerper3(coast, shallowOcean, deepOcean, controlPoints.deepOcean, controlPoints.shallowOcean, controlPoints.coast);
         CellPopulator oceans = new ContinentLerper3(deepOcean, shallowOcean, coast, controlPoints.deepOcean, controlPoints.shallowOcean, controlPoints.coast);
         CellPopulator terrain = new ContinentLerper2(oceans, land, controlPoints.shallowOcean, controlPoints.inland);
         
