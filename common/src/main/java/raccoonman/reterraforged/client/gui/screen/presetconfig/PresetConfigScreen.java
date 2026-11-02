@@ -24,7 +24,7 @@ import raccoonman.reterraforged.data.worldgen.PresetExport;
 public class PresetConfigScreen extends LinkedPageScreen {
 	// edited copies of the built-in presets (they are not saved to files) for each create world screen, by name
 	private static final Map<CreateWorldScreen, Map<String, PresetEntry>> EDITED_BUILTINS = new WeakHashMap<>();
-	private CreateWorldScreen parent;
+	private final CreateWorldScreen parent;
 	
 	public PresetConfigScreen(CreateWorldScreen parent) {
 		this.parent = parent;

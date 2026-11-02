@@ -16,7 +16,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.tags.RTFBlockTags;
 
 public class RTFBlockTagsProvider extends TagsProvider<Block> {
-	private Preset preset;
+	private final Preset preset;
 	
 	public RTFBlockTagsProvider(Preset preset, PackOutput packOutput, CompletableFuture<Provider> completableFuture) {
 		super(packOutput, Registries.BLOCK, completableFuture);
