@@ -1,15 +1,13 @@
 package raccoonman.reterraforged.world.worldgen.feature.chance;
 
+import com.mojang.serialization.MapCodec;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import org.jetbrains.annotations.Nullable;
-import raccoonman.reterraforged.world.worldgen.GeneratorContext;
-import raccoonman.reterraforged.world.worldgen.RTFRandomState;
-import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
+
 import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 
 class ElevationChanceModifier extends RangeChanceModifier {
 	public static final MapCodec<ElevationChanceModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -29,18 +27,7 @@ class ElevationChanceModifier extends RangeChanceModifier {
 
 	@Override
 	protected float getValue(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
-		BlockPos pos = placeCtx.origin();
-		@Nullable
-		GeneratorContext generatorContext;
-		if((Object) placeCtx.level().getLevel().getChunkSource().randomState() instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
-			int x = pos.getX();
-			int z = pos.getZ();
-			int chunkX = SectionPos.blockToSectionCoord(x);
-			int chunkZ = SectionPos.blockToSectionCoord(z);
-			Tile.Chunk chunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
-			return rtfRandomState.generatorContext().generator.getHeightmap().levels().elevation(chunk.getCell(x, z).height);
-		} else {
-			throw new UnsupportedOperationException();
-		}
+		GeneratorContext generatorContext = generatorContext(placeCtx);
+		return generatorContext.generator.getHeightmap().levels().elevation(cellAt(generatorContext, placeCtx.origin()).height);
 	}
 }
