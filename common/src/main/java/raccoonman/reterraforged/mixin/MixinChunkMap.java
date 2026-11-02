@@ -1,5 +1,11 @@
 package raccoonman.reterraforged.mixin;
 
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.RTFBiomeSource;
+import raccoonman.reterraforged.world.worldgen.biome.SwampHeights;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,6 +25,10 @@ public class MixinChunkMap {
 	@Shadow
 	@Final
 	ServerLevel level;
+	@Shadow
+	protected ChunkGenerator generator() {
+		throw new AssertionError();
+	}
 
 	// only the callback: the constructor's parameters change between Minecraft versions
 	@Inject(
@@ -28,6 +38,13 @@ public class MixinChunkMap {
 	public void ChunkMap(CallbackInfo callback) {
 		if((Object) this.randomState instanceof RTFRandomState rtfRandomState) {
 			rtfRandomState.initialize(this.level);
+			// Highest Swamps (#28), off for presets saved before 0.0.29
+			if((Object) this.generator().getBiomeSource() instanceof RTFBiomeSource biomeSource) {
+				Preset preset = rtfRandomState.preset();
+				GeneratorContext context = rtfRandomState.generatorContext();
+				int maxHeight = preset != null ? preset.climate().swampMaxHeight : 0;
+				biomeSource.setSwampHeights(maxHeight > 0 && context != null ? new SwampHeights(context, maxHeight) : null);
+			}
 		}
 	}
 }
