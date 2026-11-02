@@ -24,6 +24,7 @@
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
+# TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
@@ -229,6 +230,12 @@ for loader in $LOADERS; do
         echo "rtf tilebench $TILEBENCH" >> "$dir/console.in"
         wait_for "$dir/console.log" 'RTF tilebench\] [0-9]' 1200
         grep -o 'RTF tilebench\] [0-9].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
+    fi
+    # TILECACHE=1: whether the lookups outside a chunk's own terrain depend on the tile cache ("rtf tilecache", RTFTileCacheTest)
+    if [ -n "$TILECACHE" ]; then
+        echo "rtf tilecache" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF tilecache\] [0-9]' 1200
+        grep -o 'RTF tilecache\] [0-9].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
     fi
     if [ -n "$SKIP_SELFTEST" ]; then
         line="RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked"
