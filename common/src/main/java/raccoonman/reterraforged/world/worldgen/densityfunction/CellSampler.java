@@ -93,8 +93,8 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 	
 	public class CacheChunk implements MarkerFunction.Mapped {
 		@Nullable
-		private Tile.Chunk chunk;
-		private Cache2d cache2d;
+		private final Tile.Chunk chunk;
+		private final Cache2d cache2d;
 		private int chunkX, chunkZ;
 		
 		public CacheChunk(@Nullable Tile.Chunk chunk, @Nullable Cache2d cache2d, int chunkX, int chunkZ) {
@@ -287,7 +287,7 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 
 		public static final Codec<Field> CODEC = StringRepresentable.fromEnum(Field::values);
 		
-		private String name;
+		private final String name;
 		
 		private Field(String name) {
 			this.name = name;

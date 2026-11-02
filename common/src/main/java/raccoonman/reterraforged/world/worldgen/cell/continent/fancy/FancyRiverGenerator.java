@@ -21,7 +21,7 @@ import raccoonman.reterraforged.world.worldgen.util.Variance;
 public class FancyRiverGenerator extends BaseRiverGenerator<FancyContinentGenerator> {
 	private static final Variance MAIN_PADDING = Variance.of(0.05F, 0.1F);
 	private static final Variance MAIN_JITTER = Variance.of(-0.2F, 0.4F);
-	private float freq;
+	private final float freq;
 
 	public FancyRiverGenerator(FancyContinentGenerator continent, GeneratorContext context) {
 		super(continent, context);

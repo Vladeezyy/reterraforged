@@ -7,11 +7,11 @@ public class RiverConfig {
     public boolean main;
     public int bedWidth;
     public int bankWidth;
-    public float bedHeight;
+    public final float bedHeight;
     public float minBankHeight;
     public float maxBankHeight;
     public int length;
-    public int length2;
+    public final int length2;
     public float fade;
     // the valley settings (RiverSettings), the same for a river and its branches: width multiplier, steepest side
     // as height per block (0: no limit), valley along the meandering river only
@@ -76,7 +76,7 @@ public class RiverConfig {
         private float valleyWidth;
         private float valleySlope;
         private boolean valleyFollowsMeanders;
-        private Levels levels;
+        private final Levels levels;
         
         private Builder(Levels levels) {
             this.main = false;

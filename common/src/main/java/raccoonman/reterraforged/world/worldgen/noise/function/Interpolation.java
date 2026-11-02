@@ -31,7 +31,7 @@ public enum Interpolation implements CurveFunction, StringRepresentable {
 	
 	public static final MapCodec<Interpolation> CODEC = StringRepresentable.fromEnum(Interpolation::values).fieldOf("value");;
 	
-	private String name;
+	private final String name;
 	
 	private Interpolation(String name) {
 		this.name = name;

@@ -7,8 +7,8 @@ import raccoonman.reterraforged.world.worldgen.cell.terrain.Terrain;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 
 public class FakeWaterBiomeResolver {
-	private FakeWaterBiomeSettings settings;
-	private Levels levels;
+	private final FakeWaterBiomeSettings settings;
+	private final Levels levels;
 	
 	public FakeWaterBiomeResolver(FakeWaterBiomeSettings settings, Levels levels) {
 		this.settings = settings;

@@ -8,12 +8,12 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class RiverWarp {
     public static final RiverWarp NONE = new RiverWarp(0, 0.0F, 0.0F, 0.0F, 0.0F);
-    private int seed;
-    private float lower;
-    private float upper;
-    private float lowerRange;
-    private float upperRange;
-    private float frequency;
+    private final int seed;
+    private final float lower;
+    private final float upper;
+    private final float lowerRange;
+    private final float upperRange;
+    private final float frequency;
     private float scale;
     
     public RiverWarp(int seed, float lower, float upper, float frequency, float scale) {

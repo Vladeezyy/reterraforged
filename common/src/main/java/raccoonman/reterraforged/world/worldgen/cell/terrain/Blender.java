@@ -7,13 +7,13 @@ import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public class Blender implements CellPopulator {
-	private Noise control;
-	private CellPopulator lower;
-	private CellPopulator upper;
-	private float blendLower;
-	private float blendUpper;
-	private float blendRange;
-	private float midpoint;
+	private final Noise control;
+	private final CellPopulator lower;
+	private final CellPopulator upper;
+	private final float blendLower;
+	private final float blendUpper;
+	private final float blendRange;
+	private final float midpoint;
 
 	public Blender(Noise control, CellPopulator lower, CellPopulator upper, float min, float max, float split) {
 		this.control = control;

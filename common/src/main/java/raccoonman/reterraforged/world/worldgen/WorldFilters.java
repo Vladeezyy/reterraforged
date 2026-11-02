@@ -12,14 +12,14 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Smoot
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Steepness;
 
 public class WorldFilters {
-    private Smoothing smoothing;
-    private Steepness steepness;
+    private final Smoothing smoothing;
+    private final Steepness steepness;
     private BeachDetect beach;
-    private NoiseCorrection corrections;
-    private FilterSettings settings;
+    private final NoiseCorrection corrections;
+    private final FilterSettings settings;
     private WorldErosion<Erosion> erosion;
-    private int erosionIterations;
-    private int smoothingIterations;
+    private final int erosionIterations;
+    private final int smoothingIterations;
     
     public WorldFilters(GeneratorContext context) {
         IntFunction<Erosion> factory = Erosion.factory(context);

@@ -20,18 +20,18 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public abstract class ContinentGenerator implements SimpleContinent {
-    protected int seed;
-    protected float frequency;
+    protected final int seed;
+    protected final float frequency;
     protected int continentScale;
-    private DistanceFunction distanceFunc;
-    private ControlPoints controlPoints;
-    private float clampMin;
-    private float clampMax;
-    private float clampRange;
-    private float offsetAlpha;
+    private final DistanceFunction distanceFunc;
+    private final ControlPoints controlPoints;
+    private final float clampMin;
+    private final float clampMax;
+    private final float clampRange;
+    private final float offsetAlpha;
     protected Domain warp;
     protected Noise shape;
-    protected RiverCache cache;
+    protected final RiverCache cache;
     
     public ContinentGenerator(Seed seed, GeneratorContext context) {
         WorldSettings settings = context.preset.world();

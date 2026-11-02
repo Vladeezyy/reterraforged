@@ -1,7 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.cell.terrain;
 
 public class CompositeTerrain extends Terrain {
-    private boolean flat;
+    private final boolean flat;
     private float erosion;
     
     CompositeTerrain(int id, Terrain a, Terrain b) {

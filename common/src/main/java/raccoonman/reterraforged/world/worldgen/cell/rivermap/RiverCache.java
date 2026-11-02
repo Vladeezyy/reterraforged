@@ -7,8 +7,8 @@ import raccoonman.reterraforged.concurrent.cache.map.StampedLongMap;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class RiverCache {
-    protected RiverGenerator generator;
-    protected Cache<Rivermap> cache;
+    protected final RiverGenerator generator;
+    protected final Cache<Rivermap> cache;
     
     public RiverCache(RiverGenerator generator) {
         this.cache = new Cache<>(32, 5L, 1L, TimeUnit.MINUTES, StampedLongMap::unbounded);
