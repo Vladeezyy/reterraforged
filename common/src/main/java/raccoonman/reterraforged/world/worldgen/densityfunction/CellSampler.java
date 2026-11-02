@@ -6,7 +6,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Interval;
 import net.minecraft.util.StringRepresentable;
@@ -143,13 +142,15 @@ public final class CellSampler {
 
 	public static class Cache2d {
 		private long lastPos = Long.MAX_VALUE;
+		private boolean lastTiles;
 		private Cell cell = new Cell();
 		
-		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate) {
-			
+		// tiles: the cell of the place's tile (generated if it is not cached), else computed without the tile
+		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate, boolean tiles) {
 			long packedPos = PosUtil.pack(blockX, blockZ);
-			if(this.lastPos != packedPos) {
-				lookup.applyCell(this.cell.reset(), blockX, blockZ, false, sampleClimate);
+			if(this.lastPos != packedPos || this.lastTiles != tiles) {
+				lookup.applyCell(this.cell.reset(), blockX, blockZ, tiles, sampleClimate);
+				this.lastTiles = tiles;
 				lookup.getHeightmap().fakeWaterBiomeResolver().apply(this.cell);
 				this.lastPos = packedPos;
 				if (this.cell.fakeWaterBiome.isRiver()) {

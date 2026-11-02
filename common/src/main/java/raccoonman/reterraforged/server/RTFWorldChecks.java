@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
-import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -390,8 +389,7 @@ public final class RTFWorldChecks {
 		var rs = level.getChunkSource().randomState();
 		List<String> lines = new ArrayList<>();
 		lines.add("# seed " + level.getSeed());
-		WorldLookup.beginRaw();
-		try {
+		{
 			for (int x = -2048; x <= 2048; x += 128) {
 				for (int z = -2048; z <= 2048; z += 128) {
 					int h = gen.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, level, rs);
@@ -399,8 +397,6 @@ public final class RTFWorldChecks {
 					lines.add("base " + x + " " + z + " " + h + " " + biome.getRegisteredName());
 				}
 			}
-		} finally {
-			WorldLookup.endRaw();
 		}
 		for (int cx = AREA_MIN; cx <= AREA_MAX; cx++) for (int cz = AREA_MIN; cz <= AREA_MAX; cz++) {
 			ChunkAccess c = full(level, cx, cz);
