@@ -56,7 +56,7 @@ public enum SpawnType implements StringRepresentable {
 	
 	public static final Codec<SpawnType> CODEC = StringRepresentable.fromEnum(SpawnType::values);
 
-	private String name;
+	private final String name;
 	
 	private SpawnType(String name) {
 		this.name = name;

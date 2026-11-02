@@ -45,7 +45,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	private CycleButton<RenderMode> renderMode;
 	private ValueButton<Integer> seed;
 	private Preview preview;
-	protected PresetEntry preset;
+	protected final PresetEntry preset;
 	
 	public PresetEditorPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen);

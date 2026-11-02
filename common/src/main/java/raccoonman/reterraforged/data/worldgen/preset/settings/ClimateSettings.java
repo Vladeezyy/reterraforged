@@ -24,10 +24,10 @@ public class ClimateSettings {
 		return settings;
 	}));
 	
-	public RangeValue temperature;
-    public RangeValue moisture;
-    public BiomeShape biomeShape;
-    public BiomeNoise biomeEdgeShape;
+	public final RangeValue temperature;
+    public final RangeValue moisture;
+    public final BiomeShape biomeShape;
+    public final BiomeNoise biomeEdgeShape;
     // the oceans of the tropical rainforest regions are warm oceans, as those of the deserts are (their climate is one
     // step cooler: lukewarm oceans)
     public boolean warmRainforestOceans = false;
@@ -175,8 +175,8 @@ public class ClimateSettings {
 
         	public static final Codec<EdgeType> CODEC = StringRepresentable.fromEnum(EdgeType::values);
         	
-        	private String name;
-        	private BiFunction<Integer, BiomeNoise, Noise> factory;
+        	private final String name;
+        	private final BiFunction<Integer, BiomeNoise, Noise> factory;
         	
         	private EdgeType(String name, BiFunction<Integer, BiomeNoise, Noise> factory) {
         		this.name = name;

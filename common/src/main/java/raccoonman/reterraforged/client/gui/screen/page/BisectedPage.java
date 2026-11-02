@@ -7,7 +7,7 @@ import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.widget.WidgetList;
 
 public abstract class BisectedPage<S extends Screen, L extends AbstractWidget, R extends AbstractWidget> implements Page {
-	protected S screen;
+	protected final S screen;
 	protected WidgetList<L> left;
 	protected WidgetList<R> right;
 	

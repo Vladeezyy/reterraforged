@@ -7,7 +7,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 public class ValueButton<T> extends Button {
-	private Component name;
+	private final Component name;
 	private T value;
 	
 	public ValueButton(int i, int j, int k, int l, Component component, OnPress onPress, T initial) {
