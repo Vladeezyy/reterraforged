@@ -43,6 +43,8 @@ final class SliderUnits {
 			UNITS.put(key, Unit.SNOW_LAYERS);
 		}
 		UNITS.put(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, Unit.DEGREES);
+		UNITS.put(RTFTranslationKeys.GUI_SLIDER_LOWLAND_SWAMPS, Unit.BLOCKS_OR_OFF);
+		UNITS.put(RTFTranslationKeys.GUI_SLIDER_SWAMP_MAX_HEIGHT, Unit.BLOCKS_OR_OFF);
 	}
 
 	private SliderUnits() {
@@ -66,7 +68,14 @@ final class SliderUnits {
 		},
 		// snow layers of the 8 of a full block
 		SNOW_LAYERS(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS),
-		DEGREES(RTFTranslationKeys.GUI_UNIT_DEGREES);
+		DEGREES(RTFTranslationKeys.GUI_UNIT_DEGREES),
+		// 0 turns the setting off
+		BLOCKS_OR_OFF(RTFTranslationKeys.GUI_UNIT_BLOCKS) {
+			@Override
+			Component text(String shown) {
+				return this.number(shown).equals("0") ? Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE) : super.text(shown);
+			}
+		};
 
 		private final String key;
 

@@ -24,6 +24,7 @@
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
+# SWAMPS=1 where the swamp biomes are against the river valleys and the heights (run/swamps-<loader>.txt, #28).
 # TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
@@ -236,6 +237,14 @@ for loader in $LOADERS; do
             grep -o "RTF snowgrid\] $biome.*" "$dir/console.log" | tail -1 | sed 's/^/  /'
             cp "$dir"/rtf-snowgrid-"${biome/:/_}".png "run/snowgrid-$loader/" 2>/dev/null
         done
+    fi
+    # SWAMPS=1: where the swamp biomes are against the river valleys and the heights ("rtf swamps", #28), with MODS=...
+    # the biome mods' swamps too; the table copied to run/swamps-<loader>.txt
+    if [ -n "$SWAMPS" ]; then
+        echo "rtf swamps" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF swamps\] [0-9F]' 1200
+        grep -o 'RTF swamps\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-400 | sed 's/^/  /'
+        cp "$dir/rtf-swamps.txt" "run/swamps-$loader.txt" 2>/dev/null; cp "$dir/rtf-swamps.png" "run/swamps-$loader.png" 2>/dev/null
     fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
     if [ -n "$TILEBENCH" ]; then
