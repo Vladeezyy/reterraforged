@@ -73,18 +73,6 @@ public enum BiomeType {
         return getType(x, y);
     }
     
-//    public static void apply(Cell cell) {
-//        applyCurve(cell);
-//    }
-    
-//    public static void applyLinear(Cell cell) {
-//        cell.biome = get(cell.regionTemperature, cell.regionMoisture);
-//    }
-//    
-//    public static void applyCurve(Cell cell) {
-//        cell.biome = get(cell.regionTemperature, cell.regionMoisture);
-//    }
-    
     private static BiomeType getType(int x, int y) {
         return BiomeTypeLoader.getInstance().getTypeMap()[y][x];
     }

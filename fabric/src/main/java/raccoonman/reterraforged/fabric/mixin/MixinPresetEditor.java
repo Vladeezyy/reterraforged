@@ -12,12 +12,10 @@ import net.minecraft.client.gui.screens.worldselection.PresetEditor;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 
-// why the fuck does mojang hardcode everything??
-@Deprecated 
+// PresetEditor.EDITORS is a Map.of of the vanilla editors: ReTerraForged's editor is added for the default world type
 @Mixin(PresetEditor.class)
 interface MixinPresetEditor {
 	
-	// there has to be a better way to do this right?
 	@Redirect(
 		method = "<clinit>",
 		at = @At(

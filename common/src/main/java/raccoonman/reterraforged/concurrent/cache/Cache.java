@@ -75,7 +75,7 @@ public class Cache<V extends ExpiringEntry> implements AutoCloseable {
 
 	// stops the polling and drops the entries (not closing them: a generation thread may still read a tile)
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		this.poll.cancel(false);
 		this.map.clear();
 	}
