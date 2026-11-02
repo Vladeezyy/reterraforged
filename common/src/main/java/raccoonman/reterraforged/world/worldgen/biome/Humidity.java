@@ -7,8 +7,8 @@ public enum Humidity implements BiomeParameter {
     LEVEL_3(0.1F, 0.3F),
     LEVEL_4(0.3F, 1.0F);
 	
-	private float min;
-    private float max;
+	private final float min;
+    private final float max;
 
     private Humidity(float min, float max) {
     	this.min = min;

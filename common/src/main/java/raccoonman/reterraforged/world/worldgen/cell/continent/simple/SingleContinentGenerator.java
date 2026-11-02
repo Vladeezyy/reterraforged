@@ -7,7 +7,7 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class SingleContinentGenerator extends ContinentGenerator {
-    private Vec2i center;
+    private final Vec2i center;
     
     public SingleContinentGenerator(Seed seed, GeneratorContext context) {
         super(seed, context);

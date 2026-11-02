@@ -139,8 +139,8 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	
 	private class Source implements SurfaceRules.SurfaceRule {
 		private final Context surfaceContext;
-		private Noise selector;
-		private List<List<Layer>> strata;
+		private final Noise selector;
+		private final List<List<Layer>> strata;
 		private List<Layer> layers;
 		private float[] depthBuffer;
 		private long lastUpdateXZ;

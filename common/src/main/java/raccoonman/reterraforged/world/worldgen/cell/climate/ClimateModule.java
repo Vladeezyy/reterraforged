@@ -23,15 +23,15 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 public class ClimateModule {
 	private final int seed;
-	private float biomeFreq;
+	private final float biomeFreq;
 	private final float warpStrength;
-	private Noise warpX;
-	private Noise warpZ;
+	private final Noise warpX;
+	private final Noise warpZ;
 	private Noise moisture;
 	private Noise temperature;
-	private Noise macroBiomeNoise;
+	private final Noise macroBiomeNoise;
 	// ClimateSettings.warmRainforestOceans
-	private boolean warmRainforestOceans;
+	private final boolean warmRainforestOceans;
 	private final Continent continent;
 	private final ThreadLocal<Region> region = ThreadLocal.withInitial(Region::new);
 

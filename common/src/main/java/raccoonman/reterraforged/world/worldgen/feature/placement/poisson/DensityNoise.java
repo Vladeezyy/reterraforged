@@ -7,7 +7,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public class DensityNoise implements Noise {
-    private BiomeVariance biome;
+    private final BiomeVariance biome;
     private final Noise variance;
 
     public DensityNoise(BiomeVariance biome, Noise variance) {
