@@ -9,8 +9,8 @@ import raccoonman.reterraforged.world.worldgen.cell.terrain.populator.WeightedPo
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public class RegionSelector implements CellPopulator {
-	private int maxIndex;
-	private CellPopulator[] nodes;
+	private final int maxIndex;
+	private final CellPopulator[] nodes;
 
 	public RegionSelector(List<CellPopulator> populators) {
 		this.nodes = getWeightedArray(populators);

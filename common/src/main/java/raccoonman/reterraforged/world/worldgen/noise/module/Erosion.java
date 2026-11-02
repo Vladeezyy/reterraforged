@@ -219,7 +219,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 		
 		public static final Codec<BlendMode> CODEC = StringRepresentable.fromEnum(BlendMode::values);
 		
-		private String name;
+		private final String name;
 		
 		private BlendMode(String name) {
 			this.name = name;

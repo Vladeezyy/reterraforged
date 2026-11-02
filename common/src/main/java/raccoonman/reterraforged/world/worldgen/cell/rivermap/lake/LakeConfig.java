@@ -8,7 +8,7 @@ public class LakeConfig {
     public float chance;
     public float sizeMin;
     public float sizeMax;
-    public float sizeRange;
+    public final float sizeRange;
     public float bankMin;
     public float bankMax;
     public float distanceMin;

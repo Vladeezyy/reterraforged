@@ -7,12 +7,12 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Filte
 public class Tile implements Filterable, CellLookup {
 	private int x, z;
 	private int chunkX, chunkZ;
-	private int size;
+	private final int size;
 	private int border;
-	private Size blockSize;
-	private Size chunkSize;
-	private Cell[] cache;
-	private Chunk[] chunks;
+	private final Size blockSize;
+	private final Size chunkSize;
+	private final Cell[] cache;
+	private final Chunk[] chunks;
 	
 	public Tile(int x, int z, int size, int border, Size blockSize, Size chunkSize, Cell[] cells, Chunk[] chunks) {
 		this.x = x;
@@ -113,10 +113,10 @@ public class Tile implements Filterable, CellLookup {
 	public class Chunk {
         private int chunkX;
         private int chunkZ;
-        private int blockX;
-        private int blockZ;
-        private int regionBlockX;
-        private int regionBlockZ;
+        private final int blockX;
+        private final int blockZ;
+        private final int regionBlockX;
+        private final int regionBlockZ;
 		
 		public Chunk(int regionChunkX, int regionChunkZ) {
             this.regionBlockX = regionChunkX << 4;

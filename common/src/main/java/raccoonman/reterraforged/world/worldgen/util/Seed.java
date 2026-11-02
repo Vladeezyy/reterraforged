@@ -1,7 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.util;
 
 public class Seed {
-    private int root;
+    private final int root;
     private int value;
     
     public Seed(int value) {
@@ -12,13 +12,11 @@ public class Seed {
     public int next() {
         return this.value++;
     }
-    
-    
+
     public int root() {
         return this.root;
     }
-    
-    
+
     public Seed offset(int offset) {
         return new Seed(this.root + offset);
     }

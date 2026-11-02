@@ -26,7 +26,7 @@ public enum DistanceFunction implements StringRepresentable {
 	
 	public static final Codec<DistanceFunction> CODEC = StringRepresentable.fromEnum(DistanceFunction::values);
 	
-	private String name;
+	private final String name;
 	
 	private DistanceFunction(String name) {
 		this.name = name;

@@ -12,7 +12,7 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public class FancyContinent implements RiverGenerator {
 	private Island[] islands;
-	private FancyRiverGenerator riverGenerator;
+	private final FancyRiverGenerator riverGenerator;
 
 	public FancyContinent(int seed, int nodes, float radius, GeneratorContext context, FancyContinentGenerator continent) {
 		ControlPoints controlPoints = context.preset.world().controlPoints;

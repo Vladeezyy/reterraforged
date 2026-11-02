@@ -21,13 +21,13 @@ public class VolcanoPopulator implements CellPopulator, WeightedPopulator {
     private Noise cone;
     private Noise height;
     private Noise lowlands;
-    private float inversionPoint;
-    private float blendLower;
-    private float blendUpper;
-    private float blendRange;
+    private final float inversionPoint;
+    private final float blendLower;
+    private final float blendUpper;
+    private final float blendRange;
     private float bias;
-    private Terrain inner;
-    private Terrain outer;
+    private final Terrain inner;
+    private final Terrain outer;
     
     private float weight;
     private float baseScale;

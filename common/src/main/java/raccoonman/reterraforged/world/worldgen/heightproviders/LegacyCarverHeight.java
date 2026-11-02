@@ -17,8 +17,8 @@ public class LegacyCarverHeight extends HeightProvider {
 	).apply(instance, LegacyCarverHeight::new));
 	
 	private int min;
-	private int variationMin;
-	private int variationRange;
+	private final int variationMin;
+	private final int variationRange;
 	
 	private LegacyCarverHeight(int min, int variationMin, int variationRange) {
 		this.min = min;

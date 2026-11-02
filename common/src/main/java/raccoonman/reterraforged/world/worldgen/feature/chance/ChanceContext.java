@@ -5,7 +5,7 @@ import net.minecraft.util.RandomSource;
 public class ChanceContext {
     private int length;
     private float total = 0.0F;
-    private float[] buffer;
+    private final float[] buffer;
 
     public ChanceContext(int length, float total, float[] buffer) {
     	this.length = length;

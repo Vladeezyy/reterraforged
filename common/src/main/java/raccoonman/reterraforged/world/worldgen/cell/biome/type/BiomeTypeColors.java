@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class BiomeTypeColors {
     private static final BiomeTypeColors INSTANCE = new BiomeTypeColors();
-    private Map<String, Color> colors;
+    private final Map<String, Color> colors;
     
     private BiomeTypeColors() {
         this.colors = new HashMap<>();
