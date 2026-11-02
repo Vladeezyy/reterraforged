@@ -38,7 +38,7 @@ record CellTest(float cutoff, Set<Terrain> terrainTypeBlacklist) implements Stru
 			if(generatorContext != null) {
 				WorldLookup worldLookup = generatorContext.lookup;
 				Cell cell = new Cell();
-				worldLookup.applyCell(cell.reset(), pos.getX(), pos.getZ(), false);
+				worldLookup.applyCell(cell.reset(), pos.getX(), pos.getZ(), WorldLookup.inStructureGeneration(), false);
 				if(cell.fakeWaterBiome != FakeWaterBiomeTarget.NONE) {
 					return false;
 				}
