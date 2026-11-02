@@ -316,7 +316,7 @@ public final class CellSampler {
 
 		public static final Codec<Field> CODEC = StringRepresentable.fromEnum(Field::values);
 		
-		private String name;
+		private final String name;
 		
 		private Field(String name) {
 			this.name = name;

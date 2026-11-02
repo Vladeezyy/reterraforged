@@ -18,9 +18,9 @@ class LegacyCountExtraModifier implements PlacementModifier {
 		Codec.INT.fieldOf("extra_count").forGetter((p) -> p.extraCount)
 	).apply(instance, LegacyCountExtraModifier::new));
 
-	private int count;
-	private float extraChance;
-	private int extraCount;
+	private final int count;
+	private final float extraChance;
+	private final int extraCount;
 	
 	public LegacyCountExtraModifier(int count, float extraChance, int extraCount) {
 		this.count = count;

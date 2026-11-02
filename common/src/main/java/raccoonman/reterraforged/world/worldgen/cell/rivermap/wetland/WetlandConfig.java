@@ -5,9 +5,9 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.Variance;
 
 public class WetlandConfig {
-    public int skipSize;
-    public Variance length;
-    public Variance width;
+    public final int skipSize;
+    public final Variance length;
+    public final Variance width;
     
     public WetlandConfig(RiverSettings.Wetland settings) {
         this.skipSize = Math.max(1, NoiseUtil.round((1.0F - settings.chance) * 10.0F));

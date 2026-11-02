@@ -12,12 +12,12 @@ import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;	
 
 public class RegionModule implements CellPopulator {
-    private int seed;
-    private float frequency;
-    private float edgeMin;
-    private float edgeMax;
-    private float edgeRange;
-    private Domain warp;
+    private final int seed;
+    private final float frequency;
+    private final float edgeMin;
+    private final float edgeMax;
+    private final float edgeRange;
+    private final Domain warp;
     
     public RegionModule(RegionConfig regionConfig) {
         this.seed = regionConfig.seed() + 7;

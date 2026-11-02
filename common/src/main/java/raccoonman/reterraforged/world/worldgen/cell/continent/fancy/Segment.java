@@ -3,16 +3,16 @@ package raccoonman.reterraforged.world.worldgen.cell.continent.fancy;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 
 public class Segment {
-	public Vec2f a;
-	public Vec2f b;
-	public float dx;
-	public float dy;
-	public float length;
-	public float length2;
-	public float scaleA;
-	public float scale2A;
-	public float scaleB;
-	public float scale2B;
+	public final Vec2f a;
+	public final Vec2f b;
+	public final float dx;
+	public final float dy;
+	public final float length;
+	public final float length2;
+	public final float scaleA;
+	public final float scale2A;
+	public final float scaleB;
+	public final float scale2B;
 
 	public Segment(Vec2f a, Vec2f b, float scaleA, float scaleB) {
 		this.a = a;

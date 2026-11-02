@@ -1,9 +1,9 @@
 package raccoonman.reterraforged.world.worldgen.cell.terrain;
 
 public class ConfiguredTerrain extends Terrain {
-    private float erosionModifier;
-    private boolean isMountain;
-    private boolean overridesRiver;
+    private final float erosionModifier;
+    private final boolean isMountain;
+    private final boolean overridesRiver;
     
     ConfiguredTerrain(int id, String name, TerrainCategory category, float erosionModifier) {
         this(id, name, category, erosionModifier, category.isMountain(), category.overridesRiver());

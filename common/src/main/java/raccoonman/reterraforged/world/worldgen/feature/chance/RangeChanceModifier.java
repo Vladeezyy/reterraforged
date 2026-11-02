@@ -3,9 +3,9 @@ package raccoonman.reterraforged.world.worldgen.feature.chance;
 import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
 
 public abstract class RangeChanceModifier implements ChanceModifier {
-	protected float from;
-    protected float to;
-	protected boolean exclusive;
+	protected final float from;
+    protected final float to;
+	protected final boolean exclusive;
 
     public RangeChanceModifier(float from, float to, boolean exclusive) {
         this.from = from;

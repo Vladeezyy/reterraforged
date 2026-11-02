@@ -4,9 +4,9 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public class Terrain implements ITerrain.Delegate {
     private int id;
-    private String name;
+    private final String name;
     private TerrainCategory type;
-    private ITerrain delegate;
+    private final ITerrain delegate;
     // the delegate's erosion modifier, fixed once the terrain is made: the erosion filter asks for it at every step of
     // every droplet, and following the delegate there each time was a noticeable part of the generation time
     private final float erosionModifier;

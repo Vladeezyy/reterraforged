@@ -11,15 +11,15 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Boundsf;
 
 public class Wetland {
-    private Vec2f a;
-    private Vec2f b;
-    private float radius;
-    private float radius2;
-    private float bed;
-    private float banks;
-    private float moundMin;
-    private float moundMax;
-    private float moundVariance;
+    private final Vec2f a;
+    private final Vec2f b;
+    private final float radius;
+    private final float radius2;
+    private final float bed;
+    private final float banks;
+    private final float moundMin;
+    private final float moundMax;
+    private final float moundVariance;
     private Noise moundShape;
     private Noise moundHeight;
     private Noise terrainEdge;

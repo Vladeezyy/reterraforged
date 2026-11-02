@@ -30,12 +30,12 @@ public class FastPoissonModifier implements PlacementModifier {
 		Codec.FLOAT.fieldOf("density_variation").forGetter((p) -> p.densityVariation)
 	).apply(instance, FastPoissonModifier::new));
 	
-	protected int radius;
+	protected final int radius;
 	protected float scale;
-	protected float jitter;
-	protected float biomeFade;
-	protected int densityVariationScale;
-	protected float densityVariation;
+	protected final float jitter;
+	protected final float biomeFade;
+	protected final int densityVariationScale;
+	protected final float densityVariation;
 	
 	public FastPoissonModifier(
 		int radius,

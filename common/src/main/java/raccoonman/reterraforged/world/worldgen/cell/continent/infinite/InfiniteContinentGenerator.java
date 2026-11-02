@@ -9,7 +9,7 @@ import raccoonman.reterraforged.world.worldgen.cell.rivermap.RiverCache;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 
 public class InfiniteContinentGenerator implements SimpleContinent {
-	private RiverCache riverCache;
+	private final RiverCache riverCache;
 	
 	public InfiniteContinentGenerator(GeneratorContext context) {
         this.riverCache = new LegacyRiverCache(new SimpleRiverGenerator(this, context));

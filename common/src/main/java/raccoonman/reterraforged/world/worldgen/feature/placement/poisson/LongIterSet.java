@@ -10,7 +10,7 @@ public class LongIterSet {
 	private int size;
 	private int index;
 	private long[] order;
-	private LongSet points;
+	private final LongSet points;
 
 	public LongIterSet() {
 		this.size = 0;

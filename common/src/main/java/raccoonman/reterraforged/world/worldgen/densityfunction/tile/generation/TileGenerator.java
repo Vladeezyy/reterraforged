@@ -13,14 +13,14 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile.Chunk;
 
 public class TileGenerator {
-	private Heightmap heightmap;
-	private WorldFilters filters;
-	private int tileChunks;
-	private int tileBorder;
-	private Size tileSizeBlocks;
-	private Size tileSizeChunks;
+	private final Heightmap heightmap;
+	private final WorldFilters filters;
+	private final int tileChunks;
+	private final int tileBorder;
+	private final Size tileSizeBlocks;
+	private final Size tileSizeChunks;
 	private int batchSize;
-	private int batchCount;
+	private final int batchCount;
 	
 	public TileGenerator(Heightmap heightmap, WorldFilters filters, int tileChunks, int tileBorder, int batchCount) {
 		this.heightmap = heightmap;

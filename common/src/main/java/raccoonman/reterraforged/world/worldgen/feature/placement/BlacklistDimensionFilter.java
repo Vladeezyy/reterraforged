@@ -19,8 +19,8 @@ class BlacklistDimensionFilter implements PlacementFilter {
 		ResourceKey.codec(Registries.LEVEL_STEM).listOf().fieldOf("blacklist").forGetter((filter) -> filter.blacklist)
 	).apply(instance, BlacklistDimensionFilter::new));
 	
-	private List<ResourceKey<LevelStem>> blacklist;
-	private List<ResourceKey<Level>> levelKeys;
+	private final List<ResourceKey<LevelStem>> blacklist;
+	private final List<ResourceKey<Level>> levelKeys;
 	
 	public BlacklistDimensionFilter(List<ResourceKey<LevelStem>> blacklist) {
 		this.blacklist = blacklist;
