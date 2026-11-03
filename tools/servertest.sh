@@ -19,7 +19,8 @@
 # run: a few "base" samples come out 1-2 blocks off when the self test has generated the chunks around them). tools/uiparity.sh: the preset screen's world.
 # FINGERPRINT=1 hashes every block and biome of chunks in several places first ("rtf fingerprint", run/fingerprint-<loader>.txt);
 # FINGERPRINT_REF=<file> the generation must be the same as that run's (tools/comparefingerprint.py); the reference of
-# this Minecraft version is tools/fingerprint/<mc>.txt (the same on both loaders; retake it, with the reason in the
+# this Minecraft version is tools/fingerprint/<mc>.txt on NeoForge, <mc>-fabric.txt on Fabric (since 1.21.11 the loaders
+# differ in a few chunks, before this tool too: icebergs, some surface chunks; retake it, with the reason in the
 # commit, when a change is meant to change the world). Fingerprints run
 # with one world generation thread (-Dmax.bg.threads=1): vanilla's ores and kelp on chunk borders depend on the order
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
