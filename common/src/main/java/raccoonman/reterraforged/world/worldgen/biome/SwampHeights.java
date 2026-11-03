@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
@@ -27,7 +27,7 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
  */
 public final class SwampHeights {
 	private static final long[] EROSION_OFFSETS = { Climate.quantizeCoord(-0.25F), Climate.quantizeCoord(-0.5F), Climate.quantizeCoord(-0.75F) };
-	private static final TagKey<Biome> IS_SWAMP = TagKey.create(Registries.BIOME, ResourceLocation.parse("c:is_swamp"));
+	private static final TagKey<Biome> IS_SWAMP = TagKey.create(Registries.BIOME, Identifier.parse("c:is_swamp"));
 	// for the mods that do not tag their swamps
 	private static final String[] SWAMP_NAMES = { "swamp", "marsh", "bayou", "bog", "fen", "mire", "wetland", "mangrove", "muskeg" };
 	private static final Map<Holder<Biome>, Boolean> SWAMPS = new ConcurrentHashMap<>();
@@ -95,7 +95,7 @@ public final class SwampHeights {
 			if (b.is(IS_SWAMP)) {
 				return true;
 			}
-			String path = b.unwrapKey().map((k) -> k.location().getPath()).orElse("");
+			String path = b.unwrapKey().map((k) -> k.identifier().getPath()).orElse("");
 			for (String name : SWAMP_NAMES) {
 				if (path.contains(name)) {
 					return true;

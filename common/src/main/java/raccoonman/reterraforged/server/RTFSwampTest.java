@@ -89,7 +89,7 @@ public final class RTFSwampTest {
 			int y = ctx.levels.scale(cell.height);
 			CellSampler.clearThreadLocalCache();
 			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, y >> 2, z >> 2);
-			grid[i][j] = biome.unwrapKey().map((k) -> k.location().toString()).orElse("?");
+			grid[i][j] = biome.unwrapKey().map((k) -> k.identifier().toString()).orElse("?");
 			isSwamp[i][j] = SwampHeights.isSwamp(biome);
 			if (isSwamp[i][j]) image.setRGB(i, j, h > 20 ? 0xc2410c : 0x2f5d1e);
 			points[i][j] = randomState.sampler().sample(x >> 2, y >> 2, z >> 2);
