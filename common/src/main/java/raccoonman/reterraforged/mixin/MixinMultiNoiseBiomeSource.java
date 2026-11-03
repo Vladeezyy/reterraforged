@@ -40,7 +40,7 @@ abstract class MixinMultiNoiseBiomeSource {
 	}
 
 	@ModifyReturnValue(method = "createResolverForChunk", at = @At("RETURN"))
-	private BiomeResolver createResolverForChunk(BiomeResolver resolver, Climate.Sampler sampler) {
+	private BiomeResolver createResolverForChunk(BiomeResolver resolver, Climate.Sampler sampler, int minQuartX, int minQuartY, int minQuartZ, int maxQuartX, int maxQuartY, int maxQuartZ) {
 		return this.limitSwamps(resolver, sampler);
 	}
 

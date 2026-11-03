@@ -12,6 +12,9 @@ public class WorldLookup {
 	// strongholds' biome search) they compute the cell without the tile's erosion and beach detection. They used to take
 	// the tile when it happened to be cached: structures and their heights depended on the order chunks were generated in
 	private static final ThreadLocal<int[]> STRUCTURE_GENERATION = ThreadLocal.withInitial(() -> new int[1]);
+	// 26.3: a base height or base column query (NoiseBasedChunkGenerator.iterateNoiseColumn, MixinNoiseBasedChunkGenerator):
+	// the place's volumes are a single column like the aquifers' surface estimates in a chunk, so the query is marked
+	private static final ThreadLocal<int[]> BASE_COLUMN = ThreadLocal.withInitial(() -> new int[1]);
 	private final float waterLevel;
 	private final float beachLevel;
 	private final TileCache cache;
@@ -32,6 +35,19 @@ public class WorldLookup {
 
 	public static void endStructureGeneration() {
 		STRUCTURE_GENERATION.get()[0]--;
+	}
+
+	public static void beginBaseColumn() {
+		BASE_COLUMN.get()[0]++;
+	}
+
+	public static void endBaseColumn() {
+		BASE_COLUMN.get()[0]--;
+	}
+
+	// the cells of a base height or base column query come from the tiles only during structure generation
+	public static boolean baseColumnReadsTiles() {
+		return BASE_COLUMN.get()[0] == 0 || inStructureGeneration();
 	}
 
 	public static boolean inStructureGeneration() {

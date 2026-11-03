@@ -43,7 +43,7 @@ public final class RTFFingerprint {
 		long all = 1;
 		for (int[] area : SURFACE_AREAS) {
 			for (int cx = area[0]; cx < area[0] + 6; cx++) for (int cz = area[1]; cz < area[1] + 6; cz++) {
-				long h = hash(level, level.getChunk(cx, cz, ChunkStatus.SURFACE, true));
+				long h = hash(level, level.getChunk(cx, cz, ChunkStatus.TERRAIN, true));
 				lines.add("surface " + cx + " " + cz + " " + Long.toHexString(h));
 				all = all * 31 + h;
 			}

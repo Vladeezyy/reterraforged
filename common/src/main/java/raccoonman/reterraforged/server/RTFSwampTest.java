@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -77,6 +78,7 @@ public final class RTFSwampTest {
 		Cell[][] cells = new Cell[n][n];
 		Climate.TargetPoint[][] points = new Climate.TargetPoint[n][n];
 		int land = 0, landValley = 0, landWetland = 0;
+		Climate.Sampler climateSampler = randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED);
 		for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) {
 			int x = -RADIUS + i * STEP, z = -RADIUS + j * STEP;
 			Cell cell = new Cell();
@@ -89,10 +91,10 @@ public final class RTFSwampTest {
 			int y = ctx.levels.scale(cell.height);
 			CellSampler.clearThreadLocalCache();
 			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, y >> 2, z >> 2);
-			grid[i][j] = biome.unwrapKey().map((k) -> k.location().toString()).orElse("?");
+			grid[i][j] = biome.unwrapKey().map((k) -> k.identifier().toString()).orElse("?");
 			isSwamp[i][j] = SwampHeights.isSwamp(biome);
 			if (isSwamp[i][j]) image.setRGB(i, j, h > 20 ? 0xc2410c : 0x2f5d1e);
-			points[i][j] = randomState.sampler().sample(x >> 2, y >> 2, z >> 2);
+			points[i][j] = climateSampler.sample(x >> 2, y >> 2, z >> 2);
 			land++;
 			if (cell.riverMask < VALLEY) landValley++;
 			if (cell.terrain.isWetland()) landWetland++;

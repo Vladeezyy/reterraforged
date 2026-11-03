@@ -106,11 +106,14 @@ public final class CellSampler {
 			Heightmap heightmap = worldLookup.getHeightmap();
 			int chunkX = SectionPos.blockToSectionCoord(volume.minBlockX());
 			int chunkZ = SectionPos.blockToSectionCoord(volume.minBlockZ());
-			// A single column is a base height or base column query: as in ReTerraForged 0.0.6 it reads the cells of that
-			// place directly, not a whole tile for every place asked about (/locate, explorer maps and dolphins ask about
-			// thousands).
+			// A base height or base column query (/locate, explorer maps and dolphins ask about thousands of places) reads the
+			// cells of that place directly, as in ReTerraForged 0.0.6, except during structure generation; everything else
+			// (chunk generation, the aquifers' single-column surface estimates in it) reads the tiles, generated if needed
+			boolean tiles = WorldLookup.baseColumnReadsTiles();
+			// a single column (the aquifers' surface estimates) goes through Cache2d as before, the river and beach climate
+			// included; a chunk volume reads its own chunk's tile cells directly
 			boolean column = volume.sizeX() == 1 && volume.sizeZ() == 1;
-			Tile.Chunk chunk = column ? null : generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
+			Tile.Chunk chunk = tiles && !column ? generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ) : null;
 			Cache2d cache2d = CELL.get();
 			int sizeY = volume.sizeY();
 			int index = 0;
@@ -120,7 +123,7 @@ public final class CellSampler {
 					int blockX = volume.blockX(x);
 					Cell cell = chunk != null && SectionPos.blockToSectionCoord(blockX) == chunkX && SectionPos.blockToSectionCoord(blockZ) == chunkZ ?
 						chunk.getCell(blockX, blockZ) :
-						cache2d.getAndUpdate(worldLookup, blockX, blockZ, true);
+						cache2d.getAndUpdate(worldLookup, blockX, blockZ, true, tiles);
 					float value = this.field.read(cell, heightmap);
 					outputBuffer.setRange(index, sizeY, value);
 					index += sizeY;
@@ -135,7 +138,7 @@ public final class CellSampler {
 				return 0.0F;
 			}
 			WorldLookup worldLookup = generatorContext.lookup;
-			Cell cell = CELL.get().getAndUpdate(worldLookup, blockX, blockZ, true);
+			Cell cell = CELL.get().getAndUpdate(worldLookup, blockX, blockZ, true, WorldLookup.inStructureGeneration());
 			return this.field.read(cell, worldLookup.getHeightmap());
 		}
 	}

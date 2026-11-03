@@ -1,6 +1,9 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;

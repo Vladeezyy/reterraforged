@@ -110,7 +110,6 @@ public final class RTFClientTest {
 				shoot(mc, "preset-screen");
 				mc.gui.setScreen(new TitleScreen());
 				checkPresetSave();
-				mc.setScreen(new TitleScreen());
 				next(20);
 			}
 			case 4 -> {

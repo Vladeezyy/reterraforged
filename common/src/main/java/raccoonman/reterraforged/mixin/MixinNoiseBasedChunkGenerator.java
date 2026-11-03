@@ -11,7 +11,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+
+import java.util.OptionalInt;
+import java.util.function.Predicate;
+
+import org.apache.commons.lang3.mutable.MutableObject;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.block.state.BlockState;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -32,6 +44,19 @@ import raccoonman.reterraforged.world.worldgen.feature.ErodeFeature;
 
 @Mixin(NoiseBasedChunkGenerator.class)
 class MixinNoiseBasedChunkGenerator {
+
+	// base height and base column queries (getBaseHeight, getBaseColumn): their cells are computed, not read from the
+	// tiles, except during structure generation (WorldLookup.baseColumnReadsTiles)
+	@WrapMethod(method = "iterateNoiseColumn")
+	private OptionalInt iterateNoiseColumn(LevelHeightAccessor heightAccessor, RandomState randomState, int blockX, int blockZ, MutableObject<NoiseColumn> column, Predicate<BlockState> stoppingState, Operation<OptionalInt> original) {
+		WorldLookup.beginBaseColumn();
+		try {
+			return original.call(heightAccessor, randomState, blockX, blockZ, column, stoppingState);
+		} finally {
+			WorldLookup.endBaseColumn();
+		}
+	}
+
 	@Shadow
 	@Final
 	private Holder<NoiseGeneratorSettings> settings;

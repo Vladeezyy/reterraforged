@@ -12,6 +12,7 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
@@ -152,7 +153,7 @@ public final class RTFTileCacheTest {
 		// as the structure rule reads it
 		context.lookup.applyCell(cell, x, z, WorldLookup.inStructureGeneration(), false);
 		int baseHeight = generator.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, randomState);
-		Climate.TargetPoint target = randomState.sampler().sample(x >> 2, 80 >> 2, z >> 2);
+		Climate.TargetPoint target = randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED).sample(x >> 2, 80 >> 2, z >> 2);
 		String biome = level.getUncachedNoiseBiome(x >> 2, 80 >> 2, z >> 2).getRegisteredName();
 		boolean allowed = CELL_TEST.test(randomState, new BlockPos(x, 80, z));
 		return new Answers(target.toString(), biome, baseHeight, allowed, String.valueOf(cell.terrain));
