@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -46,7 +46,7 @@ public final class RTFSnowGridTest {
 
 	private static String measure(MinecraftServer server, String biome, int chunks) throws IOException {
 		ServerLevel level = server.overworld();
-		ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, ResourceLocation.parse(biome));
+		ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, Identifier.parse(biome));
 		BlockPos centre = RTFSurfaceMap.find(level, key, 8000);
 		if (centre == null) {
 			return "[RTF snowgrid] " + biome + " FAIL not found";
@@ -62,7 +62,7 @@ public final class RTFSnowGridTest {
 				int y = c.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
 				// the ground under the snow (snow blocks of deep snow are snow too)
 				int g = y;
-				while (g > level.getMinBuildHeight() && (c.getBlockState(pos.set(x, g, z)).isAir() || c.getBlockState(pos).is(Blocks.SNOW) || c.getBlockState(pos).is(Blocks.SNOW_BLOCK))) g--;
+				while (g > level.getMinY() && (c.getBlockState(pos.set(x, g, z)).isAir() || c.getBlockState(pos).is(Blocks.SNOW) || c.getBlockState(pos).is(Blocks.SNOW_BLOCK))) g--;
 				ground[cx * 16 + x][cz * 16 + z] = g;
 				BlockState state = c.getBlockState(pos.set(x, y, z));
 				layers[cx * 16 + x][cz * 16 + z] = state.is(Blocks.SNOW) ? state.getValue(SnowLayerBlock.LAYERS) : state.is(Blocks.SNOW_BLOCK) ? 8 : 0;
