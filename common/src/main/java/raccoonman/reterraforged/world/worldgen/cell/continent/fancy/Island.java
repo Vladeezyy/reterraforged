@@ -7,7 +7,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Line;
 
 public class Island {
 	private final int id;
-	private Segment[] segments;
+	private final Segment[] segments;
 	private final float coast2;
 	private final float deepOcean2;
 	private final float shallowOcean;
@@ -43,6 +43,8 @@ public class Island {
 			y += segment.b.y();
 		}
 		this.id = id;
+		// never kept before: the EXPERIMENTAL continents' rivers read them and every world of that type failed to start
+		this.segments = segments;
 		this.shallowOcean = shallowOcean;
 		this.coast2 = coast * coast;
 		this.deepOcean2 = deepOcean * deepOcean;
