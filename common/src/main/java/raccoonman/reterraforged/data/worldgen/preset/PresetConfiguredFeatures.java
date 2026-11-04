@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
+import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.TreePlacements;
 import net.minecraft.resources.ResourceKey;
@@ -29,6 +30,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureCo
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
+import net.minecraft.world.level.levelgen.feature.treedecorators.PlaceOnGroundDecorator;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TemplateDecorators;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
@@ -122,16 +125,12 @@ public class PresetConfiguredFeatures {
 		if(miscellaneous.customBiomeFeatures) {
 			HolderGetter<PlacedFeature> placedFeatures = ctx.lookup(Registries.PLACED_FEATURE);
 			Holder<PlacedFeature> oakSmall = placedFeatures.getOrThrow(PresetPlacedFeatures.OAK_SMALL);
-			Holder<PlacedFeature> oakForest = placedFeatures.getOrThrow(PresetPlacedFeatures.OAK_FOREST);
 			Holder<PlacedFeature> oakLarge = placedFeatures.getOrThrow(PresetPlacedFeatures.OAK_LARGE);
 			Holder<PlacedFeature> birchSmall = placedFeatures.getOrThrow(PresetPlacedFeatures.BIRCH_SMALL);
-			Holder<PlacedFeature> birchForest = placedFeatures.getOrThrow(PresetPlacedFeatures.BIRCH_FOREST);
 			Holder<PlacedFeature> birchLarge = placedFeatures.getOrThrow(PresetPlacedFeatures.BIRCH_LARGE);
 			Holder<PlacedFeature> acaciaBush = placedFeatures.getOrThrow(PresetPlacedFeatures.ACACIA_BUSH);
 			Holder<PlacedFeature> acaciaSmall = placedFeatures.getOrThrow(PresetPlacedFeatures.ACACIA_SMALL);
 			Holder<PlacedFeature> acaciaLarge = placedFeatures.getOrThrow(PresetPlacedFeatures.ACACIA_LARGE);
-			Holder<PlacedFeature> darkOakSmall = placedFeatures.getOrThrow(PresetPlacedFeatures.DARK_OAK_SMALL);
-			Holder<PlacedFeature> darkOakLarge = placedFeatures.getOrThrow(PresetPlacedFeatures.DARK_OAK_LARGE);
 			Holder<PlacedFeature> hugeBrownMushroom = placedFeatures.getOrThrow(PresetPlacedFeatures.HUGE_BROWN_MUSHROOM);
 			Holder<PlacedFeature> hugeRedMushroom = placedFeatures.getOrThrow(PresetPlacedFeatures.HUGE_RED_MUSHROOM);
 			Holder<PlacedFeature> willowSmall = placedFeatures.getOrThrow(PresetPlacedFeatures.WILLOW_SMALL);
@@ -179,8 +178,9 @@ public class PresetConfiguredFeatures {
 				makeWeighted(0.2F, oakForestBees005), 
 				makeWeighted(0.3F, oakLargeBees005)
 			)));
-			Holder<PlacedFeature> oakForestBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_FOREST, 0.002F, Blocks.OAK_SAPLING);
-			Holder<PlacedFeature> oakLargeBees0002 = makeTreeWithBees(PresetTemplatePaths.OAK_LARGE, 0.002F, Blocks.OAK_SAPLING);
+			// leaf litter under the trees of forests and dark forests, as on the vanilla trees these replace (#37)
+			Holder<PlacedFeature> oakForestBees0002 = makeTree(PresetTemplatePaths.OAK_FOREST, leafLitter(0.002F), Blocks.OAK_SAPLING);
+			Holder<PlacedFeature> oakLargeBees0002 = makeTree(PresetTemplatePaths.OAK_LARGE, leafLitter(0.002F), Blocks.OAK_SAPLING);
 			FeatureUtils.register(ctx, FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(oakForestBees0002, List.of(
 				makeWeighted(0.2F, oakForestBees0002), 
 				makeWeighted(0.3F, oakLargeBees0002)
@@ -198,13 +198,14 @@ public class PresetConfiguredFeatures {
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.biomeEdge(0.25F, 0.0F)),
 				makeChanceEntry(makeTreeWithBees(PresetTemplatePaths.BIRCH_SMALL, 0.002F, Blocks.BIRCH_SAPLING), 0.1F, RTFChanceModifiers.elevation(0.25F, 0.65F))
 			));
-			FeatureUtils.register(ctx, DARK_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(darkOakLarge, List.of(
+			Holder<PlacedFeature> darkOakLargeLitter = makeTree(PresetTemplatePaths.DARK_OAK_LARGE, leafLitter(0.0F), Blocks.DARK_OAK_SAPLING);
+			FeatureUtils.register(ctx, DARK_FOREST_TREES, Feature.RANDOM_SELECTOR, makeRandom(darkOakLargeLitter, List.of(
 				makeWeighted(0.025F, hugeBrownMushroom),
 				makeWeighted(0.05F, hugeRedMushroom),
-				makeWeighted(0.3F, darkOakLarge),
-				makeWeighted(0.2F, darkOakSmall),
-				makeWeighted(0.05F, birchForest),
-				makeWeighted(0.025F, oakForest)
+				makeWeighted(0.3F, darkOakLargeLitter),
+				makeWeighted(0.2F, makeTree(PresetTemplatePaths.DARK_OAK_SMALL, leafLitter(0.0F), Blocks.DARK_OAK_SAPLING)),
+				makeWeighted(0.05F, makeTree(PresetTemplatePaths.BIRCH_FOREST, leafLitter(0.0F), Blocks.BIRCH_SAPLING)),
+				makeWeighted(0.025F, makeTree(PresetTemplatePaths.OAK_FOREST, leafLitter(0.0F), Blocks.OAK_SAPLING))
 			)));
 			FeatureUtils.register(ctx, SAVANNA_TREES, Feature.RANDOM_SELECTOR, makeRandom(acaciaLarge, List.of(
 				makeWeighted(0.4F, acaciaLarge), 
@@ -278,9 +279,24 @@ public class PresetConfiguredFeatures {
 		return ImmutableList.of(TemplateDecorators.beeNest(chance));
 	}
 
+	// the chance of a bee nest (0: none) and Minecraft's leaf litter on the ground around the tree (TreeFeatures)
+	private static List<TemplateDecorator<TreeContext>> leafLitter(float beeChance) {
+		ImmutableList.Builder<TemplateDecorator<TreeContext>> decorators = ImmutableList.builder();
+		if (beeChance > 0.0F) {
+			decorators.add(TemplateDecorators.beeNest(beeChance));
+		}
+		decorators.add(TemplateDecorators.tree(new PlaceOnGroundDecorator(96, 4, 2, new WeightedStateProvider(VegetationFeatures.leafLitterPatchBuilder(1, 3)))));
+		decorators.add(TemplateDecorators.tree(new PlaceOnGroundDecorator(150, 2, 2, new WeightedStateProvider(VegetationFeatures.leafLitterPatchBuilder(1, 4)))));
+		return decorators.build();
+	}
+
 	// a tree of a biome's trees with its chance of a bee nest, placed where its sapling would grow
 	private static Holder<PlacedFeature> makeTreeWithBees(List<Identifier> templates, float chance, Block sapling) {
-		return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(RTFFeatures.TEMPLATE, makeTree(templates, beeNest(chance), 3))), ImmutableList.of(PlacementUtils.filteredByBlockSurvival(sapling))));
+		return makeTree(templates, beeNest(chance), sapling);
+	}
+
+	private static Holder<PlacedFeature> makeTree(List<Identifier> templates, List<TemplateDecorator<TreeContext>> decorators, Block sapling) {
+		return Holder.direct(new PlacedFeature(Holder.direct(new ConfiguredFeature<>(RTFFeatures.TEMPLATE, makeTree(templates, decorators, 3))), ImmutableList.of(PlacementUtils.filteredByBlockSurvival(sapling))));
 	}
 
 	private static TemplateFeature.Config<?> makeTree(List<Identifier> templates, List<TemplateDecorator<TreeContext>> decorators, int baseExtension) {

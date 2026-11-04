@@ -18,6 +18,11 @@ public class TemplateDecorators {
 		return new BeeNestDecorator(probability);
 	}
 
+	// one of Minecraft's tree decorators on a template tree
+	public static TemplateDecorator<TreeContext> tree(net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator decorator) {
+		return new TreeDecorator(decorator, decorator);
+	}
+
 	private static void register(String name, MapCodec<? extends TemplateDecorator<?>> placement) {
 		RegistryUtil.register(RTFBuiltInRegistries.TEMPLATE_DECORATOR_TYPE, name, placement);
 	}
