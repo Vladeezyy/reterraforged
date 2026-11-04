@@ -24,7 +24,9 @@ public class DensityNoise implements Noise {
 
         float value2 = this.variance.compute(x, y, 0);
         if (value1 > 1F) {
-            return NoiseUtil.lerp(value2, value1, (value1 - 0.25F) / 0.25F);
+            // value1 is 1-2 here: 0.0.6 blended by (value1 - 0.25) / 0.25, 3-7 instead of 0-1, and the spacing of the
+            // trees near a climate region's edge grew up to 3.5 times (1.4 was meant), leaving bare strips in forests (#37)
+            return NoiseUtil.lerp(value2, value1, value1 - 1.0F);
         }
 
         return value2;
