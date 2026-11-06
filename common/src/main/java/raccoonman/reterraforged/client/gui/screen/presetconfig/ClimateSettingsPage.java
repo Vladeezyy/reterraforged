@@ -41,6 +41,7 @@ class ClimateSettingsPage extends PresetEditorPage {
 	private CycleButton<Boolean> warmRainforestOceans;
 	private Slider lowlandSwamps;
 	private Slider swampMaxHeight;
+	private Slider swampBasins;
 
 	public ClimateSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -206,6 +207,12 @@ class ClimateSettingsPage extends PresetEditorPage {
 			return value;
 		});
 		this.left.addWidget(this.swampMaxHeight);
+		this.swampBasins = PresetWidgets.createIntSlider(climate.swampBasins, 0, ClimateSettings.MAX_SWAMP_BASINS, RTFTranslationKeys.GUI_SLIDER_SWAMP_BASINS, (slider, value) -> {
+			climate.swampBasins = (int) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.left.addWidget(this.swampBasins);
 
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_BIOME_SHAPE));
 		this.left.addWidget(this.biomeSize);

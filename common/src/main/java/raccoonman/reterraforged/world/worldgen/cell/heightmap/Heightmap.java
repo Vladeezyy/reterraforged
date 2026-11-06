@@ -20,6 +20,7 @@ import raccoonman.reterraforged.world.worldgen.cell.continent.ContinentLerper2;
 import raccoonman.reterraforged.world.worldgen.cell.continent.ContinentLerper3;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Blender;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.ITerrain;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.IslandBlender;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Populators;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainCategory;
@@ -31,6 +32,7 @@ import raccoonman.reterraforged.world.worldgen.cell.terrain.provider.TerrainProv
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.RegionLerper;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.RegionModule;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.RegionSelector;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
@@ -38,7 +40,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop) {
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands) {
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyTerrain(cell, x, z);
@@ -111,6 +113,10 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         }
         
         this.climate.apply(cell, x, z, applyClimate);
+        // Swamp Basins: one climate over the low land of a basin, so that it is one swamp
+        if (applyClimate && this.swampBasins != null && (this.isLowland(cell) || cell.terrain.isWetland())) {
+        	this.swampBasins.applyClimate(cell);
+        }
         // Lowland Swamps (ClimateSettings.lowlandSwamps): wet, not cold, flat or rolling land a few blocks above the
         // sea gets the swamps' climate as vanilla's flat lowlands do (the highest erosion, a valley's weirdness), so the
         // swamps can be wide; the climate is from the height before the tile's erosion, the same with and without tiles
@@ -127,13 +133,21 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	
 	// the cell's climate sampled: wet, not cold, flat or rolling land a few blocks above the sea (ClimateSettings.lowlandSwamps)
 	public boolean isLowlandSwamp(Cell cell) {
-		return cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && isLowland(cell)
-			&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min();
+		if (cell.height <= this.levels.water || !this.isLowland(cell)) {
+			return false;
+		}
+		if (cell.height <= this.lowlandSwampTop && cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min()) {
+			return true;
+		}
+		return this.swampBasins != null && this.swampBasins.contains(cell);
 	}
 
 	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
-	private static boolean isLowland(Cell cell) {
-		return (cell.terrain.getDelegate() == TerrainCategory.FLATLAND || cell.terrain.getDelegate() == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
+	// mixedLowlands (generation fixes): also the mixed terrains. The delegate of one is a terrain, never a category, so all of them
+	// failed here and Lowland Swamps left most terrain regions out; presets saved before keep that, and their swamps
+	private boolean isLowland(Cell cell) {
+		ITerrain category = this.mixedLowlands ? cell.terrain.getCategory() : cell.terrain.getDelegate();
+		return (category == TerrainCategory.FLATLAND || category == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
 	}
 
 	public static Heightmap make(GeneratorContext ctx) {
@@ -175,10 +189,15 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         
         CellPopulator terrainRegions = new RegionSelector(TerrainProvider.generateTerrain(ctx.seed, terrainSettings, regionConfig, levels, noiseLookup));
         CellPopulator terrainRegionBorders = Populators.makeBorder(ctx.seed, ground, terrainSettings.plains, terrainSettings.steppe, globalVerticalScale);
-        CellPopulator terrainBlend = new RegionLerper(terrainRegionBorders, terrainRegions);
         CellPopulator mountains = Populators.makeMountainChain(mountainSeed, ground, terrainSettings.mountains, terrainSettings.general.legacyMountainScaling ? 1.0F : terrainSettings.mountains.horizontalScale * 2.25F, terrainSettings.general.legacyMountainScaling ? globalVerticalScale : globalVerticalScale * terrainSettings.mountains.verticalScale, general.fancyMountains, general.legacyMountainScaling);
         Continent continent = world.continent.continentType.create(ctx.seed, ctx);
         Climate climate = Climate.make(continent, ctx);
+        // no seed is taken from ctx.seed here: without basins the seeds of everything else are the same
+        CellPopulator terrainBlend = new RegionLerper(terrainRegionBorders, terrainRegions);
+        SwampBasins swampBasins = preset.climate().swampBasins > 0 ? SwampBasins.make(terrainBlend, terrainRegionBorders, ctx.seed, levels, climate.biomeNoise(), preset.climate().swampBasins) : null;
+        if (swampBasins != null) {
+        	terrainBlend = swampBasins;
+        }
         CellPopulator land = new Blender(mountainShape, terrainBlend, mountains, 0.3F, 0.8F, 0.575F);
         
         CellPopulator deepOcean = Populators.makeDeepOcean(ctx.seed.next(), levels.water, world.properties.oceanDepth, oceanFloor(world.properties, levels));
@@ -201,7 +220,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         // off: no height is at most the water's
         int lowlandSwamps = preset.climate().lowlandSwamps;
         float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop);
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes);
 	}
 
 	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above

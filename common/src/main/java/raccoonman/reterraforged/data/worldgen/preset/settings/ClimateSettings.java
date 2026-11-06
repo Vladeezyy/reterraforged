@@ -11,7 +11,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class ClimateSettings {
-	public static final int MAX_LOWLAND_SWAMPS = 16, MAX_SWAMP_HEIGHT = 64;
+	public static final int MAX_LOWLAND_SWAMPS = 16, MAX_SWAMP_HEIGHT = 64, MAX_SWAMP_BASINS = 100;
 	public static final Codec<ClimateSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		RangeValue.CODEC.fieldOf("temperature").forGetter((o) -> o.temperature),
 		RangeValue.CODEC.fieldOf("moisture").forGetter((o) -> o.moisture),
@@ -21,12 +21,15 @@ public class ClimateSettings {
 		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans),
 		// added in 0.0.29 (#28), 0 (off) for presets saved before: their worlds keep their swamps
 		Codec.INT.optionalFieldOf("lowlandSwamps", 0).forGetter((o) -> o.lowlandSwamps),
-		Codec.INT.optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight)
-	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight) -> {
+		Codec.INT.optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight),
+		// 0 (off) for presets saved before: their worlds keep their terrain
+		Codec.INT.optionalFieldOf("swampBasins", 0).forGetter((o) -> o.swampBasins)
+	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight, swampBasins) -> {
 		ClimateSettings settings = new ClimateSettings(temperature, moisture, biomeShape, biomeEdgeShape);
 		settings.warmRainforestOceans = warmRainforestOceans;
 		settings.lowlandSwamps = lowlandSwamps;
 		settings.swampMaxHeight = swampMaxHeight;
+		settings.swampBasins = swampBasins;
 		return settings;
 	}));
 	
@@ -45,6 +48,9 @@ public class ClimateSettings {
     // place there would have (biome mods such as Terralith put their swamps on erosion that ReTerraForged's hills have);
     // 0: no limit
     public int swampMaxHeight = 0;
+    // Swamp Basins: this percent of the terrain regions with a wet, not cold climate at their center are flat land just
+    // above the sea, one swamp each (SwampBasins); 0: off, no such regions, the terrain as without the setting
+    public int swampBasins = 0;
     
     public ClimateSettings(RangeValue temperature, RangeValue moisture, BiomeShape biomeShape, BiomeNoise biomeEdgeShape) {
     	this.temperature = temperature;
@@ -58,6 +64,7 @@ public class ClimateSettings {
     	copy.warmRainforestOceans = this.warmRainforestOceans;
     	copy.lowlandSwamps = this.lowlandSwamps;
     	copy.swampMaxHeight = this.swampMaxHeight;
+    	copy.swampBasins = this.swampBasins;
     	return copy;
     }
     

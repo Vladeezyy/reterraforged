@@ -43,7 +43,7 @@ public class MixinChunkMap {
 				Preset preset = rtfRandomState.preset();
 				GeneratorContext context = rtfRandomState.generatorContext();
 				int maxHeight = preset != null ? preset.climate().swampMaxHeight : 0;
-				boolean lowlands = preset != null && preset.climate().lowlandSwamps > 0 && preset.world().properties.generationFixes;
+				boolean lowlands = preset != null && (preset.climate().lowlandSwamps > 0 && preset.world().properties.generationFixes || preset.climate().swampBasins > 0);
 				biomeSource.setSwampHeights((maxHeight > 0 || lowlands) && context != null ? new SwampHeights(context, maxHeight, lowlands) : null);
 			}
 		}
