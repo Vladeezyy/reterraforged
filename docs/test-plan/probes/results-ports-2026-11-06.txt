@@ -1,0 +1,401 @@
+#### verify-1.21.11.txt
+== neoforge new
+  RTF fingerprint] 660f574e6409d53c (4597 lines; surface 12789 ms, full 28910 ms, base heights 216069 ms) in ~/Desktop/rtf-port-1.21.11/run/server-neoforge/rtf-fingerprint.txt
+neoforge: no result; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 229 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/1.21.11.txt: PASS 4501 lines identical
+1 FAILED
+== fabric new
+  RTF fingerprint] caa5b50aef1fb3a (4597 lines; surface 64595 ms, full 45358 ms, base heights 146233 ms) in ~/Desktop/rtf-port-1.21.11/run/server-fabric/rtf-fingerprint.txt
+fabric: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 63 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/1.21.11-fabric.txt: PASS 4501 lines identical
+ALL PASS
+== parity: Traceback (most recent call last):
+  File "~/Desktop/rtf-port-1.21.11/tools/compareheights.py", line 24, in <module>
+    a_base, a_ground = read(sys.argv[1])
+  File "~/Desktop/rtf-port-1.21.11/tools/compareheights.py", line 13, in read
+    for line in open(path, encoding='utf-8'):
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>
+== legacy neoforge
+neoforge: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== legacy fabric
+fabric: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== stress
+stress: 445 variants in 112 s: 445 ok, 0 failed, 0 hung; slowest preset Default (807 ms)
+stress: 445 variants in 112 s: 445 ok, 0 failed, 0 hung; slowest preset Default (807 ms)
+== abuse
+stress: 1029 variants in 256 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (710 ms)
+stress: 1029 variants in 256 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (710 ms)
+== gui neoforge
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== gui fabric
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== widgets
+   1 [12:02:46] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL no Default preset in the list on CreateWorldScreen
+   1 [12:02:44] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL no active Customize button
+   1 [12:02:43] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL no World tab
+== done 1.21.11
+
+#### verify-26.1.2.txt
+== neoforge new
+  RTF fingerprint] 39a2e33ec9b2eb16 (4597 lines; surface 12807 ms, full 23208 ms, base heights 76296 ms) in ~/Desktop/rtf-port-26.1.2/run/server-neoforge/rtf-fingerprint.txt
+neoforge: RTF selftest] PASS all 27; errors in log: 2
+  RTF structures] PASS: 15 of 26 structures found in 36 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.1.2.txt: PASS 4501 lines identical
+   2 Caused by: java.net.UnknownHostException: api.minecraftservices.com
+1 FAILED
+== fabric new
+  RTF fingerprint] 106a6d7e3d6dde12 (4597 lines; surface 6118 ms, full 12497 ms, base heights 51692 ms) in ~/Desktop/rtf-port-26.1.2/run/server-fabric/rtf-fingerprint.txt
+fabric: RTF selftest] PASS all 27; errors in log: 1
+  RTF structures] PASS: 15 of 26 structures found in 61 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.1.2-fabric.txt: PASS 4501 lines identical
+   1 Caused by: java.net.UnknownHostException: api.minecraftservices.com
+1 FAILED
+== parity: PASS 2502 samples identical (all)
+== legacy neoforge
+neoforge: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== legacy fabric
+fabric: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== stress
+stress: 445 variants in 83 s: 445 ok, 0 failed, 0 hung; slowest preset Default (772 ms)
+stress: 445 variants in 83 s: 445 ok, 0 failed, 0 hung; slowest preset Default (772 ms)
+== abuse
+stress: 1029 variants in 210 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (714 ms)
+stress: 1029 variants in 210 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (714 ms)
+== gui neoforge
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== gui fabric
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== widgets
+  681 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== done 26.1.2
+
+#### verify-26.2.txt
+== neoforge new
+  RTF fingerprint] 447b2d979c1a8d47 (4597 lines; surface 11599 ms, full 25383 ms, base heights 195610 ms) in ~/Desktop/rtf-port-26.2/run/server-neoforge/rtf-fingerprint.txt
+neoforge: no result; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 302 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.2.txt: PASS 4501 lines identical
+1 FAILED
+== fabric new
+  RTF fingerprint] 3f5ad29ac4bb3604 (4597 lines; surface 33537 ms, full 40853 ms, base heights 261827 ms) in ~/Desktop/rtf-port-26.2/run/server-fabric/rtf-fingerprint.txt
+fabric: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 66 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.2-fabric.txt: PASS 4501 lines identical
+ALL PASS
+== parity: PASS 2502 samples identical (all)
+== legacy neoforge
+neoforge: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== legacy fabric
+fabric: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== stress
+stress: 445 variants in 96 s: 445 ok, 0 failed, 0 hung; slowest preset Default (693 ms)
+stress: 445 variants in 96 s: 445 ok, 0 failed, 0 hung; slowest preset Default (693 ms)
+== abuse
+stress: 1029 variants in 256 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (779 ms)
+stress: 1029 variants in 256 s: 1029 ok, 0 failed, 0 hung; slowest caves().entranceCaveProbability = NaN (779 ms)
+== gui neoforge
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-neoforge; errors in log: 1 (+ 0 vanilla large_dripstone far-chunk lines)
+   1 [11:52:32] [main/ERROR] (EARLYDISPLAY) WARNING : glfwInit took 1.380265833 seconds to start.
+== gui fabric
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== widgets
+  681 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== done 26.2
+
+#### verify-26.3.txt
+== neoforge new
+  RTF fingerprint] df6a331799dbf19f (4597 lines; surface 7262 ms, full 11596 ms, base heights 1629 ms) in ~/Desktop/rtf-port-26.3/run/server-neoforge/rtf-fingerprint.txt
+neoforge: RTF selftest] PASS all 27; errors in log: 6
+  RTF structures] PASS: 15 of 26 structures found in 26 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.3.txt: FAIL differ: full 3 of 96 (full -297 -499: ef7ed5a01ab45927 -> 3f8e759300663df2; full -297 -500: 9b8984d131dd72d6 -> 47b80b417943483; full -298 -500: a538a204a9ff83b6 -> 387dec933de69335)
+  full -297 -499: tall_seagrass@6+2 water@6-2
+  full -297 -500: kelp@7-1 kelp_plant@6-9 seagrass@6-3 tall_seagrass@6+2 water@6+10 water@7+1
+  full -298 -500: tall_seagrass@6+6 water@6-6
+   2 com.mojang.authlib.exceptions.MinecraftClientException: Services are unavailable
+   2 com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://discovery.minecraftservices.com/minecraft/client due to discovery.minecrafts
+   2 Caused by: java.net.UnknownHostException: discovery.minecraftservices.com
+1 FAILED
+== fabric new
+  RTF fingerprint] fe56ce8fa5056165 (4597 lines; surface 3572 ms, full 7640 ms, base heights 1072 ms) in ~/Desktop/rtf-port-26.3/run/server-fabric/rtf-fingerprint.txt
+fabric: RTF selftest] PASS all 27; errors in log: 6
+  RTF structures] PASS: 15 of 26 structures found in 23 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.3-fabric.txt: PASS 4501 lines identical
+   2 com.mojang.authlib.exceptions.MinecraftClientException: Services are unavailable
+   2 com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://discovery.minecraftservices.com/minecraft/client due to discovery.minecrafts
+   2 Caused by: java.net.UnknownHostException: discovery.minecraftservices.com
+1 FAILED
+== parity: PASS 2502 samples identical (all)
+== legacy neoforge
+neoforge: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== legacy fabric
+fabric: RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked; errors in log: 0
+  RTF structures] PASS (skipped)
+  a world of 0.0.29 opened with this build, against a new one: PASS 324 samples identical (ground)
+ALL PASS
+== stress
+stress: 445 variants in 106 s: 445 ok, 0 failed, 0 hung; slowest preset Default (874 ms)
+stress: 445 variants in 106 s: 445 ok, 0 failed, 0 hung; slowest preset Default (874 ms)
+== abuse
+stress: 1029 variants in 288 s: 1029 ok, 0 failed, 0 hung; slowest surface().erosion().dirtMin = 1000000 (966 ms)
+stress: 1029 variants in 288 s: 1029 ok, 0 failed, 0 hung; slowest surface().erosion().dirtMin = 1000000 (966 ms)
+== gui neoforge
+screenshots:        1 in run/guitest-neoforge; errors in log: 3 (+ 0 vanilla large_dripstone far-chunk lines)
+   1 [12:41:53] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL Customize did not open the preset screen: CreateWorldScreen
+   1 [12:41:51] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL no active Customize button
+   1 [12:41:51] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL no World tab
+== gui fabric
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== widgets
+  690 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+== done 26.3
+
+#### verify-repeat.txt
+== 1.21.11 neoforge
+neoforge: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 73 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/1.21.11.txt: PASS 4501 lines identical
+
+ALL PASS
+== 1.21.11 parity: PASS 2502 samples identical (all)
+== 1.21.11 widgets
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 1 (+ 0 vanilla large_dripstone far-chunk lines)
+   1 [13:04:46] [Render thread/ERROR] (ReTerraForged) [RTF clienttest] FAIL settings changed on the way to the world: [world.continent.continentScale 2963 -> 3000, world.continent.continentJitter 0.699095 
+== 26.1.2 neoforge
+neoforge: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 63 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.1.2.txt: PASS 4501 lines identical
+
+ALL PASS
+== 26.1.2 fabric
+fabric: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 43 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.1.2-fabric.txt: PASS 4501 lines identical
+
+ALL PASS
+== 26.2 neoforge
+neoforge: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 46 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.2.txt: PASS 4501 lines identical
+
+ALL PASS
+== 26.3 neoforge
+  RTF structures] PASS: 15 of 26 structures found in 25 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.3.txt: FAIL differ: full 3 of 96 (full -297 -499: ef7ed5a01ab45927 -> 3f8e759300663df2; full -297 -500: 9b8984d131dd72d6 -> 47b80b417943483; full -298 -500: a538a204a9ff83b6 -> 387dec933de69335)
+  full -297 -499: tall_seagrass@6+2 water@6-2
+  full -297 -500: kelp@7-1 kelp_plant@6-9 seagrass@6-3 tall_seagrass@6+2 water@6+10 water@7+1
+  full -298 -500: tall_seagrass@6+6 water@6-6
+
+1 FAILED
+== 26.3 fabric
+fabric: RTF selftest] PASS all 27; errors in log: 0
+  RTF structures] PASS: 15 of 26 structures found in 30 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+  generation against tools/fingerprint/26.3-fabric.txt: PASS 4501 lines identical
+
+ALL PASS
+== 26.3 gui neoforge
+
+#### clients-1.txt
+started 15:50:06 after waiting 450s for other tests
+== 26.3 neoforge gui 15:50:06
+screenshots:        0 in run/guitest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 1 at 15:50:13
+> Task :common:compileJava FAILED
+~/Desktop/rtf-port-26.3/common/src/main/java/raccoonman/reterraforged/client/RTFGuiTest.java:98: error: cannot find symbol
+  ~/Desktop/rtf-port-26.3/common/src/main/java/raccoonman/reterraforged/client/RTFGuiTest.java:98: error: cannot find symbol
+BUILD FAILED in 4s
+== 1.21.11 neoforge widgets 15:50:58
+  click Slider 'Volcano Biome Usage: 0.805' at 388 594 on PresetConfigScreen
+  click Plain 'Done' at 827 885 on PresetConfigScreen
+  applied preset: 244 settings, 0 differ from the screen
+  681 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 15:54:32
+== done 15:54:32
+
+#### clients-2.txt
+started 15:56:24 after waiting 30s for other tests
+== 26.3 neoforge gui 15:56:24
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 15:59:29
+window class not exported
+> Task :neoforge:runClient FAILED
+BUILD FAILED in 3m 4s
+== 26.3 neoforge widgets 16:00:14
+  click Slider 'Volcano Biome Usage: 0.805' at 388 594 on PresetConfigScreen
+  click Plain 'Done' at 827 885 on PresetConfigScreen
+  applied preset: 248 settings, 0 differ from the screen
+  690 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:04:48
+window class not exported
+> Task :neoforge:runClient FAILED
+BUILD FAILED in 4m 33s
+== 26.3 fabric gui 16:05:33
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:07:49
+window class not exported
+> Task :fabric:runClient FAILED
+BUILD FAILED in 2m 15s
+== 1.21.1 neoforge widgets 16:08:34
+  click Slider 'Вулканические биомы: 0.812' at 102 208 on PresetConfigScreen
+  click Button 'Готово' at 256 243 on PresetConfigScreen
+  applied preset: 245 settings, 0 differ from the screen
+  674 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:12:06
+window class exported, noFocus handlers: 0
+== 1.21.1 fabric gui 16:12:51
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:15:11
+window class exported, noFocus handlers: 0
+== 1.21.11 fabric gui 16:15:56
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:18:18
+window class exported, noFocus handlers: 0
+== 26.1.2 neoforge widgets 16:19:03
+  click Slider 'Volcano Biome Usage: 0.805' at 388 594 on PresetConfigScreen
+  click Plain 'Done' at 827 885 on PresetConfigScreen
+  applied preset: 244 settings, 0 differ from the screen
+  681 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:22:36
+window class exported, noFocus handlers: 0
+== 26.1.2 fabric gui 16:23:21
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:25:42
+window class exported, noFocus handlers: 0
+== 26.2 neoforge widgets 16:26:27
+  click Slider 'Volcano Biome Usage: 0.805' at 388 594 on PresetConfigScreen
+  click Plain 'Done' at 827 885 on PresetConfigScreen
+  applied preset: 244 settings, 0 differ from the screen
+  681 widget uses, all checks passed
+  done
+screenshots:       11 in run/widgetstest-neoforge; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:31:02
+window class exported, noFocus handlers: 0
+> Task :neoforge:runClient FAILED
+BUILD FAILED in 4m 33s
+== 26.2 fabric gui 16:31:47
+  pressing gui.yes on ConfirmScreen
+  the new world is built by ReTerraForged, continent scale 7570
+  trees in the forest: [reterraforged:forest_trees]
+  26 screenshots, all checks passed
+  done
+screenshots:       26 in run/guitest-fabric; errors in log: 0 (+ 0 vanilla large_dripstone far-chunk lines)
+exit 0 at 16:34:21
+window class exported, noFocus handlers: 0
+> Task :fabric:runClient FAILED
+BUILD FAILED in 2m 31s
+== done 16:34:21
+
+#### builds-2.txt
+== 1.21.1 16:34:41
+BUILD SUCCESSFUL in 12s
+unit tests: 38, failed 0
+exit 0
+== 1.21.11 16:35:14
+BUILD SUCCESSFUL in 12s
+unit tests: 38, failed 0
+exit 0
+== 26.1.2 16:35:47
+BUILD SUCCESSFUL in 9s
+unit tests: 38, failed 0
+exit 0
+== 26.2 16:36:17
+BUILD SUCCESSFUL in 10s
+unit tests: 38, failed 0
+exit 0
+== 26.3 16:36:47
+BUILD SUCCESSFUL in 10s
+unit tests: 35, failed 0
+exit 0
+== done 16:36:58
+
+#### bench-ports.txt
+== 26.3 fingerprint with the new reference, 6938619 16:43:14
+  generation against tools/fingerprint/26.3.txt: PASS 4501 lines identical
+ALL PASS
+== 1.21.11 bf38a45 17:05:56 load 1.79 2.46 2.80
+exit 0
+reterraforged: server did not start
+vanilla: server did not start
+== 26.1.2 679d644 19:04:03 load 1.11 1.89 2.50
