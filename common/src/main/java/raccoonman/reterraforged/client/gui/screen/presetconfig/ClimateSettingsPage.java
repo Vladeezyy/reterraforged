@@ -207,8 +207,8 @@ class ClimateSettingsPage extends PresetEditorPage {
 			return value;
 		});
 		this.left.addWidget(this.swampMaxHeight);
-		this.swampBasins = PresetWidgets.createIntSlider(climate.swampBasins, 0, ClimateSettings.MAX_SWAMP_BASINS, RTFTranslationKeys.GUI_SLIDER_SWAMP_BASINS, (slider, value) -> {
-			climate.swampBasins = (int) slider.scaleValue(value);
+		this.swampBasins = PresetWidgets.createFloatSlider(climate.swampBasins, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_SWAMP_BASINS, (slider, value) -> {
+			climate.swampBasins = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});

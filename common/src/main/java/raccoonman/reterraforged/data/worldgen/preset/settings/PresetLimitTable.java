@@ -35,7 +35,7 @@ final class PresetLimitTable {
 		PresetLimits.Limit.ofInt("climate().biomeEdgeShape.strength", 1, 500, 1, p -> p.climate().biomeEdgeShape.strength, (p, v) -> p.climate().biomeEdgeShape.strength = v),
 		PresetLimits.Limit.ofInt("climate().lowlandSwamps", 0, ClimateSettings.MAX_LOWLAND_SWAMPS, 1, p -> p.climate().lowlandSwamps, (p, v) -> p.climate().lowlandSwamps = v),
 		PresetLimits.Limit.ofInt("climate().swampMaxHeight", 0, ClimateSettings.MAX_SWAMP_HEIGHT, 1, p -> p.climate().swampMaxHeight, (p, v) -> p.climate().swampMaxHeight = v),
-		PresetLimits.Limit.ofInt("climate().swampBasins", 0, ClimateSettings.MAX_SWAMP_BASINS, 1, p -> p.climate().swampBasins, (p, v) -> p.climate().swampBasins = v),
+		PresetLimits.Limit.ofFloat("climate().swampBasins", 0.0F, 1.0F, p -> p.climate().swampBasins, (p, v) -> p.climate().swampBasins = v),
 		PresetLimits.Limit.ofFloat("fakeWaterBiomes().heightOffset", 0.0F, 0.05F, p -> p.fakeWaterBiomes().heightOffset, (p, v) -> p.fakeWaterBiomes().heightOffset = v),
 		PresetLimits.Limit.ofInt("filters().erosion.dropletsPerChunk", 10, 250, 1, p -> p.filters().erosion.dropletsPerChunk, (p, v) -> p.filters().erosion.dropletsPerChunk = v),
 		PresetLimits.Limit.ofInt("filters().erosion.dropletLifetime", 1, 32, 1, p -> p.filters().erosion.dropletLifetime, (p, v) -> p.filters().erosion.dropletLifetime = v),

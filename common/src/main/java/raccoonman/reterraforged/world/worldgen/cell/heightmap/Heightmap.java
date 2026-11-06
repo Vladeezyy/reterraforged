@@ -193,7 +193,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         Climate climate = Climate.make(continent, ctx);
         // no seed is taken from ctx.seed here: without basins the seeds of everything else are the same
         CellPopulator terrainBlend = new RegionLerper(terrainRegionBorders, terrainRegions);
-        SwampBasins swampBasins = preset.climate().swampBasins > 0 ? SwampBasins.make(terrainBlend, terrainRegionBorders, ctx.seed, levels, climate.biomeNoise(), preset.climate().swampBasins) : null;
+        SwampBasins swampBasins = preset.climate().swampBasins > 0.0F ? SwampBasins.make(terrainBlend, terrainRegionBorders, ctx.seed, levels, climate.biomeNoise(), preset.climate().swampBasins) : null;
         if (swampBasins != null) {
         	terrainBlend = swampBasins;
         }

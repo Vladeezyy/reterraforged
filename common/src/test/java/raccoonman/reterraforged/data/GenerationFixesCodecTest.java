@@ -65,12 +65,12 @@ class GenerationFixesCodecTest {
 	@Test
 	void noSwampBasinsInAPresetSavedBeforeThem() {
 		ClimateSettings settings = new ClimateSettings(new RangeValue(0, 6, 2, 0.0F, 0.98F, 0.05F), new RangeValue(0, 6, 1, 0.0F, 1.0F, 0.0F), new BiomeShape(225, 8, 150, 80), new BiomeNoise(BiomeNoise.EdgeType.SIMPLEX, 24, 2, 0.5F, 2.65F, 14));
-		settings.swampBasins = 25;
+		settings.swampBasins = 0.25F;
 		JsonObject saved = ClimateSettings.CODEC.encodeStart(JsonOps.INSTANCE, settings).getOrThrow().getAsJsonObject();
-		assertEquals(25, ClimateSettings.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().swampBasins);
-		assertEquals(25, settings.copy().swampBasins);
+		assertEquals(0.25F, ClimateSettings.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().swampBasins);
+		assertEquals(0.25F, settings.copy().swampBasins);
 		assertNotNull(saved.remove("swampBasins"));
-		assertEquals(0, ClimateSettings.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().swampBasins);
+		assertEquals(0.0F, ClimateSettings.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().swampBasins);
 	}
 
 	// Codec.intRange refused it before PresetLimits could cut it, and the server did not start

@@ -57,29 +57,29 @@ public final class SwampBasins implements CellPopulator {
 		private boolean basin;
 	}
 
-	private SwampBasins(CellPopulator regions, CellPopulator border, TerrainPopulator basin, ClimateModule climate, int seed, int percent, float top) {
+	private SwampBasins(CellPopulator regions, CellPopulator border, TerrainPopulator basin, ClimateModule climate, int seed, float share, float top) {
 		this.regions = regions;
 		this.border = border;
 		this.basin = basin;
 		this.climate = climate;
 		this.seed = seed;
-		this.threshold = (int) (Integer.MAX_VALUE * (double) Math.min(percent, 100) / 100.0D);
+		this.threshold = (int) (Integer.MAX_VALUE * (double) Math.min(share, 1.0F));
 		this.top = top;
 	}
 
 	/**
 	 * @param regions the terrain regions blended into their border
 	 * @param border the terrain of the regions' border
-	 * @param percent of the terrain regions with a wet, not cold center
+	 * @param share of the terrain regions with a wet, not cold center
 	 */
-	public static SwampBasins make(CellPopulator regions, CellPopulator border, Seed seed, Levels levels, ClimateModule climate, int percent) {
+	public static SwampBasins make(CellPopulator regions, CellPopulator border, Seed seed, Levels levels, ClimateModule climate, float share) {
 		// its own seed: the other noises keep theirs
 		Seed basinSeed = seed.offset(6173);
 		Noise mounds = Noises.perlin(basinSeed.next(), 96, 2);
 		mounds = Noises.mul(Noises.pow(mounds, 2.0F), levels.scale(MOUNDS));
 		Noise bottom = Noises.constant(levels.water + levels.unit * 0.25F);
 		TerrainPopulator basin = new TerrainPopulator(TerrainType.FLATS, bottom, mounds, Populators.DEFAULT_EROSION, Populators.LOWLAND_WEIRDNESS, 1.0F);
-		return new SwampBasins(regions, border, basin, climate, basinSeed.next(), percent, levels.water(TOP));
+		return new SwampBasins(regions, border, basin, climate, basinSeed.next(), share, levels.water(TOP));
 	}
 
 	@Override
