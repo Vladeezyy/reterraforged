@@ -80,6 +80,11 @@ The mod only affects new worlds created with its preset. It does not change an e
   where stone gives way to deepslate; 0 is vanilla's.
 - **Warm Oceans by Rainforests** (0.0.28, Climate page, [#35](https://github.com/Vladeezyy/reterraforged/issues/35)): the sea
   of tropical rainforest regions is warm ocean, with coral reefs; off by default (lukewarm, as in 0.0.6).
+- **Generation Fixes** (0.0.30, World page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28), [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): fixes that change the
+  terrain, on in new presets and off in presets saved before, so existing worlds keep their terrain. Islands differ from seed to seed, their beaches
+  are above the water, and their horizontal scale changes only their terrain, not their outline. Swamp floors no longer repeat from chunk to chunk.
+  Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates. The Infinite continent type has land. Another mod's
+  dimension on the overworld's noise settings gets terrain instead of a flat sea.
 - **Lowland Swamps and Highest Swamps** (0.0.29, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): wet,
   flat lowlands can get wide swamps (off by default), and a swamp biome too high above the sea is picked again (12 blocks in
   new presets), which keeps Terralith's swamps off the hills.
@@ -152,6 +157,18 @@ the wetlands counted as river for structures.
 The structure page and the sliders that did nothing before now work (horizontal scale of hills, dales, plateaus,
 badlands, volcano scales). Settings the generation does not use (nor did 0.0.6) are shown as inactive. Presets read
 from files are held to valid values, and a broken file in the presets folder no longer crashes the game.
+
+## Known limitations
+
+- **Far from the center** (past 16.7 million blocks, 2^24) terrain coordinates lose precision and the ground comes in steps of 2 blocks. No crash and no
+  holes. Fixing it would change the noise of every world.
+- **Seeds:** the terrain uses the lower 32 bits of the seed, so seeds `x` and `x + 2^32` have nearly the same terrain (99 % of the heights). Using the
+  upper bits would change every world made from a 64-bit seed.
+- **`tileSize` in `performance.conf`** also changes a few surface blocks (7 to 11 % of the surface chunks have some difference), as erosion runs per
+  tile. Keep one value for the life of a world, and the same on all machines of a modpack. Above 5 it is cut to 5: 8 needed about 9 GB.
+- **Lowland Swamps with biome mods:** swamps go where the terrain is low, mostly river valleys, because the setting does not reshape the land. With
+  Biomes O' Plenty and Terralith at 12 / 12 they cover 3 % of the land and few are wide: 16 / 64 gives the widest (see
+  [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Problems and fixes in detail
 
@@ -606,6 +623,11 @@ On 1.21.1 ReTerraForged is about 9 % slower than vanilla. The mod computes a who
 | 26.3 vanilla | 4096 | 15.5 s | 264.0 | 3.8 ms | 1101 MB |
 | 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 s | 270.1 | 3.7 ms | 1165 MB |
 
+**Tile cache, 0.0.30.** A tile used to be thrown out after its 64th chunk, and the neighbours made it again: 47 % of the tiles in `rtf bench 96` were
+made twice. Now none are: at 2 GB 53.1 chunks/s against 44.6 (heap peak 1615 MB against 1664), at 3 GB 60.2 against 58.8 (1786 MB against 2575). `rtf bench 32` at
+3 GB, four runs each in turns: 54.2 chunks/s against 50.6, within the noise of a run that short. Vanilla in the same conditions: 61.0 chunks/s, ReTerraForged 55.7
+(TPS over the minute 17.76 and 17.74, tick median 5.3 and 5.7 ms, 95 % 49.4 and 58.9 ms).
+
 **spark during the generation** (`spark tps`, the same runs). 16 threads ask for chunks at once, far more than any player flying with elytra does, so TPS drops for the time of the test in vanilla as well and is back to 20 right after it:
 
 | | TPS 5 s / 10 s / 1 min | Tick min / median / 95 % / max, ms | CPU (process) |
@@ -733,6 +755,11 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Тёплые океаны у тропических лесов** (0.0.28, страница «Климат», [#35](https://github.com/Vladeezyy/reterraforged/issues/35)): море
   в регионах тропических лесов — тёплый океан с коралловыми рифами; по умолчанию выключено (умеренно тёплый, как
   в 0.0.6).
+- **Исправления генерации** (0.0.30, страница «Мир», [#28](https://github.com/Vladeezyy/reterraforged/issues/28), [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): исправления, которые меняют
+  рельеф. В новых пресетах включены, в сохранённых раньше выключены, поэтому существующие миры не меняются. Острова разные у разных сидов, их пляжи
+  над водой, горизонтальный масштаб меняет только их рельеф, а не очертания. Дно болот не повторяется от чанка к чанку. «Болота в низинах»
+  подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате. У типа материков «Бесконечный» появляется суша. Измерение
+  другого мода на шуме верхнего мира получает рельеф вместо ровного моря.
 - **Болота в низинах и Самые высокие болота** (0.0.29, страница «Климат», [#28](https://github.com/Vladeezyy/reterraforged/issues/28)):
   на влажных ровных низинах могут появляться широкие болота (по умолчанию выключено), а болотный биом слишком высоко над морем
   выбирается заново (12 блоков в новых пресетах), поэтому болота Terralith не забираются на холмы.
@@ -804,6 +831,18 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 Ещё заработали страница структур и ползунки, которые раньше ничего не делали (горизонтальный масштаб холмов, долин,
 плато, бесплодных земель, масштабы вулканов). Настройки, которые генерация не использует (и в 0.0.6 тоже), показаны
 неактивными. Пресеты из файлов приводятся к допустимым значениям, сломанный файл в папке пресетов больше не роняет игру.
+
+## Известные ограничения
+
+- **Далеко от центра** (за 16,7 млн блоков, 2^24) координаты рельефа теряют точность, и земля идёт ступенями по 2 блока. Сбоев и дыр нет. Исправление
+  изменило бы шум всех миров.
+- **Сиды:** рельеф использует младшие 32 бита сида, поэтому у сидов `x` и `x + 2^32` почти одинаковый рельеф (99 % высот). Учёт старших битов изменил
+  бы все миры с 64-битным сидом.
+- **`tileSize` в `performance.conf`** меняет и часть блоков поверхности (различия есть в 7–11 % поверхностных чанков), потому что эрозия считается по
+  тайлам. Держите одно значение всю жизнь мира и одно на всех машинах модпака. Больше 5 обрезается до 5: для 8 требовалось около 9 ГБ.
+- **«Болота в низинах» с модами биомов:** болота идут туда, где рельеф низкий, в основном в долины рек, потому что настройка не меняет форму суши. С
+  Biomes O' Plenty и Terralith при 12 / 12 они занимают 3 % суши и широких мало, шире всего при 16 / 64 (см.
+  [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Проблемы и исправления подробно
 
@@ -1255,6 +1294,11 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 | 1.21.1 ReTerraForged 0.0.13 | 2304 | 30.0 с | 76.7 | 13.0 мс | 1193 МБ |
 | 26.3 ваниль | 4096 | 15.5 с | 264.0 | 3.8 мс | 1101 МБ |
 | 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 с | 270.1 | 3.7 мс | 1165 МБ |
+
+**Кэш тайлов, 0.0.30.** Раньше тайл выбрасывался после 64-го чанка, и соседи считали его заново: в `rtf bench 96` 47 % тайлов считались дважды. Теперь таких нет: при
+2 ГБ 53,1 чанка/с против 44,6 (пик кучи 1615 МБ против 1664), при 3 ГБ 60,2 против 58,8 (1786 МБ против 2575). `rtf bench 32` при 3 ГБ, по четыре прогона по очереди: 54,2
+чанка/с против 50,6, в пределах шума такого короткого прогона. Ваниль в тех же условиях: 61,0 чанка/с, ReTerraForged 55,7 (TPS за минуту 17,76 и 17,74, медиана тика 5,3 и
+5,7 мс, 95 % 49,4 и 58,9 мс).
 
 **spark во время генерации** (`spark tps`, те же прогоны). 16 потоков запрашивают чанки одновременно, гораздо больше, чем игрок на элитрах, поэтому TPS на время теста проседает и у ванили и сразу после него возвращается к 20:
 
