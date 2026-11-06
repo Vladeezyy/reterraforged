@@ -1,0 +1,243 @@
+== v1
+[v-old] rtf fingerprint (88s): [RTF fingerprint] 580ae7592684ad1f (4597 lines; surface 11166 ms, full 21399 ms, base heights 57953 ms) in 
+[v-old] preset of 0.0.29 against the reference: PASS 4501 lines identical
+[v-old] errors in log: 0 
+[v-arch-old] rtf fingerprint (116s): [RTF fingerprint] 9ccd1eb33b0742ab (4597 lines; surface 18128 ms, full 32296 ms, base heights 69841 ms) in 
+[v-arch-old] errors in log: 0 
+[v-arch-new] rtf fingerprint (133s): [RTF fingerprint] 9ccd1eb33b0742ab (4597 lines; surface 11943 ms, full 25666 ms, base heights 99718 ms) in 
+[v-arch] archipelago preset of 0.0.29, old build against new: PASS 4501 lines identical
+[v-arch-new] errors in log: 0 
+[v-export] rtf exportpreset (1s): [09:24:35] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export] errors in log: 0 
+new preset generationFixes: True
+[v-new] rtf fingerprint (109s): [RTF fingerprint] 580ae7592684ad1f (4597 lines; surface 8335 ms, full 14805 ms, base heights 89301 ms) in 
+[v-new] new Default against the reference: PASS 4501 lines identical
+[v-new] errors in log: 0 
+[v-tests] rtf selftest (321s): [RTF selftest] PASS all 27
+[v-tests] rtf structures (61s): [RTF structures] PASS: 15 of 26 structures found in 61 s, not near: [village_snowy, jungle_pyramid, swamp_hut, igloo, mansion, shipwreck_beached, ocean_ruin_cold, ruined_portal_mountain, buried_treasure, mineshaft_mesa, ancient_city]
+[v-tests] rtf tilecache (200s): [RTF tilecache] 6144 points, PASS: before the tile is cached vs after: climate differs 0 (0.0%; the biome with it 0: ); surface height differs 0 (0.0%, mean 0.0, max 0 blocks); structure rule differs 0 (0.0%: allowed only before 0, only after 0); terrain differs 0 (). Lookups (/locate) vs structure generation: climate differs 1554 (25.3%; the biome with it 41: 16 beach -> plains, 3 beach -> birch_forest, 3 beach -> forest, 3 ocean -> beach, 2 dripstone_caves -> old_growth_birch_forest, 2 dripstone_caves -> snowy_slopes); surface height differs 1375 (22.4%, mean 1.2, max 10 blocks); structure rule differs 254 (4.1%: allowed only for lookups 3, only in generation 251); terrain differs 952 (234 hills -> coast, 93 mountains_3 -> coast, 92 flats-steppe -> ocean, 88 mountain_chain -> coast, 67 hills -> beach, 62 flats-plateau -> coast)
+[v-tests] rtf holes (361s): [RTF holes] rtf pits=12 per_km2=11.44 funnels=12 high_funnels=3 high_water=82690 high_water_spots=188 area=1.05
+[v-tests] rtf floating (19s): [RTF floating] rtf blocks=558 columns=555 top: minecraft:ocean 169, minecraft:plains 124, minecraft:beach 67, minecraft:taiga 62, minecraft:river 32, minecraft:deep_frozen_ocean 30, minecraft:frozen_river 17, minecraft:swamp 14; blocks: minecraft:dirt 93, minecraft:sand 70, minecraft:grass_block 63, minecraft:sandstone 56, minecraft:gravel 44, minecraft:spruce_planks 37
+[v-tests] errors in log: 0 
+[v-stress] rtf stress 10 (1s): [RTF stress] 415 variants, 187 settings, time limit 180 s each
+[v-stress] rtf stress abuse (3s): [RTF stress] 25/415 done, heap 241 MB
+[v-stress] JVM DID NOT EXIT 150 s after stop
+[v-stress] errors in log: 0 
+ALL DONE v1
+== v2
+[v-tile8] rtf bench 8 (11s): [RTF bench] ReTerraForged: 64 chunks in 4.4 s, 14.6 chunks/s, 68.6 ms per chunk, heap in use 1398 MB of 3072 MB (922 MB after a GC), 10 cores
+[v-tile8] log: [09:26:08] [Server thread/WARN] [ReTerraForged/]: tileSize 8 in 
+[v-tile8] errors in log: 0 
+[v-badconf] opened: 1 messages
+[v-badconf] errors in log: 2    1 java.lang.IllegalArgumentException: Malformed \uxxxx encoding.
+   1 [Server thread/ERROR] [ReTerraForged/]: Failed to read performance config 
+[v-swamp99] started with lowlandSwamps=99
+[v-swamp99] errors in log: 0 
+[v-lowheap] FAILED TO START (rc 1): Exception in thread "RTF worker #3" java.lang.OutOfMemoryError: Java heap space
+[v-lowheap] Exception in thread "RTF worker #3" java.lang.OutOfMemoryError: Java heap space;
+[v-lowheap] JVM DID NOT EXIT 150 s after stop
+[v-lowheap] errors in log: 4    1 net.minecraft.ReportedException: Exception initializing level
+   1 [Server thread/ERROR] [minecraft/MinecraftServer]: This crash report has been saved to: 
+   1 [Server thread/ERROR] [minecraft/MinecraftServer]: Encountered an unexpected exception
+   1 Exception in thread "RTF worker #3" java.lang.OutOfMemoryError: Java heap space
+[v-export2] rtf exportpreset file: (1s): [09:30:08] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export2] rtf exportpreset file: (1s): [09:30:09] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export2] rtf exportpreset file: (1s): [09:30:10] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export2] rtf exportpreset file: (1s): [09:30:12] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export2] rtf exportpreset file: (1s): [09:30:13] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export2] rtf probe islands (10s): [RTF probe] islands DONE  | OFF: island cells 25738 scale3 25030; seeds overlap 29.3% (11028/37679); beach above water 13.9% (1514/10909) | island cells with another continentalness when Island Coast 0.1, Inland 0.05: 25004/25009island cells seed1 25009 seed2 29375 scale3 25009; where both seeds have open water or an island the islands of the two seeds overlap 6.3% (1792/28633); seed1 scale1 vs scale3 overlap 100.0%; ISLAND_BEACH above the water 61.8% of 10201; island cells changed by islandCoast/islandInland 0 of 25009
+[v-export2] errors in log: 0 
+[vi1] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 122 0 top block block.minecraft.coarse_dirt water=false terrain hills continentEdge=0.6799573 biome minecraft:forest
+[vi1] errors in log: 0 
+[vi2] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi2] errors in log: 0 
+[vi3] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 71 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.61912715 biome minecraft:plains
+[vi3] errors in log: 0 
+[vi4] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi4] errors in log: 0 
+[vi5] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain ocean continentEdge=0.21852666 biome minecraft:ocean
+[vi5] errors in log: 0 
+[vi6] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi6] errors in log: 0 
+[vi7] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 87 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.50498974 biome minecraft:plains
+[vi7] errors in log: 0 
+[vi8] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 71 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.48030964 biome minecraft:plains
+[vi8] errors in log: 0 
+[vi9] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain ocean continentEdge=0.10156763 biome minecraft:ocean
+[vi9] errors in log: 0 
+[vi10] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain ocean continentEdge=0.13779388 biome minecraft:ocean
+[vi10] errors in log: 0 
+[vi11] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi11] errors in log: 0 
+[vi12] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 95 63 79 top block block.minecraft.grass_block water=false terrain plateau-hills continentEdge=0.27046064 biome minecraft:plains
+[vi12] errors in log: 0 
+[vi13] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 15 63 15 top block block.minecraft.sand water=false terrain plateau continentEdge=0.28569505 biome minecraft:beach
+[vi13] errors in log: 0 
+[vi14] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 81 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.640781 biome minecraft:plains
+[vi14] errors in log: 0 
+[vi15] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 157 0 top block block.minecraft.stone water=false terrain mountain_chain continentEdge=0.97825867 biome minecraft:grove
+[vi15] errors in log: 0 
+[vi16] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi16] errors in log: 0 
+[vi17] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi17] errors in log: 0 
+[vi18] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 48 63 58 top block block.minecraft.sand water=false terrain hills continentEdge=0.29353598 biome minecraft:beach
+[vi18] errors in log: 0 
+[vi19] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 74 0 top block block.minecraft.grass_block water=false terrain badlands-steppe continentEdge=0.7979117 biome minecraft:plains
+[vi19] errors in log: 0 
+[vi20] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[vi20] errors in log: 0 
+[v-origin] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 8 top block block.minecraft.water water=true terrain deep_ocean continentEdge=0.0 biome minecraft:deep_ocean
+[v-origin] errors in log: 0 
+[v-inf] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 8 63 46 top block block.minecraft.diorite water=false terrain plateau-hills continentEdge=1.0 biome minecraft:river
+[v-inf] rtf probe dim minecraft:overworld 0 0 (1s): [RTF probe] dim DONE minecraft:overworld rtfFunctions=true context=true heights 62..76 mean 64.5 tops {block.minecraft.clay=1, block.minecraft.diorite=12, block.minecraft.dirt=33, block.minecraft.grass_block=130, block.minecraft.gravel=17, block.minecraft.oak_leaves=115, block.minecraft.sand=6, block.minecraft.seagrass=5, block.minecraft.tall_seagrass=1, block.minecraft.water=256}
+[v-inf] rtf probe dim minecraft:overworld 300 -200 (3s): [RTF probe] dim DONE minecraft:overworld rtfFunctions=true context=true heights 71..100 mean 89.9 tops {block.minecraft.diorite=12, block.minecraft.dirt=412, block.minecraft.granite=2, block.minecraft.grass_block=121, block.minecraft.pumpkin=2, block.minecraft.snow_block=27}
+[v-inf] rtf probe rivers (1s): [RTF probe] rivers DONE 40 river maps: mean 0.1 ms, max 0.2 ms
+[v-inf] rtf bench 16 (13s): [RTF bench] ReTerraForged: 256 chunks in 9.2 s, 27.9 chunks/s, 35.9 ms per chunk, heap in use 1114 MB of 3072 MB (679 MB after a GC), 10 cores
+[v-inf] errors in log: 0 
+[v-exp] rtf probe spawn (1s): [RTF probe] spawn DONE spawn -256 67 -1248 top block block.minecraft.snow_block water=false terrain volcano continentEdge=1.0 biome minecraft:ice_spikes
+[v-exp] rtf probe dim minecraft:overworld 0 0 (4s): [RTF probe] dim DONE minecraft:overworld rtfFunctions=true context=true heights 62..74 mean 63.8 tops {block.minecraft.grass_block=332, block.minecraft.gravel=1, block.minecraft.oak_leaves=4, block.minecraft.sand=6, block.minecraft.tall_seagrass=1, block.minecraft.water=232}
+[v-exp] errors in log: 0 
+[v-arch1] rtf heights (24s): [RTF heights] 1413 samples in 
+[v-arch1] errors in log: 0 
+[v-arch2] rtf heights (27s): [RTF heights] 1413 samples in 
+[v-arch2] errors in log: 0 
+[v-dim] rtf probe dim minecraft:overworld 165 42 (2s): [RTF probe] dim DONE minecraft:overworld rtfFunctions=true context=true heights 75..99 mean 87.5 tops {block.minecraft.cactus=2, block.minecraft.sand=573, block.minecraft.sandstone=1}
+[v-dim] rtf probe dim probe:extra 165 42 (4s): [RTF probe] dim DONE probe:extra rtfFunctions=true context=true heights 75..99 mean 87.5 tops {block.minecraft.cactus=2, block.minecraft.sand=573, block.minecraft.sandstone=1}
+[v-dim] locate biome minecraft:swamp (1s): [09:40:02] [Server thread/INFO] [minecraft/MinecraftServer]: The nearest minecraft:swamp is at [3472, 94, 352] (891 blocks away)
+[v-dim] swamp at: 3472 352
+[v-dim] rtf probe swampfloor 3472 352 (24s): [RTF probe] swampfloor DONE swamp at 3472 352: 5752 flooded swamp columns, blocks {clay=1630, dirt=3075, gravel=1011, sand=36}; most common block overall 53.5%, most common block at the same place in a chunk (mean over 256 places) 53.8%
+[v-dim] errors in log: 0 
+[v-dim-old] rtf probe dim probe:extra 165 42 (5s): [RTF probe] dim DONE probe:extra rtfFunctions=true context=false heights 62..62 mean 62.0 tops {block.minecraft.water=576}
+[v-dim-old] errors in log: 0 
+ALL DONE v2
+== v4
+[v-export3] rtf exportpreset file: (1s): [09:46:15] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[v-export3] TIMEOUT rtf previewmap inf 32 set:world().continent.continentType=INFINITE after 300 s
+[v-export3] rtf previewmap inf 32 set:world().continent.continentType=INFINITE (300s): 
+[v-export3] TIMEOUT rtf previewmap exp 32 set:world().continent.continentType=EXPERIMENTAL after 300 s
+[v-export3] rtf previewmap exp 32 set:world().continent.continentType=EXPERIMENTAL (300s): 
+[v-export3] errors in log: 0 
+[vi1] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 122 0 top block block.minecraft.coarse_dirt water=false terrain hills continentEdge=0.6799573 biome minecraft:forest
+[vi1] errors in log: 0 
+[vi2] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 464 65 -336 top block block.minecraft.grass_block water=false terrain plateau-hills continentEdge=0.29450366 biome minecraft:plains
+[vi2] errors in log: 0 
+[vi3] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 71 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.61912715 biome minecraft:plains
+[vi3] errors in log: 0 
+[vi4] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 976 63 414 top block block.minecraft.sand water=false terrain flats-hills continentEdge=0.32261834 biome minecraft:beach
+[vi4] errors in log: 0 
+[vi5] rtf probe spawn (1s): [RTF probe] spawn DONE spawn -128 65 64 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.32334283 biome minecraft:beach
+[vi5] errors in log: 0 
+[vi6] rtf probe spawn (1s): [RTF probe] spawn DONE spawn -1440 63 -2752 top block block.minecraft.grass_block water=false terrain mountains_2 continentEdge=0.28443152 biome minecraft:snowy_plains
+[vi6] errors in log: 0 
+[vi7] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 87 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.50498974 biome minecraft:plains
+[vi7] errors in log: 0 
+[vi8] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 71 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.48030964 biome minecraft:plains
+[vi8] errors in log: 0 
+[vi9] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 192 64 -512 top block block.minecraft.sand water=false terrain hills continentEdge=0.2978795 biome minecraft:beach
+[vi9] errors in log: 0 
+[vi10] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 48 64 464 top block block.minecraft.sand water=false terrain steppe-hills continentEdge=0.2905788 biome minecraft:beach
+[vi10] errors in log: 0 
+[vi11] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 2483 63 160 top block block.minecraft.sand water=false terrain steppe-hills continentEdge=0.27503783 biome minecraft:beach
+[vi11] errors in log: 0 
+[vi12] rtf probe spawn (1s): [RTF probe] spawn DONE spawn -16 65 784 top block block.minecraft.grass_block water=false terrain badlands-plateau continentEdge=0.3283221 biome minecraft:savanna
+[vi12] errors in log: 0 
+[vi13] rtf probe spawn (1s): [RTF probe] spawn DONE spawn -16 63 17 top block block.minecraft.grass_block water=false terrain plateau continentEdge=0.28322473 biome minecraft:forest
+[vi13] errors in log: 0 
+[vi14] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 81 0 top block block.minecraft.grass_block water=false terrain hills continentEdge=0.640781 biome minecraft:plains
+[vi14] errors in log: 0 
+[vi15] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 157 0 top block block.minecraft.stone water=false terrain mountain_chain continentEdge=0.97825867 biome minecraft:grove
+[vi15] errors in log: 0 
+[vi16] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 721 64 48 top block block.minecraft.stone water=false terrain mountains_1 continentEdge=0.28191513 biome minecraft:stony_shore
+[vi16] errors in log: 0 
+[vi17] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 1408 63 1116 top block block.minecraft.sand water=false terrain plateau-hills continentEdge=0.29194453 biome minecraft:beach
+[vi17] errors in log: 0 
+[vi18] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 16 65 80 top block block.minecraft.sand water=false terrain hills continentEdge=0.3180237 biome minecraft:beach
+[vi18] errors in log: 0 
+[vi19] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 0 74 0 top block block.minecraft.grass_block water=false terrain badlands-steppe continentEdge=0.7979117 biome minecraft:plains
+[vi19] errors in log: 0 
+[vi20] rtf probe spawn (1s): [RTF probe] spawn DONE spawn 1150 63 -19 top block block.minecraft.sand water=false terrain flats-plateau continentEdge=0.2772578 biome minecraft:forest
+[vi20] errors in log: 0 
+[v-inf2] rtf heights (22s): [RTF heights] 1413 samples in 
+[v-inf2] errors in log: 0 
+[v-lowheap3] FAILED TO START (rc 1): [10:02:46] [Server thread/ERROR] [minecraft/MinecraftServer]: Exception stopping the server
+java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+[v-lowheap3] process alive after 59 s: 0; crash report: 0; [10:02:46] [RTF worker #6/ERROR] [ReTerraForged/]: ReTerraForged ran out of memory: give Java more memory (-Xmx) or lower tileSize in config/reterraforged/performance.con
+[f-export] rtf exportpreset set:climate().lowlandSwamps=0;climate().swampMaxHeight=0 (1s): [10:04:00] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[f-export] rtf exportpreset set:climate().lowlandSwamps=0;climate().swampMaxHeight=12 (1s): [10:04:01] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[f-export] rtf exportpreset set:climate().lowlandSwamps=12;climate().swampMaxHeight=12 (1s): [10:04:02] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[f-export] rtf exportpreset set:climate().lowlandSwamps=8;climate().swampMaxHeight=16 (1s): [10:04:03] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[f-export] rtf exportpreset set:climate().lowlandSwamps=16;climate().swampMaxHeight=64 (1s): [10:04:04] [Server thread/INFO] [minecraft/MinecraftServer]: [RTF] exported preset to 
+[f-export] errors in log: 0 
+[f-0-0] rtf swamps (1s): [RTF swamps] 11 swamp biomes, 3.9% of the land; in river valleys 21% (the land 30%), wide 1% | biomesoplenty:muskeg: 1.78% of the land, valleys 29%, wetland 0%, river 0%, +19 blocks, high 36%, wide 0%; erosion 4 weirdness 6 34%, erosion 4 weirdness 7 30%, erosion 4 weirdness 4 22% | minecraft:swamp: 0.56% of the land, valleys 0%, wetland 0%, river 0%, +36 blocks, high 76%, wide 1%; erosion 3 weirdness 4 43%, erosion 3 weirdness 7 22%, erosion 3 weirdness 6 21% | terralith:orchid_swamp: 0.50% of the land, valleys 0%, wetland 0%, river 0%, +38 blocks, high 90%, wide 5%; erosion 3 weirdness 7 35%, erosion 3 weirdness 4 25%, erosion 3 weirdness 6 25% | minecraft:mangrove_swamp: 0.49% of the land, valleys 0%, wetland 0%, river 0%, +37 blocks, high 87%, wide 2%; erosion 3 weirdness 4 45%, erosion 3 weirdness 6 20%, erosion 3 weirdness 7 17%
+[f-0-0] rtf probe swamplist (1s): [RTF probe] swamplist DONE by tag c:is_swamp: biomesoplenty:bayou biomesoplenty:bog biomesoplenty:floodplain terralith:ice_marsh minecraft:mangrove_swamp biomesoplenty:marsh biomesoplenty:moor biomesoplenty:muskeg terralith:orchid_swamp minecraft:swamp biomesoplenty:wetland | by name only: 
+[f-0-0] errors in log: 0 
+[f-0-12] rtf swamps (1s): [RTF swamps] 10 swamp biomes, 1.3% of the land; in river valleys 57% (the land 30%), wide 0% | biomesoplenty:muskeg: 0.87% of the land, valleys 52%, wetland 0%, river 0%, +6 blocks, high 1%, wide 0%; erosion 4 weirdness 7 52%, erosion 4 weirdness 6 24%, erosion 4 weirdness 4 17% | biomesoplenty:bayou: 0.11% of the land, valleys 100%, wetland 100%, river 0%, +-0 blocks, high 0%, wide 0%; erosion 6 weirdness 5 100% | biomesoplenty:marsh: 0.07% of the land, valleys 100%, wetland 100%, river 0%, +0 blocks, high 0%, wide 0%; erosion 6 weirdness 5 100% | minecraft:swamp: 0.05% of the land, valleys 0%, wetland 0%, river 0%, +9 blocks, high 0%, wide 0%; erosion 3 weirdness 4 65%, erosion 3 weirdness 6 35%
+[f-0-12] rtf probe swamplist (1s): [RTF probe] swamplist DONE by tag c:is_swamp: biomesoplenty:bayou biomesoplenty:bog biomesoplenty:floodplain terralith:ice_marsh minecraft:mangrove_swamp biomesoplenty:marsh biomesoplenty:moor biomesoplenty:muskeg terralith:orchid_swamp minecraft:swamp biomesoplenty:wetland | by name only: 
+[f-0-12] errors in log: 0 
+[f-12-12] rtf swamps (1s): [RTF swamps] 10 swamp biomes, 3.0% of the land; in river valleys 64% (the land 30%), wide 1% | biomesoplenty:muskeg: 0.87% of the land, valleys 52%, wetland 0%, river 0%, +6 blocks, high 1%, wide 0%; erosion 4 weirdness 7 52%, erosion 4 weirdness 6 24%, erosion 4 weirdness 4 17% | biomesoplenty:floodplain: 0.62% of the land, valleys 67%, wetland 6%, river 0%, +5 blocks, high 0%, wide 3%; erosion 6 weirdness 5 99%, erosion 4 weirdness 6 1% | biomesoplenty:wetland: 0.35% of the land, valleys 82%, wetland 13%, river 0%, +4 blocks, high 0%, wide 2%; erosion 6 weirdness 5 100% | biomesoplenty:marsh: 0.32% of the land, valleys 67%, wetland 21%, river 0%, +4 blocks, high 0%, wide 0%; erosion 6 weirdness 5 100%
+[f-12-12] rtf probe swamplist (1s): [RTF probe] swamplist DONE by tag c:is_swamp: biomesoplenty:bayou biomesoplenty:bog biomesoplenty:floodplain terralith:ice_marsh minecraft:mangrove_swamp biomesoplenty:marsh biomesoplenty:moor biomesoplenty:muskeg terralith:orchid_swamp minecraft:swamp biomesoplenty:wetland | by name only: 
+[f-12-12] errors in log: 0 
+[f-8-16] rtf swamps (1s): [RTF swamps] 10 swamp biomes, 2.6% of the land; in river valleys 65% (the land 30%), wide 1% | biomesoplenty:muskeg: 1.05% of the land, valleys 46%, wetland 0%, river 0%, +7 blocks, high 1%, wide 0%; erosion 4 weirdness 7 46%, erosion 4 weirdness 6 26%, erosion 4 weirdness 4 21% | biomesoplenty:floodplain: 0.37% of the land, valleys 82%, wetland 10%, river 0%, +3 blocks, high 0%, wide 3%; erosion 6 weirdness 5 98%, erosion 4 weirdness 6 2% | minecraft:swamp: 0.27% of the land, valleys 65%, wetland 0%, river 0%, +6 blocks, high 0%, wide 0%; erosion 6 weirdness 5 70%, erosion 3 weirdness 4 20%, erosion 3 weirdness 6 11% | biomesoplenty:wetland: 0.25% of the land, valleys 94%, wetland 19%, river 0%, +3 blocks, high 0%, wide 1%; erosion 6 weirdness 5 100%
+[f-8-16] rtf probe swamplist (1s): [RTF probe] swamplist DONE by tag c:is_swamp: biomesoplenty:bayou biomesoplenty:bog biomesoplenty:floodplain terralith:ice_marsh minecraft:mangrove_swamp biomesoplenty:marsh biomesoplenty:moor biomesoplenty:muskeg terralith:orchid_swamp minecraft:swamp biomesoplenty:wetland | by name only: 
+[f-8-16] errors in log: 0 
+[f-16-64] rtf swamps (1s): [RTF swamps] 11 swamp biomes, 5.8% of the land; in river valleys 35% (the land 30%), wide 2% | biomesoplenty:muskeg: 1.76% of the land, valleys 29%, wetland 0%, river 0%, +18 blocks, high 35%, wide 0%; erosion 4 weirdness 6 34%, erosion 4 weirdness 7 30%, erosion 4 weirdness 4 22% | minecraft:swamp: 0.85% of the land, valleys 27%, wetland 0%, river 0%, +22 blocks, high 43%, wide 2%; erosion 6 weirdness 5 41%, erosion 3 weirdness 4 27%, erosion 3 weirdness 6 13% | biomesoplenty:floodplain: 0.79% of the land, valleys 57%, wetland 4%, river 0%, +7 blocks, high 0%, wide 7%; erosion 6 weirdness 5 99%, erosion 4 weirdness 6 1% | terralith:orchid_swamp: 0.47% of the land, valleys 0%, wetland 0%, river 0%, +36 blocks, high 89%, wide 4%; erosion 3 weirdness 7 32%, erosion 3 weirdness 4 27%, erosion 3 weirdness 6 27%
+[f-16-64] rtf probe swamplist (1s): [RTF probe] swamplist DONE by tag c:is_swamp: biomesoplenty:bayou biomesoplenty:bog biomesoplenty:floodplain terralith:ice_marsh minecraft:mangrove_swamp biomesoplenty:marsh biomesoplenty:moor biomesoplenty:muskeg terralith:orchid_swamp minecraft:swamp biomesoplenty:wetland | by name only: 
+[f-16-64] errors in log: 0 
+ALL DONE v4
+== v5
+[b-vanilla] rtf bench 32 (17s): [RTF bench] vanilla: 1024 chunks in 14.9 s, 68.9 chunks/s, 14.5 ms per chunk, heap in use 600 MB of 3072 MB (287 MB after a GC), 10 cores
+[b-vanilla] errors in log: 0 
+[b-new32] rtf bench 32 (21s): [RTF bench] ReTerraForged: 1024 chunks in 18.5 s, 55.3 chunks/s, 18.1 ms per chunk, heap in use 1178 MB of 3072 MB (680 MB after a GC), 10 cores
+[b-new32] rtf previewmap inf 16 file: (1s): [RTF previewmap] inf (file: 16 blocks/px): mountains 22.4% of land, land 99.9% mean 31.3 max 148, water 0.1% mean depth 1.8 max 10 -> 
+[b-new32] rtf previewmap exp 16 file: (1s): [RTF previewmap] exp (file: 16 blocks/px): mountains 19.2% of land, land 17.2% mean 21.1 max 141, water 82.8% mean depth 31.8 max 59 -> 
+[b-new32] errors in log: 0 
+[b-low12] rtf bench 32 (22s): [RTF bench] ReTerraForged: 1024 chunks in 19.3 s, 53.0 chunks/s, 18.9 ms per chunk, heap in use 1150 MB of 3072 MB (687 MB after a GC), 10 cores
+[b-low12] errors in log: 0 
+[b-96-3g] rtf bench 96 (153s): [RTF bench] ReTerraForged: 9216 chunks in 153.2 s, 60.2 chunks/s, 16.6 ms per chunk, heap in use 1786 MB of 3072 MB (694 MB after a GC), 10 cores
+[b-96-3g] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 306, unique places 306, regenerated 0 (0.0%), heap 1087 MB
+[b-96-3g] errors in log: 0 
+[b-96-2g] rtf bench 96 (172s): [RTF bench] ReTerraForged: 9216 chunks in 173.6 s, 53.1 chunks/s, 18.8 ms per chunk, heap in use 1615 MB of 2048 MB (817 MB after a GC), 10 cores
+[b-96-2g] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 306, unique places 306, regenerated 0 (0.0%), heap 971 MB
+[b-96-2g] errors in log: 0 
+ALL DONE v5
+== v6
+[o-32] rtf bench 32 (18s): [RTF bench] ReTerraForged: 1024 chunks in 15.9 s, 64.5 chunks/s, 15.5 ms per chunk, heap in use 1000 MB of 3072 MB (689 MB after a GC), 10 cores
+[o-32] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 130, unique places 114, regenerated 16 (14.0%), heap 1067 MB
+[o-32] errors in log: 0 
+[o-96-3g] rtf bench 96 (156s): [RTF bench] ReTerraForged: 9216 chunks in 156.8 s, 58.8 chunks/s, 17.0 ms per chunk, heap in use 2575 MB of 3072 MB (843 MB after a GC), 10 cores
+[o-96-3g] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 450, unique places 306, regenerated 144 (47.1%), heap 1201 MB
+[o-96-3g] errors in log: 0 
+[o-96-2g] rtf bench 96 (205s): [RTF bench] ReTerraForged: 9216 chunks in 206.7 s, 44.6 chunks/s, 22.4 ms per chunk, heap in use 1664 MB of 2048 MB (853 MB after a GC), 10 cores
+[o-96-2g] rtf probe regen (0s): [RTF probe] regen DONE tiles generated 450, unique places 306, regenerated 144 (47.1%), heap 783 MB
+[o-96-2g] errors in log: 1    1 Caused by: java.net.UnknownHostException: api.minecraftservices.com
+ALL DONE v6
+== v7
+[r-old1] rtf bench 32 (21s): [RTF bench] ReTerraForged: 1024 chunks in 18.8 s, 54.4 chunks/s, 18.4 ms per chunk, heap in use 961 MB of 3072 MB (693 MB after a GC), 10 cores
+[r-old1] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 130, unique places 114, regenerated 16 (14.0%), heap 1129 MB
+[r-old1] errors in log: 0 
+[r-new11] rtf bench 32 (24s): [RTF bench] ReTerraForged: 1024 chunks in 22.0 s, 46.5 chunks/s, 21.5 ms per chunk, heap in use 1014 MB of 3072 MB (688 MB after a GC), 10 cores
+[r-new11] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 114, unique places 114, regenerated 0 (0.0%), heap 753 MB
+[r-new11] errors in log: 0 
+[r-old2] rtf bench 32 (25s): [RTF bench] ReTerraForged: 1024 chunks in 22.3 s, 45.9 chunks/s, 21.8 ms per chunk, heap in use 1273 MB of 3072 MB (691 MB after a GC), 10 cores
+[r-old2] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 130, unique places 114, regenerated 16 (14.0%), heap 1172 MB
+[r-old2] errors in log: 0 
+[r-new11] rtf bench 32 (25s): [RTF bench] ReTerraForged: 1024 chunks in 22.0 s, 46.6 chunks/s, 21.4 ms per chunk, heap in use 841 MB of 3072 MB (684 MB after a GC), 10 cores
+[r-new11] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 114, unique places 114, regenerated 0 (0.0%), heap 966 MB
+[r-new11] errors in log: 0 
+[r-old3] rtf bench 32 (27s): [RTF bench] ReTerraForged: 1024 chunks in 24.2 s, 42.3 chunks/s, 23.6 ms per chunk, heap in use 905 MB of 3072 MB (698 MB after a GC), 10 cores
+[r-old3] TIMEOUT rtf probe regen after 60 s
+[r-old3] rtf probe regen (60s): [RTF probe] regen DONE tiles generated 130, unique places 114, regenerated 16 (14.0%), heap 971 MB
+[r-old3] errors in log: 0 
+[r-new11] rtf bench 32 (18s): [RTF bench] ReTerraForged: 1024 chunks in 16.1 s, 63.5 chunks/s, 15.7 ms per chunk, heap in use 975 MB of 3072 MB (689 MB after a GC), 10 cores
+[r-new11] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 114, unique places 114, regenerated 0 (0.0%), heap 934 MB
+[r-new11] errors in log: 0 
+[r-old4] rtf bench 32 (20s): [RTF bench] ReTerraForged: 1024 chunks in 17.1 s, 59.8 chunks/s, 16.7 ms per chunk, heap in use 976 MB of 3072 MB (693 MB after a GC), 10 cores
+[r-old4] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 130, unique places 114, regenerated 16 (14.0%), heap 1087 MB
+[r-old4] errors in log: 0 
+[r-new9] rtf bench 32 (19s): [RTF bench] ReTerraForged: 1024 chunks in 16.9 s, 60.7 chunks/s, 16.5 ms per chunk, heap in use 1347 MB of 3072 MB (688 MB after a GC), 10 cores
+[r-new9] rtf probe regen (1s): [RTF probe] regen DONE tiles generated 114, unique places 114, regenerated 0 (0.0%), heap 1284 MB
+[r-new9] errors in log: 0 
+ALL DONE v7
