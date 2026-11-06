@@ -20,6 +20,7 @@ import raccoonman.reterraforged.world.worldgen.cell.continent.ContinentLerper2;
 import raccoonman.reterraforged.world.worldgen.cell.continent.ContinentLerper3;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Blender;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.ITerrain;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.IslandBlender;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Populators;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainCategory;
@@ -38,7 +39,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop) {
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, boolean mixedLowlands) {
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyTerrain(cell, x, z);
@@ -127,13 +128,17 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	
 	// the cell's climate sampled: wet, not cold, flat or rolling land a few blocks above the sea (ClimateSettings.lowlandSwamps)
 	public boolean isLowlandSwamp(Cell cell) {
-		return cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && isLowland(cell)
-			&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min();
+		// the terrain last: with the setting off every column of land stops at the height
+		return cell.height > this.levels.water && cell.height <= this.lowlandSwampTop
+			&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min() && this.isLowland(cell);
 	}
 
 	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
-	private static boolean isLowland(Cell cell) {
-		return (cell.terrain.getDelegate() == TerrainCategory.FLATLAND || cell.terrain.getDelegate() == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
+	// mixedLowlands (generation fixes): also the mixed terrains. The delegate of one is a terrain, never a category, so all of them
+	// failed here and Lowland Swamps left most terrain regions out; presets saved before keep that, and their swamps
+	private boolean isLowland(Cell cell) {
+		ITerrain category = this.mixedLowlands ? cell.terrain.getCategory() : cell.terrain.getDelegate();
+		return (category == TerrainCategory.FLATLAND || category == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
 	}
 
 	public static Heightmap make(GeneratorContext ctx) {
@@ -201,7 +206,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         // off: no height is at most the water's
         int lowlandSwamps = preset.climate().lowlandSwamps;
         float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop);
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, world.properties.generationFixes);
 	}
 
 	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above
