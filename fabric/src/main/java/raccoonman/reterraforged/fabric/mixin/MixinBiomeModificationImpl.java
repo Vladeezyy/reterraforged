@@ -52,9 +52,13 @@ public class MixinBiomeModificationImpl {
 		List<Object> modifiers = this.getSortedModifiers();
 		for(Holder.Reference<BiomeModifier> holder : registries.lookupOrThrow(RTFRegistries.BIOME_MODIFIER).listElements().toList()) {
 			if(holder.value() instanceof FabricBiomeModifier modifier) {
-				modifiers.add(this.makeModifierRecord(holder.key().identifier(), ModificationPhase.POST_PROCESSING, (ctx) -> {
+				Object record = this.makeModifierRecord(holder.key().identifier(), ModificationPhase.POST_PROCESSING, (ctx) -> {
 					return true;
-				}, modifier::apply));
+				}, modifier::apply);
+				// null: Fabric API's internals changed (logged). The world loads, without the preset's biome modifiers
+				if(record != null) {
+					modifiers.add(record);
+				}
 			}
 		}
 		modifiers.sort(MODIFIER_ORDER_COMPARATOR);
@@ -87,6 +91,9 @@ public class MixinBiomeModificationImpl {
 	}
 	
 	private Object makeModifierRecord(Identifier id, ModificationPhase phase, Predicate<BiomeSelectionContext> selector, BiConsumer<BiomeSelectionContext, BiomeModificationContext> modifier) {
+		if(CTOR == null) {
+			return null;
+		}
 		try {
 			return CTOR.newInstance(phase, id, selector, modifier);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

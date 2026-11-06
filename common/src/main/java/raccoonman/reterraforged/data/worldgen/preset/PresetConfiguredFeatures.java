@@ -120,7 +120,7 @@ public class PresetConfiguredFeatures {
 			FeatureUtils.register(ctx, DECORATE_SNOW, RTFFeatures.DECORATE_SNOW, new DecorateSnowFeature.Config(miscellaneous.naturalSnowDecorator, miscellaneous.smoothLayerDecorator, erodeConfig, miscellaneous.snowLine.enabled ? miscellaneous.snowLine.height : -1, miscellaneous.snowLine.variation, miscellaneous.snowLine.depth, miscellaneous.snowLine.peakDepth, miscellaneous.snowLine.depthRange));
 		}
 		
-		FeatureUtils.register(ctx, SWAMP_SURFACE, RTFFeatures.SWAMP_SURFACE, new SwampSurfaceFeature.Config(Blocks.CLAY.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(), Blocks.DIRT.defaultBlockState()));
+		FeatureUtils.register(ctx, SWAMP_SURFACE, RTFFeatures.SWAMP_SURFACE, new SwampSurfaceFeature.Config(Blocks.CLAY.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(), Blocks.DIRT.defaultBlockState(), preset.world().properties.generationFixes));
 		
 		if(miscellaneous.customBiomeFeatures) {
 			HolderGetter<PlacedFeature> placedFeatures = ctx.lookup(Registries.PLACED_FEATURE);

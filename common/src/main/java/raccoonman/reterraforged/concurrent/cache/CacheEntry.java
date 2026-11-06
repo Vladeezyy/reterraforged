@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 public class CacheEntry<T> implements ExpiringEntry {
 	private final CompletableFuture<T> future;
 	private volatile long timestamp;
+	private volatile long earlier;
 
 	public CacheEntry(Future<T> task) {
 		this.future = toCompletableFuture(task);
@@ -39,8 +40,9 @@ public class CacheEntry<T> implements ExpiringEntry {
 		} catch (CompletionException e) {
 			Throwable c = e.getCause();
 			if (c instanceof RuntimeException r) throw r;
-			if (c instanceof Error err) throw err;
-			throw e;
+			// not the Error itself: it ended the chunk system's worker with the chunk's future unfinished, and the server
+			// waited for that chunk for ever (no crash report, no stop). As an exception the chunk fails and is reported
+			throw new IllegalStateException("A ReTerraForged tile could not be generated: " + c, c);
 		}
 	}
 
@@ -50,7 +52,12 @@ public class CacheEntry<T> implements ExpiringEntry {
 
 	@Override
 	public long getTimestamp() {
-		return this.timestamp;
+		return this.timestamp - this.earlier;
+	}
+
+	// from now on the entry counts as this much older than it is: it leaves the cache that much sooner after its last use
+	public void expireSooner(long milliseconds) {
+		this.earlier = milliseconds;
 	}
 
 	public static <T> CacheEntry<T> supply(Future<T> task) {

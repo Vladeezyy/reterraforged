@@ -31,7 +31,7 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 				raccoonman.reterraforged.world.worldgen.AltitudeCooling.set(raccoonman.reterraforged.world.worldgen.AltitudeCooling.of(level));
 			}
 		});
-		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.world.worldgen.AltitudeCooling.reset());
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.RTFCommon.onServerStopped());
 		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			if (net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(handler, raccoonman.reterraforged.network.AltitudeCoolingPayload.TYPE)) {
 				sender.sendPacket(new raccoonman.reterraforged.network.AltitudeCoolingPayload(raccoonman.reterraforged.world.worldgen.AltitudeCooling.of(server.overworld())));

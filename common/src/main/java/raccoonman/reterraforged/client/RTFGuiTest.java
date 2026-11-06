@@ -70,6 +70,8 @@ public final class RTFGuiTest {
 	private static int shot;
 	private static int round;
 	private static int expectedScale;
+	// the third round leaves with Cancel: the seed of the create world screen before it, and it must be there after
+	private static String seedBeforeCancel;
 	private static int timeout;
 	// tooltips to see on the screenshots: an enum option (what it does, its old name), greyed-out sliders (what they
 	// need), the structure placement seed
@@ -121,6 +123,7 @@ public final class RTFGuiTest {
 			}
 			case 2 -> {
 				shoot(mc, "gui-" + round + "-create-world");
+				if (round == 2 && mc.screen instanceof CreateWorldScreen create) seedBeforeCancel = create.getUiState().getSeed();
 				if (!click(mc, (w) -> hasKey(w, "selectWorld.customizeType") && w.active, 0.5)) fail("no active Customize button");
 				next(40);
 			}
@@ -149,12 +152,24 @@ public final class RTFGuiTest {
 					finish(mc);
 					return;
 				}
-				// a click at a quarter (first round) or three quarters (second round) of the continent scale slider
+				// a click at a quarter (first round), three quarters (second round) or the middle (third round, which Cancel
+				// undoes, with the preview's seed button) of the continent scale slider
 				int before = preset(mc).world().continent.continentScale;
-				if (!click(mc, (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE), round == 0 ? 0.25 : 0.75)) fail("no continent scale slider");
-				expectedScale = preset(mc).world().continent.continentScale;
-				log("continent scale {} -> {} (slider click)", before, expectedScale);
-				if (expectedScale == before) fail("the continent scale slider click changed nothing");
+				if (round == 3) {
+					// the screen opened again: the edit Cancel threw away is not in the preset either
+					if (before != expectedScale) fail("Cancel kept the edit in the preset: continent scale " + before + ", it was " + expectedScale);
+					next(100);
+					return;
+				}
+				if (!click(mc, (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE), round == 0 ? 0.25 : round == 1 ? 0.75 : 0.5)) fail("no continent scale slider");
+				int clicked = preset(mc).world().continent.continentScale;
+				log("continent scale {} -> {} (slider click)", before, clicked);
+				if (clicked == before) fail("the continent scale slider click changed nothing");
+				if (round < 2) {
+					expectedScale = clicked;
+				} else if (!click(mc, (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_SEED), 0.5)) {
+					fail("no seed button");
+				}
 				next(100);
 			}
 			case 6 -> {
@@ -224,7 +239,7 @@ public final class RTFGuiTest {
 				}
 			}
 			case 9 -> {
-				click(mc, ((LinkedPageScreen) mc.screen).doneButton, 0.5);
+				click(mc, round < 2 ? ((LinkedPageScreen) mc.screen).doneButton : ((LinkedPageScreen) mc.screen).cancelButton, 0.5);
 				timeout = 600;
 				next(20);
 			}
@@ -232,16 +247,19 @@ public final class RTFGuiTest {
 				// the preset datapack is applied: the create world screen is back, with the new worldgen registries
 				Optional<Preset> applied = appliedPreset(mc);
 				int scale = applied.map((p) -> p.world().continent.continentScale).orElse(-1);
-				if (mc.screen instanceof CreateWorldScreen && scale == expectedScale) {
+				if (mc.screen instanceof CreateWorldScreen create && scale == expectedScale) {
 					log("round {}: the world will use the preset with continent scale {}", round, scale);
+					if (round == 2) {
+						if (!create.getUiState().getSeed().equals(seedBeforeCancel)) fail("Cancel kept the preview's seed: " + create.getUiState().getSeed() + ", it was " + seedBeforeCancel);
+					}
 					shoot(mc, "gui-" + round + "-applied");
 					round++;
-					step = round == 1 ? 1 : 11;
+					step = round < 4 ? 1 : 11;
 					wait = 20;
 				} else if (--timeout <= 0) {
-					fail("round " + round + ": the preset screen's Done did not apply the edited preset: " + (applied.isPresent() ? "continent scale " + scale + ", set " + expectedScale : "no ReTerraForged preset") + ", screen " + name(mc.screen));
+					fail("round " + round + ": the preset screen's " + (round < 2 ? "Done did not apply the edited preset: " : "Cancel changed the preset: ") + (applied.isPresent() ? "continent scale " + scale + ", set " + expectedScale : "no ReTerraForged preset") + ", screen " + name(mc.screen));
 					round++;
-					step = round == 1 ? 1 : 11;
+					step = round < 4 ? 1 : 11;
 					wait = 20;
 				}
 			}

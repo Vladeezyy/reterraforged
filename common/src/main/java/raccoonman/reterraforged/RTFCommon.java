@@ -8,6 +8,8 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
 import raccoonman.reterraforged.registries.RTFRegistries;
+import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
+import raccoonman.reterraforged.world.worldgen.OverworldRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifiers;
 import raccoonman.reterraforged.world.worldgen.densityfunction.RTFDensityFunctions;
 import raccoonman.reterraforged.world.worldgen.feature.RTFFeatures;
@@ -50,6 +52,12 @@ public class RTFCommon {
 		RegistryUtil.createDataRegistry(RTFRegistries.NOISE, Noise.DIRECT_CODEC, false);
 		RegistryUtil.createDataRegistry(RTFRegistries.PRESET, Preset.DIRECT_CODEC, false);
 		RegistryUtil.createDataRegistry(RTFRegistries.STRUCTURE_RULE, StructureRule.DIRECT_CODEC, false);
+	}
+
+	// what a world leaves behind in static fields (a client goes on to other worlds)
+	public static void onServerStopped() {
+		AltitudeCooling.reset();
+		OverworldRegistries.clear();
 	}
 
 	public static Identifier location(String name) {

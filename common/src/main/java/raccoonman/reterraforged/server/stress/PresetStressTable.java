@@ -179,7 +179,9 @@ final class PresetStressTable {
 		Setting.ofEnum("world().continent.continentType", ImmutableList.of(
 				ContinentType.MULTI,
 				ContinentType.SINGLE,
-				ContinentType.MULTI_IMPROVED
+				ContinentType.MULTI_IMPROVED,
+				ContinentType.EXPERIMENTAL,
+				ContinentType.INFINITE
 			), (p, v) -> p.world().continent.continentType = v),
 		Setting.ofEnum("world().continent.continentShape", DistanceFunction.values(), (p, v) -> p.world().continent.continentShape = v),
 		Setting.ofInt("world().continent.continentScale", 100, 10000, (p, v) -> p.world().continent.continentScale = v),
@@ -203,7 +205,8 @@ final class PresetStressTable {
 		Setting.ofInt("world().properties.seaLevel", 0, 255, (p, v) -> p.world().properties.seaLevel = v),
 		Setting.ofInt("world().properties.oceanDepth", 0, 160, (p, v) -> p.world().properties.oceanDepth = v),
 		Setting.ofInt("world().properties.lavaLevel", -1024, 128, (p, v) -> p.world().properties.lavaLevel = v),
-		Setting.ofInt("world().properties.deepslateLevel", -1024, 256, (p, v) -> p.world().properties.deepslateLevel = v)
+		Setting.ofInt("world().properties.deepslateLevel", -1024, 256, (p, v) -> p.world().properties.deepslateLevel = v),
+		Setting.ofBoolean("world().properties.generationFixes", (p, v) -> p.world().properties.generationFixes = v)
 	);
 
 	private PresetStressTable() {

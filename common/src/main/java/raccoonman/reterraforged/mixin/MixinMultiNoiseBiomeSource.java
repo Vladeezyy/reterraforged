@@ -27,12 +27,12 @@ class MixinMultiNoiseBiomeSource {
 		this.swampHeights = swampHeights;
 	}
 
-	// Highest Swamps: a swamp too high above the sea is picked again (SwampHeights); the original keeps TerraBlender's
+	// Highest Swamps, Lowland Swamps: a swamp too high above the sea, a lowland without one, is picked again (SwampHeights); the original keeps TerraBlender's
 	// and the other mods' own changes to this method
 	@WrapMethod(method = "getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;")
 	private Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler, Operation<Holder<Biome>> original) {
 		Holder<Biome> biome = original.call(x, y, z, sampler);
 		SwampHeights heights = this.swampHeights;
-		return heights == null ? biome : heights.limit(x, z, biome, () -> original.call(x, y, z, sampler));
+		return heights == null ? biome : heights.limit(x, y, z, biome, () -> original.call(x, y, z, sampler));
 	}
 }

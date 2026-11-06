@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.mojang.datafixers.util.Pair;
@@ -23,12 +24,13 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.repository.PackRepository;
-import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
+import raccoonman.reterraforged.client.gui.Toasts;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
+import raccoonman.reterraforged.registries.RTFRegistries;
 
 /**
  * ReTerraForged on the create world screen: the preset goes into the new world as a datapack (a new file name each
@@ -38,6 +40,8 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
  */
 public final class RTFCreateWorld {
 	public static final String PACK_NAME = "reterraforged-preset";
+	// the files apply makes; a pack of the player's that only starts like them is theirs
+	private static final Pattern OWN_PACK = Pattern.compile("^" + PACK_NAME + "-\\d+\\.zip$");
 	private static final AtomicInteger APPLIED = new AtomicInteger();
 	// the preset each create world screen has, to put it back when the switch goes from vanilla to ReTerraForged
 	private static final Map<CreateWorldScreen, Pair<Component, Preset>> APPLIED_PRESETS = new WeakHashMap<>();
@@ -50,6 +54,11 @@ public final class RTFCreateWorld {
 	// CreateWorldScreen.openFresh: the next create world screen is for a new world (not a copy of an existing one)
 	public static void markFresh() {
 		freshPending = true;
+	}
+
+	// CreateWorldScreen.createFromExisting: an existing world's settings, whatever openFresh left behind when it failed
+	public static void markExisting() {
+		freshPending = false;
 	}
 
 	public static void onInit(CreateWorldScreen screen) {
@@ -65,12 +74,19 @@ public final class RTFCreateWorld {
 	}
 
 	public static boolean isEnabled(CreateWorldScreen screen) {
-		return screen.getUiState().getSettings().dataConfiguration().dataPacks().getEnabled().stream().anyMatch((id) -> id.startsWith("file/" + PACK_NAME));
+		// the preset in the screen's registries, whichever pack brought it: an exported preset chosen on the Data Packs
+		// screen, under its own name, was shown as vanilla generation
+		return screen.getUiState().getSettings().worldgenLoadContext().lookup(RTFRegistries.PRESET).map((presets) -> presets.containsKey(Preset.KEY)).orElse(false);
 	}
 
 	public static Component presetName(CreateWorldScreen screen) {
 		Pair<Component, Preset> applied = APPLIED_PRESETS.get(screen);
-		return applied != null ? applied.getFirst() : defaultName();
+		if (applied != null) {
+			return applied.getFirst();
+		}
+		// a preset from a pack of the player's: the pack's name
+		return screen.getUiState().getSettings().dataConfiguration().dataPacks().getEnabled().stream().filter((id) -> id.startsWith("file/")).reduce((first, last) -> last)
+			.<Component>map((id) -> Component.literal(id.substring("file/".length()))).orElseGet(RTFCreateWorld::defaultName);
 	}
 
 	private static Component defaultName() {
@@ -80,11 +96,7 @@ public final class RTFCreateWorld {
 	// the preset the screen had before, or Default
 	public static void enable(CreateWorldScreen screen) {
 		Pair<Component, Preset> applied = APPLIED_PRESETS.get(screen);
-		try {
-			apply(screen, applied != null ? applied.getFirst() : defaultName(), applied != null ? applied.getSecond() : Presets.makeDefault());
-		} catch (IOException e) {
-			RTFCommon.LOGGER.error("[RTF] could not apply the preset to the new world", e);
-		}
+		Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, () -> apply(screen, applied != null ? applied.getFirst() : defaultName(), applied != null ? applied.getSecond() : Presets.makeDefault()));
 	}
 
 	public static void apply(CreateWorldScreen screen, Component name, Preset preset) throws IOException {
@@ -96,32 +108,31 @@ public final class RTFCreateWorld {
 		removePacks(path.getFirst(), repository);
 		Path exportPath = path.getFirst().resolve(PACK_NAME + "-" + APPLIED.incrementAndGet() + ".zip");
 		PresetExport.toZip(preset, name.getString(), screen.getUiState().getSettings().worldgenLoadContext(), exportPath);
-		APPLIED_PRESETS.put(screen, Pair.of(name, preset));
 		repository.reload();
-		if (repository.addPack("file/" + exportPath.getFileName())) {
-			screen.tryApplyNewDataPacks(repository, false, (data) -> {
-			});
+		if (!repository.addPack("file/" + exportPath.getFileName())) {
+			throw new IOException("the game did not find the pack " + exportPath);
 		}
+		APPLIED_PRESETS.put(screen, Pair.of(name, preset));
+		screen.tryApplyNewDataPacks(repository, false, (data) -> {
+		});
 	}
 
 	// vanilla generation: the preset datapack out of the new world
 	public static void disable(CreateWorldScreen screen) {
 		Pair<Path, PackRepository> path = screen.getDataPackSelectionSettings(screen.getUiState().getSettings().dataConfiguration());
-		try {
+		Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, () -> {
 			if (removePacks(path.getFirst(), path.getSecond())) {
 				path.getSecond().reload();
 				screen.tryApplyNewDataPacks(path.getSecond(), false, (data) -> {
 				});
 			}
-		} catch (IOException e) {
-			RTFCommon.LOGGER.error("[RTF] could not remove the preset from the new world", e);
-		}
+		});
 	}
 
 	private static boolean removePacks(Path folder, PackRepository repository) throws IOException {
 		List<Path> previous;
 		try (Stream<Path> files = Files.list(folder)) {
-			previous = files.filter((file) -> file.getFileName().toString().startsWith(PACK_NAME)).toList();
+			previous = files.filter((file) -> OWN_PACK.matcher(file.getFileName().toString()).matches()).toList();
 		}
 		for (Path file : previous) {
 			repository.removePack("file/" + file.getFileName());

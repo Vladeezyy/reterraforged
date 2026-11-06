@@ -3,52 +3,28 @@ package raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
-import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
-import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Size;
 
-public record BeachDetect(Levels levels, ControlPoints transition) implements Filter {
-    
+// A coast below the beach point is a beach whatever its slope. The slope test it had compared heights on the 0 to 1 scale with
+// a limit they cannot reach, so it held nothing back: removed, not repaired, since rock beaches would change the coasts of
+// every world and of the Default preset.
+public record BeachDetect(ControlPoints transition) implements Filter {
+
     @Override
     public void apply(Filterable map, int seedX, int seedZ, int iterations) {
-        Size size = map.getBlockSize();
-        int total = size.total();
-        
+        int total = map.getBlockSize().total();
+
         for(int x = 0; x < total; x++) {
         	for(int z = 0; z < total; z++) {
         		Cell cell = map.getCellRaw(x, z);
 	        	if (cell.terrain.isCoast() && !cell.terrain.isWetland() && cell.continentEdge < this.transition.beach) {
-	                Cell n = map.getCellRaw(x, z - 8);
-	                Cell s = map.getCellRaw(x, z + 8);
-	                Cell e = map.getCellRaw(x + 8, z);
-	                Cell w = map.getCellRaw(x - 8, z);
-	                float gx = this.grad(e, w, cell);
-	                float gz = this.grad(n, s, cell);
-	                float d2 = gx * gx + gz * gz;
-	                if (d2 < 0.275F) {
-                		map.getCellRaw(x, z).terrain = TerrainType.BEACH;
-	                }
+	        		cell.terrain = TerrainType.BEACH;
 	            }
 	        }
         }
     }
-    
-    private float grad(Cell a, Cell b, Cell def) {
-        int distance = 17;
-        if (a.isAbsent()) {
-            a = def;
-            distance -= 8;
-        }
-        if (b.isAbsent()) {
-            b = def;
-            distance -= 8;
-        }
-        return (a.height - b.height) / distance;
-    }
-    
+
     public static BeachDetect make(GeneratorContext ctx) {
-    	Levels levels = ctx.levels;
-    	ControlPoints transition = ctx.preset.world().controlPoints;
-    	return new BeachDetect(levels, transition);
+    	return new BeachDetect(ctx.preset.world().controlPoints);
     }
 }

@@ -13,6 +13,8 @@ import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 
 public class MixinPlugin implements IMixinConfigPlugin {
 	private static final String C2ME_OPENCL_MIXIN = "raccoonman.reterraforged.mixin.c2me.MixinC2MEOpenCL";
+	// the client tests' tick: not in a normal game's client tick at all
+	private static final String CLIENT_TEST_MIXIN = "raccoonman.reterraforged.mixin.MixinMinecraft";
 
 	@Override
 	public void onLoad(String mixinPackage) {
@@ -33,6 +35,9 @@ public class MixinPlugin implements IMixinConfigPlugin {
 		if(mixinClassName.equals(C2ME_OPENCL_MIXIN)) {
 			// mod id: c2me-opts-accel-opencl on Fabric, c2me_opts_accel_opencl on NeoForge
 			return ModLoaderUtil.isLoaded("c2me-opts-accel-opencl") || ModLoaderUtil.isLoaded("c2me_opts_accel_opencl");
+		}
+		if(mixinClassName.equals(CLIENT_TEST_MIXIN)) {
+			return System.getProperty("rtf.clienttest") != null;
 		}
 		return TBCompat.isTBMixin(mixinClassName) ? TBCompat.isEnabled() : true;
 	}

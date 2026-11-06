@@ -8,8 +8,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -27,12 +25,14 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.GsonHelper;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.Toasts;
+import raccoonman.reterraforged.client.gui.Tooltips;
 import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
@@ -48,7 +48,6 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private static final Path EXPORT_PATH = ConfigUtil.rtf("exports");
 	private static final Path LEGACY_PRESET_PATH = ConfigUtil.legacy("presets");
 	
-	private static final Predicate<String> IS_VALID = Pattern.compile("^[A-Za-z0-9\\-_ ]+$").asPredicate();
 
 	private EditBox input;
 	private Button createPreset;
@@ -96,7 +95,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			this.input.setTextColor(isValid ? white : red);
 		}, Component.translatable(RTFTranslationKeys.GUI_INPUT_PROMPT).withStyle(ChatFormatting.DARK_GRAY));
 		this.createPreset = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_CREATE, () -> {
-			new PresetEntry(Component.literal(this.input.getValue()), Presets.makeLegacyDefault(), false, this).save();
+			new PresetEntry(Component.literal(this.input.getValue()), Presets.makeDefault(), false, this).save();
 			this.rebuildPresets();
 			this.input.setValue(StringUtil.EMPTY_STRING);
 		});
@@ -114,8 +113,15 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		});
 		this.deletePreset = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_DELETE, () -> {
 			PresetEntry preset = this.left.getSelected().getWidget();
-			Files.delete(preset.getPath());
-			this.rebuildPresets();
+			this.screen.minecraft.setScreen(new ConfirmScreen((confirmed) -> {
+				if(confirmed) {
+					Toasts.tryOrToast(Tooltips.failTranslationKey(RTFTranslationKeys.GUI_BUTTON_DELETE), () -> {
+						Files.delete(preset.getPath());
+						this.screen.forget(preset);
+					});
+				}
+				this.screen.minecraft.setScreen(this.screen);
+			}, Component.translatable(RTFTranslationKeys.GUI_BUTTON_DELETE_CONFIRM), preset.getName()));
 		});
 		this.openPresetFolder = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_OPEN_PRESET_FOLDER, () -> {
 			Util.getPlatform().openUri(PRESET_PATH.toUri());
@@ -170,11 +176,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		
 		Entry<PresetEntry> selected = this.left.getSelected();
 		if(selected != null) {
-			try {
-				this.screen.applyPreset(this.screen.editable(selected.getWidget()));
-			} catch (IOException e) {
-				RTFCommon.LOGGER.error("Could not apply the preset {}", selected.getWidget().getName().getString(), e);
-			}
+			Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, () -> this.screen.applyPreset(this.screen.editable(selected.getWidget())));
 		}
 	}
 	
@@ -201,7 +203,12 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		
 		List<PresetEntry> entries = new ArrayList<>();
 		entries.addAll(this.listPresets(PRESET_PATH));
-		entries.addAll(this.listPresets(LEGACY_PRESET_PATH));
+		// TerraForged's folder: the same name in the mod's own folder wins
+		for(PresetEntry legacy : this.listPresets(LEGACY_PRESET_PATH)) {
+			if(entries.stream().noneMatch((entry) -> PresetNames.sameFile(entry.getName().getString(), legacy.getName().getString()))) {
+				entries.add(legacy);
+			}
+		}
 
 		// as in ReTerraForged 0.0.6: "Default" is TerraForged's default
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeDefault(), true, this));
@@ -222,12 +229,13 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	}
 	
 	private boolean isValidPresetName(String text) {
-		return IS_VALID.test(text) && !this.hasPresetWithName(text);
+		// the file too: on macOS and Windows "Foo" would overwrite "foo"
+		return PresetNames.isValid(text) && !this.hasPresetWithName(text) && !Files.exists(PRESET_PATH.resolve(text + ".json"));
 	}
 	
 	private boolean hasPresetWithName(String name) {
 		return this.left.children().stream().filter((entry) -> {
-			return entry.getWidget().getName().getString().equals(name);
+			return PresetNames.sameFile(entry.getWidget().getName().getString(), name);
 		}).findAny().isPresent();
 	}
 	
@@ -253,7 +261,9 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 						continue;
 					}
 					Preset preset = result.result().get();
-					presets.add(new PresetEntry(Component.literal(base), preset, false, this));
+					PresetEntry entry = new PresetEntry(Component.literal(base), preset, false, this);
+					entry.path = presetPath;
+					presets.add(entry);
 				} catch(IOException | RuntimeException e) {
 					RTFCommon.LOGGER.error("Skipping preset {}: {}", presetPath.getFileName(), e.toString());
 				}
@@ -266,6 +276,9 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		private final Component name;
 		private final Preset preset;
 		private final boolean builtin;
+		// the file it was read from (the presets folder or TerraForged's); null: a new one in the presets folder
+		@Nullable
+		private Path path;
 		
 		public PresetEntry(Component name, Preset preset, boolean builtin, OnPress onPress) {
 			super(-1, -1, -1, -1, onPress, name);
@@ -296,7 +309,14 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		}
 		
 		public Path getPath() {
-			return PRESET_PATH.resolve(this.name.getString() + ".json");
+			return this.path != null ? this.path : PRESET_PATH.resolve(this.name.getString() + ".json");
+		}
+		
+		// the same preset file with these settings
+		public PresetEntry withPreset(Preset preset) {
+			PresetEntry entry = new PresetEntry(this.name, preset, this.builtin, (b) -> {});
+			entry.path = this.path;
+			return entry;
 		}
 		
 		// encoded first, written to a temporary file and moved over the old one: the file was opened (emptied) before the
