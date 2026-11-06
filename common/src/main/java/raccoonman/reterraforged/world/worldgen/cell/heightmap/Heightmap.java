@@ -114,8 +114,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         // Lowland Swamps (ClimateSettings.lowlandSwamps): wet, not cold, flat or rolling land a few blocks above the
         // sea gets the swamps' climate as vanilla's flat lowlands do (the highest erosion, a valley's weirdness), so the
         // swamps can be wide; the climate is from the height before the tile's erosion, the same with and without tiles
-        if (applyClimate && cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && isLowland(cell)
-        	&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min()) {
+        if (applyClimate && this.isLowlandSwamp(cell)) {
         	cell.erosion = Erosion.LEVEL_6.mid();
         	cell.weirdness = Weirdness.VALLEY.mid();
         }
@@ -126,6 +125,12 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         }
 	}
 	
+	// the cell's climate sampled: wet, not cold, flat or rolling land a few blocks above the sea (ClimateSettings.lowlandSwamps)
+	public boolean isLowlandSwamp(Cell cell) {
+		return cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && isLowland(cell)
+			&& cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min();
+	}
+
 	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
 	private static boolean isLowland(Cell cell) {
 		return (cell.terrain.getDelegate() == TerrainCategory.FLATLAND || cell.terrain.getDelegate() == TerrainCategory.LOWLAND) && !cell.terrain.isMountain() && !cell.terrain.isVolcano();
@@ -185,7 +190,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         CellPopulator terrain = new ContinentLerper2(oceans, land, controlPoints.shallowOcean, controlPoints.inland);
         
         if (ctx.preset.island().enableArchipelago) {
-            terrain = new IslandBlender(terrain, new ArchipelagoPopulator(ctx.preset.island(), ctx.levels, controlPoints), ctx.levels);
+            terrain = new IslandBlender(terrain, new ArchipelagoPopulator(ctx.preset.island(), ctx.levels, controlPoints, ctx.seed.root(), world.properties.generationFixes), ctx.levels);
         }
 
         Noise beachNoise = Noises.perlin2(ctx.seed.next(), 20, 1);

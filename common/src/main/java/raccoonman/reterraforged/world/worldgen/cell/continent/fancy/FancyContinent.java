@@ -2,7 +2,6 @@ package raccoonman.reterraforged.world.worldgen.cell.continent.fancy;
 
 import java.util.Random;
 
-import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.RiverGenerator;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
@@ -15,8 +14,7 @@ public class FancyContinent implements RiverGenerator {
 	private final FancyRiverGenerator riverGenerator;
 
 	public FancyContinent(int seed, int nodes, float radius, GeneratorContext context, FancyContinentGenerator continent) {
-		ControlPoints controlPoints = context.preset.world().controlPoints;
-		this.islands = generateIslands(controlPoints, 3, nodes, radius, new Random(seed));
+		this.islands = generateIslands(3, nodes, radius, new Random(seed));
 		this.riverGenerator = new FancyRiverGenerator(continent, context);
 	}
 
@@ -44,11 +42,11 @@ public class FancyContinent implements RiverGenerator {
 	}
 
 	public long getMax() {
-		float x = Float.MIN_VALUE;
-		float z = Float.MIN_VALUE;
+		float x = -Float.MAX_VALUE;
+		float z = -Float.MAX_VALUE;
 		for (Island island : this.islands) {
-			x = Math.max(x, island.getMin().x());
-			z = Math.max(z, island.getMin().y());
+			x = Math.max(x, island.getMax().x());
+			z = Math.max(z, island.getMax().y());
 		}
 		return PosUtil.packf(x, z);
 	}
@@ -85,9 +83,9 @@ public class FancyContinent implements RiverGenerator {
 		return value;
 	}
 
-	private static Island[] generateIslands(ControlPoints controlPoints, int islandCount, int nodeCount, float radius, Random random) {
+	private static Island[] generateIslands(int islandCount, int nodeCount, float radius, Random random) {
 		int dirs = 4;
-		Island main = generate(0, controlPoints, nodeCount, radius, random);
+		Island main = generate(0, nodeCount, radius, random);
 		Island[] islands = new Island[1 + islandCount * dirs];
 		islands[0] = main;
 		int i = 1;
@@ -98,7 +96,7 @@ public class FancyContinent implements RiverGenerator {
 			float r = radius * 0.5F;
 			float yaw = yawStep * dir + random.nextFloat() * yawStep;
 			for (int island = 0; island < islandCount; ++island) {
-				Island next = generate(i, controlPoints, nCount, r, random);
+				Island next = generate(i, nCount, r, random);
 				float y = yaw + nextFloat(random, -0.2F, 0.2F);
 				float distance = previous.radius();
 				float dx = NoiseUtil.sin(y * 6.2831855F) * distance;
@@ -115,7 +113,7 @@ public class FancyContinent implements RiverGenerator {
 		return islands;
 	}
 
-	private static Island generate(int id, ControlPoints controlPoints, int nodes, float radius, Random random) {
+	private static Island generate(int id, int nodes, float radius, Random random) {
 		float minScale = 0.75F;
 		float maxScale = 2.5F;
 		float minLen = radius * 1.5F;
@@ -138,7 +136,7 @@ public class FancyContinent implements RiverGenerator {
 			pointA = pointB;
 			scaleA = scaleB;
 		}
-		return new Island(id, segments, controlPoints, radius * 3.0f, radius * 1.25F, radius, radius * 0.975F);
+		return new Island(id, segments, radius * 3.0f, radius * 1.25F, radius);
 	}
 	
 	public static float nextFloat(Random random, float min, float max) {

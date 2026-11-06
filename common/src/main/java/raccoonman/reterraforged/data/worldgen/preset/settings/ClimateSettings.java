@@ -20,8 +20,8 @@ public class ClimateSettings {
 		// added in 0.0.28 (#35), off: the oceans' temperature as in ReTerraForged 0.0.6
 		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans),
 		// added in 0.0.29 (#28), 0 (off) for presets saved before: their worlds keep their swamps
-		Codec.intRange(0, MAX_LOWLAND_SWAMPS).optionalFieldOf("lowlandSwamps", 0).forGetter((o) -> o.lowlandSwamps),
-		Codec.intRange(0, MAX_SWAMP_HEIGHT).optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight)
+		Codec.INT.optionalFieldOf("lowlandSwamps", 0).forGetter((o) -> o.lowlandSwamps),
+		Codec.INT.optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight)
 	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight) -> {
 		ClimateSettings settings = new ClimateSettings(temperature, moisture, biomeShape, biomeEdgeShape);
 		settings.warmRainforestOceans = warmRainforestOceans;

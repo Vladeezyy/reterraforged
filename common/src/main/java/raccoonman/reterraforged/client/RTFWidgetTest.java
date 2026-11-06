@@ -177,6 +177,10 @@ public final class RTFWidgetTest {
 			return;
 		}
 		AbstractWidget widget = queue.get(index);
+		// the preview is drawn off the render thread: what it did is known when it is finished
+		if (sub >= 2 && screen.getCurrentPage() instanceof PresetEditorPage page && page.previewBusy()) {
+			return;
+		}
 		switch (sub) {
 			case 0 -> {
 				// scrolled into view first: a widget gets its place on the screen when it is drawn
@@ -273,6 +277,7 @@ public final class RTFWidgetTest {
 			REPORT.add(String.format(Locale.ROOT, "  %-34s %-6s %-14s (no change: %s) %s", label, at(widget, fraction), shown, same ? "same value as before" : "BROKEN", preview));
 			return;
 		}
+		controlPointsInOrder(mc, where);
 		String path = changed.get(0);
 		// left out of the JSON: back at the codec's default, which the widget then shows
 		String value = after.getOrDefault(path, shown);
@@ -289,6 +294,15 @@ public final class RTFWidgetTest {
 			notes.add("NAME?");
 		}
 		REPORT.add(String.format(Locale.ROOT, "  %-34s %-6s %-14s -> %-55s %s %s", label, at(widget, fraction), shown, path + " = " + value, preview, String.join(" ", notes)));
+	}
+
+	// any use of a slider keeps the continents' control points in order: a click on Deep Ocean used to set it above
+	// Shallow Ocean, and a higher value at 20 % of the slider than at 80 %; every widget still "changed one setting"
+	private static void controlPointsInOrder(Minecraft mc, String where) {
+		var points = RTFGuiTest.preset(mc).world().controlPoints;
+		if (points.deepOcean > points.shallowOcean || points.shallowOcean > points.beach || points.beach > points.coast || points.coast > points.inland) {
+			RTFGuiTest.fail(where + " left the control points out of order: deep ocean " + points.deepOcean + ", shallow ocean " + points.shallowOcean + ", beach " + points.beach + ", coast " + points.coast + ", inland " + points.inland);
+		}
 	}
 
 	private static String at(AbstractWidget widget, double fraction) {

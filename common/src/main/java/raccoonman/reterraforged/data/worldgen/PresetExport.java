@@ -30,16 +30,20 @@ public final class PresetExport {
 	public static void toZip(Preset preset, String presetName, RegistryAccess registryAccess, Path outputPath) throws IOException {
 		Path datagenPath = Files.createTempDirectory("datagen-target-");
 		Path datagenOutputPath = datagenPath.resolve("output");
-
-		DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName);
-		dataGenerator.run();
 		// a new archive replaces the old one: zip file systems open an existing archive and only add to it, so a preset
 		// exported again kept the files its new settings no longer make (erosion switched off stayed in the pack, #5)
 		Path tempPath = outputPath.resolveSibling(outputPath.getFileName() + ".tmp");
-		Files.deleteIfExists(tempPath);
-		copyToZip(datagenOutputPath, tempPath);
-		Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
-		PathUtils.deleteDirectory(datagenPath);
+		try {
+			DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName);
+			dataGenerator.run();
+			Files.deleteIfExists(tempPath);
+			copyToZip(datagenOutputPath, tempPath);
+			Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
+		} finally {
+			// also when the export failed: every failure left a folder in the system's temporary files
+			Files.deleteIfExists(tempPath);
+			PathUtils.deleteDirectory(datagenPath);
+		}
 
 		RTFCommon.LOGGER.info("Exported datapack to {}", outputPath);
 	}

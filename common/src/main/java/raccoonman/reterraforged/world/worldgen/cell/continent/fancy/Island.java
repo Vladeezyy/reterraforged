@@ -1,6 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.cell.continent.fancy;
 
-import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil.Vec2f;
 import raccoonman.reterraforged.world.worldgen.noise.module.Line;
@@ -19,14 +18,14 @@ public class Island {
 	private Vec2f min;
 	private Vec2f max;
 
-	public Island(int id, Segment[] segments, ControlPoints controlPoints, float deepOcean, float shallowOcean, float coast, float inland) {
+	public Island(int id, Segment[] segments, float deepOcean, float shallowOcean, float coast) {
 		float x = 0.0F;
 		float y = 0.0F;
 		int points = segments.length + 1;
 		float minX = Float.MAX_VALUE;
 		float minZ = Float.MAX_VALUE;
-		float maxX = Float.MIN_VALUE;
-		float maxZ = Float.MIN_VALUE;
+		float maxX = -Float.MAX_VALUE;
+		float maxZ = -Float.MAX_VALUE;
 		float maxRadius = coast;
 		for (int i = 0; i < segments.length; ++i) {
 			Segment segment = segments[i];
@@ -89,6 +88,10 @@ public class Island {
 
 	public Vec2f getMin() {
 		return this.min;
+	}
+
+	public Vec2f getMax() {
+		return this.max;
 	}
 
 	public Vec2f getCenter() {

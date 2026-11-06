@@ -63,12 +63,14 @@ public class StructureSettingsPage extends PresetEditorPage {
 				Slider slider;
 			}
 			SliderHolder seperationHolder = new SliderHolder();
-			Slider spacing = PresetWidgets.createIntSlider(entry.spacing, 0, 1000, RTFTranslationKeys.GUI_SLIDER_SPACING, (slider, value) -> {
+			// a mod's set may be sparser than the slider usually goes: 1000 would show it wrong and change it at the first touch
+			int maxSpacing = Math.max(1000, entry.spacing);
+			Slider spacing = PresetWidgets.createIntSlider(entry.spacing, 0, maxSpacing, RTFTranslationKeys.GUI_SLIDER_SPACING, (slider, value) -> {
 				value = Math.max(value, seperationHolder.slider.getValue() + slider.getSliderValue(1.0F));
 				entry.spacing = (int) slider.scaleValue((float) value);
 				return value;
 			});
-			Slider separation = PresetWidgets.createIntSlider(entry.separation, 0, 1000, RTFTranslationKeys.GUI_SLIDER_SEPARATION, (slider, value) -> {
+			Slider separation = PresetWidgets.createIntSlider(entry.separation, 0, maxSpacing, RTFTranslationKeys.GUI_SLIDER_SEPARATION, (slider, value) -> {
 				value = Math.min(value, spacing.getValue() - slider.getSliderValue(1.0F));
 				entry.separation = (int) slider.scaleValue((float) value);
 				return value;

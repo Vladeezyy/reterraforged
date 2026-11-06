@@ -55,7 +55,8 @@ public class SwampSurfaceFeature extends Feature<Config> {
 			                    continue;
 			                }
 
-			                if (y == waterY && !chunk.getFluidState(pos).isEmpty()) {
+			                // with the fixes not on deeper water: a block of dirt hanging on the surface of a pool (#28)
+			                if (y == waterY && !chunk.getFluidState(pos).isEmpty() && (!config.fixes() || chunk.getFluidState(pos.below()).isEmpty())) {
 			                    chunk.setBlockState(pos, filler, false);
 			                }
 			                break;
@@ -64,7 +65,8 @@ public class SwampSurfaceFeature extends Feature<Config> {
 			        
 			        int y = chunk.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z);
 			        if (y <= waterY) {
-			            chunk.setBlockState(pos.set(x, y, z), getMaterial(x, y, z, waterY, config), false);
+			            // with the fixes the noise at the place itself: at x, z of the chunk the floor was the same in every chunk
+			            chunk.setBlockState(pos.set(x, y, z), config.fixes() ? getMaterial(worldX, y, worldZ, waterY, config) : getMaterial(x, y, z, waterY, config), false);
 			        }					
 				}
 			}	
@@ -88,11 +90,13 @@ public class SwampSurfaceFeature extends Feature<Config> {
     	return Noises.warpWhite(base, 213, 2, 4);    	
     }
     
-    public record Config(BlockState clayMaterial, BlockState gravelMaterial, BlockState dirtMaterial) implements FeatureConfiguration {
+    // fixes: WorldSettings.Properties.generationFixes; absent in the datapacks of worlds made before 0.0.30, which stay as they are
+    public record Config(BlockState clayMaterial, BlockState gravelMaterial, BlockState dirtMaterial, boolean fixes) implements FeatureConfiguration {
     	public static final Codec<Config> CODEC = RecordCodecBuilder.create(instance -> instance.group(
     		BlockState.CODEC.fieldOf("clay_material").forGetter(Config::clayMaterial),
     		BlockState.CODEC.fieldOf("gravel_material").forGetter(Config::gravelMaterial),
-    		BlockState.CODEC.fieldOf("dirt_material").forGetter(Config::dirtMaterial)
+    		BlockState.CODEC.fieldOf("dirt_material").forGetter(Config::dirtMaterial),
+    		Codec.BOOL.optionalFieldOf("fixes", false).forGetter(Config::fixes)
     	).apply(instance, Config::new));
     }
 }

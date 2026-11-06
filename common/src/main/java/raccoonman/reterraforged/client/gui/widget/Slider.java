@@ -20,6 +20,8 @@ public class Slider extends AbstractSliderButton {
 	// the value as shown, with its unit ("64 blocks", "Y 63"); without one the plain number
 	@Nullable
 	private Function<String, Component> valueText;
+	// the position before this move, for the sliders with steps (SliderLimits.stepTowards)
+	private double previous;
     
     public Slider(int x, int y, int width, int height, float initialValue, float min, float max, Component name, Format format, @Nullable Callback callback) {
         super(x, y, width, height, CommonComponents.EMPTY, 0.0);
@@ -28,6 +30,7 @@ public class Slider extends AbstractSliderButton {
         this.min = min;
         this.max = max;
         this.value = this.getSliderValue(initialValue);
+        this.previous = this.value;
         this.callback = callback;
         this.updateMessage();
     }
@@ -39,6 +42,10 @@ public class Slider extends AbstractSliderButton {
     }
     
 
+    
+    public double getPrevious() {
+    	return this.previous;
+    }
     
     public double getSliderValue(float value) {
     	return (Mth.clamp(value, this.min, this.max) - this.min) / (this.max - this.min);
@@ -57,6 +64,7 @@ public class Slider extends AbstractSliderButton {
     	if(this.callback != null) {
         	this.value = this.callback.apply(this, this.value);
     	}
+    	this.previous = this.value;
     }
 
     public Slider withValueText(Function<String, Component> valueText) {

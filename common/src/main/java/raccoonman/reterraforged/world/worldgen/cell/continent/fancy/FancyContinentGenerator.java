@@ -66,10 +66,9 @@ public class FancyContinentGenerator implements Continent {
     public long getNearestCenter(float x, float y) {
         long min = this.source.getMin();
         long max = this.source.getMax();
-        float width = PosUtil.unpackLeftf(max) - PosUtil.unpackLeftf(min);
-        float height = PosUtil.unpackRightf(max) - PosUtil.unpackRightf(min);
-        float cx = width * 0.5F;
-        float cz = height * 0.5F;
+        // the middle of the islands' bounds (half their size before, with the top of the bounds read from their lowest corners)
+        float cx = (PosUtil.unpackLeftf(max) + PosUtil.unpackLeftf(min)) * 0.5F;
+        float cz = (PosUtil.unpackRightf(max) + PosUtil.unpackRightf(min)) * 0.5F;
         int centerX = (int)(cx / this.frequency);
         int centerZ = (int)(cz / this.frequency);
         return PosUtil.pack(centerX, centerZ);
