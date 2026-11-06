@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.cell.heightmap;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
@@ -15,6 +17,9 @@ public class WorldLookup {
 	// 26.3: a base height or base column query (NoiseBasedChunkGenerator.iterateNoiseColumn, MixinNoiseBasedChunkGenerator):
 	// the place's volumes are a single column like the aquifers' surface estimates in a chunk, so the query is marked
 	private static final ThreadLocal<int[]> BASE_COLUMN = ThreadLocal.withInitial(() -> new int[1]);
+	private static final AtomicInteger NEXT_ID = new AtomicInteger();
+	// tells the lookups apart without keeping them (a thread's cached cell, CellSampler.Cache2d)
+	public final int id = NEXT_ID.incrementAndGet();
 	private final float waterLevel;
 	private final float beachLevel;
 	private final TileCache cache;

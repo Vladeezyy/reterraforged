@@ -17,12 +17,14 @@ public final class RTFLanguageProvider {
 		protected void addTranslations() {
 			this.add(RTFTranslationKeys.METADATA_DESCRIPTION, "ReTerraForged resources");
 			this.add(RTFTranslationKeys.PRESET_METADATA_DESCRIPTION, "ReTerraForged preset");
-			this.add(RTFTranslationKeys.MUD_SWAMPS_METADATA_DESCRIPTION, "Changes the swamp material to mud");
 			this.add(RTFTranslationKeys.NO_ERROR_MESSAGE, "{No error message}");
 			
 			this.add(RTFTranslationKeys.GUI_INPUT_PROMPT, "Type preset name");
+			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, "Could not save or apply the preset");
+			this.add(RTFTranslationKeys.GUI_BUTTON_DELETE_CONFIRM, "Delete this preset? This cannot be undone.");
+			this.add(RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES, "Generation Fixes");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES), "Fixes that change the terrain: islands differ from seed to seed, have beaches above the water, and the horizontal scale of islands changes only their terrain; swamp floors no longer repeat from chunk to chunk; Lowland Swamps also works with biome mods that keep their swamps elsewhere; the continent type Infinite has land. Presets saved by earlier versions have this off, so their worlds keep their terrain.");
 			
-			this.add(RTFTranslationKeys.GUI_SELECT_PRESET_MISSING_LEGACY_PRESETS, "Couldn't find any legacy presets");
 			this.add(RTFTranslationKeys.GUI_SELECT_PRESET_TITLE, "Presets & Defaults");
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.villages", "Villages");
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.desert_pyramids", "Desert Pyramids");
@@ -106,11 +108,13 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi"), "TerraForged's original continents: land cells spread across the ocean.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.single"), "One continent at the world center; the rest of the world is ocean.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi_improved"), "Continents with more natural, uneven coastlines. Continent Skipping and Continent Size Variance work only with this type.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.experimental"), "A few long, winding islands near the world center; the rest of the world is ocean. Less tested than the other types.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.infinite"), "Land everywhere: no oceans or coasts, and the continent settings do nothing. Without Generation Fixes it makes a world of ocean.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "distancefunction.euclidean"), "Round continents.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "distancefunction.manhattan"), "Diamond-shaped continents with straighter coasts.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "distancefunction.natural"), "Between round and diamond.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "spawntype.continent_center"), "Spawn on land, searched from the center of the continent nearest 0, 0.");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "spawntype.islands"), "Spawn near 0, 0 without looking for land: may be on an island or in the ocean. Works like World origin.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "spawntype.islands"), "Spawn on the dry land nearest 0, 0, an island or a continent: the search goes further out if there is only water around.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "spawntype.world_origin"), "Spawn near 0, 0 without looking for land: may be in the ocean.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "rendermode.biome_type"), "Biome types by color with height bands; water shaded by depth.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "rendermode.transition_points"), "Deep ocean, shallow ocean, beach, coast and inland (the control points of the World tab); rivers and wetlands marked.");
@@ -133,7 +137,6 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "edgetype.sin"), "Sine waves: regular stripes.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "edgetype.white"), "White noise: random at every point, very jagged borders.");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME, "Default");
-			this.add(RTFTranslationKeys.GUI_DEFAULT_LEGACY_PRESET_NAME, "TerraForged - Default (Legacy)");
 			this.add(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME, "TerraForged - Beautiful (Legacy)");
 			this.add(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME, "TerraForged - Huge Biomes (Legacy)");
 			this.add(RTFTranslationKeys.GUI_LITE_PRESET_NAME, "TerraForged - Lite (Legacy)");
@@ -201,7 +204,6 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS, "Vanilla Springs");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES, "Vanilla Lava Lakes");
 			this.add(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_SPRINGS, "Vanilla Lava Springs");
-			this.add(RTFTranslationKeys.GUI_TOOLTIP_NOT_USED, "Not used by the world generation (it did nothing in ReTerraForged 0.0.6 either)");
 			this.add(RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO, "Used only when Enable Archipelago is on (Islands tab).");
 			this.add(RTFTranslationKeys.GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF, "Used only when Branch Size From Main River is off.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_ENABLE_ARCHIPELAGO, "Enable Archipelago");
@@ -212,7 +214,6 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_VALUE_CAVE_COMPATIBILITY_MODE + ".rtf", "RTF");
 			this.add(RTFTranslationKeys.GUI_VALUE_CAVE_COMPATIBILITY_MODE + ".vanilla", "Vanilla");
 
-			this.add(RTFTranslationKeys.GUI_SLIDER_ZOOM, "Zoom");
 			this.add(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE, "Continent Scale");
 			this.add(RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER, "Continent Jitter");
 			this.add(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SKIPPING, "Continent Skipping");
@@ -400,7 +401,6 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS), "Allow vanilla springs (water source blocks) to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_LAKES), "Allow vanilla lava-lakes to generate");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_VANILLA_LAVA_SPRINGS), "Allow vanilla springs (lava source blocks) to generate");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ZOOM), "Controls the zoom level of the preview map");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE), "Controls the size of continents. You may also need to adjust the transition points to ensure beaches etc still form.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER), "Controls how much continent centers are offset from the underlying noise grid.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SKIPPING), "Reduces the number of continents to create more vast oceans.");
@@ -408,8 +408,8 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_OCTAVES), "The number of octaves of noise used to distort the continent.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_GAIN), "The contribution strength of each noise octave.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_LACUNARITY), "The frequency multiplier for each noise octave.");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND), "Controls the point below which island coasts transition into island. The greater the gap to the island coasts slider, the more gradual the transition.");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST), "Controls the point below which deep oceans transition into island coasts. The greater the gap to the deep ocean slider, the more gradual the transition.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND), "Island biomes at the middle of an island: the higher above Beach, up to Inland, the more they are those of the far inland. Does not change the shape of the islands.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST), "Island biomes at the edge of the land: set above Beach, they are those of places further from the coast. Does not change the shape of the islands.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_DEEP_OCEAN), "Controls the point above which deep oceans transition into shallow oceans. The greater the gap to the shallow ocean slider, the more gradual the transition.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SHALLOW_OCEAN), "Controls the point above which shallow oceans transition into coastal terrain. The greater the gap to the coast slider, the more gradual the transition.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_BEACH), "Controls how much of the coastal terrain is assigned to beach biomes.");
@@ -494,7 +494,7 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_LAKE_MAX_BANK_HEIGHT), "The maximum bank height");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WETLAND_CHANCE), "Controls how common wetlands are");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WETLAND_SIZE_MIN), "The minimum size of the wetlands");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WETLAND_SIZE_MAX), "The maximum size of the wetlands");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_WETLAND_SIZE_MAX), "How much larger than Size Min a wetland can be: each one adds a random part of this to it");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_EROSION_DROPLETS_PER_CHUNK), "The average number of water droplets to simulate per chunk");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_EROSION_DROPLET_LIFETIME), "Controls the number of iterations that a single water droplet is simulated for");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_EROSION_DROPLET_VOLUME), "Controls the starting volume of water that a simulated water droplet carries");

@@ -16,6 +16,8 @@ public class ArchipelagoPopulator implements CellPopulator {
 	private final IslandSettings settings;
 	private final Levels levels;
 	private final ControlPoints controlPoints;
+	// WorldSettings.Properties.generationFixes
+	private final boolean fixes;
 	
 	private final Noise sizeNoise;
 	private final Noise densityNoise;
@@ -29,42 +31,47 @@ public class ArchipelagoPopulator implements CellPopulator {
 	private final Noise beachErosion;
 	private final Noise beachWeirdness;
 	
-	public ArchipelagoPopulator(IslandSettings settings, Levels levels, ControlPoints controlPoints) {
+	public ArchipelagoPopulator(IslandSettings settings, Levels levels, ControlPoints controlPoints, int worldSeed, boolean fixes) {
 		this.settings = settings;
 		this.levels = levels;
 		this.controlPoints = controlPoints;
+		this.fixes = fixes;
+		// constant seeds before: the same islands in every world
+		int seed = fixes ? worldSeed : 0;
 		
 		int size = Math.round(settings.islandSize);
 		float hScale = Math.max(0.1F, settings.islandHorizontalScale);
+		// the scale of the islands' terrain: it also scaled their outline before, so it changed their size
+		float shapeScale = fixes ? 1.0F : hScale;
 		
-		Noise sizeN = Noises.simplex(1273, Math.max(1, Math.round(size * 3.5F / hScale)), 3);
-		sizeN = Noises.warpPerlin(sizeN, 1273, Math.max(1, Math.round(size * 2.0F / hScale)), 2, size * 0.5F / hScale);
-		sizeN = Noises.warpPerlin(sizeN, 4830, Math.max(1, Math.round(size * 0.5F / hScale)), 1, size * 0.3F / hScale);
+		Noise sizeN = Noises.simplex(seed + 1273, Math.max(1, Math.round(size * 3.5F / shapeScale)), 3);
+		sizeN = Noises.warpPerlin(sizeN, seed + 1273, Math.max(1, Math.round(size * 2.0F / shapeScale)), 2, size * 0.5F / shapeScale);
+		sizeN = Noises.warpPerlin(sizeN, seed + 4830, Math.max(1, Math.round(size * 0.5F / shapeScale)), 1, size * 0.3F / shapeScale);
 		sizeN = Noises.clamp(sizeN, 0.0F, 1.0F);
 		this.sizeNoise = sizeN;
 		
-		Noise densityN = Noises.simplex(9735, 4000, 3);
-		densityN = Noises.warpPerlin(densityN, 9735, 2000, 2, 1000.0F);
+		Noise densityN = Noises.simplex(seed + 9735, 4000, 3);
+		densityN = Noises.warpPerlin(densityN, seed + 9735, 2000, 2, 1000.0F);
 		densityN = Noises.clamp(densityN, 0.0F, 1.0F);
 		this.densityNoise = densityN;
 		
-		Noise ridge = Noises.perlinRidge(4829, Math.max(1, Math.round(size * 1.6F / hScale)), 4, 2.1F, 0.82F);
-		ridge = Noises.warpPerlin(ridge, 4830, Math.max(1, Math.round(size * 0.9F / hScale)), 2, size * 0.35F / hScale);
+		Noise ridge = Noises.perlinRidge(seed + 4829, Math.max(1, Math.round(size * 1.6F / hScale)), 4, 2.1F, 0.82F);
+		ridge = Noises.warpPerlin(ridge, seed + 4830, Math.max(1, Math.round(size * 0.9F / hScale)), 2, size * 0.35F / hScale);
 		ridge = Noises.clamp(ridge, 0.0F, 1.0F);
 		this.ridgeHeight = ridge;
 		
-		Noise hills = Noises.billow(3811, Math.max(1, Math.round(size * 0.35F / hScale)), 3, 2.25F, 0.55F);
-		hills = Noises.warpPerlin(hills, 3812, Math.max(1, Math.round(size * 0.7F / hScale)), 1, size * 0.2F / hScale);
+		Noise hills = Noises.billow(seed + 3811, Math.max(1, Math.round(size * 0.35F / hScale)), 3, 2.25F, 0.55F);
+		hills = Noises.warpPerlin(hills, seed + 3812, Math.max(1, Math.round(size * 0.7F / hScale)), 1, size * 0.2F / hScale);
 		hills = Noises.clamp(hills, 0.0F, 1.0F);
 		this.hillHeight = hills;
 		
-		Noise volcano = Noises.perlinRidge(6721, Math.max(1, Math.round(size * 0.45F / hScale)), 3, 2.4F, 0.9F);
+		Noise volcano = Noises.perlinRidge(seed + 6721, Math.max(1, Math.round(size * 0.45F / hScale)), 3, 2.4F, 0.9F);
 		volcano = Noises.powCurve(volcano, 1.8F);
 		volcano = Noises.clamp(volcano, 0.0F, 1.0F);
 		this.volcanoHeight = volcano;
 		
-		this.mountainSelector = Noises.clamp(Noises.simplex(11867, Math.max(1, Math.round(size * 1.25F / hScale)), 2), 0.0F, 1.0F);
-		this.volcanoSelector = Noises.clamp(Noises.simplex(22193, Math.max(1, Math.round(size * 1.75F / hScale)), 2), 0.0F, 1.0F);
+		this.mountainSelector = Noises.clamp(Noises.simplex(seed + 11867, Math.max(1, Math.round(size * 1.25F / hScale)), 2), 0.0F, 1.0F);
+		this.volcanoSelector = Noises.clamp(Noises.simplex(seed + 22193, Math.max(1, Math.round(size * 1.75F / hScale)), 2), 0.0F, 1.0F);
 		
 		this.islandErosion = Erosion.LEVEL_4.source();
 		this.islandWeirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.source();
@@ -98,7 +105,14 @@ public class ArchipelagoPopulator implements CellPopulator {
 		float shelfHeight = NoiseUtil.lerp(oceanHeight, shelfTarget, shelfAlpha);
 		
 		float beachAlpha = smoothStep(shelfEnd, beachEnd, islandAlpha);
-		float beachHeight = NoiseUtil.lerp(shelfHeight, this.levels.ground, beachAlpha);
+		float beachHeight;
+		if (this.fixes) {
+			// out of the water in the first quarter of the band, the rest of it a beach rising 2 blocks. Before, one curve
+			// from the shelf to the ground: only the last fifth of the band came out of the water, by one block
+			beachHeight = beachAlpha < 0.25F ? NoiseUtil.lerp(shelfHeight, this.levels.ground, beachAlpha / 0.25F) : NoiseUtil.lerp(this.levels.ground, this.levels.ground(2), (beachAlpha - 0.25F) / 0.75F);
+		} else {
+			beachHeight = NoiseUtil.lerp(shelfHeight, this.levels.ground, beachAlpha);
+		}
 		
 		float mountainStart = NoiseUtil.clamp(beachEnd + 0.08F, 0.22F, 0.9F);
 		float mountainEnd = Math.max(mountainStart + 0.08F, 0.72F);

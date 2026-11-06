@@ -55,6 +55,10 @@ jobs:
       - name: Build
         run: chmod +x gradlew && { ./gradlew build --console=plain || { echo "build failed, trying again"; sleep 30; ./gradlew build --console=plain; }; }
 
+      # the preset screen's tables are generated: a slider changed without running the script is a limit nobody applies
+      - name: Generated tables are up to date
+        run: python3 tools/stresstable.py && git diff --exit-code -- common/src/main/java/raccoonman/reterraforged/server/stress/PresetStressTable.java common/src/main/java/raccoonman/reterraforged/data/worldgen/preset/settings/PresetLimitTable.java
+
       - name: Upload jars
         uses: actions/upload-artifact@v7
         with:

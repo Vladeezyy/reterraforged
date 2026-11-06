@@ -87,6 +87,16 @@ public record ErodeFeature(Config config) implements Feature {
 	public static final long ERODED = 1L;
 
 	/**
+	 * The chunk has its features: place() does not need the mark any more. Left behind, every generated chunk had an inhabited
+	 * time, and tools that trim worlds by "InhabitedTime = 0" (MCA Selector) took all of them for visited.
+	 */
+	public static void clearMark(ChunkAccess chunk) {
+		if(chunk.getInhabitedTime() == ERODED) {
+			chunk.setInhabitedTime(0L);
+		}
+	}
+
+	/**
 	 * Erodes a chunk as its surface is built, before any feature of it or of a neighbour chunk runs: the result no
 	 * longer depends on the order in which the chunks are generated. Called by MixinNoiseBasedChunkGenerator after the
 	 * surface rules when the preset has the erosion decorator (the reterraforged:erode placed feature exists).

@@ -1,14 +1,17 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.joml.Matrix3x2fStack;
 
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -28,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
+import raccoonman.reterraforged.client.gui.Toasts;
 import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.client.gui.widget.ValueButton;
@@ -44,6 +48,11 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, AbstractWidget, AbstractWidget> {
+	// one texture for all the pages: a new one registered for each page stayed in the TextureManager after it was closed
+	@Nullable
+	private static DynamicTexture previewTexture;
+	@Nullable
+	private static Identifier previewTextureId;
 	private CycleButton<RenderMode> renderMode;
 	private ValueButton<Integer> seed;
 	private Preview preview;
@@ -59,13 +68,18 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		return this.preset;
 	}
 
-	// for the widget test (RTFGuiTest): how often the preview was drawn, and a hash of its last picture
+	// for the widget test (RTFGuiTest): how often the preview was drawn, a hash of its last picture, and whether a new
+	// picture is on its way (it is drawn off the render thread)
 	public int previewGeneration() {
 		return this.preview.generation;
 	}
 
 	public int previewHash() {
 		return this.preview.hash;
+	}
+
+	public boolean previewBusy() {
+		return this.preview.dirty || this.preview.pending != null;
 	}
 
 	protected void regenerate() {
@@ -77,11 +91,13 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		super.init();
 
 		if(this.preview != null) {
-			try {
-				this.preview.close();
-			} catch (Exception e) {
-				RTFCommon.LOGGER.error("Could not close the preset preview", e);
-			}
+			this.preview.close();
+		}
+		// the tile caches of a world that was left
+		try {
+			CacheManager.clear();
+		} catch (Exception e) {
+			RTFCommon.LOGGER.error("Could not clear the generator caches for the preview", e);
 		}
 
 		this.renderMode = PresetWidgets.createCycle(ImmutableList.copyOf(RenderMode.values()), this.renderMode != null ? this.renderMode.getValue() : RenderMode.BIOME_TYPE, Optional.empty(), (button, value) -> {
@@ -100,125 +116,146 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		this.right.addWidget(this.preview);
 	}
 	
+	// nothing saved here: going to another page keeps the edits in the screen's copy, Done saves them, Cancel drops them
 	@Override
 	public void onClose() {
 		super.onClose();
-	
-		// the preview is closed (its texture freed) even when the preset could not be saved
-		try {
-			this.preset.save();
-		} catch (Exception e) {
-			RTFCommon.LOGGER.error("Could not save the preset {}", this.preset.getName().getString(), e);
-		}
-		try {
-			this.preview.close();
-		} catch (Exception e) {
-			RTFCommon.LOGGER.error("Could not close the preset preview", e);
-		}
+		
+		this.preview.close();
 	}
 	
 	@Override
 	public void onDone() {
 		super.onDone();
 		
-		try {
-			this.screen.applyPreset(this.preset);
-		} catch (IOException e) {
-			RTFCommon.LOGGER.error("Could not apply the preset {}", this.preset.getName().getString(), e);
+		Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, () -> this.screen.applyPreset(this.preset));
+	}
+	
+	private static Identifier previewTexture() {
+		if(previewTexture == null) {
+			previewTexture = new DynamicTexture(() -> "ReTerraForged preset preview", new NativeImage(Preview.SIZE, Preview.SIZE, false));
+			previewTextureId = RTFCommon.location("preview_framebuffer");
+			Minecraft.getInstance().getTextureManager().register(previewTextureId, previewTexture);
 		}
+		return previewTextureId;
+	}
+	
+	// a picture of the preview, made off the render thread
+	private record Drawn(Tile tile, Levels levels, int topY, int[] colors, int hash, int centerX, int centerZ, int zoom) {
 	}
 	
 	public class Preview extends AbstractWidget {
 	    private static final int FACTOR = 4;
 	    public static final int SIZE = (1 << 4) << FACTOR;
 	    private static final float[] LEGEND_SCALES = { 1, 0.9F, 0.75F, 0.6F };
-	    private DynamicTexture texture = new DynamicTexture(() -> "ReTerraForged preset preview", new NativeImage(SIZE, SIZE, false));
-	    private Identifier textureId = registerTexture(this.texture);
+	    private Identifier textureId = previewTexture();
 	    private Tile tile;
-	    private int centerX, centerZ;
-
-	    // one preview is open at a time: registering again under the same id closes the previous texture
-	    private static Identifier registerTexture(DynamicTexture texture) {
-	    	Identifier id = RTFCommon.location("preview_framebuffer");
-	    	Minecraft.getInstance().getTextureManager().register(id, texture);
-	    	return id;
-	    }
+	    private int centerX, centerZ, drawnZoom = 1;
 	    
 	    private String hoveredCoords = "";
 	    //TODO maybe make this a map or something instead?
 	    private String[] legendValues = {"", "", ""};
 	    private Component[] legendLabels = { Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_AREA), Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_TERRAIN), Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_BIOME) };
 	    
-	    private int offsetX, offsetZ;
+	    private int offsetX = PresetEditorPage.this.screen.previewOffsetX, offsetZ = PresetEditorPage.this.screen.previewOffsetZ;
 	    private boolean clicked = false;
 	    private int clickOffsetX, clickOffsetZ;
-	    private int zoomValue = 68; // default zoom value
+	    private int zoomValue = PresetEditorPage.this.screen.previewZoom;
 	    private int generation;
 	    private int hash;
 	    // the world top and the preview's levels: the legend tells where the terrain goes above the top (cut flat there)
 	    private int topY = Integer.MAX_VALUE;
 	    private Levels levels;
+	    // a change asked for a new picture; only one is made at a time: a dragged slider asks far more often than it can
+	    // be drawn, and everything between the last two pictures is skipped
+	    private boolean dirty;
+	    private boolean closed;
+	    @Nullable
+	    private CompletableFuture<Drawn> pending;
 	
 	    public Preview() {
 	        super(-1, -1, -1, -1, CommonComponents.EMPTY);
 	    }
 
 	    public void regenerate() {
-			WorldCreationContext settings = PresetEditorPage.this.screen.getSettings();
-	        RegistryAccess.Frozen registries = settings.worldgenLoadContext();
-	        HolderLookup.Provider provider = PresetEditorPage.this.preset.getPreset().buildPatch(registries);
+	    	this.dirty = true;
+	    }
+	    
+	    private void pollPicture() {
+	    	if(this.pending != null && this.pending.isDone()) {
+	    		try {
+	    			this.show(this.pending.join());
+	    		} catch (RuntimeException e) {
+	    			RTFCommon.LOGGER.error("Could not draw the preset preview", e);
+	    		}
+	    		this.pending = null;
+	    	}
+	    	if(this.pending == null && this.dirty) {
+	    		this.dirty = false;
+	    		// on this thread what the sliders change; off it the rest, which took long enough to stop the game at each move
+	    		Preset edited = PresetEditorPage.this.preset.getPreset().copy();
+	    		WorldCreationContext settings = PresetEditorPage.this.screen.getSettings();
+	    		RegistryAccess.Frozen registries = settings.worldgenLoadContext();
+	    		int seed = (int) settings.options().seed();
+	    		RenderMode mode = PresetEditorPage.this.renderMode.getValue();
+	    		int x = this.offsetX, z = this.offsetZ, zoom = this.getZoom();
+	    		this.pending = CompletableFuture.supplyAsync(() -> draw(edited, registries, seed, x, z, zoom, mode), Util.backgroundExecutor());
+	    	}
+	    }
+	    
+	    private static Drawn draw(Preset edited, RegistryAccess.Frozen registries, int seed, int centerX, int centerZ, int zoom, RenderMode renderMode) {
+	        HolderLookup.Provider provider = edited.buildPatch(registries);
 	        HolderGetter<Preset> presets = provider.lookupOrThrow(RTFRegistries.PRESET);
 	        HolderGetter<Noise> noises = provider.lookupOrThrow(RTFRegistries.NOISE);
 	        Preset preset = presets.getOrThrow(Preset.KEY).value();
-	        WorldSettings world = preset.world();
-	        WorldSettings.Properties properties = world.properties;
+	        WorldSettings.Properties properties = preset.world().properties;
 	        
-	        try {
-				CacheManager.clear();
-			} catch (Exception e) {
-				RTFCommon.LOGGER.error("Could not clear the generator caches for the preview", e);
-			}
-			PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.DEFAULT_FILE_PATH)
-				.resultOrPartial(RTFCommon.LOGGER::error)
-				.orElseGet(PerformanceConfig::makeDefault);
-	        GeneratorContext generatorContext = GeneratorContext.makeUncached(preset, noises, (int) settings.options().seed(), FACTOR, 0, config.batchCount());
-	        
-	        // Ignore continent center snapping, use offset directly
-	        this.centerX = this.offsetX;
-	        this.centerZ = this.offsetZ;
-
-	        this.tile = generatorContext.generator.generateZoomed(this.centerX, this.centerZ, this.getZoom(), false).join();
-	        RenderMode renderMode = PresetEditorPage.this.renderMode.getValue();
+	        GeneratorContext generatorContext = GeneratorContext.makeUncached(preset, noises, seed, FACTOR, 0, PerformanceConfig.makeDefault().batchCount());
+	        Tile tile = generatorContext.generator.generateZoomed(centerX, centerZ, zoom, false).join();
 	        Levels levels = new Levels(properties.terrainScaler(), properties.seaLevel);
-	        this.levels = levels;
-	        this.topY = properties.worldHeight - 1;
+	        int topY = properties.worldHeight - 1;
 
 	        int stroke = 2;
-	        int width = this.tile.getBlockSize().size();
-
-	        NativeImage pixels = this.texture.getPixels();
+	        int width = tile.getBlockSize().size();
+	        int[] colors = new int[width * width];
 	        int[] hash = { 1 };
-	        this.tile.iterate((cell, x, z) -> {
+	        tile.iterate((cell, x, z) -> {
 	            if (x < stroke || z < stroke || x >= width - stroke || z >= width - stroke) {
-	                pixels.setPixel(x, z, Color.BLACK.getRGB());
+	                colors[z * width + x] = Color.BLACK.getRGB();
 	            } else {
-	                int color = ARGB.fromABGR(renderMode.getColor(cell, levels, this.topY));
-	                pixels.setPixel(x, z, color);
+	                int color = ARGB.fromABGR(renderMode.getColor(cell, levels, topY));
+	                colors[z * width + x] = color;
 	                hash[0] = hash[0] * 31 + color;
 	            }
 	        });
-	        this.texture.upload();
-	        this.generation++;
-	        this.hash = hash[0];
+	        return new Drawn(tile, levels, topY, colors, hash[0], centerX, centerZ, zoom);
 	    }
 	    
-	    public void close() throws Exception {
-	    	this.texture.close();
-	    	try {
-	   CacheManager.clear();
-	  } catch (Exception e) {
-	   RTFCommon.LOGGER.error("Could not clear the generator caches", e);
-	  }
+	    private void show(Drawn drawn) {
+	    	if(this.closed) {
+	    		return;
+	    	}
+	    	this.tile = drawn.tile();
+	    	this.levels = drawn.levels();
+	    	this.topY = drawn.topY();
+	    	this.centerX = drawn.centerX();
+	    	this.centerZ = drawn.centerZ();
+	    	this.drawnZoom = drawn.zoom();
+	    	int width = this.tile.getBlockSize().size();
+	    	NativeImage pixels = previewTexture.getPixels();
+	    	int[] colors = drawn.colors();
+	    	for(int z = 0; z < width; z++) {
+	    		for(int x = 0; x < width; x++) {
+	    			pixels.setPixel(x, z, colors[z * width + x]);
+	    		}
+	    	}
+	    	previewTexture.upload();
+	    	this.generation++;
+	    	this.hash = drawn.hash();
+	    }
+	    
+	    public void close() {
+	    	this.closed = true;
 	    }
 	
 	    @Override
@@ -228,6 +265,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	
 	    @Override
 	    public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mx, int my, float partialTicks) {
+	        this.pollPicture();
+	        
 	        int x = this.getX();
 	        int y = this.getY();
 	        
@@ -255,6 +294,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        double blocksPerPixel = zoom; // preview size = 256
 	        offsetX -= dragX * blocksPerPixel;
 	        offsetZ -= dragY * blocksPerPixel;
+	        PresetEditorPage.this.screen.previewOffsetX = offsetX;
+	        PresetEditorPage.this.screen.previewOffsetZ = offsetZ;
 	        regenerate();
 	    }
 	
@@ -290,6 +331,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        int dynamicStep = Math.max(1, (100 - zoomValue) / 10);
 	        int step = (int) Math.signum(scrollY) * dynamicStep;
 	        zoomValue = Math.max(1, Math.min(100, zoomValue + step));
+	        PresetEditorPage.this.screen.previewZoom = zoomValue;
 	        regenerate();
 	        return true;
 	    }
@@ -320,7 +362,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	            int top = this.getY();
 	            float size = this.width;
 	
-	            int zoom = this.getZoom();
+	            // of the picture on the screen: the mouse wheel may have asked for another one already
+	            int zoom = this.drawnZoom;
 	            int width = Math.max(1, this.tile.getBlockSize().size() * zoom);
 	            int height = Math.max(1, this.tile.getBlockSize().size() * zoom);
 	            this.legendValues[0] = width + "x" + height;

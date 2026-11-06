@@ -146,21 +146,21 @@ public final class CellSampler {
 	public static class Cache2d {
 		private long lastPos = Long.MAX_VALUE;
 		private boolean lastTiles;
+		// a thread goes on to the next world, and the same place there is another cell
+		private int lastLookup;
 		private Cell cell = new Cell();
 		
 		// tiles: the cell of the place's tile (generated if it is not cached), else computed without the tile
 		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate, boolean tiles) {
 			long packedPos = PosUtil.pack(blockX, blockZ);
-			if(this.lastPos != packedPos || this.lastTiles != tiles) {
+			if(this.lastPos != packedPos || this.lastTiles != tiles || this.lastLookup != lookup.id) {
 				lookup.applyCell(this.cell.reset(), blockX, blockZ, tiles, sampleClimate);
 				this.lastTiles = tiles;
+				this.lastLookup = lookup.id;
 				lookup.getHeightmap().fakeWaterBiomeResolver().apply(this.cell);
 				this.lastPos = packedPos;
 				if (this.cell.fakeWaterBiome.isRiver()) {
 					this.cell.erosion = Erosion.LEVEL_6.mid();
-					this.cell.weirdness = Weirdness.VALLEY.mid();
-				} else if (this.cell.fakeWaterBiome.isOcean()) {
-					this.cell.erosion = Erosion.LEVEL_3.mid();
 					this.cell.weirdness = Weirdness.VALLEY.mid();
 				}
 				if (this.cell.terrain == TerrainType.ISLAND_BEACH) {
@@ -200,9 +200,6 @@ public final class CellSampler {
 				FakeWaterBiomeTarget fakeWaterBiome = refreshFakeWaterBiome(cell, heightmap);
 				if (fakeWaterBiome.isRiver()) {
 					return Continentalness.NEAR_INLAND.mid();
-				}
-				if (fakeWaterBiome.isOcean()) {
-					return Continentalness.OCEAN.mid();
 				}
 				
 				if(cell.terrain == TerrainType.MUSHROOM_FIELDS) {
@@ -246,9 +243,6 @@ public final class CellSampler {
 				if(fakeWaterBiome.isRiver()) {
 					return Erosion.LEVEL_6.mid();
 				}
-				if(fakeWaterBiome.isOcean()) {
-					return Erosion.LEVEL_3.mid();
-				}
 				if(cell.terrain == TerrainType.ISLAND_BEACH) {
 					return Erosion.LEVEL_4.mid();
 				}
@@ -260,7 +254,7 @@ public final class CellSampler {
 			@Override
 			public float read(Cell cell, Heightmap heightmap) {
 				FakeWaterBiomeTarget fakeWaterBiome = refreshFakeWaterBiome(cell, heightmap);
-				if(fakeWaterBiome.isRiver() || fakeWaterBiome.isOcean()) {
+				if(fakeWaterBiome.isRiver()) {
 					return Weirdness.VALLEY.mid();
 				}
 				if(cell.terrain == TerrainType.ISLAND_BEACH) {

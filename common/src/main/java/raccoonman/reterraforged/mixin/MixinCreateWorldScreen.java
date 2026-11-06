@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
@@ -16,6 +17,12 @@ class MixinCreateWorldScreen {
 	@Inject(method = "openFresh*", at = @At("HEAD"))
 	private static void openFresh(CallbackInfo callback) {
 		RTFCreateWorld.markFresh();
+	}
+
+	// the screen for an existing world (Re-Create) is not a new one, even when an openFresh before it failed
+	@Inject(method = "createFromExisting*", at = @At("HEAD"), require = 0)
+	private static void createFromExisting(CallbackInfoReturnable<CreateWorldScreen> callback) {
+		RTFCreateWorld.markExisting();
 	}
 
 	@Inject(method = "init", at = @At("RETURN"))

@@ -30,7 +30,10 @@ public enum SpawnType implements StringRepresentable {
 			return List.of(new SpawnTargetPoint(Map.of(temperature, FULL_RANGE, vegetation, FULL_RANGE, continents, Climate.Parameter.span(INLAND_CONTINENTALNESS, FULL_RANGE), erosion, FULL_RANGE, weirdness, FULL_RANGE)));
 		}
 	}, 
+    // the dry land nearest 0, 0. With no points the game skips the search and spawns at 0, 0, half of the worlds in the
+    // ocean; any climate fits this point, and what counts is the generator's water (SpawnFinderFix)
     ISLANDS("ISLANDS") {
+        private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0F, 1.0F);
 
 		@Override
 		public BlockPos getSearchCenter(GeneratorContext ctx) {
@@ -39,7 +42,7 @@ public enum SpawnType implements StringRepresentable {
 
 		@Override
 		public List<SpawnTargetPoint> getSpawnTarget(Holder<DensityFunction> temperature, Holder<DensityFunction> vegetation, Holder<DensityFunction> continents, Holder<DensityFunction> erosion, Holder<DensityFunction> weirdness) {
-			return ImmutableList.of();
+			return List.of(new SpawnTargetPoint(Map.of(temperature, FULL_RANGE, vegetation, FULL_RANGE, continents, FULL_RANGE, erosion, FULL_RANGE, weirdness, FULL_RANGE)));
 		}
 	},
     WORLD_ORIGIN("WORLD_ORIGIN") {

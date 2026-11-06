@@ -3,6 +3,7 @@ package raccoonman.reterraforged.client.gui.screen.presetconfig;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -14,20 +15,31 @@ import net.minecraft.network.chat.Component;
 
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
-import net.minecraft.world.level.levelgen.WorldOptions;
 import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
+import raccoonman.reterraforged.client.gui.Toasts;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
 public class PresetConfigScreen extends LinkedPageScreen {
-	// edited copies of the built-in presets (they are not saved to files) for each create world screen, by name
-	private static final Map<CreateWorldScreen, Map<String, PresetEntry>> EDITED_BUILTINS = new WeakHashMap<>();
+	// built-in presets as Done left them (they are not saved to files) for each create world screen, by name
+	private static final Map<CreateWorldScreen, Map<String, Preset>> EDITED_BUILTINS = new WeakHashMap<>();
 	private final CreateWorldScreen parent;
+	// what this screen edits, by name: copies, until Done keeps them and Cancel throws them away. The pages wrote straight
+	// into the presets and saved the files when they closed, so Cancel changed the player's preset all the same
+	private final Map<String, PresetEntry> working = new LinkedHashMap<>();
+	private final String seedBefore;
+	private boolean seedChanged;
+	private boolean done;
+	// where the preview map is looking: the same on every page, and after the window changes size
+	public int previewOffsetX, previewOffsetZ;
+	public int previewZoom = 68;
 	
 	public PresetConfigScreen(CreateWorldScreen parent) {
 		this.parent = parent;
+		this.seedBefore = parent.getUiState().getSeed();
 		this.currentPage = new PresetListPage(this);
 	}
 	
@@ -35,25 +47,43 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	public void onClose() {
 		super.onClose();
 
+		if(!this.done && this.seedChanged) {
+			this.parent.getUiState().setSeed(this.seedBefore);
+		}
 		this.minecraft.gui.setScreen(this.parent);
 	}
 	
-	// a built-in preset is edited as a copy: the same copy until the create world screen is closed, so the changes
-	// stay when going back to the preset list or opening Customize again (they used to be thrown away)
-	public PresetEntry editable(PresetEntry entry) {
-		if(!entry.isBuiltin()) {
-			return entry;
+	@Override
+	public void onDone() {
+		this.done = true;
+		for(PresetEntry entry : this.working.values()) {
+			if(entry.isBuiltin()) {
+				EDITED_BUILTINS.computeIfAbsent(this.parent, (screen) -> new HashMap<>()).put(entry.getName().getString(), entry.getPreset());
+			} else {
+				Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, entry::save);
+			}
 		}
-		return EDITED_BUILTINS.computeIfAbsent(this.parent, (screen) -> new HashMap<>()).computeIfAbsent(entry.getName().getString(), (name) -> {
-			return new PresetEntry(entry.getName(), entry.getPreset().copy(), true, (b) -> {});
+		super.onDone();
+	}
+	
+	// the copy this screen edits: a built-in preset's has the changes of the last Done on this create world screen
+	public PresetEntry editable(PresetEntry entry) {
+		return this.working.computeIfAbsent(entry.getName().getString(), (name) -> {
+			Map<String, Preset> edited = entry.isBuiltin() ? EDITED_BUILTINS.get(this.parent) : null;
+			Preset preset = edited != null ? edited.get(name) : null;
+			return entry.withPreset((preset != null ? preset : entry.getPreset()).copy());
 		});
 	}
+	
+	// the preset was deleted: nothing of it to keep on Done
+	public void forget(PresetEntry entry) {
+		this.working.remove(entry.getName().getString());
+	}
 
+	// through the seed field's own state: the field on the World tab shows it when the screen comes back
 	public void setSeed(long seed) {
-		//TODO update the seed edit box
-		this.parent.getUiState().setSettings(this.getSettings().withOptions((options) -> {
-			return new WorldOptions(seed, options.generateStructures(), options.generateBonusChest());
-		}));
+		this.seedChanged = true;
+		this.parent.getUiState().setSeed(Long.toString(seed));
 	}
 	
 	public WorldCreationContext getSettings() {

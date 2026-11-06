@@ -44,14 +44,14 @@ abstract class MixinMultiNoiseBiomeSource {
 		return this.limitSwamps(resolver, sampler);
 	}
 
-	// Highest Swamps: a swamp too high above the sea is picked again (SwampHeights) from the climate at that place with
-	// the erosion offset (MixinClimateSampler); getNoiseBiome keeps TerraBlender's and the other mods' own changes
+	// Highest Swamps, Lowland Swamps: a swamp too high above the sea, a lowland without one, is picked again (SwampHeights)
+	// from the climate at that place, changed by MixinClimateSampler; getNoiseBiome keeps TerraBlender's and the other mods' own changes
 	@Unique
 	private BiomeResolver limitSwamps(BiomeResolver resolver, Climate.Sampler sampler) {
 		SwampHeights heights = this.swampHeights;
 		if (heights == null) {
 			return resolver;
 		}
-		return (x, y, z) -> heights.limit(x, z, resolver.getNoiseBiome(x, y, z), () -> this.getNoiseBiome(sampler.sample(x, y, z)));
+		return (x, y, z) -> heights.limit(x, y, z, resolver.getNoiseBiome(x, y, z), () -> this.getNoiseBiome(sampler.sample(x, y, z)));
 	}
 }

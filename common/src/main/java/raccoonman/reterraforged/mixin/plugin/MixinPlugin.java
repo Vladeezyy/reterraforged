@@ -11,6 +11,8 @@ import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 
 public class MixinPlugin implements IMixinConfigPlugin {
+	// the client tests' tick: not in a normal game's client tick at all
+	private static final String CLIENT_TEST_MIXIN = "raccoonman.reterraforged.mixin.MixinMinecraft";
 
 	@Override
 	public void onLoad(String mixinPackage) {
@@ -28,6 +30,9 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if(mixinClassName.equals(CLIENT_TEST_MIXIN)) {
+			return System.getProperty("rtf.clienttest") != null;
+		}
 		return TBCompat.isTBMixin(mixinClassName) ? TBCompat.isEnabled() : true;
 	}
 
