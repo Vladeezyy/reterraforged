@@ -140,8 +140,8 @@ public class WorldSettings {
         // deepslate (vanilla: 0)
         public int deepslateLevel;
         // the fixes that change a world (0.0.30), on in new presets: islands of the world's seed with their beaches above
-        // the water and the horizontal scale only on their terrain, the floor of swamps, lowland swamps of the biome mods,
-        // land with the Infinite continent type, terrain in other dimensions on the overworld's noise settings
+        // the water and the horizontal scale only on their terrain, the floor of swamps, lowland swamps of the biome mods
+        // and on mixed terrains, land with the Infinite continent type, terrain in other dimensions on the overworld's noise settings
         public boolean generationFixes = true;
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int lavaLevel) {
