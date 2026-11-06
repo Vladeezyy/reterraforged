@@ -32,7 +32,8 @@
 		"ScreenInvoker",
 		"MixinMinecraft",
 		"MixinCreateWorldScreen",
-		"MixinCreateWorldGameTab"
+		"MixinCreateWorldGameTab",
+		"MixinWindow"
   	],
   	"injectors": {
 		"defaultRequire": 1

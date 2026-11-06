@@ -50,7 +50,11 @@ public class PresetConfigScreen extends LinkedPageScreen {
 		if(!this.done && this.seedChanged) {
 			this.parent.getUiState().setSeed(this.seedBefore);
 		}
-		this.minecraft.gui.setScreen(this.parent);
+		// Done started a reload of the datapacks, and the game brings the create world screen back when it is over. Back at
+		// once, that screen still had the old preset, and a quick Create New World made the world with it
+		if(this.minecraft.gui.screen() == this) {
+			this.minecraft.gui.setScreen(this.parent);
+		}
 	}
 	
 	@Override
