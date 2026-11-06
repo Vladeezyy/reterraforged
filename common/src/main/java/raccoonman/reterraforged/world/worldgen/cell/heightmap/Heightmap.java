@@ -114,7 +114,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         
         this.climate.apply(cell, x, z, applyClimate);
         // Swamp Basins: one climate over the low land of a basin, so that it is one swamp
-        if (applyClimate && this.swampBasins != null && (this.isLowland(cell) || cell.terrain.isWetland())) {
+        if (applyClimate && this.swampBasins != null && this.swampBasins.contains(cell) && (this.isLowland(cell) || cell.terrain.isWetland())) {
         	this.swampBasins.applyClimate(cell);
         }
         // Lowland Swamps (ClimateSettings.lowlandSwamps): wet, not cold, flat or rolling land a few blocks above the

@@ -103,21 +103,17 @@ public final class SwampBasins implements CellPopulator {
 		cell.weirdness = NoiseUtil.lerp(weirdness, cell.weirdness, alpha);
 	}
 
-	/** Low land of a basin (the caller knows it is lowland or wetland): the climate of its center */
-	public void applyClimate(Cell cell) {
-		if (cell.height > this.top) {
-			return;
-		}
-		Center center = this.center(cell);
-		if (center != null) {
-			cell.temperature = center.temperature;
-			cell.moisture = center.moisture;
-			cell.biomeRegionId = center.biomeRegion;
-		}
-	}
-
+	/** The low land of a basin: at most the height of its rim, in a basin's region. Most land stops at the height */
 	public boolean contains(Cell cell) {
 		return cell.height <= this.top && this.center(cell) != null;
+	}
+
+	/** A cell this contains: the climate of its center */
+	public void applyClimate(Cell cell) {
+		Center center = this.center(cell);
+		cell.temperature = center.temperature;
+		cell.moisture = center.moisture;
+		cell.biomeRegionId = center.biomeRegion;
 	}
 
 	private Center center(Cell cell) {
