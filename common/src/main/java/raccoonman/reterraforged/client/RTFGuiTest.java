@@ -70,6 +70,7 @@ public final class RTFGuiTest {
 	// the third round leaves with Cancel: the seed of the create world screen before it, and it must be there after
 	private static String seedBeforeCancel;
 	private static int timeout;
+	private static int readyWait;
 	// tooltips to see on the screenshots: an enum option (what it does, its old name), greyed-out sliders (what they
 	// need), the structure placement seed
 	private static final List<TooltipShot> TOOLTIP_SHOTS = List.of(
@@ -86,6 +87,19 @@ public final class RTFGuiTest {
 	}
 
 	private RTFGuiTest() {
+	}
+
+	// the create world screen with the generation on: it comes after reloads of the datapacks, which take as long as they
+	// take. A fixed wait failed on a busy machine ("no World tab"), with the message of the reload still on the screen
+	static boolean createWorldReady(Minecraft mc) {
+		if (mc.screen instanceof CreateWorldScreen screen && RTFCreateWorld.isEnabled(screen)) {
+			readyWait = 0;
+			return true;
+		}
+		if (++readyWait <= 1200) return false;
+		// a minute: the next step fails with what is on the screen
+		readyWait = 0;
+		return true;
 	}
 
 	// the mouse to a point of the window (in pixels): the screens read its position from MouseHandler for hovering
@@ -114,6 +128,7 @@ public final class RTFGuiTest {
 				}
 			}
 			case 1 -> {
+				if (!createWorldReady(mc)) return;
 				// the World tab of the create world screen, then its Customize button (opens the preset screen)
 				if (!click(mc, (w) -> hasKey(w, "createWorld.tab.world.title"), 0.5)) fail("no World tab");
 				next(10);
