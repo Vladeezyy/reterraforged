@@ -47,7 +47,11 @@ wait_for() {
 # spark for this Minecraft version and loader (Modrinth)
 read -r url file < <(curl -fsSL "https://api.modrinth.com/v2/project/spark/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22$LOADER%22%5D" \
     | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])' | tr -d '\r')
-[ -f "run/$file" ] || curl -fsSL -o "run/$file" "$url"
+[ -n "$file" ] || { echo "spark: no version found (no network?)"; exit 1; }
+# through a temporary name: a broken download stayed in run/ as a jar the server refuses ("is not a jar file")
+if [ ! -f "run/$file" ]; then
+    curl -fsSL -o "run/$file.part" "$url" && mv "run/$file.part" "run/$file" || { rm -f "run/$file.part"; echo "spark: download failed"; exit 1; }
+fi
 cp "run/$file" "$dir/mods/"
 echo "spark: $file"
 
@@ -63,7 +67,7 @@ for mode in ${MODES:-reterraforged vanilla}; do
         fabric) start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx4G "$jfr" ${CORES:+-XX:ActiveProcessorCount=$CORES} -jar fabric-server-launch.jar nogui) ;;
     esac
     start_server bench.log
-    if ! wait_for bench.log 'Done (' 600; then echo "$mode: server did not start"; kill_servers; continue; fi
+    if ! wait_for bench.log 'Done (' 600; then echo "$mode: server did not start"; kill "$(cat "$dir/tail.pid")" 2>/dev/null; kill_servers; failed=1; continue; fi
     echo "rtf bench $SIZE" >> "$dir/console.in"
     # spark while the chunks generate, 8 s into the measured part: TPS, tick times, CPU
     wait_for bench.log '\[RTF bench\] warmed up' 600
@@ -86,4 +90,5 @@ for mode in ${MODES:-reterraforged vanilla}; do
     fi
 done
 rm -f "$dir/mods/$file"
+exit ${failed:-0}
 }
