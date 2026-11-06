@@ -182,7 +182,11 @@ public final class RTFSelfTest {
 			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})))).then(Commands.literal("snowgrid").then(Commands.argument("biome", net.minecraft.commands.arguments.ResourceLocationArgument.id()).executes(ctx -> {
+		}).then(Commands.argument("x", IntegerArgumentType.integer()).then(Commands.argument("z", IntegerArgumentType.integer()).executes(ctx -> {
+			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"), new net.minecraft.core.BlockPos(IntegerArgumentType.getInteger(ctx, "x"), 0, IntegerArgumentType.getInteger(ctx, "z")));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})))))).then(Commands.literal("snowgrid").then(Commands.argument("biome", net.minecraft.commands.arguments.ResourceLocationArgument.id()).executes(ctx -> {
 			String result = RTFSnowGridTest.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), 12);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
