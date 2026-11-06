@@ -85,7 +85,11 @@ public final class RTFSelfTest {
 			String result = RTFBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "size"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("tilebench").executes(ctx -> {
+		}).then(Commands.argument("chunkX", IntegerArgumentType.integer()).then(Commands.argument("chunkZ", IntegerArgumentType.integer()).executes(ctx -> {
+			String result = RTFBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "size"), IntegerArgumentType.getInteger(ctx, "chunkX"), IntegerArgumentType.getInteger(ctx, "chunkZ"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))))).then(Commands.literal("tilebench").executes(ctx -> {
 			String result = RTFTileBench.start(ctx.getSource().getServer(), 60);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;

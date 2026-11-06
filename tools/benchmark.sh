@@ -6,7 +6,7 @@
 # per second; the server runs with spark ("spark tps" during the generation: TPS, tick times, CPU; printed in the
 # console, nothing is uploaded) and a Java Flight Recorder recording,
 # whose hottest methods are printed. Both are downloaded/kept in run/ and taken out of the server's mods afterwards.
-# SIZE=n changes the square (n x n chunks); MODES="reterraforged" measures one world only; CORES=n lets the server
+# SIZE=n changes the square (n x n chunks); ORIGIN="x z" the chunk at its corner; MODES="reterraforged" measures one world only; CORES=n lets the server
 # see n cores (a small server: fewer generation threads, and the tiles are waited for).
 { # parsed as a whole before running, so editing this file during a run is safe
 cd "$(dirname "$0")/.."
@@ -64,7 +64,7 @@ for mode in ${MODES:-reterraforged vanilla}; do
     esac
     start_server bench.log
     if ! wait_for bench.log 'Done (' 600; then echo "$mode: server did not start"; kill_servers; continue; fi
-    echo "rtf bench $SIZE" >> "$dir/console.in"
+    echo "rtf bench $SIZE${ORIGIN:+ $ORIGIN}" >> "$dir/console.in"
     # spark while the chunks generate, 8 s into the measured part: TPS, tick times, CPU
     wait_for bench.log '\[RTF bench\] warmed up' 600
     sleep 8
