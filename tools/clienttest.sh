@@ -37,6 +37,18 @@ if [ ! -f "$RUN/options.txt" ]; then
     printf 'onboardAccessibility:false\ntutorialStep:none\npauseOnLostFocus:false\nguiScale:2\n' > "$RUN/options.txt"
 fi
 
+# the windows of the test do not take the focus from what the person is doing: MixinWindow for the game's window with GLFW,
+# SDL's own settings from 26.3 on; NeoForge's loading window has no such setting, so it is off in the test
+export SDL_WINDOW_ACTIVATE_WHEN_SHOWN=0 SDL_WINDOW_ACTIVATE_WHEN_RAISED=0 SDL_MAC_BACKGROUND_APP=1
+if [ "$LOADER" = neoforge ]; then
+    mkdir -p "$RUN/config"
+    if [ -f "$RUN/config/fml.toml" ]; then
+        sed -i.bak 's/^earlyWindowControl *=.*/earlyWindowControl = false/' "$RUN/config/fml.toml" && rm -f "$RUN/config/fml.toml.bak"
+    else
+        echo 'earlyWindowControl = false' > "$RUN/config/fml.toml"
+    fi
+fi
+
 ./gradlew ":$LOADER:runClient" -PrtfClientTest=$TEST --no-daemon > "$OUT/client.log" 2>&1 &
 gradle=$!
 # in dev runs Architectury's TransformerRuntime leaves non-daemon thread pools behind (seen with 26.2; not in the

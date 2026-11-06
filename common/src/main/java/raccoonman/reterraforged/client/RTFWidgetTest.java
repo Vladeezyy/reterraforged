@@ -84,6 +84,7 @@ public final class RTFWidgetTest {
 				}
 			}
 			case 1 -> {
+				if (!RTFGuiTest.createWorldReady(mc)) return;
 				if (!RTFGuiTest.click(mc, (w) -> RTFGuiTest.hasKey(w, "createWorld.tab.world.title"), 0.5)) RTFGuiTest.fail("no World tab");
 				next(10);
 			}
@@ -120,6 +121,8 @@ public final class RTFWidgetTest {
 			case 7 -> {
 				edited = flatten(RTFGuiTest.preset(mc));
 				RTFGuiTest.click(mc, ((LinkedPageScreen) mc.gui.screen()).doneButton, 0.5);
+				// the datapacks reload now: nothing to click in the create world screen until the new preset is in it
+				if (mc.gui.screen() instanceof CreateWorldScreen) RTFGuiTest.fail("Done went back to the create world screen before the preset was applied");
 				timeout = 600;
 				next(20);
 			}
