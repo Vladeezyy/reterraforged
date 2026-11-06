@@ -17,7 +17,7 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 
 /**
  * Swamp Basins (ClimateSettings.swampBasins, #28): some of the terrain regions whose center has a wet, not cold climate
- * are flat land just above the sea, away from any river. Lowland Swamps alone can only give a swamp's climate to low land
+ * are flat land just above the sea, with or without a river. Lowland Swamps alone can only give a swamp's climate to low land
  * that exists, and that is mostly river valleys, so its swamps stay narrow. The other terrain regions keep what they
  * have, and the region's border is the same plains as every terrain region's.
  *
@@ -38,7 +38,7 @@ public final class SwampBasins implements CellPopulator {
 	// the mounds' largest height in blocks; the bottom is flush with the water, where the swamps' surface rules make pools
 	private static final int MOUNDS = 4;
 	// how much sooner than other terrain the floor of a basin takes over from the plains of the region's border: with their
-	// blend the flat floor is a third of the region, and in the rest only the carved river valleys are low enough
+	// blend the flat floor is a small part of the region, and in the rest only the carved river valleys are low enough
 	private static final float BLEND = 2.0F;
 
 	private final CellPopulator regions;

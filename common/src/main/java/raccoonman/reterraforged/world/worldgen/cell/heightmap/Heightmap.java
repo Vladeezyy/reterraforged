@@ -133,13 +133,12 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	
 	// the cell's climate sampled: wet, not cold, flat or rolling land a few blocks above the sea (ClimateSettings.lowlandSwamps)
 	public boolean isLowlandSwamp(Cell cell) {
-		if (cell.height <= this.levels.water || !this.isLowland(cell)) {
+		if (cell.height <= this.levels.water) {
 			return false;
 		}
-		if (cell.height <= this.lowlandSwampTop && cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min()) {
-			return true;
-		}
-		return this.swampBasins != null && this.swampBasins.contains(cell);
+		// the terrain last: with both settings off every column of land stops at the first of these
+		boolean lowlandSwamp = cell.height <= this.lowlandSwampTop && cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min();
+		return (lowlandSwamp || this.swampBasins != null && this.swampBasins.contains(cell)) && this.isLowland(cell);
 	}
 
 	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
