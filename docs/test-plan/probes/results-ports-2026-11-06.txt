@@ -399,3 +399,231 @@ exit 0
 reterraforged: server did not start
 vanilla: server did not start
 == 26.1.2 679d644 19:04:03 load 1.11 1.89 2.50
+
+#### bench-ports2-battery.txt
+== 1.21.11 22:31:57
+  quiet after waiting 2380s
+  354e2e7 start 23:11:43, load 3.04 4.40 4.37, 'Battery Power', 62%; discharging, lowpower 0
+  exit 0 at 23:12:59; samples 5, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 14.1 s, 72.5 chunks/s, 13.8 ms per chunk, heap in use 813 MB of 4096 MB (567 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  8.78, 12.2, 18.07, 19.58, 19.86
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/4.6/55.4/59.1;  0.2/4.6/55.4/59.1
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  45%, 44%, 44%  (system)
+     [⚡]  43%, 42%, 42%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 13.4 s, 76.5 chunks/s, 13.1 ms per chunk, heap in use 712 MB of 4096 MB (208 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  8.95, 12.37, 18.13, 19.6, 19.86
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/4.4/55.5/124.2;  0.2/4.4/55.5/124.2
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  43%, 41%, 41%  (system)
+     [⚡]  42%, 39%, 39%  (process)
+== 26.1.2 23:13:59
+  quiet after waiting 300s
+  a0c48c4 start 23:19:00, load 2.09 2.92 3.64, 'Battery Power', 59%; discharging, lowpower 0
+  exit 0 at 23:20:01; samples 4, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 12.7 s, 80.8 chunks/s, 12.4 ms per chunk, heap in use 765 MB of 4096 MB (568 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.3, 12.7, 18.25, 19.62, 19.87
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/2.3/13.9/32.0;  0.2/2.3/13.9/32.0
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  50%, 48%, 48%  (system)
+     [⚡]  48%, 46%, 46%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 11.3 s, 91.0 chunks/s, 11.0 ms per chunk, heap in use 508 MB of 4096 MB (205 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.51, 12.89, 18.32, 19.64, 19.88
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.3/2.2/13.4/46.3;  0.3/2.2/13.4/46.3
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  48%, 47%, 47%  (system)
+     [⚡]  46%, 45%, 45%  (process)
+== 26.2 23:21:01
+  quiet after waiting 60s
+  5ef4345 start 23:22:02, load 1.58 2.57 3.38, 'Battery Power', 58%; discharging, lowpower 0
+  exit 0 at 23:23:04; samples 4, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 11.8 s, 86.6 chunks/s, 11.5 ms per chunk, heap in use 1146 MB of 4096 MB (570 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.04, 12.45, 18.17, 19.6, 19.87
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.3/2.3/12.7/32.7;  0.3/2.3/12.7/32.7
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  52%, 51%, 51%  (system)
+     [⚡]  49%, 48%, 48%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 10.5 s, 97.1 chunks/s, 10.3 ms per chunk, heap in use 556 MB of 4096 MB (208 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.85, 13.2, 18.42, 19.66, 19.89
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.3/2.2/14.2/41.6;  0.3/2.2/14.2/41.6
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  49%, 46%, 46%  (system)
+     [⚡]  46%, 44%, 44%  (process)
+== 26.3 23:24:04
+  quiet after waiting 60s
+  f2bfe20 start 23:25:05, load 1.42 2.31 3.14, 'Battery Power', 58%; discharging, lowpower 0
+  exit 0 at 23:30:07; samples 20, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 5.5 s, 187.2 chunks/s, 5.3 ms per chunk, heap in use 887 MB of 4096 MB (588 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  *20.0, 16.67, 19.35, 19.87, 19.96
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.1/0.6/8.6/82.3;  0.1/0.6/8.6/82.3
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  51%, 48%, 48%  (system)
+     [⚡]  48%, 46%, 46%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 5.1 s, 202.1 chunks/s, 4.9 ms per chunk, heap in use 611 MB of 4096 MB (238 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  *20.0, 16.67, 19.35, 19.87, 19.96
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.1/0.8/9.1/59.4;  0.1/0.8/9.1/59.4
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  53%, 49%, 49%  (system)
+     [⚡]  51%, 46%, 46%  (process)
+== done 23:31:07
+a Gradle daemon is running
+
+#### bench-ports2-ac.txt
+== 1.21.11 23:31:20
+  quiet after waiting 60s
+  354e2e7 start 23:32:21, load 1.47 2.02 2.74, 'AC Power', 59%; charging, lowpower 0
+  exit 0 at 23:33:38; samples 5, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 15.8 s, 64.8 chunks/s, 15.4 ms per chunk, heap in use 829 MB of 4096 MB (564 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  8.3, 11.73, 17.9, 19.54, 19.84
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.5/7.0/53.8/118.0;  0.5/7.0/53.8/118.0
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  51%, 53%, 53%  (system)
+     [⚡]  46%, 46%, 46%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 12.5 s, 81.8 chunks/s, 12.2 ms per chunk, heap in use 427 MB of 4096 MB (208 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  8.57, 12.0, 18.0, 19.57, 19.85
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/4.7/57.0/116.2;  0.2/4.7/57.0/116.2
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  43%, 42%, 42%  (system)
+     [⚡]  38%, 37%, 37%  (process)
+== 26.1.2 23:34:38
+  quiet after waiting 60s
+  a0c48c4 start 23:35:39, load 2.42 2.26 2.70, 'AC Power', 62%; charging, lowpower 0
+  exit 0 at 23:36:40; samples 4, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 13.6 s, 75.4 chunks/s, 13.3 ms per chunk, heap in use 1024 MB of 4096 MB (566 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.22, 12.63, 18.23, 19.62, 19.87
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  1.0/2.7/15.0/40.4;  1.0/2.7/15.0/40.4
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  68%, 64%, 64%  (system)
+     [⚡]  48%, 46%, 46%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 11.3 s, 90.8 chunks/s, 11.0 ms per chunk, heap in use 838 MB of 4096 MB (206 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.07, 12.48, 18.17, 19.61, 19.87
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/2.4/11.9/42.6;  0.2/2.4/11.9/42.6
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  64%, 61%, 61%  (system)
+     [⚡]  44%, 43%, 43%  (process)
+== 26.2 23:37:40
+  quiet after waiting 60s
+  5ef43455 start 23:38:41, load 2.82 2.91 2.92, 'AC Power', 63%; charging, lowpower 0
+  exit 0 at 23:39:42; samples 4, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 12.0 s, 85.3 chunks/s, 11.7 ms per chunk, heap in use 1064 MB of 4096 MB (572 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  8.88, 12.3, 18.11, 19.59, 19.86
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.4/2.5/12.6/45.3;  0.4/2.5/12.6/45.3
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  53%, 50%, 50%  (system)
+     [⚡]  48%, 46%, 46%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 9.9 s, 103.0 chunks/s, 9.7 ms per chunk, heap in use 529 MB of 4096 MB (207 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.41, 12.8, 18.29, 19.63, 19.88
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.2/2.3/12.0/49.7;  0.2/2.3/12.0/49.7
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  48%, 47%, 47%  (system)
+     [⚡]  43%, 42%, 42%  (process)
+== 26.3 23:40:42
+  quiet after waiting 60s
+  f2bfe200 start 23:41:43, load 1.99 2.70 2.85, 'AC Power', 65%; charging, lowpower 0
+  exit 0 at 23:46:45; samples 20, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 1024 chunks in 5.6 s, 183.1 chunks/s, 5.5 ms per chunk, heap in use 936 MB of 4096 MB (588 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  *20.0, 16.53, 19.32, 19.86, 19.95
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.1/0.8/9.8/76.0;  0.1/0.8/9.8/76.0
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  56%, 54%, 54%  (system)
+     [⚡]  50%, 48%, 48%  (process)
+  -- vanilla: [RTF bench] vanilla: 1024 chunks in 5.6 s, 183.9 chunks/s, 5.4 ms per chunk, heap in use 1263 MB of 4096 MB (236 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  *20.0, 16.67, 19.35, 19.87, 19.96
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.1/0.9/11.3/57.0;  0.1/0.9/11.3/57.0
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  47%, 46%, 46%  (system)
+     [⚡]  41%, 40%, 40%  (process)
+== done 23:47:45
+a Gradle daemon is running
+
+#### bench-26.3-64.txt
+== 26.3 23:48:23
+  quiet after waiting 60s
+  f2bfe200 start 23:49:24, load 1.68 1.98 2.42, 'AC Power', 71%; charging, lowpower 0
+  exit 0 at 23:54:41; samples 21, other busy Java in 0, lid closed in 0, sleep events 0
+  -- reterraforged: [RTF bench] ReTerraForged: 4096 chunks in 20.4 s, 201.1 chunks/s, 5.0 ms per chunk, heap in use 2117 MB of 4096 MB (874 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  9.95, 13.29, 18.45, 19.67, 19.89
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.4/4.0/27.1/48.0;  0.4/4.0/27.1/48.0
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  75%, 70%, 70%  (system)
+     [⚡]  69%, 65%, 65%  (process)
+  -- vanilla: [RTF bench] vanilla: 4096 chunks in 20.2 s, 203.2 chunks/s, 4.9 ms per chunk, heap in use 907 MB of 4096 MB (289 MB after a GC), 10 cores
+     [⚡] TPS from last 5s, 10s, 1m, 5m, 15m:
+     [⚡]  10.59, 13.84, 18.62, 19.71, 19.9
+     [⚡] 
+     [⚡] Tick durations (min/med/95%ile/max ms) from last 10s, 1m:
+     [⚡]  0.3/3.0/19.5/45.9;  0.3/3.0/19.5/45.9
+     [⚡] 
+     [⚡] CPU usage from last 10s, 1m, 15m:
+     [⚡]  66%, 63%, 63%  (system)
+     [⚡]  61%, 58%, 58%  (process)
+== done 23:55:41
+a Gradle daemon is running
