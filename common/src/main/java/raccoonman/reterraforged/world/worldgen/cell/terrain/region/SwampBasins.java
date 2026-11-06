@@ -108,6 +108,11 @@ public final class SwampBasins implements CellPopulator {
 		return cell.height <= this.top && this.center(cell) != null;
 	}
 
+	/** A cell with only the terrain region applied (RegionModule): whether its region is a basin */
+	public boolean isBasinRegion(Cell cell) {
+		return this.center(cell) != null;
+	}
+
 	/** A cell this contains: the climate of its center */
 	public void applyClimate(Cell cell) {
 		Center center = this.center(cell);
