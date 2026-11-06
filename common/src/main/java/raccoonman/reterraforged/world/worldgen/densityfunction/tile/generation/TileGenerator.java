@@ -33,6 +33,10 @@ public class TileGenerator {
 		this.batchCount = batchCount;
 	}
 	
+	public long tileCells() {
+		return this.tileSizeBlocks.arraySize();
+	}
+
 	public Heightmap getHeightmap() {
 		return this.heightmap;
 	}

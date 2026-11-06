@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
@@ -44,6 +43,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 	private Slider oceanDepth;
 	private Slider lavaLevel;
 	private Slider deepslateLevel;
+	private CycleButton<Boolean> generationFixes;
 	
 	public WorldSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -68,7 +68,9 @@ public class WorldSettingsPage extends PresetEditorPage {
 			ImmutableList.of(
 				ContinentType.MULTI,
 				ContinentType.SINGLE,
-				ContinentType.MULTI_IMPROVED
+				ContinentType.MULTI_IMPROVED,
+				ContinentType.EXPERIMENTAL,
+				ContinentType.INFINITE
 			),
 			continent.continentType, RTFTranslationKeys.GUI_BUTTON_CONTINENT_TYPE, 
 			(button, value) -> {
@@ -121,37 +123,38 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.applyContinentType(this.continentType.getValue());
 
 		this.islandInland = PresetWidgets.createFloatSlider(controlPoints.islandInland, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND, (slider, value) -> {
-			value = Math.min(value, this.islandCoast.getValue());
+			// what an island's center counts as, for its biomes; a preset's order, not related to the continents' points
+			value = Math.max(value, this.islandCoast.getValue());
 			controlPoints.islandInland = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
 		this.islandCoast = PresetWidgets.createFloatSlider(controlPoints.islandCoast, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST, (slider, value) -> {
-			value = Math.min(value, this.deepOcean.getValue());
+			value = Math.min(value, this.islandInland.getValue());
 			controlPoints.islandCoast = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
 		this.deepOcean = PresetWidgets.createFloatSlider(controlPoints.deepOcean, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_DEEP_OCEAN, (slider, value) -> {
-			value = Mth.clamp(value, this.islandCoast.getValue(), this.shallowOcean.getValue());
+			value = SliderLimits.between(value, 0.0, this.shallowOcean.getValue());
 			controlPoints.deepOcean = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
 		this.shallowOcean = PresetWidgets.createFloatSlider(controlPoints.shallowOcean, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_SHALLOW_OCEAN, (slider, value) -> {
-			value = Mth.clamp(value, this.deepOcean.getValue(), this.beach.getValue());
+			value = SliderLimits.between(value, this.deepOcean.getValue(), this.beach.getValue());
 			controlPoints.shallowOcean = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
 		this.beach = PresetWidgets.createFloatSlider(controlPoints.beach, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_BEACH, (slider, value) -> {
-			value = Mth.clamp(value, this.shallowOcean.getValue(), this.coast.getValue());
+			value = SliderLimits.between(value, this.shallowOcean.getValue(), this.coast.getValue());
 			controlPoints.beach = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
 		});
 		this.coast = PresetWidgets.createFloatSlider(controlPoints.coast, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_COAST, (slider, value) -> {
-			value = Mth.clamp(value, this.beach.getValue(), this.inland.getValue());
+			value = SliderLimits.between(value, this.beach.getValue(), this.inland.getValue());
 			controlPoints.coast = (float) slider.scaleValue(value);
 			this.regenerate();
 			return value;
@@ -199,6 +202,11 @@ public class WorldSettingsPage extends PresetEditorPage {
 			return value;
 		});
 		
+		this.generationFixes = PresetWidgets.createToggle(properties.generationFixes, RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES, (button, value) -> {
+			properties.generationFixes = value;
+			this.regenerate();
+		});
+		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_CONTINENT));
 		this.left.addWidget(this.continentType);
 		this.left.addWidget(this.continentShape);
@@ -230,6 +238,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.oceanDepth);
 		this.left.addWidget(this.lavaLevel);
 		this.left.addWidget(this.deepslateLevel);
+		this.left.addWidget(this.generationFixes);
 	}
 
 	@Override
@@ -254,8 +263,6 @@ public class WorldSettingsPage extends PresetEditorPage {
 	}
 	
 	private static int getNearestMultiple(Slider slider, float value, int multiple)  {
-		int lerpedValue = (int) slider.lerpValue(value);
-		int lerpedMultiple = (int) slider.lerpValue((float) slider.getSliderValue(multiple));
-		return lerpedValue / lerpedMultiple * lerpedMultiple;
+		return SliderLimits.stepTowards(slider.lerpValue(value), slider.lerpValue(slider.getPrevious()), multiple);
 	}
 }

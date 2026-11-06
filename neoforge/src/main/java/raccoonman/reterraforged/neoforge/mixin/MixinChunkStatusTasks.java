@@ -55,6 +55,7 @@ public class MixinChunkStatusTasks {
 
 			if(context != null) {
 				context.cache.dropAtChunk(chunkPos.x(), chunkPos.z());
+				raccoonman.reterraforged.world.worldgen.feature.ErodeFeature.clearMark(chunkAccess);
 			}
 		}
 	}

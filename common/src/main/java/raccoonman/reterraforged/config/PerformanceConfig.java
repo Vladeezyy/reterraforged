@@ -14,11 +14,15 @@ import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.platform.ConfigUtil;
 
 public record PerformanceConfig(int tileSize, int batchCount, int threadCount) {
-	public static final Path DEFAULT_FILE_PATH = ConfigUtil.rtf("performance.conf");
-	
-    public static final int MAX_TILE_SIZE = 8;
+    // a tile of size 5 is 32 x 32 chunks and takes about 160 MB; 6 takes 600 MB, 7 over 2 GB, and 8 about 9 GB, which ended
+    // in an OutOfMemoryError that left the server hanging
+    public static final int MAX_TILE_SIZE = 5;
     public static final int MAX_BATCH_COUNT = 20;
     public static final int MAX_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
+
+    public static Path defaultFile() {
+    	return ConfigUtil.rtf("performance.conf");
+    }
 
     public static DataResult<PerformanceConfig> read(Path path) {
     	if(!Files.exists(path)) {
@@ -30,14 +34,19 @@ public record PerformanceConfig(int tileSize, int batchCount, int threadCount) {
     	try(BufferedReader reader = Files.newBufferedReader(path)) {
     		Properties props = new Properties();
     		props.load(reader);
-    		int tileSize = clamp(parseInt(props, "tileSize", 3), 1, MAX_TILE_SIZE);
+    		int requestedTileSize = parseInt(props, "tileSize", 3);
+    		if(requestedTileSize > MAX_TILE_SIZE) {
+    			RTFCommon.LOGGER.warn("tileSize {} in {} needs more memory than a server has: using {}", requestedTileSize, path, MAX_TILE_SIZE);
+    		}
+    		int tileSize = clamp(requestedTileSize, 1, MAX_TILE_SIZE);
     		int batchCount = clamp(parseInt(props, "batchCount", 6), 1, MAX_BATCH_COUNT);
     		int threadCount = clamp(parseInt(props, "threadCount", ThreadPools.defaultWorkerThreads()), 1, MAX_THREAD_COUNT);
     		PerformanceConfig config = new PerformanceConfig(tileSize, batchCount, threadCount);
     		apply(config);
     		return DataResult.success(config);
-    	} catch(IOException e) {
-    		RTFCommon.LOGGER.error("Failed to read performance config, using defaults", e);
+    	} catch(IOException | IllegalArgumentException e) {
+    		// IllegalArgumentException: Properties.load on a malformed \\uxxxx; a broken file must not stop the world from opening
+    		RTFCommon.LOGGER.error("Failed to read performance config {}, using defaults", path, e);
     		PerformanceConfig defaults = makeDefault();
     		apply(defaults);
     		return DataResult.success(defaults);
@@ -55,6 +64,7 @@ public record PerformanceConfig(int tileSize, int batchCount, int threadCount) {
     			writer.write("# Delete this file before exporting a modpack so each machine can generate suitable defaults.\n");
     			writer.write("#\n");
     			writer.write("# tileSize: terrain pre-generation tile size (1-" + MAX_TILE_SIZE + "), default 3\n");
+    			writer.write("#   It also changes a few surface blocks (erosion runs per tile): keep one value for the life of a world.\n");
     			writer.write("# batchCount: parallel batches per tile axis (1-" + MAX_BATCH_COUNT + ")\n");
     			writer.write("# threadCount: terrain generation worker threads (1-" + MAX_THREAD_COUNT + ")\n");
     			writer.write("# Default threadCount keeps two CPU cores free for the main/render threads.\n");

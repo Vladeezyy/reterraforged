@@ -47,6 +47,8 @@ public final class PresetLimits {
 		}
 	}
 
+	private static final int MAX_SPACING = 4096;
+
 	private PresetLimits() {
 	}
 
@@ -56,10 +58,11 @@ public final class PresetLimits {
 		for (Limit<?> limit : PresetLimitTable.LIMITS) {
 			fix(limit, preset, defaults, changed);
 		}
-		// the structure page's sliders (spacing 0 .. 1000, separation below the spacing): a spacing of 0 divides by
-		// zero in the structure placement, a separation not below the spacing is refused by Minecraft
+		// a spacing of 0 divides by zero in the structure placement, a separation not below the spacing is refused by
+		// Minecraft, and so is more than 4096. Not the slider's 1000: a mod's structure set may be sparser, and with its
+		// spacing cut down here the next export would make it more common
 		preset.structures().entries.forEach((key, entry) -> {
-			int spacing = Math.max(1, Math.min(1000, entry.spacing));
+			int spacing = Math.max(1, Math.min(MAX_SPACING, entry.spacing));
 			int separation = Math.max(0, Math.min(spacing - 1, entry.separation));
 			if (spacing != entry.spacing || separation != entry.separation) {
 				changed.add("structure " + key + " spacing " + entry.spacing + " separation " + entry.separation + " -> " + spacing + " " + separation);
@@ -69,6 +72,11 @@ public final class PresetLimits {
 		});
 		if (!changed.isEmpty()) {
 			RTFCommon.LOGGER.warn("[ReTerraForged] preset values outside the preset screen's ranges were changed: {}", changed);
+		}
+		// not put in order: the worlds of such a preset (the sliders could make one before 0.0.30) keep their terrain
+		WorldSettings.ControlPoints points = preset.world().controlPoints;
+		if (points.deepOcean > points.shallowOcean || points.shallowOcean > points.beach || points.beach > points.coast || points.coast > points.inland) {
+			RTFCommon.LOGGER.warn("[ReTerraForged] the preset's control points are out of order (deep ocean {}, shallow ocean {}, beach {}, coast {}, inland {}): move them on the World page for a new world", points.deepOcean, points.shallowOcean, points.beach, points.coast, points.inland);
 		}
 		return preset;
 	}

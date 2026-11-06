@@ -10,6 +10,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.network.AltitudeCoolingPayload;
 import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
 
@@ -29,7 +30,7 @@ final class RTFNeoForgeNetwork {
 				AltitudeCooling.set(AltitudeCooling.of(level));
 			}
 		});
-		NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> AltitudeCooling.reset());
+		NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> RTFCommon.onServerStopped());
 		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
 			if (event.getEntity() instanceof ServerPlayer player && player.connection.hasChannel(AltitudeCoolingPayload.TYPE)) {
 				PacketDistributor.sendToPlayer(player, new AltitudeCoolingPayload(AltitudeCooling.of(player.level().getServer().overworld())));

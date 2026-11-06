@@ -118,10 +118,13 @@ public class WorldSettings {
     		// off in a preset saved before 0.0.23 (its worlds keep their snow line); the built-in presets have it on
     		Codec.BOOL.optionalFieldOf("altitudeCoolingFollowsHeight", false).forGetter((o) -> o.altitudeCoolingFollowsHeight),
     		// added in 0.0.27 (#32): 0 is vanilla's deepslate, from y 8 down to y 0
-    		Codec.INT.optionalFieldOf("deepslateLevel", 0).forGetter((o) -> o.deepslateLevel)
-    	).apply(instance, (spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight, deepslateLevel) -> {
+    		Codec.INT.optionalFieldOf("deepslateLevel", 0).forGetter((o) -> o.deepslateLevel),
+    		// off in a preset saved before 0.0.30: its worlds keep their terrain
+    		Codec.BOOL.optionalFieldOf("generationFixes", false).forGetter((o) -> o.generationFixes)
+    	).apply(instance, (spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight, deepslateLevel, generationFixes) -> {
     		Properties properties = new Properties(spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight);
     		properties.deepslateLevel = deepslateLevel;
+    		properties.generationFixes = generationFixes;
     		return properties;
     	}));
     	
@@ -136,6 +139,10 @@ public class WorldSettings {
         // the Y where stone gives way to deepslate: the stone turns into it over the 8 blocks above it, below it is all
         // deepslate (vanilla: 0)
         public int deepslateLevel;
+        // the fixes that change a world (0.0.30), on in new presets: islands of the world's seed with their beaches above
+        // the water and the horizontal scale only on their terrain, the floor of swamps, lowland swamps of the biome mods,
+        // land with the Infinite continent type, terrain in other dimensions on the overworld's noise settings
+        public boolean generationFixes = true;
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int lavaLevel) {
         	this(spawnType, worldHeight, worldDepth, seaLevel, DEFAULT_OCEAN_DEPTH, lavaLevel);
@@ -158,6 +165,7 @@ public class WorldSettings {
         public Properties copy() {
         	Properties copy = new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel, this.altitudeCoolingFollowsHeight);
         	copy.deepslateLevel = this.deepslateLevel;
+        	copy.generationFixes = this.generationFixes;
         	return copy;
         }
         
