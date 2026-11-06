@@ -32,6 +32,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.tags.RTFDensityFunctionTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
+import raccoonman.reterraforged.world.worldgen.OverworldRegistries;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
@@ -62,11 +63,6 @@ class MixinRandomState {
 	
 	private long seed;
 	private NoiseGeneratorSettings noiseGeneratorSettings;
-	// the registries of the last overworld ChunkMap set up, for a random state another mod creates itself with our
-	// noise settings and never hands to a ChunkMap (CityWorld's "Vanilla, cities apart" builds its own overworld
-	// generator): it reads the preset from them the first time its terrain is asked for
-	@Nullable
-	private static volatile RegistryAccess serverRegistries;
 	// initialize ran, or the lazy one was tried
 	private volatile boolean initialized;
 	
@@ -116,18 +112,26 @@ class MixinRandomState {
 		RegistryAccess registries = level.registryAccess();
 		this.initialized = true;
 
-		if(!level.dimension().equals(Level.OVERWORLD)) {
+		if(level.dimension().equals(Level.OVERWORLD)) {
+			OverworldRegistries.set(registries);
+		} else if(!this.hasContext || !generationFixes(registries)) {
 			this.clearGeneratorContext();
 			return;
 		}
-		serverRegistries = registries;
+		// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
+		// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
+		// preset saved before: what was explored of such a dimension stays as it is
 		this.initialize(registries);
+	}
+
+	private static boolean generationFixes(RegistryAccess registries) {
+		return registries.lookupOrThrow(RTFRegistries.PRESET).get(Preset.KEY).map((preset) -> preset.value().world().properties.generationFixes).orElse(false);
 	}
 
 	// a random state no ChunkMap set up: our noise settings are the overworld's, so it gets the overworld's preset
 	@Nullable
 	private synchronized GeneratorContext initializeLazily() {
-		RegistryAccess registries = serverRegistries;
+		RegistryAccess registries = OverworldRegistries.get();
 		if(!this.initialized && registries != null) {
 			this.initialized = true;
 			RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
@@ -156,7 +160,7 @@ class MixinRandomState {
 			this.preset = presetHolder.value();
 
 			if(this.hasContext) {
-				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.DEFAULT_FILE_PATH)
+				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.defaultFile())
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
 				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, (int) this.seed, config.tileSize(), config.batchCount(), ThreadPools.availableProcessors() > 4);

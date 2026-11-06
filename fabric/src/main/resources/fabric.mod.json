@@ -7,7 +7,7 @@
   "authors": [
 	"dags",
 	"Won-Ton",
-	"racconman"
+	"raccoonman"
   ],
   "contact": {
     "repo": "https://github.com/Vladeezyy/reterraforged",
@@ -35,5 +35,5 @@
     "reterraforged-common.mixins.json",
     "reterraforged-fabric.mixins.json"
   ],
-  "icon": "assets/reterraforged/icon.png"
+  "icon": "logo.png"
 }

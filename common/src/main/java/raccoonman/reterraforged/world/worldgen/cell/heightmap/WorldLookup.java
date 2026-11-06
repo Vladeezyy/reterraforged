@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.cell.heightmap;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
@@ -12,6 +14,9 @@ public class WorldLookup {
 	// strongholds' biome search) they compute the cell without the tile's erosion and beach detection. They used to take
 	// the tile when it happened to be cached: structures and their heights depended on the order chunks were generated in
 	private static final ThreadLocal<int[]> STRUCTURE_GENERATION = ThreadLocal.withInitial(() -> new int[1]);
+	private static final AtomicInteger NEXT_ID = new AtomicInteger();
+	// tells the lookups apart without keeping them (a thread's cached cell, CellSampler.Cache2d)
+	public final int id = NEXT_ID.incrementAndGet();
 	private final float waterLevel;
 	private final float beachLevel;
 	private final TileCache cache;

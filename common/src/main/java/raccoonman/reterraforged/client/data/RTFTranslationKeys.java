@@ -5,12 +5,10 @@ import raccoonman.reterraforged.RTFCommon;
 public final class RTFTranslationKeys {
 	public static final String METADATA_DESCRIPTION = resolve("metadata.description");
 	public static final String PRESET_METADATA_DESCRIPTION = resolve("preset.metadata.description");
-	public static final String MUD_SWAMPS_METADATA_DESCRIPTION = resolve("mudSwamps.metadata.description");
 	public static final String NO_ERROR_MESSAGE = resolve("error.noMessage");
 
 	public static final String GUI_INPUT_PROMPT = resolve("gui.selectPreset.inputPrompt");
 	
-	public static final String GUI_SELECT_PRESET_MISSING_LEGACY_PRESETS = resolve("gui.selectPreset.missingLegacyPresets");
 	public static final String GUI_SELECT_PRESET_TITLE = resolve("gui.selectPreset.title");
 	// + "<namespace>.<path>" of a structure set (StructureSettingsPage)
 	public static final String GUI_STRUCTURE_SET_PREFIX = resolve("gui.structureSet.");
@@ -22,6 +20,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_CREATE_WORLD_SETTINGS_TOOLTIP = resolve("gui.createWorld.settings.tooltip");
 	public static final String GUI_CREATE_WORLD_PRESET = resolve("gui.createWorld.preset");
 	public static final String GUI_CREATE_WORLD_VANILLA = resolve("gui.createWorld.vanilla");
+	public static final String GUI_CREATE_WORLD_APPLY_FAILED = resolve("gui.createWorld.applyFailed");
 	public static final String GUI_TAB_PRESETS = resolve("gui.tab.presets");
 	public static final String GUI_TAB_WORLD = resolve("gui.tab.world");
 	public static final String GUI_TAB_SURFACE = resolve("gui.tab.surface");
@@ -44,7 +43,6 @@ public final class RTFTranslationKeys {
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
 	public static final String GUI_ENUM_OLD_NAME = resolve("gui.enum.oldName");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
-	public static final String GUI_DEFAULT_LEGACY_PRESET_NAME = resolve("gui.preset.legacyDefault.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
 	public static final String GUI_HUGE_BIOMES_PRESET_NAME = resolve("gui.preset.hugeBiomes.name");
 	public static final String GUI_LITE_PRESET_NAME = resolve("gui.preset.lite.name");
@@ -66,6 +64,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_CREATE = resolve("gui.button.create");
 	public static final String GUI_BUTTON_COPY = resolve("gui.button.copy");
 	public static final String GUI_BUTTON_DELETE = resolve("gui.button.delete");
+	public static final String GUI_BUTTON_DELETE_CONFIRM = resolve("gui.button.delete.confirm");
 	public static final String GUI_BUTTON_OPEN_PRESET_FOLDER = resolve("gui.button.openPresetFolder");
 	public static final String GUI_BUTTON_OPEN_EXPORT_FOLDER = resolve("gui.button.openDatapackFolder");
 	public static final String GUI_BUTTON_EXPORT_AS_DATAPACK = resolve("gui.button.export");
@@ -99,10 +98,10 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_NATURAL_SNOW_DECORATOR = resolve("gui.button.naturalSnowDecorator");
 	public static final String GUI_BUTTON_SNOW_LINE = resolve("gui.button.snowLine");
 	public static final String GUI_BUTTON_CUSTOM_BIOME_FEATURES = resolve("gui.button.customBiomeFeatures");
+	public static final String GUI_BUTTON_GENERATION_FIXES = resolve("gui.button.generationFixes");
 	public static final String GUI_BUTTON_VANILLA_SPRINGS = resolve("gui.button.vanillaSprings");
 	public static final String GUI_BUTTON_VANILLA_LAVA_LAKES = resolve("gui.button.vanillaLavaLakes");
 	public static final String GUI_BUTTON_VANILLA_LAVA_SPRINGS = resolve("gui.button.vanillaLavaSprings");
-	public static final String GUI_TOOLTIP_NOT_USED = resolve("gui.tooltip.notUsed");
 	public static final String GUI_TOOLTIP_NEEDS_ARCHIPELAGO = resolve("gui.tooltip.needsArchipelago");
 	public static final String GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF = resolve("gui.tooltip.needsBranchSizeOff");
 	public static final String GUI_BUTTON_ENABLE_ARCHIPELAGO = resolve("gui.button.enableArchipelago");
@@ -111,7 +110,6 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_BADLANDS_FAKE_OCEANS = resolve("gui.button.badlandsFakeOceans");
 	public static final String GUI_VALUE_CAVE_COMPATIBILITY_MODE = resolve("gui.value.caveCompatibilityMode");
 	
-	public static final String GUI_SLIDER_ZOOM = resolve("gui.slider.zoom");
 	public static final String GUI_SLIDER_CONTINENT_SCALE = resolve("gui.slider.continentScale");
 	public static final String GUI_SLIDER_CONTINENT_JITTER = resolve("gui.slider.continentJitter");
 	public static final String GUI_SLIDER_CONTINENT_SKIPPING = resolve("gui.slider.continentSkipping");
