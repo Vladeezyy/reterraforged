@@ -33,7 +33,8 @@ if [ ! -s "$AGENT" ]; then
 fi
 
 # the version's own arguments and libraries for this Mac, one per line: "jvm <arg>", "cp <jar>", "index <id>", "missing <path>"
-lines=$(python3 - "$ROOT/$MC/minecraft-info.json" "$HOME/.gradle/caches/modules-2/files-2.1" "$OUT/natives" "$ROOT/assets/indexes" <<'EOF'
+info=$ROOT/$MC/mojang_minecraft_info.json; [ -s "$info" ] || info=$ROOT/$MC/minecraft-info.json
+lines=$(python3 - "$info" "$HOME/.gradle/caches/modules-2/files-2.1" "$OUT/natives" "$ROOT/assets/indexes" <<'EOF'
 import glob, json, os, platform, sys
 info = json.load(open(sys.argv[1]))
 modules, natives, indexes = sys.argv[2:5]
