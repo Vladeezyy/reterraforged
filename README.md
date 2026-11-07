@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 New versions are released for 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3; 1.21.3 to 1.21.10 stay at 0.0.25.
@@ -84,7 +84,7 @@ The mod only affects new worlds created with its preset. It does not change an e
   terrain, on in new presets and off in presets saved before, so existing worlds keep their terrain. Islands differ from seed to seed, their beaches
   are above the water, and their horizontal scale changes only their terrain, not their outline. Swamp floors no longer repeat from chunk to chunk.
   Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates, and reaches the mixed terrains it used to leave
-  out, most of the terrain regions. The Infinite continent type has land. Another mod's
+  out, most of the terrain regions. It now also reaches dry and cold lowland, where Terralith keeps Orchid Swamp and Ice Marsh. The Infinite continent type has land. Another mod's
   dimension on the overworld's noise settings gets terrain instead of a flat sea.
 - **Lowland Swamps and Highest Swamps** (0.0.29, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): wet,
   flat lowlands can get wide swamps (off by default), and a swamp biome too high above the sea is picked again (12 blocks in
@@ -93,6 +93,8 @@ The mod only affects new worlds created with its preset. It does not change an e
   regions with a wet, not cold climate become flat land just above the sea, one big swamp each. With Highest Swamps at 12 and Biomes O'
   Plenty and Terralith, 25 % gives swamps on 5 to 7 % of the land, 36 to 46 % of them wide, in patches of 1 to 1.5 km². It changes the terrain, so it is
   off by default and presets saved before have none. Generation is 4 to 5 % slower at 25 %. Rivers still cross the basins.
+- **Island settings** (0.0.30, Islands page, [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): Coast Noise Octaves (1 to 8, default 5), Coast Noise Gain (0 to 1, default 0.5) and Coast Noise Lacunarity (1 to 4, default 2) make island coasts rough instead of always smooth. Island Seed Offset (with a button for a random one) moves the islands to another layout. Distance From Continents (0 to 1, default 0) keeps islands away from continents: at 1 the nearest island is about 190 blocks from a continent and the median island 860, against 30 and 610 at 0. Continent Mountains (off by default) gives islands the continents' mountain noise; with the island mountain sliders at maximum, the highest point is about 300 instead of 235.
+- **Vegetation density** (0.0.30, Miscellaneous page, [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): Grass Density (0 to 3), Tree Density (0 to 2) and Plant Density (0 to 3, flowers, bushes, mushrooms and other plants): 1 is the usual amount, 0 none. They need Custom Biome Features (on in Default). They also scale the vegetation of other mods' biomes, recognised by the names of their features (one with an unknown name stays as it is). At 1 they cost nothing.
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -141,9 +143,24 @@ New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so 
 mountain surfaces, such as William Wythers' Overhauled Overworld, the rock of steep slopes came out in chunk-sized
 squares and stripes.
 
+**Tree and grass density, 0.0.30** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), with Custom Biome Features on):
+forests, taigas and jungles had half of vanilla's trees, because a tree could not grow on a column with grass or under
+leaves. They now have about as many as vanilla's, evenly spaced, without large clearings. Groves (spruces), savannas
+and bamboo jungles also have about as many trees as vanilla's, and birch forests are no longer mostly tall grass. New
+sliders scale the grass, the trees and the other plants of all overworld biomes, those of other mods too (recognised by
+the names of their features): 1 is the usual amount, 0 none. Trees per 256 columns of land (16 × 16 blocks), 0.0.29 → 0.0.30,
+vanilla in brackets: taiga 2.95 → 5.58 (6.24), forest 2.49 → 5.62 (5.84), jungle 2.33 → 4.83 (5.14), grove 0.11 → 5.46 (5.55),
+savanna 0.08 → 1.10 (0.94). The share of empty 16 × 16 squares in forests went from 3–5 % to 0.
+
+**Other fixes, 0.0.30**:
+- **1.21.11 with Terralith:** the terrain came out in steps of 8 blocks. The mod made a new density sampler on every pass over the noise settings, so Terralith's cached density function was split into several caches that each held one value per cell. Fixed on every version; only 1.21.11 showed it (newer lithostitched hides it). New chunks of an existing 1.21.11 world with Terralith will not match the old ones at the border.
+- **26.2 with TerraBlender:** the preset could not be built, so a world could not be created; TerraBlender 26.2.0.0.2 wraps surface rules in its own rule, the mod now reads the rule inside.
+- **26.1.2, 26.2, 26.3:** after a failed terrain tile the server never shut down; it now stops by itself in about a minute, as on 1.21.x.
+- **Lowland Swamps** ([#28](https://github.com/Vladeezyy/reterraforged/issues/28)): it now also reaches dry and cold lowland. With Biomes O' Plenty and Terralith, Lowland Swamps 12 and Highest Swamps 12 (blocks), Terralith's Orchid Swamp went from 0.03 to 0.69 % of the land and Ice Marsh from 0.02 to 0.72 %; Biomes O' Plenty's swamps stay as they were; all swamps together 9.9 % of the land instead of 7.1 %.
+
 **Forests, 0.0.29** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), with Custom Biome Features on): near the
 edge of a climate region a wrong formula left bare strips in forests; forests and dark forests had lost their leaf litter
-(1.21.11 and newer). The mod's forests stay thinner than vanilla's. Also in 0.0.29, all from 0.0.6: the large spruces of fir and
+(1.21.11 and newer). Also in 0.0.29, all from 0.0.6: the large spruces of fir and
 redwood forests were never placed, carver caves ignored the Lava Level slider, EXPERIMENTAL continents did not start.
 
 **Trees and swamps, 0.0.28** ([#34](https://github.com/Vladeezyy/reterraforged/issues/34)): the trees of
@@ -172,7 +189,7 @@ from files are held to valid values, and a broken file in the presets folder no 
 - **`tileSize` in `performance.conf`** also changes a few surface blocks (7 to 11 % of the surface chunks have some difference), as erosion runs per
   tile. Keep one value for the life of a world, and the same on all machines of a modpack. Above 5 it is cut to 5: 8 needed about 9 GB.
 - **Lowland Swamps with biome mods:** swamps go where the terrain is low, mostly river valleys, because the setting does not reshape the land. With
-  Biomes O' Plenty and Terralith at 12 / 12 they cover 7 % of the land and only 3 % of them are wide. Wide swamps come from Swamp Basins (see
+  Biomes O' Plenty and Terralith at 12 / 12 they cover about 10 % of the land and only about 3 % of them are wide. Wide swamps come from Swamp Basins (see
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Problems and fixes in detail
@@ -712,16 +729,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.29](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.29-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Новые версии выходят для 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3; 1.21.3–1.21.10 остаются на 0.0.25.
@@ -763,7 +780,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Исправления генерации** (0.0.30, страница «Мир», [#28](https://github.com/Vladeezyy/reterraforged/issues/28), [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): исправления, которые меняют
   рельеф. В новых пресетах включены, в сохранённых раньше выключены, поэтому существующие миры не меняются. Острова разные у разных сидов, их пляжи
   над водой, горизонтальный масштаб меняет только их рельеф, а не очертания. Дно болот не повторяется от чанка к чанку. «Болота в низинах»
-  подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате, и доходят до смешанных областей рельефа, которые раньше пропускали, а это большинство областей. У типа материков «Бесконечный» появляется суша. Измерение
+  подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате, и доходят до смешанных областей рельефа, которые раньше пропускали, а это большинство областей. Теперь «Болота в низинах» доходят и до сухих и холодных низин, где Terralith держит Orchid Swamp и Ice Marsh. У типа материков «Бесконечный» появляется суша. Измерение
   другого мода на шуме верхнего мира получает рельеф вместо ровного моря.
 - **Болота в низинах и Самые высокие болота** (0.0.29, страница «Климат», [#28](https://github.com/Vladeezyy/reterraforged/issues/28)):
   на влажных ровных низинах могут появляться широкие болота (по умолчанию выключено), а болотный биом слишком высоко над морем
@@ -772,6 +789,8 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
   с влажным, не холодным климатом становится ровной сушей чуть выше моря, каждая одним большим болотом. С «Самыми высокими болотами» на 12 и с Biomes O'
   Plenty и Terralith 25 % дают болота на 5–7 % суши, из них широких 36–46 %, участками по 1–1,5 км². Настройка меняет рельеф, поэтому по умолчанию
   выключена, а в сохранённых раньше пресетах её нет. Генерация при 25 % медленнее на 4–5 %. Реки по-прежнему идут и через низины.
+- **Настройки островов** (0.0.30, страница «Острова», [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): «Октавы шума берегов» (от 1 до 8, по умолчанию 5), «Усиление шума берегов» (от 0 до 1, по умолчанию 0,5) и «Лакунарность шума берегов» (от 1 до 4, по умолчанию 2) делают берега островов неровными, а не всегда гладкими. «Смещение сида островов» (с кнопкой для случайного значения) переносит острова на другое расположение. «Расстояние от континентов» (от 0 до 1, по умолчанию 0) держит острова дальше от континентов: при 1 ближайший остров примерно в 190 блоках от континента, а медианный остров — в 860, против 30 и 610 при 0. «Горы континентов» (по умолчанию выключено) дают островам шум гор континентов; при максимальных ползунках гор островов самая высокая точка около 300 вместо 235.
+- **Плотность растительности** (0.0.30, страница «Прочее», [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): «Плотность травы» (от 0 до 3), «Плотность деревьев» (от 0 до 2) и «Плотность растений» (от 0 до 3; цветы, кусты, грибы и другие растения): 1 — обычное количество, 0 — ни одного. Нужны «Свои элементы биомов» (включены в «По умолчанию»). Они меняют и растительность биомов других модов, которых узнают по именам элементов (элемент с неизвестным именем остаётся как есть). При 1 ничего не стоят.
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
@@ -819,9 +838,24 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 перекрашивают поверхность гор, например William Wythers' Overhauled Overworld, камень крутых склонов выходил
 квадратами и полосами по чанкам.
 
+**Плотность деревьев и травы, 0.0.30** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), при включённых «Своих элементах биомов»):
+в лесах, тайге и джунглях было вдвое меньше деревьев, чем в ванили: дерево не вырастало в колонке с травой и под листвой. Теперь
+их примерно столько же, сколько в ванили, стоят ровно и без больших пустот. В рощах теперь растут ели, в саваннах и бамбуковых
+джунглях деревьев примерно как в ванили, а берёзовые леса больше не заросли высокой травой. Новые ползунки меняют
+количество травы, деревьев и прочих растений во всех биомах Верхнего мира, в том числе из других модов (их узнают по именам
+элементов): 1 — обычное количество, 0 — нет совсем. Деревьев на 256 колонок земли (16 × 16 блоков), 0.0.29 → 0.0.30,
+в ванили в скобках: тайга 2,95 → 5,58 (6,24), лес 2,49 → 5,62 (5,84), джунгли 2,33 → 4,83 (5,14), роща 0,11 → 5,46 (5,55),
+саванна 0,08 → 1,10 (0,94). Доля пустых квадратов 16 × 16 в лесах упала с 3–5 % до 0.
+
+**Прочие исправления, 0.0.30**:
+- **1.21.11 с Terralith:** рельеф выходил ступенями по 8 блоков. Мод создавал новый сэмплер плотности на каждом проходе по настройкам шума, поэтому кэшируемая функция плотности Terralith делилась на несколько кэшей, и каждый хранил по одному значению на ячейку. Исправлено на всех версиях; только 1.21.11 это показывал (новый lithostitched скрывает). Новые чанки уже созданного мира 1.21.11 с Terralith на границе не совпадут со старыми.
+- **26.2 с TerraBlender:** пресет не собирался, поэтому мир создать было нельзя; TerraBlender 26.2.0.0.2 оборачивает правила поверхности в собственное правило, мод теперь читает правило внутри.
+- **26.1.2, 26.2, 26.3:** после неудачного тайла рельефа сервер никогда не выключался. Теперь он останавливается сам примерно за минуту, как на 1.21.x.
+- **Болота в низинах** ([#28](https://github.com/Vladeezyy/reterraforged/issues/28)): теперь доходят и до сухих и холодных низин. С Biomes O' Plenty и Terralith, «Болота в низинах» 12 и «Самые высокие болота» 12 (блоки), Orchid Swamp у Terralith выросло с 0,03 до 0,69 % суши, Ice Marsh — с 0,02 до 0,72 %; болота Biomes O' Plenty остались прежними; все болота вместе 9,9 % суши вместо 7,1 %.
+
 **Леса, 0.0.29** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), при включённых «Своих элементах биомов»): у края
 климатического региона ошибка в формуле оставляла в лесах голые полосы; из лесов и тёмных лесов пропадала опавшая листва
-(1.21.11 и новее). Леса мода остаются реже ванильных. Ещё в 0.0.29, всё из 0.0.6: большие ели в пихтовых и секвойных лесах никогда
+(1.21.11 и новее). Ещё в 0.0.29, всё из 0.0.6: большие ели в пихтовых и секвойных лесах никогда
 не ставились, пещеры карверов не слушались ползунка уровня лавы, континенты EXPERIMENTAL не запускались.
 
 **Деревья и болота, 0.0.28** ([#34](https://github.com/Vladeezyy/reterraforged/issues/34)): деревья
@@ -850,7 +884,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **`tileSize` в `performance.conf`** меняет и часть блоков поверхности (различия есть в 7–11 % поверхностных чанков), потому что эрозия считается по
   тайлам. Держите одно значение всю жизнь мира и одно на всех машинах модпака. Больше 5 обрезается до 5: для 8 требовалось около 9 ГБ.
 - **«Болота в низинах» с модами биомов:** болота идут туда, где рельеф низкий, в основном в долины рек, потому что настройка не меняет форму суши. С
-  Biomes O' Plenty и Terralith при 12 / 12 они занимают 7 % суши, и широких среди них только 3 %. Широкие болота даёт настройка «Болотные низины» (см.
+  Biomes O' Plenty и Terralith при 12 / 12 они занимают около 10 % суши, и широких среди них только около 3 %. Широкие болота даёт настройка «Болотные низины» (см.
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Проблемы и исправления подробно
