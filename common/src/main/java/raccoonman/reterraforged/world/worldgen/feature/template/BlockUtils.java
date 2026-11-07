@@ -14,7 +14,9 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 public class BlockUtils {
 
     public static boolean isSoil(LevelAccessor world, BlockPos pos) {
-        return TreeFeature.isDirt(world.getBlockState(pos));
+        // snow: the trees that may stand there say so in their placement (PresetPlacedFeatures), the ground of groves is snow
+        BlockState state = world.getBlockState(pos);
+        return TreeFeature.isDirt(state) || state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.POWDER_SNOW);
     }
 
     public static boolean isVegetation(LevelAccessor world, BlockPos pos) {
@@ -23,7 +25,13 @@ public class BlockUtils {
     }
 
     public static boolean canTreeReplace(LevelAccessor world, BlockPos pos) {
-        return TreeFeature.isAirOrLeaves(world, pos) || isVegetation(world, pos);
+        if (TreeFeature.isAirOrLeaves(world, pos) || isVegetation(world, pos)) {
+            return true;
+        }
+        // grass and ferns too, as for vanilla's trees (not water, which is in the same tag): vanilla's taiga puts its large
+        // ferns before its trees, and the mod's trees left a clearing wherever such a patch grew (#37)
+        BlockState state = world.getBlockState(pos);
+        return state.is(BlockTags.REPLACEABLE_BY_TREES) && state.getFluidState().isEmpty();
     }
 
     public static boolean isSolid(BlockGetter reader, BlockPos pos) {

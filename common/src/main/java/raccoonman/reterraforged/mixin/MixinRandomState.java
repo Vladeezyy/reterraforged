@@ -1,5 +1,7 @@
 package raccoonman.reterraforged.mixin; 
 
+import java.util.function.Supplier;
+
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Implements;
@@ -34,6 +36,7 @@ import raccoonman.reterraforged.tags.RTFDensityFunctionTags;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.OverworldRegistries;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 import raccoonman.reterraforged.world.worldgen.densityfunction.NoiseFunction;
@@ -77,6 +80,18 @@ class MixinRandomState {
 	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter<NormalNoise.NoiseParameters> params, final long seed) {
 		this.seed = seed;
 		this.noiseGeneratorSettings = noiseGeneratorSettings;
+		// one for all the samplers of this state, not one per visit: CellSampler is a record, and NoiseChunk.wrap tells
+		// functions apart by equals. With a lambda per visit every use of a function over a cell was a function of its own,
+		// so a cache_once around it (Terralith's overworld/sloped_cheese) became several CacheOnce in a NoiseChunk. The one
+		// only read through compute keeps one value for the whole cell while the cell is filled: the terrain went in steps
+		// of 8 (D-42). lithostitched 1.8+ hides this with its MapAllCache, 1.7.2 on 1.21.11 does not have it.
+		Supplier<WorldLookup> lookup = () -> {
+			GeneratorContext context = this.generatorContext;
+			if(context == null && !this.initialized) {
+				context = this.initializeLazily();
+			}
+			return context != null ? context.lookup : null;
+		};
 		this.densityFunctionWrapper = new DensityFunction.Visitor() {
 			
 			@Override
@@ -89,13 +104,7 @@ class MixinRandomState {
 				}
 				if(function instanceof CellSampler.Marker marker) {
 					MixinRandomState.this.hasContext = true;
-					return new CellSampler(() -> {
-						GeneratorContext context = MixinRandomState.this.generatorContext;
-						if(context == null && !MixinRandomState.this.initialized) {
-							context = MixinRandomState.this.initializeLazily();
-						}
-						return context != null ? context.lookup : null;
-					}, marker.field());
+					return new CellSampler(lookup, marker.field());
 				}
 				return visitor.apply(function);
 			}

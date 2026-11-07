@@ -21,6 +21,7 @@ import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifiers;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Filter;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Order;
+import raccoonman.reterraforged.world.worldgen.biome.modifier.VegetationDensity;
 
 //TODO organize all of this stuff cause god damn
 public class PresetBiomeModifierData {
@@ -51,6 +52,8 @@ public class PresetBiomeModifierData {
 	
 	public static final ResourceKey<BiomeModifier> ADD_FOREST_GRASS = createKey("add_forest_grass");
 	public static final ResourceKey<BiomeModifier> ADD_BIRCH_FOREST_GRASS = createKey("add_birch_forest_grass");
+	// the name sorts after "replace_...": these apply by name, and it finds the replaced features by their names
+	public static final ResourceKey<BiomeModifier> VEGETATION_DENSITY = createKey("vegetation_density");
 	
 	public static void bootstrap(Preset preset, BootstrapContext<BiomeModifier> ctx) {
 		MiscellaneousSettings miscellaneous = preset.miscellaneous();
@@ -96,6 +99,7 @@ public class PresetBiomeModifierData {
 			Holder<PlacedFeature> redwoodTrees = placedFeatures.getOrThrow(PresetPlacedFeatures.REDWOOD_TREES);
 			Holder<PlacedFeature> jungleTrees = placedFeatures.getOrThrow(PresetPlacedFeatures.JUNGLE_TREES);
 			Holder<PlacedFeature> jungleEdgeTrees = placedFeatures.getOrThrow(PresetPlacedFeatures.JUNGLE_EDGE_TREES);
+			Holder<PlacedFeature> bambooJungleTrees = placedFeatures.getOrThrow(PresetPlacedFeatures.BAMBOO_JUNGLE_TREES);
 			Holder<PlacedFeature> woodedBadlandsTrees = placedFeatures.getOrThrow(PresetPlacedFeatures.WOODED_BADLANDS_TREES);
 			
 			ctx.register(REPLACE_PLAINS_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, plains, Map.of(
@@ -146,7 +150,7 @@ public class PresetBiomeModifierData {
 			)));
 			ctx.register(REPLACE_JUNGLE_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, jungles, Map.of(
 				VegetationPlacements.TREES_JUNGLE, jungleTrees,
-				VegetationPlacements.BAMBOO_VEGETATION, jungleTrees
+				VegetationPlacements.BAMBOO_VEGETATION, bambooJungleTrees
 			)));
 			ctx.register(REPLACE_JUNGLE_EDGE_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, jungleEdges, Map.of(
 				VegetationPlacements.TREES_SPARSE_JUNGLE, jungleEdgeTrees
@@ -165,6 +169,10 @@ public class PresetBiomeModifierData {
 			
 			ctx.register(ADD_FOREST_GRASS, prepend(GenerationStep.Decoration.VEGETAL_DECORATION, Filter.Behavior.WHITELIST, forestsWithGrass, placedFeatures.getOrThrow(PresetPlacedFeatures.FOREST_GRASS)));
 			ctx.register(ADD_BIRCH_FOREST_GRASS, prepend(GenerationStep.Decoration.VEGETAL_DECORATION, Filter.Behavior.WHITELIST, birchForests, placedFeatures.getOrThrow(PresetPlacedFeatures.BIRCH_FOREST_GRASS)));
+			// none at the usual amounts: nothing to do when the world loads or in its chunks
+			if(miscellaneous.grassDensity != 1.0F || miscellaneous.treeDensity != 1.0F || miscellaneous.plantDensity != 1.0F) {
+				ctx.register(VEGETATION_DENSITY, BiomeModifiers.density(new VegetationDensity(miscellaneous.grassDensity, miscellaneous.treeDensity, miscellaneous.plantDensity)));
+			}
 		}
 		
 		if(miscellaneous.erosionDecorator) {

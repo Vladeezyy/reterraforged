@@ -3,7 +3,6 @@ package raccoonman.reterraforged.world.worldgen.cell.climate;
 import raccoonman.reterraforged.data.worldgen.preset.settings.ClimateSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
-import raccoonman.reterraforged.world.worldgen.biome.Humidity;
 import raccoonman.reterraforged.world.worldgen.biome.Temperature;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.biome.type.BiomeType;
@@ -175,16 +174,16 @@ public class ClimateModule {
 		// as in ReTerraForged 0.0.6: a mountain keeps the climate of its biome cell (no single biome type from the
 		// region's center, which made snowy peaks next to deserts)
 
-		if (cell.terrain == TerrainType.ISLAND_BEACH) {
-			cell.biome = BiomeType.SAVANNA;
-			cell.temperature = Temperature.LEVEL_3.mid();
-			cell.moisture = Humidity.LEVEL_1.mid();
-		} else if (cell.terrain == TerrainType.ISLAND || cell.terrain == TerrainType.ISLAND_MOUNTAINS) {
+		if (cell.terrain == TerrainType.ISLAND || cell.terrain == TerrainType.ISLAND_BEACH || cell.terrain == TerrainType.ISLAND_MOUNTAINS) {
 			float islTemp = region.temperature;
 			float islMoist = region.moisture;
 			cell.biome = BiomeType.get(islTemp, islMoist);
 			cell.temperature = cell.biome.getTemperature(cell.biomeRegionId);
 			cell.moisture = cell.biome.getMoisture(cell.biomeRegionId);
+			// a beach has the climate of its island (a snowy beach on a snowy one); this colour shows it in the preset screen's preview
+			if (cell.terrain == TerrainType.ISLAND_BEACH) {
+				cell.biome = BiomeType.SAVANNA;
+			}
 		}
 	}
 

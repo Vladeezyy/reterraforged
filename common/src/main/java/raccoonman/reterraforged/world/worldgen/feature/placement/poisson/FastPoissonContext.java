@@ -3,7 +3,7 @@ package raccoonman.reterraforged.world.worldgen.feature.placement.poisson;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
-public record FastPoissonContext(int radius, float jitter, float frequency, Noise density) {
+public record FastPoissonContext(float radius, float jitter, float frequency, Noise density) {
 
 	public FastPoissonContext {
     	frequency = Math.min(0.5F, frequency);
@@ -14,8 +14,12 @@ public record FastPoissonContext(int radius, float jitter, float frequency, Nois
     	return 1.0F / this.frequency;
     }
     
-    public int radiusSq() {
+    public float radiusSq() {
     	return this.radius * this.radius;
+    }
+
+    public int halfRadius() {
+    	return (int) (this.radius / 2.0F);
     }
     
     public float pad() {

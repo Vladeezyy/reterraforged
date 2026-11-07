@@ -25,7 +25,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class FastPoissonModifier extends PlacementModifier {
 	public static final MapCodec<FastPoissonModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.INT.fieldOf("radius").forGetter((p) -> p.radius),
+		Codec.FLOAT.fieldOf("radius").forGetter((p) -> p.radius),
 		Codec.FLOAT.fieldOf("scale").forGetter((p) -> p.scale),
 		Codec.FLOAT.fieldOf("jitter").forGetter((p) -> p.jitter),
 		Codec.FLOAT.fieldOf("biome_fade").forGetter((p) -> p.biomeFade),
@@ -33,7 +33,7 @@ public class FastPoissonModifier extends PlacementModifier {
 		Codec.FLOAT.fieldOf("density_variation").forGetter((p) -> p.densityVariation)
 	).apply(instance, FastPoissonModifier::new));
 	
-	protected final int radius;
+	protected final float radius;
 	protected final float scale;
 	protected final float jitter;
 	protected final float biomeFade;
@@ -41,7 +41,7 @@ public class FastPoissonModifier extends PlacementModifier {
 	protected final float densityVariation;
 	
 	public FastPoissonModifier(
-		int radius,
+		float radius,
 		float scale,
 		float jitter,
 		float biomeFade,
@@ -69,7 +69,9 @@ public class FastPoissonModifier extends PlacementModifier {
         DensityNoise density = this.getDensityNoise(seed, chunkPos, level.getLevel().getChunkSource().randomState());
         FastPoissonContext poissonConfig = new FastPoissonContext(this.radius, this.jitter, this.scale, density);
         Stream.Builder<BlockPos> builder = Stream.builder();
-        poisson.visit(seed, chunkX, chunkZ, new Random(levelSeed), poissonConfig, builder, (x, z, b) -> {
+        // another order for each chunk: with one order for all (0.0.6) the same places in the chunks came first, a pattern
+        // that repeats every 16 blocks
+        poisson.visit(seed, chunkX, chunkZ, new Random(levelSeed + chunkX * 341873128712L + chunkZ * 132897987541L), poissonConfig, builder, (x, z, b) -> {
         	b.accept(new BlockPos(x, 0, z));
         });
         return builder.build();
