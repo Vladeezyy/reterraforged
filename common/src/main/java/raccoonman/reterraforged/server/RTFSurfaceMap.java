@@ -31,7 +31,7 @@ import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 
 /**
- * "rtf surfacemap <biome> [chunks]" (with -Drtf.selftest=true): the ground seen from above where the biome is, as a map
+ * "rtf surfacemap <biome> [chunks [x z]]" (with -Drtf.selftest=true): the ground seen from above where the biome is (or at x, z), as a map
  * mod draws it (issue #2: stone and blackstone in chunk-sized squares on the mountains of William Wythers' Overhauled
  * Overworld). Builds chunks x chunks chunks around the nearest place of the biome and writes
  * rtf-surfacemap-<rtf|vanilla>-<biome>.png (map colours shaded by height). The ground block changes between two
@@ -45,21 +45,26 @@ public final class RTFSurfaceMap {
 	}
 
 	public static String run(MinecraftServer server, String biome, int chunks) {
+		return run(server, biome, chunks, null);
+	}
+
+	// at: the middle of the map instead of the nearest place of the biome (a swamp basin)
+	public static String run(MinecraftServer server, String biome, int chunks, BlockPos at) {
 		try {
-			return map(server, biome, chunks);
+			return map(server, biome, chunks, at);
 		} catch (Throwable t) {
 			RTFCommon.LOGGER.error("[RTF surfacemap] exception", t);
 			return "[RTF surfacemap] FAIL exception: " + t;
 		}
 	}
 
-	private static String map(MinecraftServer server, String biome, int chunks) throws IOException {
+	private static String map(MinecraftServer server, String biome, int chunks, BlockPos at) throws IOException {
 		ServerLevel level = server.overworld();
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		String kind = rtf ? "rtf" : "vanilla";
 		ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, Identifier.parse(biome));
 		long t0 = System.nanoTime();
-		BlockPos centre = rtf ? find(level, key, 8000) : null;
+		BlockPos centre = at != null ? at : rtf ? find(level, key, 8000) : null;
 		if (centre == null) {
 			var found = RTFWorldChecks.surfaceBiome(level, key, rtf ? 0 : 8000);
 			if (found != null) centre = found.getFirst();

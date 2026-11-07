@@ -21,6 +21,8 @@ import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.biome.SwampHeights;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainCategory;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 
 /**
@@ -43,7 +45,7 @@ public final class RTFSwampTest {
 	}
 
 	private static final class Stat {
-		int samples, valley, wetland, river, high, wide;
+		int samples, valley, wetland, river, high, wide, wideAny;
 		long height;
 		final Map<String, Integer> bands = new HashMap<>();
 	}
@@ -74,9 +76,14 @@ public final class RTFSwampTest {
 		String[][] grid = new String[n][n];
 		boolean[][] isSwamp = new boolean[n][n];
 		BufferedImage image = new BufferedImage(n, n, BufferedImage.TYPE_INT_RGB);
+		// the same map with a colour per swamp biome: rtf-swamps-biomes.png
+		BufferedImage biomes = new BufferedImage(n, n, BufferedImage.TYPE_INT_RGB);
 		Cell[][] cells = new Cell[n][n];
 		Climate.TargetPoint[][] points = new Climate.TargetPoint[n][n];
-		int land = 0, landValley = 0, landWetland = 0;
+		int land = 0, landValley = 0, landWetland = 0, lowland = 0, lowlandValley = 0;
+		// Swamp Basins (ClimateSettings.swampBasins): the low land of the basins, how much of it is in valleys, is a swamp, is wide
+		SwampBasins basins = ctx.lookup.getHeightmap().swampBasins();
+		int basin = 0, basinValley = 0, basinSwamp = 0, basinWide = 0, basinWideAny = 0;
 		for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) {
 			int x = -RADIUS + i * STEP, z = -RADIUS + j * STEP;
 			Cell cell = new Cell();
@@ -85,17 +92,30 @@ public final class RTFSwampTest {
 			// the map: sea blue, river valleys grey-green, other land pale by height, swamps dark green
 			int h = ctx.levels.scale(cell.height) - ctx.levels.waterLevel;
 			image.setRGB(i, j, cell.height <= ctx.levels.water ? 0x3d6fb8 : cell.riverMask < VALLEY ? 0x9fb39a : grey(h));
+			biomes.setRGB(i, j, image.getRGB(i, j));
 			if (cell.height <= ctx.levels.water) continue;
 			int y = ctx.levels.scale(cell.height);
 			CellSampler.clearThreadLocalCache();
 			Holder<Biome> biome = level.getUncachedNoiseBiome(x >> 2, y >> 2, z >> 2);
 			grid[i][j] = biome.unwrapKey().map((k) -> k.identifier().toString()).orElse("?");
 			isSwamp[i][j] = SwampHeights.isSwamp(biome);
-			if (isSwamp[i][j]) image.setRGB(i, j, h > 20 ? 0xc2410c : 0x2f5d1e);
+			if (isSwamp[i][j]) {
+				image.setRGB(i, j, h > 20 ? 0xc2410c : 0x2f5d1e);
+				biomes.setRGB(i, j, java.awt.Color.HSBtoRGB((grid[i][j].hashCode() & 0xFFF) * 0.618034F % 1.0F, 0.9F, 0.75F));
+			}
 			points[i][j] = randomState.sampler().sample(x >> 2, y >> 2, z >> 2);
 			land++;
 			if (cell.riverMask < VALLEY) landValley++;
 			if (cell.terrain.isWetland()) landWetland++;
+			if (cell.terrain.getCategory() == TerrainCategory.FLATLAND || cell.terrain.getCategory() == TerrainCategory.LOWLAND) {
+				lowland++;
+				if (cell.riverMask < VALLEY) lowlandValley++;
+			}
+			if (basins != null && basins.contains(cell)) {
+				basin++;
+				if (cell.riverMask < VALLEY) basinValley++;
+				if (isSwamp[i][j]) basinSwamp++;
+			}
 		}
 		Map<String, Stat> stats = new HashMap<>();
 		for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) {
@@ -114,6 +134,16 @@ public final class RTFSwampTest {
 				if (!grid[i][j].equals(grid[i + di][j + dj])) { wide = false; break; }
 			}
 			if (wide) s.wide++;
+			// swamps all around, of any kinds: the biome mods' swamps side by side look like one to a player
+			boolean wideAny = i > 0 && j > 0 && i + 1 < n && j + 1 < n;
+			for (int di = -1; wideAny && di <= 1; di++) for (int dj = -1; dj <= 1; dj++) {
+				if (!isSwamp[i + di][j + dj]) { wideAny = false; break; }
+			}
+			if (wideAny) s.wideAny++;
+			if (basins != null && basins.contains(cell)) {
+				if (wide) basinWide++;
+				if (wideAny) basinWideAny++;
+			}
 			int[] b = RTFBiomeModTest.bands(points[i][j]);
 			s.bands.merge("erosion " + b[3] + " weirdness " + b[4], 1, Integer::sum);
 		}
@@ -121,14 +151,19 @@ public final class RTFSwampTest {
 		sorted.sort((a, b) -> b.getValue().samples - a.getValue().samples);
 		List<String> lines = new ArrayList<>();
 		lines.add(String.format(Locale.ROOT, "# land %d points every %d blocks: in river valleys %.1f%%, wetland terrain %.1f%%", land, STEP, 100.0 * landValley / land, 100.0 * landWetland / land));
+		lines.add(String.format(Locale.ROOT, "# flat or rolling land %.1f%% of the land: in river valleys %.1f%%", 100.0 * lowland / land, 100.0 * lowlandValley / Math.max(1, lowland)));
+		if (basins != null) {
+			lines.add(String.format(Locale.ROOT, "# swamp basins %.1f%% of the land: in river valleys %.1f%%, swamps %.1f%%; of those wide %.1f%%, swamps of any kind all around %.1f%%", 100.0 * basin / land, 100.0 * basinValley / Math.max(1, basin), 100.0 * basinSwamp / Math.max(1, basin), 100.0 * basinWide / Math.max(1, basinSwamp), 100.0 * basinWideAny / Math.max(1, basinSwamp)));
+		}
 		lines.add("# biome: share of the land, in river valleys, on wetland terrain, on river terrain, mean blocks above the sea, more than 20 above, wide; climate bands (vanilla table: erosion 0-6, weirdness 0-7, valley 4 and 5)");
 		StringBuilder top = new StringBuilder();
-		int swampTotal = 0, swampValley = 0, swampWide = 0;
+		int swampTotal = 0, swampValley = 0, swampWide = 0, swampWideAny = 0;
 		for (Map.Entry<String, Stat> e : sorted) {
 			Stat s = e.getValue();
 			swampTotal += s.samples;
 			swampValley += s.valley;
 			swampWide += s.wide;
+			swampWideAny += s.wideAny;
 			List<Map.Entry<String, Integer>> bands = new ArrayList<>(s.bands.entrySet());
 			bands.sort((a, b) -> b.getValue() - a.getValue());
 			StringBuilder bs = new StringBuilder();
@@ -141,9 +176,10 @@ public final class RTFSwampTest {
 		}
 		java.nio.file.Files.write(server.getServerDirectory().resolve("rtf-swamps.txt"), lines);
 		ImageIO.write(image, "png", server.getServerDirectory().resolve("rtf-swamps.png").toFile());
-		String r = String.format(Locale.ROOT, "[RTF swamps] %d swamp biomes, %.1f%% of the land; in river valleys %.0f%% (the land %.0f%%), wide %.0f%%%s",
+		ImageIO.write(biomes, "png", server.getServerDirectory().resolve("rtf-swamps-biomes.png").toFile());
+		String r = String.format(Locale.ROOT, "[RTF swamps] %d swamp biomes, %.1f%% of the land; in river valleys %.0f%% (the land %.0f%%), wide %.0f%%, swamps of any kind all around %.0f%%%s",
 			stats.size(), 100.0 * swampTotal / land, swampTotal == 0 ? 0 : 100.0 * swampValley / swampTotal, 100.0 * landValley / land,
-			swampTotal == 0 ? 0 : 100.0 * swampWide / swampTotal, top);
+			swampTotal == 0 ? 0 : 100.0 * swampWide / swampTotal, swampTotal == 0 ? 0 : 100.0 * swampWideAny / swampTotal, top);
 		RTFCommon.LOGGER.info(r);
 		return r;
 	}
