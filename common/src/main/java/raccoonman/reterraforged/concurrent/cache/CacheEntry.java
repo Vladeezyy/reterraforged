@@ -6,6 +6,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.Future;
 
+import raccoonman.reterraforged.concurrent.ThreadPools;
+
 /**
  * Cache entry that wraps a CompletableFuture and exposes the same surface the
  * rest of ReTerraForged expects (get / isDone / timestamp).
@@ -38,6 +40,7 @@ public class CacheEntry<T> implements ExpiringEntry {
 		try {
 			return this.future.join();
 		} catch (CompletionException e) {
+			ThreadPools.onGenerationFailed();
 			Throwable c = e.getCause();
 			if (c instanceof RuntimeException r) throw r;
 			// not the Error itself: it ended the chunk system's worker with the chunk's future unfinished, and the server

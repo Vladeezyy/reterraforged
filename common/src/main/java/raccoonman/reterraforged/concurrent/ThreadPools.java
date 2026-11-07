@@ -12,7 +12,8 @@ import raccoonman.reterraforged.RTFCommon;
 public class ThreadPools {
 	private static final AtomicInteger THREAD_COUNTER = new AtomicInteger(0);
 	private static final AtomicBoolean ENDING = new AtomicBoolean();
-	private static final int OUT_OF_MEMORY_EXIT_SECONDS = 60;
+	private static final AtomicBoolean GENERATION_FAILED = new AtomicBoolean();
+	private static final int EXIT_SECONDS = 60;
 	public static final ThreadGroup RTF_GROUP = new ThreadGroup("rtf-worldgen");
 
 	public static final ThreadPoolExecutor WORLD_GEN = new ThreadPoolExecutor(
@@ -49,23 +50,43 @@ public class ThreadPools {
 			return;
 		}
 		try {
-			RTFCommon.LOGGER.error("ReTerraForged ran out of memory: give Java more memory (-Xmx) or lower tileSize in config/reterraforged/performance.conf. The game ends in {} seconds if it has not stopped by then", OUT_OF_MEMORY_EXIT_SECONDS, error);
-			if(!ENDING.compareAndSet(false, true)) {
-				return;
-			}
-			Thread ending = new Thread(() -> {
-				try {
-					Thread.sleep(TimeUnit.SECONDS.toMillis(OUT_OF_MEMORY_EXIT_SECONDS));
-				} catch(InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-				Runtime.getRuntime().halt(1);
-			}, "RTF out of memory");
-			ending.setDaemon(true);
-			ending.start();
+			RTFCommon.LOGGER.error("ReTerraForged ran out of memory: give Java more memory (-Xmx) or lower tileSize in config/reterraforged/performance.conf. The game ends in {} seconds if it has not stopped by then", EXIT_SECONDS, error);
+			endSoon();
 		} catch(Throwable noMemoryLeft) {
 			Runtime.getRuntime().halt(1);
 		}
+	}
+
+	// A tile failed: the chunk system reports it and ends the game (Util.onThreadException, System.exit). That chunk never
+	// finishes, so the exit waits for ever: for a server thread waiting for the chunk, or in stopServer for the chunk system's
+	// work to end. Nothing is saved, SIGTERM is not answered and a host does not restart a process that is still there.
+	// A minute after the exit started, it ends. Only after a failure: the exit of a healthy game may save a big world for longer
+	public static void onGenerationFailed() {
+		if(!GENERATION_FAILED.compareAndSet(false, true)) {
+			return;
+		}
+		try {
+			Runtime.getRuntime().addShutdownHook(new Thread(ThreadPools::endSoon, "RTF exit watchdog"));
+		} catch(IllegalStateException exitStarted) {
+			endSoon();
+		}
+	}
+
+	// a daemon thread: an exit that finishes before that does not wait for it
+	private static void endSoon() {
+		if(!ENDING.compareAndSet(false, true)) {
+			return;
+		}
+		Thread ending = new Thread(() -> {
+			try {
+				Thread.sleep(TimeUnit.SECONDS.toMillis(EXIT_SECONDS));
+			} catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			Runtime.getRuntime().halt(1);
+		}, "RTF ending");
+		ending.setDaemon(true);
+		ending.start();
 	}
 
 	public static synchronized void configureWorldGenThreads(int threadCount) {
