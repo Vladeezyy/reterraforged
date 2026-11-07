@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "Marais les plus hauts",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "Un biome de marais à plus de ce nombre de blocs au-dessus de la mer est remplacé par le biome qu'aurait un terrain plus accidenté à cet endroit. Les mods de biomes comme Terralith placent leurs marais sur des collines dans les mondes ReTerraForged. Désactivé : pas de limite.",
   "reterraforged.gui.slider.swampBasins": "Bassins marécageux",
-  "reterraforged.gui.slider.swampBasins.tooltip": "Ce pourcentage des régions de terrain au climat humide et non froid devient une terre plate juste au-dessus de la mer, chacune un grand marais loin des rivières : de la place pour les grandes structures de marais. Modifie le terrain. Désactivé : aucune de ces régions.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "Ce pourcentage des régions de terrain au climat humide et non froid devient une terre plate juste au-dessus de la mer, chacune un grand marais : de la place pour les grandes structures de marais. Modifie le terrain. Désactivé : aucune de ces régions.",
   "reterraforged.gui.slider.gorgeChance": "Part de gorges",
   "reterraforged.gui.slider.gorgeChance.tooltip": "La part des rivières et affluents dont la vallée est une gorge : versants raides au bord de l'eau, le reste de la vallée en pente douce. 25 % : comme dans ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Roche min.",

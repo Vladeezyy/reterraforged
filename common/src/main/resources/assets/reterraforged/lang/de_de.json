@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "Höchste Sümpfe",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "Ein Sumpfbiom mehr als so viele Blöcke über dem Meer wird durch das Biom ersetzt, das ein unebenerer Ort dort hätte. Biom-Mods wie Terralith setzen ihre Sümpfe in ReTerraForged-Welten auf Hügel. Aus: keine Grenze.",
   "reterraforged.gui.slider.swampBasins": "Sumpfbecken",
-  "reterraforged.gui.slider.swampBasins.tooltip": "Dieser Anteil der Geländeregionen mit feuchtem, nicht kaltem Klima wird zu flachem Land knapp über dem Meer, jede ein großer Sumpf abseits der Flüsse: Platz für große Sumpfbauwerke. Ändert das Gelände. Aus: keine solchen Regionen.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "Dieser Anteil der Geländeregionen mit feuchtem, nicht kaltem Klima wird zu flachem Land knapp über dem Meer, jede ein großer Sumpf: Platz für große Sumpfbauwerke. Ändert das Gelände. Aus: keine solchen Regionen.",
   "reterraforged.gui.slider.gorgeChance": "Schluchtanteil",
   "reterraforged.gui.slider.gorgeChance.tooltip": "Der Anteil der Flüsse und Nebenflüsse, deren Tal eine Schlucht ist: steile Hänge dicht am Wasser, der Rest des Tals sanft. 25 %: wie in ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Fels min.",
