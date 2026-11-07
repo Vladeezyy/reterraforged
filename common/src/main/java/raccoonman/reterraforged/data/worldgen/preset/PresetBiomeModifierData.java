@@ -32,6 +32,7 @@ public class PresetBiomeModifierData {
 	public static final ResourceKey<BiomeModifier> REPLACE_PLAINS_TREES = createKey("replace_plains_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_FOREST_TREES = createKey("replace_forest_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_FLOWER_FOREST_TREES = createKey("replace_flower_forest_trees");
+	public static final ResourceKey<BiomeModifier> REPLACE_FLOWER_FOREST_FLOWERS = createKey("replace_flower_forest_flowers");
 	public static final ResourceKey<BiomeModifier> REPLACE_BIRCH_TREES = createKey("replace_birch_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_DARK_FOREST_TREES = createKey("replace_dark_forest_trees");
 	public static final ResourceKey<BiomeModifier> REPLACE_SAVANNA_TREES = createKey("replace_savanna_trees");
@@ -110,6 +111,10 @@ public class PresetBiomeModifierData {
 			)));
 			ctx.register(REPLACE_FLOWER_FOREST_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, flowerForests, Map.of(
 				VegetationPlacements.TREES_FLOWER_FOREST, flowerForestTrees
+			)));
+			// more flower patches for the flowers our trees' crowns take (PresetPlacedFeatures.FLOWER_FOREST_FLOWERS)
+			ctx.register(REPLACE_FLOWER_FOREST_FLOWERS, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, HolderSet.direct(biomes.getOrThrow(Biomes.FLOWER_FOREST)), Map.of(
+				VegetationPlacements.FLOWER_FLOWER_FOREST, placedFeatures.getOrThrow(PresetPlacedFeatures.FLOWER_FOREST_FLOWERS)
 			)));
 			ctx.register(REPLACE_BIRCH_TREES, BiomeModifiers.replace(GenerationStep.Decoration.VEGETAL_DECORATION, birchForests, Map.of(
 				VegetationPlacements.TREES_BIRCH, birchTrees,
