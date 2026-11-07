@@ -106,6 +106,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_TOOLTIP_NEEDS_ARCHIPELAGO = resolve("gui.tooltip.needsArchipelago");
 	public static final String GUI_TOOLTIP_NEEDS_BRANCH_SIZE_OFF = resolve("gui.tooltip.needsBranchSizeOff");
 	public static final String GUI_BUTTON_ENABLE_ARCHIPELAGO = resolve("gui.button.enableArchipelago");
+	public static final String GUI_BUTTON_ISLAND_SEED_OFFSET = resolve("gui.button.islandSeedOffset");
+	public static final String GUI_BUTTON_ISLAND_CONTINENT_MOUNTAINS = resolve("gui.button.islandContinentMountains");
 	public static final String GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES = resolve("gui.button.enableFakeWaterBiomes");
 	public static final String GUI_BUTTON_STEPPE_FAKE_RIVERS = resolve("gui.button.steppeFakeRivers");
 	public static final String GUI_BUTTON_BADLANDS_FAKE_OCEANS = resolve("gui.button.badlandsFakeOceans");
@@ -209,6 +211,9 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_STRATA_MAX_LAYERS = resolve("gui.slider.strataMaxLayers");
 	public static final String GUI_SLIDER_STRATA_MIN_DEPTH = resolve("gui.slider.strataMinDepth");
 	public static final String GUI_SLIDER_STRATA_MAX_DEPTH = resolve("gui.slider.strataMaxDepth");
+	public static final String GUI_SLIDER_GRASS_DENSITY = resolve("gui.slider.grassDensity");
+	public static final String GUI_SLIDER_TREE_DENSITY = resolve("gui.slider.treeDensity");
+	public static final String GUI_SLIDER_PLANT_DENSITY = resolve("gui.slider.plantDensity");
 	public static final String GUI_SLIDER_MOUNTAIN_BIOME_USAGE = resolve("gui.slider.mountainBiomeUsage");
 	public static final String GUI_SLIDER_VOLCANO_BIOME_USAGE = resolve("gui.slider.volcanoBiomeUsage");
 	public static final String GUI_SLIDER_SNOW_LINE_HEIGHT = resolve("gui.slider.snowLineHeight");
@@ -227,6 +232,10 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_ISLAND_OFFSHORE_DEPTH = resolve("gui.slider.islandOffshoreDepth");
 	public static final String GUI_SLIDER_ISLAND_BEACH_WIDTH = resolve("gui.slider.islandBeachWidth");
 	public static final String GUI_SLIDER_ISLAND_BEACH_COVERAGE = resolve("gui.slider.islandBeachCoverage");
+	public static final String GUI_SLIDER_ISLAND_COAST_NOISE_OCTAVES = resolve("gui.slider.islandCoastNoiseOctaves");
+	public static final String GUI_SLIDER_ISLAND_COAST_NOISE_GAIN = resolve("gui.slider.islandCoastNoiseGain");
+	public static final String GUI_SLIDER_ISLAND_COAST_NOISE_LACUNARITY = resolve("gui.slider.islandCoastNoiseLacunarity");
+	public static final String GUI_SLIDER_ISLAND_CONTINENT_DISTANCE = resolve("gui.slider.islandContinentDistance");
 	public static final String GUI_SLIDER_FAKE_WATER_HEIGHT_OFFSET = resolve("gui.slider.fakeWaterHeightOffset");
 
 	public static final String GUI_LABEL_PREVIEW_AREA = resolve("gui.label.previewArea");

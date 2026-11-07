@@ -3,7 +3,6 @@ package raccoonman.reterraforged.data.worldgen.preset.settings;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import raccoonman.reterraforged.world.worldgen.cell.continent.IslandPopulator;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 
 public class WorldSettings {
@@ -68,9 +67,12 @@ public class WorldSettings {
     }
     
     public static class ControlPoints {
+    	// points of an island's profile, ArchipelagoPopulator
+    	public static final float DEFAULT_ISLAND_COAST = 0.3F;
+    	public static final float DEFAULT_ISLAND_INLAND = 0.6F;
     	public static final Codec<ControlPoints> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        	Codec.FLOAT.optionalFieldOf("islandInland", IslandPopulator.DEFAULT_INLAND_POINT).forGetter((o) -> o.islandInland),
-        	Codec.FLOAT.optionalFieldOf("islandCoast", IslandPopulator.DEFAULT_COAST_POINT).forGetter((o) -> o.islandCoast),
+        	Codec.FLOAT.optionalFieldOf("islandInland", DEFAULT_ISLAND_INLAND).forGetter((o) -> o.islandInland),
+        	Codec.FLOAT.optionalFieldOf("islandCoast", DEFAULT_ISLAND_COAST).forGetter((o) -> o.islandCoast),
     		Codec.FLOAT.fieldOf("deepOcean").forGetter((o) -> o.deepOcean),
     		Codec.FLOAT.fieldOf("shallowOcean").forGetter((o) -> o.shallowOcean),
     		Codec.FLOAT.fieldOf("beach").forGetter((o) -> o.beach),

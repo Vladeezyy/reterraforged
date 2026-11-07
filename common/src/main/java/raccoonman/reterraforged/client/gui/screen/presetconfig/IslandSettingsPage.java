@@ -8,6 +8,7 @@ import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.client.gui.widget.Slider;
+import raccoonman.reterraforged.client.gui.widget.ValueButton;
 import raccoonman.reterraforged.data.worldgen.preset.settings.IslandSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
@@ -24,6 +25,12 @@ public class IslandSettingsPage extends PresetEditorPage {
 	private Slider offshoreDepth;
 	private Slider beachWidth;
 	private Slider beachCoverage;
+	private ValueButton<Integer> seedOffset;
+	private Slider coastNoiseOctaves;
+	private Slider coastNoiseGain;
+	private Slider coastNoiseLacunarity;
+	private Slider continentDistance;
+	private CycleButton<Boolean> continentMountains;
 
 	public IslandSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -42,6 +49,12 @@ public class IslandSettingsPage extends PresetEditorPage {
 		PresetWidgets.setUsable(this.offshoreDepth, RTFTranslationKeys.GUI_SLIDER_ISLAND_OFFSHORE_DEPTH, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
 		PresetWidgets.setUsable(this.beachWidth, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_WIDTH, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
 		PresetWidgets.setUsable(this.beachCoverage, RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.seedOffset, RTFTranslationKeys.GUI_BUTTON_ISLAND_SEED_OFFSET, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.coastNoiseOctaves, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_OCTAVES, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.coastNoiseGain, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_GAIN, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.coastNoiseLacunarity, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_LACUNARITY, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.continentDistance, RTFTranslationKeys.GUI_SLIDER_ISLAND_CONTINENT_DISTANCE, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
+		PresetWidgets.setUsable(this.continentMountains, RTFTranslationKeys.GUI_BUTTON_ISLAND_CONTINENT_MOUNTAINS, archipelago, RTFTranslationKeys.GUI_TOOLTIP_NEEDS_ARCHIPELAGO);
 	}
 
 	@Override
@@ -116,17 +129,51 @@ public class IslandSettingsPage extends PresetEditorPage {
 			this.regenerate();
 			return value;
 		});
+		this.seedOffset = PresetWidgets.createRandomButton(RTFTranslationKeys.GUI_BUTTON_ISLAND_SEED_OFFSET, island.seedOffset, (value) -> {
+			island.seedOffset = value;
+			this.regenerate();
+		});
+		this.coastNoiseOctaves = PresetWidgets.createIntSlider(island.coastNoise.octaves, 1, 8, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_OCTAVES, (slider, value) -> {
+			island.coastNoise.octaves = (int) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.coastNoiseGain = PresetWidgets.createFloatSlider(island.coastNoise.gain, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_GAIN, (slider, value) -> {
+			island.coastNoise.gain = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.coastNoiseLacunarity = PresetWidgets.createFloatSlider(island.coastNoise.lacunarity, 1.0F, 4.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_LACUNARITY, (slider, value) -> {
+			island.coastNoise.lacunarity = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.continentDistance = PresetWidgets.createFloatSlider(island.continentDistance, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_CONTINENT_DISTANCE, (slider, value) -> {
+			island.continentDistance = (float) slider.scaleValue(value);
+			this.regenerate();
+			return value;
+		});
+		this.continentMountains = PresetWidgets.createToggle(island.continentMountains, RTFTranslationKeys.GUI_BUTTON_ISLAND_CONTINENT_MOUNTAINS, (button, value) -> {
+			island.continentMountains = value;
+			this.regenerate();
+		});
 
 		this.updateIslandSliders(island.enableArchipelago);
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_ISLAND));
 		this.left.addWidget(this.enableArchipelago);
+		this.left.addWidget(this.seedOffset);
 		this.left.addWidget(this.islandDensity);
+		this.left.addWidget(this.continentDistance);
 		this.left.addWidget(this.islandSize);
+		this.left.addWidget(this.coastNoiseOctaves);
+		this.left.addWidget(this.coastNoiseGain);
+		this.left.addWidget(this.coastNoiseLacunarity);
 		this.left.addWidget(this.islandHeight);
 		this.left.addWidget(this.islandBaseScale);
 		this.left.addWidget(this.islandVerticalScale);
 		this.left.addWidget(this.islandHorizontalScale);
 		this.left.addWidget(this.mountainChance);
+		this.left.addWidget(this.continentMountains);
 		this.left.addWidget(this.volcanoChance);
 		this.left.addWidget(this.offshoreDepth);
 		this.left.addWidget(this.beachWidth);

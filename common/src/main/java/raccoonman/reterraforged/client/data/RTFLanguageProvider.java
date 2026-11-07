@@ -314,6 +314,9 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_LAYERS, "Strata Max Layers");
 			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MIN_DEPTH, "Strata Min Thickness");
 			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_MAX_DEPTH, "Strata Max Thickness");
+			this.add(RTFTranslationKeys.GUI_SLIDER_GRASS_DENSITY, "Grass Density");
+			this.add(RTFTranslationKeys.GUI_SLIDER_TREE_DENSITY, "Tree Density");
+			this.add(RTFTranslationKeys.GUI_SLIDER_PLANT_DENSITY, "Plant Density");
 			this.add(RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE, "Mountain Biome Usage");
 			this.add(RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE, "Volcano Biome Usage");
 			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY, "Island Density");
@@ -327,6 +330,12 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_OFFSHORE_DEPTH, "Offshore Depth");
 			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_WIDTH, "Beach Width");
 			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE, "Beach Coverage");
+			this.add(RTFTranslationKeys.GUI_BUTTON_ISLAND_SEED_OFFSET, "Island Seed Offset");
+			this.add(RTFTranslationKeys.GUI_BUTTON_ISLAND_CONTINENT_MOUNTAINS, "Continent Mountains");
+			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_OCTAVES, "Coast Noise Octaves");
+			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_GAIN, "Coast Noise Gain");
+			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_LACUNARITY, "Coast Noise Lacunarity");
+			this.add(RTFTranslationKeys.GUI_SLIDER_ISLAND_CONTINENT_DISTANCE, "Distance From Continents");
 			this.add(RTFTranslationKeys.GUI_SLIDER_FAKE_WATER_HEIGHT_OFFSET, "Height Offset");
 
 			//TODO move the trailing colon and space to PresetEditorPage
@@ -410,8 +419,8 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_OCTAVES), "The number of octaves of noise used to distort the continent.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_GAIN), "The contribution strength of each noise octave.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_CONTINENT_NOISE_LACUNARITY), "The frequency multiplier for each noise octave.");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND), "Island biomes at the middle of an island: the higher above Beach, up to Inland, the more they are those of the far inland. Does not change the shape of the islands.");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST), "Island biomes at the edge of the land: set above Beach, they are those of places further from the coast. Does not change the shape of the islands.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND), "The point of an island's profile (0 its outer edge, 1 the middle of the largest islands) where its inland begins: the whole relief of the island and the biomes of high ground, such as meadows and plateaus. Lower: more of the island is inland. Higher: only the middle of large islands is.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST), "The point of an island's profile (0 its outer edge, 1 the middle of the largest islands) where the low land of the coast ends and the ground starts to rise. Higher: a wider, lower coast with more beach biomes. The greater the gap to the Island Inland slider, the more gradual the rise.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_DEEP_OCEAN), "Controls the point above which deep oceans transition into shallow oceans. The greater the gap to the shallow ocean slider, the more gradual the transition.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SHALLOW_OCEAN), "Controls the point above which shallow oceans transition into coastal terrain. The greater the gap to the coast slider, the more gradual the transition.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_BEACH), "Controls how much of the coastal terrain is assigned to beach biomes.");
@@ -475,6 +484,12 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_OFFSHORE_DEPTH), "Controls how deep water shelves are around islands.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_WIDTH), "Controls the width of island beaches.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_BEACH_COVERAGE), "Controls how much island edge area becomes beach.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ISLAND_SEED_OFFSET), "A seed offset that moves all the islands: other islands in the same world.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ISLAND_CONTINENT_MOUNTAINS), "Islands use the mountain noise of the continents instead of their own ridges.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_OCTAVES), "The number of noise octaves that shape the islands' coasts. More octaves make smaller bays and capes.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_GAIN), "How strong each following octave is. Higher values make the coasts more jagged.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_COAST_NOISE_LACUNARITY), "How much finer each following octave is.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_ISLAND_CONTINENT_DISTANCE), "How far from the continents islands stay. At 0 they reach the continents' coasts, at 1 they appear only in the open sea.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_FAKE_WATER_HEIGHT_OFFSET), "Controls how far below sea level terrain must be before fake-water biome mapping applies.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIVER_COUNT), "Controls the number of main rivers per continent.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VALLEY_WIDTH), "How wide the valleys of rivers and lakes are, times their width in ReTerraForged 0.0.6 (about 220 to 410 blocks from a river). In a wider valley tall terrain comes down to the water more gently. 1.00: as in 0.0.6.");
@@ -518,6 +533,9 @@ public final class RTFLanguageProvider {
 				+ "Lower values will produce a more random distribution but may allow "
 				+ "instances to generate closer together."
 			);
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_GRASS_DENSITY), "How much grass and how many ferns grow. 1: the usual amount, 0: none. Needs Custom Biome Features.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_TREE_DENSITY), "How many trees grow. 1: the usual amount, 0: none. Needs Custom Biome Features.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_PLANT_DENSITY), "How many flowers, bushes, mushrooms and other plants grow. 1: the usual amount, 0: none. Needs Custom Biome Features.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE), "The share of the mountains with mountain biomes (peaks and slopes). The rest of the mountains get the ordinary biomes of their climate. 1: all mountains.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE), "The share of volcanoes with a volcanic surface: basalt on the rock of the cone, magma and blackstone in the crater. 0: none. Needs the erosion decorator.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_STRATA_REGION_SIZE), "Controls the size of strata regions");

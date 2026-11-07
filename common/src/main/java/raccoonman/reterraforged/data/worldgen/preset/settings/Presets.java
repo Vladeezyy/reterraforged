@@ -29,7 +29,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI_IMPROVED, DistanceFunction.EUCLIDEAN, 3000, 0.7F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(0.502F, 0.448F, 0.1F, 0.25F, 0.327F, 0.448F, 0.502F), 
+				new ControlPoints(ControlPoints.DEFAULT_ISLAND_INLAND, ControlPoints.DEFAULT_ISLAND_COAST, 0.1F, 0.25F, 0.327F, 0.448F, 0.502F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -74,7 +74,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 2000, 0.763F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(ControlPoints.DEFAULT_ISLAND_INLAND, ControlPoints.DEFAULT_ISLAND_COAST, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.WORLD_ORIGIN, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -120,7 +120,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 3000, 0.8F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(ControlPoints.DEFAULT_ISLAND_INLAND, ControlPoints.DEFAULT_ISLAND_COAST, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -165,7 +165,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 2000, 0.765F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(ControlPoints.DEFAULT_ISLAND_INLAND, ControlPoints.DEFAULT_ISLAND_COAST, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			),
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),
@@ -210,7 +210,7 @@ public class Presets {
 		return new Preset(
 			new WorldSettings(
 				new Continent(ContinentType.MULTI, DistanceFunction.EUCLIDEAN, 4029, 0.8F, 0.25F, 0.25F, 5, 0.26F, 4.33F),
-				new ControlPoints(0.5F, 0.448F, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
+				new ControlPoints(ControlPoints.DEFAULT_ISLAND_INLAND, ControlPoints.DEFAULT_ISLAND_COAST, 0.1F, 0.25F, 0.326F, 0.448F, 0.5F), 
 				new Properties(SpawnType.CONTINENT_CENTER, 320, 64, 63, -54)
 			), 
 			new SurfaceSettings(new SurfaceSettings.Erosion(30, 140, 40, 95, 0.65F, 0.475F, 0.4F)),

@@ -32,6 +32,8 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.surface.rule.RTFSurfaceRules;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
+import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
+import terrablender.worldgen.surface.NamespacedSurfaceRuleSource;
 
 //TODO add forest surfaces
 // maybe have a custom meadow or cherry forest surface ?
@@ -64,6 +66,12 @@ public class PresetSurfaceRuleData {
 			.orElse(null);
 		if(rule == null) {
 			return SurfaceRuleData.overworld(registries.lookupOrThrow(Registries.BIOME));
+		}
+		// a world that has started: surfaceRule() is TerraBlender's wrapper. Only what it wraps goes into the preset: it wraps
+		// the preset's rules again with the mods' own when a world starts (LevelUtils). TerraBlender 26.2 cannot write this
+		// wrapper at all: it registers terrablender:merged as CODEC.codec(), not as CODEC ("Unregistered holder")
+		if(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
+			rule = namespaced.base();
 		}
 		if(rule instanceof SurfaceRules.SequenceRuleSource sequence && sequence.sequence().stream().anyMatch((r) -> r instanceof StrataRule)) {
 			List<SurfaceRules.RuleSource> without = sequence.sequence().stream().filter((r) -> !(r instanceof StrataRule)).toList();
