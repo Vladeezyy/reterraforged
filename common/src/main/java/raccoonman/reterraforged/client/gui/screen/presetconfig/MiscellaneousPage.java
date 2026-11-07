@@ -30,6 +30,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 	private Slider snowLinePeakDepth;
 	private Slider snowLineDepthRange;
 	private CycleButton<Boolean> customBiomeFeatures;
+	private Slider grassDensity;
+	private Slider treeDensity;
+	private Slider plantDensity;
 	private CycleButton<Boolean> vanillaSprings;
 	private CycleButton<Boolean> vanillaLavaLakes;
 	private CycleButton<Boolean> vanillaLavaSprings;
@@ -118,6 +121,18 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.customBiomeFeatures = PresetWidgets.createToggle(miscellaneous.customBiomeFeatures, RTFTranslationKeys.GUI_BUTTON_CUSTOM_BIOME_FEATURES, (button, value) -> {
 			miscellaneous.customBiomeFeatures = value;
 		});
+		this.grassDensity = PresetWidgets.createFloatSlider(miscellaneous.grassDensity, 0.0F, MiscellaneousSettings.MAX_GRASS_DENSITY, RTFTranslationKeys.GUI_SLIDER_GRASS_DENSITY, (slider, value) -> {
+			miscellaneous.grassDensity = (float) slider.scaleValue(value);
+			return value;
+		});
+		this.treeDensity = PresetWidgets.createFloatSlider(miscellaneous.treeDensity, 0.0F, MiscellaneousSettings.MAX_TREE_DENSITY, RTFTranslationKeys.GUI_SLIDER_TREE_DENSITY, (slider, value) -> {
+			miscellaneous.treeDensity = (float) slider.scaleValue(value);
+			return value;
+		});
+		this.plantDensity = PresetWidgets.createFloatSlider(miscellaneous.plantDensity, 0.0F, MiscellaneousSettings.MAX_PLANT_DENSITY, RTFTranslationKeys.GUI_SLIDER_PLANT_DENSITY, (slider, value) -> {
+			miscellaneous.plantDensity = (float) slider.scaleValue(value);
+			return value;
+		});
 		this.vanillaSprings = PresetWidgets.createToggle(miscellaneous.vanillaSprings, RTFTranslationKeys.GUI_BUTTON_VANILLA_SPRINGS, (button, value) -> {
 			miscellaneous.vanillaSprings = value;
 		});
@@ -154,6 +169,9 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.left.addWidget(this.snowLinePeakDepth);
 		this.left.addWidget(this.snowLineDepthRange);
 		this.left.addWidget(this.customBiomeFeatures);
+		this.left.addWidget(this.grassDensity);
+		this.left.addWidget(this.treeDensity);
+		this.left.addWidget(this.plantDensity);
 		this.left.addWidget(this.vanillaSprings);
 		this.left.addWidget(this.vanillaLavaLakes);
 		this.left.addWidget(this.vanillaLavaSprings);

@@ -15,6 +15,7 @@ public class RTFPlacementModifiers {
 	public static final PlacementModifierType<BlacklistDimensionFilter> BLACKLIST_DIMENSION = register("blacklist_dimension", BlacklistDimensionFilter.CODEC);
 	public static final PlacementModifierType<FastPoissonModifier> FAST_POISSON = register("fast_poission", FastPoissonModifier.CODEC);
 	public static final PlacementModifierType<LegacyCountExtraModifier> LEGACY_COUNT_EXTRA = register("legacy_count_extra", LegacyCountExtraModifier.CODEC);
+	public static final PlacementModifierType<DensityFilter> DENSITY = register("density", DensityFilter.CODEC);
 
     public static void bootstrap() {
     }
@@ -26,11 +27,11 @@ public class RTFPlacementModifiers {
     	return new BlacklistDimensionFilter(ImmutableList.copyOf(levels));
     }
 	
-    public static FastPoissonModifier poisson(int radius, float scale, float biomeFade, int densityVariationScale, float densityVariation) {
+    public static FastPoissonModifier poisson(float radius, float scale, float biomeFade, int densityVariationScale, float densityVariation) {
 		 return poisson(radius, scale, 0.8F, biomeFade, densityVariationScale, densityVariation);
 	}
 	
-    public static FastPoissonModifier poisson(int radius, float scale, float jitter, float biomeFade, int densityVariationScale, float densityVariation) {
+    public static FastPoissonModifier poisson(float radius, float scale, float jitter, float biomeFade, int densityVariationScale, float densityVariation) {
 		 return new FastPoissonModifier(radius, scale, jitter, biomeFade, densityVariationScale, densityVariation);
 	}
     

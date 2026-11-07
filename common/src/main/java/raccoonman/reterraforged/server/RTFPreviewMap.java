@@ -28,7 +28,7 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
  * makes it (no world needed), 768 x 768 pixels around 0, 0, written to rtf-previewmap-&lt;name&gt;.png. Land is shaded
  * by height (mountain terrains in red), water by depth; the line says the share of mountain cells, the land height
  * and the depth of the sea floor below sea level (blocks). rtf-previewmap-&lt;name&gt;-screen.png has the colours of the
- * preset screen's preview (RenderMode.BIOME_TYPE, the screen's default).
+ * preset screen's preview (RenderMode.BIOME_TYPE, the screen's default), rtf-previewmap-&lt;name&gt;-points.png its Transition Points mode.
  */
 public final class RTFPreviewMap {
 	private static final int TILES = 3;
@@ -51,6 +51,7 @@ public final class RTFPreviewMap {
 		int tile = 256, size = tile * TILES;
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 		BufferedImage screen = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+		BufferedImage points = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 		long mountains = 0, land = 0, ocean = 0;
 		double landSum = 0, depthSum = 0, depthMax = 0, landMax = 0;
 		for (int tz = 0; tz < TILES; tz++) for (int tx = 0; tx < TILES; tx++) {
@@ -85,6 +86,8 @@ public final class RTFPreviewMap {
 					// the screen's colours are ABGR (NativeImage)
 					int abgr = RenderMode.BIOME_TYPE.getColor(cell, levels, patched.world().properties.worldHeight - 1);
 					screen.setRGB(tx * tile + x, tz * tile + z, (abgr & 0xFF) << 16 | (abgr & 0xFF00) | (abgr >> 16 & 0xFF));
+					abgr = RenderMode.TRANSITION_POINTS.getColor(cell, levels, patched.world().properties.worldHeight - 1);
+					points.setRGB(tx * tile + x, tz * tile + z, (abgr & 0xFF) << 16 | (abgr & 0xFF00) | (abgr >> 16 & 0xFF));
 				}
 			}
 		}
@@ -92,6 +95,7 @@ public final class RTFPreviewMap {
 		try {
 			ImageIO.write(image, "png", out.toFile());
 			ImageIO.write(screen, "png", server.getServerDirectory().resolve("rtf-previewmap-" + name + "-screen.png").toFile());
+			ImageIO.write(points, "png", server.getServerDirectory().resolve("rtf-previewmap-" + name + "-points.png").toFile());
 		} catch (IOException e) {
 			return "[RTF previewmap] FAIL writing " + out + ": " + e;
 		}

@@ -14,8 +14,6 @@ import net.minecraft.util.StringRepresentable;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.biome.Continentalness;
 import raccoonman.reterraforged.world.worldgen.biome.Erosion;
-import raccoonman.reterraforged.world.worldgen.biome.Humidity;
-import raccoonman.reterraforged.world.worldgen.biome.Temperature;
 import raccoonman.reterraforged.world.worldgen.biome.Weirdness;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap;
@@ -83,8 +81,6 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 				if (this.cell.terrain == TerrainType.ISLAND_BEACH) {
 					this.cell.erosion = Erosion.LEVEL_4.mid();
 					this.cell.weirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.mid();
-					this.cell.temperature = Temperature.LEVEL_3.mid();
-					this.cell.moisture = Humidity.LEVEL_1.mid();
 				}
 			}
 			return this.cell;
@@ -243,9 +239,6 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 			
 			@Override
 			public float read(Cell cell, Heightmap heightmap) {
-				if(cell.terrain == TerrainType.ISLAND_BEACH) {
-					return Temperature.LEVEL_3.mid();
-				}
 				return cell.temperature;
 			}
 		},
@@ -253,9 +246,6 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 			
 			@Override
 			public float read(Cell cell, Heightmap heightmap) {
-				if(cell.terrain == TerrainType.ISLAND_BEACH) {
-					return Humidity.LEVEL_1.mid();
-				}
 				return cell.moisture;
 			}
 		},

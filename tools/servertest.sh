@@ -26,9 +26,12 @@
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
 # SWAMPS=1 where the swamp biomes are against the river valleys and the heights (run/swamps-<loader>.txt, #28).
+# ISLANDS=1 with PRESET=set:island().enableArchipelago=true;... what the land of the islands is made of (run/islands-<loader>.txt, .png,
+# #38); ISLANDS_REF=<file> says what differs from that run (tools/compareislands.py). With SKIP_SELFTEST=1 SKIP_STRUCTURES=1 about 1 minute.
 # TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
+# VEGETATION=1|"<biome> ..." trees, empty ground and plants per biome ("rtf vegetation", #37, run/vegetation-<loader>.txt, maps in run/vegetation-<loader>/).
 # FAULT=ticket|block an exception in a tile's generation thread ("rtf fault"): the cache, then under a chunk made in the background or one the
 # server thread waits for; the process must end by itself.
 # VANILLA_CLIENT=1 a client without any mod joins the world first (tools/vanillaclient.sh, macOS).
@@ -53,7 +56,8 @@ fi
 PY=$(command -v python3 >/dev/null && python3 -c '' 2>/dev/null && echo python3 || echo python)
 # a modpack with Biomes O' Plenty and the like gets 4 GB (the biome mod test after the structure test filled 3 GB on
 # Fabric), the mod alone 3 GB
-HEAP=$([ -n "$MODS" ] && echo 4G || echo 3G)
+# VEGETATION: the chunks of its biomes are still in memory when the self test starts (out of memory on Fabric with 3G)
+HEAP=$([ -n "$MODS$VEGETATION" ] && echo 4G || echo 3G)
 PORT=${PORT:-25599}  # another port lets two checkouts test at the same time
 TAG=$(pwd | cksum | cut -d' ' -f1)  # marks this checkout's server processes (a number: MSYS rewrites path-like args)
 FAILS=0
@@ -143,7 +147,7 @@ for loader in $LOADERS; do
     cp "$jar" "$dir/mods/"
     bash tools/extramods.sh $loader "$dir/mods" $MODS || { FAILS=$((FAILS+1)); continue; }
     echo "eula=true" > "$dir/eula.txt"
-    props="online-mode=false\nserver-port=$PORT\nlevel-seed=${SEED:-20261013}\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\n"
+    props="online-mode=false\nserver-port=$PORT\nlevel-seed=${SEED:-20261013}\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\nwhite-list=false\n"
 
     # pass 1: export the preset datapack
     rm -rf "$dir/world-export" "$dir/reterraforged-preset.zip"
@@ -281,6 +285,16 @@ for loader in $LOADERS; do
         grep -o 'RTF swamps\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-400 | sed 's/^/  /'
         cp "$dir/rtf-swamps.txt" "run/swamps-$loader.txt" 2>/dev/null; cp "$dir/rtf-swamps.png" "run/swamps-$loader.png" 2>/dev/null
     fi
+    # ISLANDS=1: what the land of the islands is made of ("rtf islands", #38), the table copied to run/islands-<loader>.txt;
+    # ISLANDS_REF=<file>: what differs from that run
+    if [ -n "$ISLANDS" ] || [ -n "$ISLANDS_REF" ]; then
+        rm -f "$dir/rtf-islands.txt" "$dir/rtf-islands.png" "run/islands-$loader.txt" "run/islands-$loader.png"
+        echo "rtf islands" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF islands\] [0-9F]' 900
+        grep -o 'RTF islands\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-1200 | sed 's/^/  /'
+        cp "$dir/rtf-islands.txt" "run/islands-$loader.txt" 2>/dev/null; cp "$dir/rtf-islands.png" "run/islands-$loader.png" 2>/dev/null
+        [ -z "$ISLANDS_REF" ] || echo "  islands against $ISLANDS_REF: $($PY tools/compareislands.py "$ISLANDS_REF" "run/islands-$loader.txt")"
+    fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
     if [ -n "$TILEBENCH" ]; then
         echo "rtf tilebench $TILEBENCH" >> "$dir/console.in"
@@ -292,6 +306,20 @@ for loader in $LOADERS; do
         echo "rtf tilecache" >> "$dir/console.in"
         wait_for "$dir/console.log" 'RTF tilecache\] [0-9]' 1200
         grep -o 'RTF tilecache\] [0-9].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
+    fi
+    # VEGETATION=1 or VEGETATION="<biome> ...": trees, empty ground and plants per biome ("rtf vegetation", #37), first thing
+    # in the new world: the time it reports is that of new chunks
+    if [ -n "$VEGETATION" ]; then
+        if [ "$VEGETATION" = 1 ]; then cmds=("rtf vegetation"); else cmds=(); for b in $VEGETATION; do cmds+=("rtf vegetation $b 16"); done; fi
+        for c in "${cmds[@]}"; do
+            seen=$(grep -c 'RTF vegetation\] done' "$dir/console.log")
+            echo "$c" >> "$dir/console.in"
+            for i in $(seq 1 1800); do [ "$(grep -c 'RTF vegetation\] done' "$dir/console.log")" -gt "$seen" ] && break; pgrep -f "rtf.run=$TAG " > /dev/null || break; sleep 1; done
+        done
+        grep -o 'RTF vegetation\] done.*' "$dir/console.log" | tail -1 | sed 's/^/  /'
+        mkdir -p "run/vegetation-$loader"
+        grep -o 'RTF vegetation\] minecraft.*' "$dir/console.log" | sed 's/^RTF vegetation\] //' > "run/vegetation-$loader.txt"
+        cp "$dir"/rtf-vegetation-*.png "run/vegetation-$loader/" 2>/dev/null
     fi
     if [ -n "$SKIP_SELFTEST" ]; then
         line="RTF selftest] skipped (SKIP_SELFTEST=1), PASS all not checked"
@@ -337,10 +365,13 @@ for loader in $LOADERS; do
     fi
     stop_server "$dir" console.log
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
-    # a class a mixin plugin of another mod looks for and does not need (mostly client classes, other mods); Biomes O' Plenty on a Fabric server: its boats without a data fixer;
+    # a class a mixin plugin of another mod looks for and does not need (mostly client classes, other mods; on a NeoForge
+    # server C2ME's client module names client classes, which the dist cleaner refuses with an ERROR line); Biomes O' Plenty on a Fabric server: its boats without a data fixer;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
-    noise='Error loading class: |No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|UnknownHostException: api\.minecraftservices\.com|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
+    noise='Error loading class: |No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|UnknownHostException: api\.minecraftservices\.com|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib|for invalid dist DEDICATED_SERVER'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
+    # but a mixin of this mod that misses its target is one, whatever the class (a WARN line only)
+    errors=$((errors + $(grep -cE '@Mixin target .* was not found .* from mod reterraforged' "$dir/console.log")))
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"
     [ -n "$EXTREMES" ] && echo "  ${extremes:-RTF extremes] no result}"

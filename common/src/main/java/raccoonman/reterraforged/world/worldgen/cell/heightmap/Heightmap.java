@@ -5,6 +5,7 @@ import raccoonman.reterraforged.data.worldgen.preset.PresetNoiseData;
 import raccoonman.reterraforged.data.worldgen.preset.PresetTerrainTypeNoise;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.TerrainSettings;
+import raccoonman.reterraforged.data.worldgen.preset.settings.IslandSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.ControlPoints;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
@@ -44,11 +45,12 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyTerrain(cell, x, z);
+		this.applyRivers(cell, x, z, this.continent.getRivermap(cell));
+		this.applyClimate(cell, x, z, applyClimate);
+		// after the climate: the same climate as a tile's cell (TileGenerator), so a biome asked here is the chunk's
 		if (cell.terrain == TerrainType.ISLAND_BEACH) {
 			cell.terrain = TerrainType.BEACH;
 		}
-		this.applyRivers(cell, x, z, this.continent.getRivermap(cell));
-		this.applyClimate(cell, x, z, applyClimate);
 	}
 	
 	public void applyTerrain(Cell cell, float x, float z) {
@@ -126,7 +128,8 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         }
         this.fakeWaterBiomeResolver.apply(cell);
 
-        if(cell.riverMask >= riverValleyThreshold && cell.macroBiomeId > 0.5F) { 
+        // not an island's beach: only this sign of the weirdness has beaches in the biome table
+        if(cell.riverMask >= riverValleyThreshold && cell.macroBiomeId > 0.5F && cell.terrain != TerrainType.ISLAND_BEACH) { 
         	cell.weirdness = -cell.weirdness;
         }
 	}
@@ -139,6 +142,12 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 		// the terrain last: with both settings off every column of land stops at the first of these
 		boolean lowlandSwamp = cell.height <= this.lowlandSwampTop && cell.moisture >= Humidity.LEVEL_3.min() && cell.temperature >= Temperature.LEVEL_1.min();
 		return (lowlandSwamp || this.swampBasins != null && this.swampBasins.contains(cell)) && this.isLowland(cell);
+	}
+
+	// low enough for Lowland Swamps in any climate: the swamps' climate is not given to this land, but a biome mod may keep a
+	// swamp for a dry or cold place (Terralith's orchid swamp and ice marsh, SwampHeights)
+	public boolean isLowSwampLand(Cell cell) {
+		return cell.height > this.levels.water && cell.height <= this.lowlandSwampTop && this.isLowland(cell);
 	}
 
 	// flat or rolling land (not beaches, coasts, rivers, lakes, wetlands, islands, mountains or volcanoes)
@@ -208,7 +217,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         CellPopulator terrain = new ContinentLerper2(oceans, land, controlPoints.shallowOcean, controlPoints.inland);
         
         if (ctx.preset.island().enableArchipelago) {
-            terrain = new IslandBlender(terrain, new ArchipelagoPopulator(ctx.preset.island(), ctx.levels, controlPoints, ctx.seed.root(), world.properties.generationFixes), ctx.levels);
+            terrain = new IslandBlender(terrain, new ArchipelagoPopulator(ctx.preset.island(), ctx.levels, controlPoints, ctx.seed.root(), world.properties.generationFixes, islandMountains(ctx, ground, terrainSettings)), ctx.levels);
         }
 
         Noise beachNoise = Noises.perlin2(ctx.seed.next(), 20, 1);
@@ -220,6 +229,16 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         int lowlandSwamps = preset.climate().lowlandSwamps;
         float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
         return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes);
+	}
+
+	// the noise of the continents' mountains for the islands, at the islands' scale; its own seed, so the other noises keep theirs
+	private static Noise islandMountains(GeneratorContext ctx, Noise ground, TerrainSettings terrain) {
+		IslandSettings island = ctx.preset.island();
+		if (!island.continentMountains) {
+			return null;
+		}
+		Noise height = Populators.makeMountains(ctx.seed.offset(6143 + island.seedOffset), ground, terrain.mountains, 1.0F, 1.0F, terrain.general.fancyMountains, false).height();
+		return Populators.horizontal(height, island.islandHorizontalScale);
 	}
 
 	// The lowest the deep ocean floor may go. It stopped at y 0 (heights are not negative), so an ocean depth above

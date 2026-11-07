@@ -13,11 +13,26 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class ArchipelagoPopulator implements CellPopulator {
+	// Island Coast and Island Inland together: the ground still takes this much of the profile to rise, not a wall
+	private static final float MIN_RISE = 0.05F;
+	// blocks the low land of the coast rises above the beach, with the swells up to twice as much at most
+	private static final int COAST_RISE = 2;
+	// the beaches go on over this share of the low land of the coast, their border with the land behind it wandering by this much
+	private static final float COAST_BEACH = 0.5F;
+	private static final float COAST_BEACH_BORDER = 0.4F;
+	// of the continent edge, over which the islands fade out towards a continent
+	private static final float CONTINENT_FADE = 0.05F;
+	// the weight of the ridges in the islands' relief; the continents' mountains stand out as they do on the continents
+	private static final float RIDGE_WEIGHT = 0.5F, CONTINENT_RIDGE_WEIGHT = 1.0F;
+	
 	private final IslandSettings settings;
 	private final Levels levels;
 	private final ControlPoints controlPoints;
 	// WorldSettings.Properties.generationFixes
 	private final boolean fixes;
+	// no island at a continent edge above this
+	private final float continentLimit;
+	private final float ridgeWeight;
 	
 	private final Noise sizeNoise;
 	private final Noise densityNoise;
@@ -31,20 +46,25 @@ public class ArchipelagoPopulator implements CellPopulator {
 	private final Noise beachErosion;
 	private final Noise beachWeirdness;
 	
-	public ArchipelagoPopulator(IslandSettings settings, Levels levels, ControlPoints controlPoints, int worldSeed, boolean fixes) {
+	public ArchipelagoPopulator(IslandSettings settings, Levels levels, ControlPoints controlPoints, int worldSeed, boolean fixes, Noise continentMountains) {
 		this.settings = settings;
 		this.levels = levels;
 		this.controlPoints = controlPoints;
 		this.fixes = fixes;
 		// constant seeds before: the same islands in every world
-		int seed = fixes ? worldSeed : 0;
+		int seed = (fixes ? worldSeed : 0) + settings.seedOffset;
+		// the square root: the open sea takes the lowest values of the continent edge, so a straight line changed
+		// almost nothing up to the middle of the slider
+		this.continentLimit = NoiseUtil.lerp(controlPoints.coast, CONTINENT_FADE, NoiseUtil.sqrt(settings.continentDistance));
+		this.ridgeWeight = continentMountains != null ? CONTINENT_RIDGE_WEIGHT : RIDGE_WEIGHT;
 		
 		int size = Math.round(settings.islandSize);
 		float hScale = Math.max(0.1F, settings.islandHorizontalScale);
 		// the scale of the islands' terrain: it also scaled their outline before, so it changed their size
 		float shapeScale = fixes ? 1.0F : hScale;
 		
-		Noise sizeN = Noises.simplex(seed + 1273, Math.max(1, Math.round(size * 3.5F / shapeScale)), 3);
+		IslandSettings.CoastNoise coast = settings.coastNoise;
+		Noise sizeN = Noises.simplex(seed + 1273, Math.max(1, Math.round(size * 3.5F / shapeScale)), coast.octaves, coast.lacunarity, coast.gain);
 		sizeN = Noises.warpPerlin(sizeN, seed + 1273, Math.max(1, Math.round(size * 2.0F / shapeScale)), 2, size * 0.5F / shapeScale);
 		sizeN = Noises.warpPerlin(sizeN, seed + 4830, Math.max(1, Math.round(size * 0.5F / shapeScale)), 1, size * 0.3F / shapeScale);
 		sizeN = Noises.clamp(sizeN, 0.0F, 1.0F);
@@ -58,7 +78,7 @@ public class ArchipelagoPopulator implements CellPopulator {
 		Noise ridge = Noises.perlinRidge(seed + 4829, Math.max(1, Math.round(size * 1.6F / hScale)), 4, 2.1F, 0.82F);
 		ridge = Noises.warpPerlin(ridge, seed + 4830, Math.max(1, Math.round(size * 0.9F / hScale)), 2, size * 0.35F / hScale);
 		ridge = Noises.clamp(ridge, 0.0F, 1.0F);
-		this.ridgeHeight = ridge;
+		this.ridgeHeight = continentMountains != null ? Noises.clamp(continentMountains, 0.0F, 1.0F) : ridge;
 		
 		Noise hills = Noises.billow(seed + 3811, Math.max(1, Math.round(size * 0.35F / hScale)), 3, 2.25F, 0.55F);
 		hills = Noises.warpPerlin(hills, seed + 3812, Math.max(1, Math.round(size * 0.7F / hScale)), 1, size * 0.2F / hScale);
@@ -89,6 +109,9 @@ public class ArchipelagoPopulator implements CellPopulator {
 		float densityFade = NoiseUtil.clamp((1.0F - densityThreshold) * 0.5F, 0.04F, 0.12F);
 		float densityAlpha = smoothStep(densityThreshold, densityThreshold + densityFade, densityValue);
 		float islandAlpha = shapeAlpha * densityAlpha;
+		if (this.settings.continentDistance > 0.0F) {
+			islandAlpha *= 1.0F - smoothStep(this.continentLimit - CONTINENT_FADE, this.continentLimit, cell.continentEdge);
+		}
 		if (islandAlpha <= 0.001F) {
 			return;
 		}
@@ -114,28 +137,36 @@ public class ArchipelagoPopulator implements CellPopulator {
 			beachHeight = NoiseUtil.lerp(shelfHeight, this.levels.ground, beachAlpha);
 		}
 		
-		float mountainStart = NoiseUtil.clamp(beachEnd + 0.08F, 0.22F, 0.9F);
-		float mountainEnd = Math.max(mountainStart + 0.08F, 0.72F);
-		float mountainAlpha = smoothStep(mountainStart, mountainEnd, islandAlpha);
+		// Island Coast and Island Inland are points of the island's profile (0 its outer edge, 1 the middle of the largest islands),
+		// as Coast and Inland are of a continent's: up to Island Coast the low land of the coast, from there the ground rises, the
+		// more gradually the further apart they are, and from Island Inland on it is the island's inland with its whole relief
+		float coastPoint = Math.max(this.controlPoints.islandCoast, beachEnd);
+		float inlandPoint = Math.max(this.controlPoints.islandInland, coastPoint + MIN_RISE);
+		float riseAlpha = smoothStep(coastPoint, inlandPoint, islandAlpha);
+		
 		float mountainGate = chanceMask(this.mountainSelector, this.settings.mountainChance, x, z);
 		float volcanoGate = chanceMask(this.volcanoSelector, this.settings.volcanoChance, x, z);
-		float hillValue = this.hillHeight.compute(x, z, 0) * (0.15F + mountainGate * 0.55F);
+		float hills = this.hillHeight.compute(x, z, 0);
+		// rolling hills inland on every island, a little more where there are mountains
+		float hillValue = hills * (0.35F + mountainGate * 0.55F);
 		float ridgeValue = this.ridgeHeight.compute(x, z, 0) * mountainGate;
 		float volcanoValue = this.volcanoHeight.compute(x, z, 0) * volcanoGate;
-		float mountainValue = NoiseUtil.clamp(hillValue * 0.35F + ridgeValue * 0.5F + volcanoValue * 0.75F, 0.0F, 1.0F);
+		float mountainValue = NoiseUtil.clamp(hillValue * 0.35F + ridgeValue * this.ridgeWeight + volcanoValue * 0.75F, 0.0F, 1.0F);
 		
 		float baseHeight = this.settings.islandHeight * (0.015F + this.settings.islandBaseScale * 0.08F);
-		float reliefHeight = mountainValue * mountainAlpha * this.settings.islandHeight * this.settings.islandVerticalScale * 0.3F;
+		float reliefHeight = mountainValue * riseAlpha * this.settings.islandHeight * this.settings.islandVerticalScale * 0.3F;
 		float targetHeight = this.levels.ground + baseHeight + reliefHeight;
-		float landAlpha = smoothStep(beachEnd, 1.0F, islandAlpha);
-		cell.height = NoiseUtil.lerp(beachHeight, targetHeight, landAlpha);
-		cell.continentEdge = Math.max(cell.continentEdge, continentEdge(islandAlpha, shelfEnd, beachEnd));
+		// the coast's own land is not a flat disc: a few blocks up towards the point, with low swells
+		float coastAlpha = coastPoint > beachEnd ? NoiseUtil.clamp((islandAlpha - beachEnd) / (coastPoint - beachEnd), 0.0F, 1.0F) : 1.0F;
+		float coastHeight = beachHeight + (coastPoint > beachEnd ? coastAlpha * this.levels.scale(COAST_RISE) * (0.5F + hills) : 0.0F);
+		cell.height = NoiseUtil.lerp(coastHeight, Math.max(targetHeight, coastHeight), riseAlpha);
+		cell.continentEdge = Math.max(cell.continentEdge, continentEdge(islandAlpha, shelfEnd, coastPoint, inlandPoint));
 		
 		if (islandAlpha < shelfEnd) {
 			cell.terrain = TerrainType.SHALLOW_OCEAN;
-		} else if (islandAlpha < beachEnd) {
+		} else if (islandAlpha < beachEnd || coastAlpha + (hills - 0.5F) * COAST_BEACH_BORDER < COAST_BEACH) {
 			cell.terrain = TerrainType.ISLAND_BEACH;
-		} else if (mountainAlpha > 0.35F && mountainValue > 0.35F && (mountainGate > 0.1F || volcanoGate > 0.2F)) {
+		} else if (riseAlpha > 0.35F && mountainValue > 0.35F && (mountainGate > 0.1F || volcanoGate > 0.2F)) {
 			cell.terrain = TerrainType.ISLAND_MOUNTAINS;
 		} else {
 			cell.terrain = TerrainType.ISLAND;
@@ -146,24 +177,26 @@ public class ArchipelagoPopulator implements CellPopulator {
 				cell.erosion = this.beachErosion.compute(x, z, 0);
 				cell.weirdness = this.beachWeirdness.compute(x, z, 0);
 			} else {
-				cell.erosion = this.islandErosion.compute(x, z, 0);
+				// the inland: far from the sea this level of erosion has the biomes of high ground, the level of the rest of the land the
+				// same biome whatever the continentalness, so the biome table itself cannot tell a coast's land from an inland
+				cell.erosion = islandAlpha >= inlandPoint ? Erosion.LEVEL_2.mid() : this.islandErosion.compute(x, z, 0);
 				cell.weirdness = this.islandWeirdness.compute(x, z, 0);
 			}
 		}
 	}
 	
-	private float continentEdge(float islandAlpha, float shelfEnd, float beachEnd) {
+	// as on a continent: below Beach the coast, from Beach to Inland land further and further from it
+	private float continentEdge(float islandAlpha, float shelfEnd, float coastPoint, float inlandPoint) {
 		if (islandAlpha < shelfEnd) {
 			float alpha = smoothStep(0.0F, shelfEnd, islandAlpha);
 			return NoiseUtil.lerp(this.controlPoints.deepOcean, this.controlPoints.shallowOcean, alpha);
 		}
-		// the islands' own coast and inland points (the continent's in presets saved before 0.0.20, PresetMigration)
-		if (islandAlpha < beachEnd) {
-			float alpha = smoothStep(shelfEnd, beachEnd, islandAlpha);
-			return NoiseUtil.lerp(this.controlPoints.shallowOcean, this.controlPoints.islandCoast, alpha);
+		if (islandAlpha < coastPoint) {
+			float alpha = smoothStep(shelfEnd, coastPoint, islandAlpha);
+			return NoiseUtil.lerp(this.controlPoints.shallowOcean, this.controlPoints.beach, alpha);
 		}
-		float alpha = smoothStep(beachEnd, 1.0F, islandAlpha);
-		return NoiseUtil.lerp(this.controlPoints.islandCoast, this.controlPoints.islandInland, alpha);
+		float alpha = smoothStep(coastPoint, inlandPoint, islandAlpha);
+		return NoiseUtil.lerp(this.controlPoints.beach, this.controlPoints.inland, alpha);
 	}
 	
 	private static float chanceMask(Noise selector, float chance, float x, float z) {

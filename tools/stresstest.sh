@@ -53,6 +53,8 @@ case $LOADER in
 esac
 rm -f "$dir"/mods/reterraforged-*.jar
 cp "$jar" "$dir/mods/"
+# the mod alone: a servertest.sh run with MODS (C2ME, biome mods) leaves its extra mods in this folder
+bash tools/extramods.sh $LOADER "$dir/mods" || exit 1
 rm -rf "$dir/world-stress"
 printf "online-mode=false\nserver-port=$PORT\nlevel-seed=20261013\nmax-tick-time=-1\nlevel-name=world-stress\n" > "$dir/server.properties"
 log=stress.log

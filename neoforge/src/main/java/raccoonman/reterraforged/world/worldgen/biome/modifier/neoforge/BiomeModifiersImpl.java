@@ -19,12 +19,14 @@ import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Filter;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Order;
+import raccoonman.reterraforged.world.worldgen.biome.modifier.VegetationDensity;
 
 public class BiomeModifiersImpl {
 	
 	public static void bootstrap() {
 		register("add", AddModifier.CODEC);
 		register("replace", ReplaceModifier.CODEC);
+		register("vegetation_density", DensityModifier.CODEC);
 	}
 
 	// NeoForge's registries: the 1.20 Forge version used Forge's "forge:biome_modifier", which NeoForge does not have,
@@ -47,6 +49,10 @@ public class BiomeModifiersImpl {
 		return new ReplaceModifier(step, biomes, replacements);
 	}
 	
+	public static BiomeModifier density(VegetationDensity density) {
+		return new DensityModifier(density);
+	}
+
 	public static void register(String name, MapCodec<? extends BiomeModifier> value) {
 		RegistryUtil.register(RTFBuiltInRegistries.BIOME_MODIFIER_TYPE, name, value);
 	}

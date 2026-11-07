@@ -168,7 +168,7 @@ kill -0 "$client" 2>/dev/null; alive=$?
 # the server ends the connection first: a client that just dies is a "Connection reset" error in the server's log
 say "kick $NAME the test is over"; sleep 3
 kill "$client" 2>/dev/null; wait "$client" 2>/dev/null; trap - EXIT
-errors=$(grep -E '/ERROR\]|\[ERROR\]|Exception' "$LOG" | grep -vE 'Yggdrasil|authlib|minecraftservices|sessionserver|profile key|Failed to fetch|realms|Realms|narrator|Narrator|Couldn.t connect to auth|telemetry|UnknownHost' | cut -c1-200 | sort -u | head -5)
+errors=$(grep -E '/ERROR\]|\[ERROR\]|Exception' "$LOG" | grep -vE 'Yggdrasil|authlib|minecraftservices|sessionserver|profile key|Failed to fetch|realms|Realms|narrator|Narrator|Couldn.t connect to auth|telemetry|UnknownHost|status=401.*path=/player/(attributes|certificates)' | cut -c1-200 | sort -u | head -5)
 bad=
 [ -n "$online" ] || bad="not in the player list at the end; "
 [ -z "$lost" ] || bad="$bad$lost; "

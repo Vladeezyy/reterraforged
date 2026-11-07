@@ -57,9 +57,9 @@ public class ThreadPools {
 		}
 	}
 
-	// A tile failed: the chunk system reports it and ends the game (Util.onThreadException, System.exit). That chunk never
-	// finishes, so the exit waits for ever: for a server thread waiting for the chunk, or in stopServer for the chunk system's
-	// work to end. Nothing is saved, SIGTERM is not answered and a host does not restart a process that is still there.
+	// A tile failed. It may not be fatal (rtf fault recovers and the server lives on), but if the game then exits, that chunk
+	// never finishes, so the exit waits for ever: for a server thread waiting for the chunk, or in stopServer for the chunk
+	// system's work to end. Nothing is saved, SIGTERM is not answered and a host does not restart a process that is still there.
 	// A minute after the exit started, it ends. Only after a failure: the exit of a healthy game may save a big world for longer
 	public static void onGenerationFailed() {
 		if(!GENERATION_FAILED.compareAndSet(false, true)) {
@@ -68,6 +68,15 @@ public class ThreadPools {
 		try {
 			Runtime.getRuntime().addShutdownHook(new Thread(ThreadPools::endSoon, "RTF exit watchdog"));
 		} catch(IllegalStateException exitStarted) {
+			endSoon();
+		}
+	}
+
+	// Since 26.1 a chunk that failed starts no exit: Util.onThreadException only hands the crash to BlockableEventLoop
+	// (MixinBlockableEventLoop), no shutdown hook runs and a server thread waiting for that chunk waits for ever.
+	// It ends a minute later, only after a tile's failure as above
+	public static void onCrashRelayed() {
+		if(GENERATION_FAILED.get()) {
 			endSoon();
 		}
 	}

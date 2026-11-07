@@ -14,6 +14,8 @@ public class Cache<V extends ExpiringEntry> implements AutoCloseable {
 	public static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor((r) -> {
 		Thread thread = new Thread(r);
 		thread.setName("CacheScheduler");
+		// when a failed chunk stops the server before Util.shutdownExecutors, nothing else would end this thread
+		thread.setDaemon(true);
 		return thread;
 	});
 	
