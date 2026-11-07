@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "가장 높은 늪",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "해수면보다 이 블록 수 넘게 높은 늪 바이옴은 그곳이 더 험한 지형일 때의 바이옴으로 바뀝니다. Terralith 같은 바이옴 모드는 ReTerraForged 세계에서 늪을 언덕 위에 놓습니다. 끔: 제한 없음.",
   "reterraforged.gui.slider.swampBasins": "늪 분지",
-  "reterraforged.gui.slider.swampBasins.tooltip": "습하고 춥지 않은 기후의 지형 지역 중 이 비율이 해수면 바로 위의 평지가 되어, 각각 강에서 떨어진 하나의 큰 늪이 됩니다. 큰 늪 구조물이 들어갈 자리가 생깁니다. 지형이 바뀝니다. 끔: 그런 지역이 없습니다.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "습하고 춥지 않은 기후의 지형 지역 중 이 비율이 해수면 바로 위의 평지가 되어, 각각 하나의 큰 늪이 됩니다. 큰 늪 구조물이 들어갈 자리가 생깁니다. 지형이 바뀝니다. 끔: 그런 지역이 없습니다.",
   "reterraforged.gui.slider.gorgeChance": "협곡 비율",
   "reterraforged.gui.slider.gorgeChance.tooltip": "계곡이 협곡이 되는 강과 지류의 비율입니다. 물가 가까이는 가파르고 그 너머는 완만합니다. 25 %: ReTerraForged 0.0.6과 같음.",
   "reterraforged.gui.slider.rockMin": "바위 최저 높이",

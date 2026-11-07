@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "Pântanos mais altos",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "Um bioma de pântano a mais deste número de blocos acima do mar é trocado pelo bioma que um terreno mais acidentado teria ali. Mods de biomas como Terralith colocam seus pântanos em colinas em mundos do ReTerraForged. Desligado: sem limite.",
   "reterraforged.gui.slider.swampBasins": "Bacias pantanosas",
-  "reterraforged.gui.slider.swampBasins.tooltip": "Esta porcentagem das regiões de terreno com clima úmido e não frio vira terra plana logo acima do mar, cada uma um grande pântano longe dos rios: há espaço para grandes estruturas de pântano. Muda o terreno. Desligado: nenhuma dessas regiões.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "Esta porcentagem das regiões de terreno com clima úmido e não frio vira terra plana logo acima do mar, cada uma um grande pântano: há espaço para grandes estruturas de pântano. Muda o terreno. Desligado: nenhuma dessas regiões.",
   "reterraforged.gui.slider.gorgeChance": "Proporção de gargantas",
   "reterraforged.gui.slider.gorgeChance.tooltip": "A parte dos rios e afluentes cujo vale é uma garganta: encostas íngremes junto à água e o resto do vale suave. 25 %: como em ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Rocha mín.",
