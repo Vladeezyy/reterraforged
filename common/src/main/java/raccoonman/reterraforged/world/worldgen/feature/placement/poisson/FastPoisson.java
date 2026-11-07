@@ -34,8 +34,8 @@ public class FastPoisson {
     }
     
     private static void collectPoints(int seed, int startX, int startZ, FastPoissonContext context, LongIterSet region, LongList chunk) {
-        int halfRadius = context.radius() / 2;
-        int quarterRadius = context.radius() / 4;
+        int halfRadius = context.halfRadius();
+        int quarterRadius = (int) (context.radius() / 4.0F);
         int min = -halfRadius;
         int max = 15 + halfRadius;
         int cullX = startX - quarterRadius;
@@ -59,8 +59,8 @@ public class FastPoisson {
     }
     
     private static <Ctx> void visitPoints(int startX, int startZ, LongIterSet region, LongList chunk, FastPoissonContext context, Ctx ctx, Visitor<Ctx> visitor) {
-        int radius2 = context.radiusSq();
-        int halfRadius = context.radius() / 2;
+        float radius2 = context.radiusSq();
+        int halfRadius = context.halfRadius();
         for (int i = 0; i < chunk.size(); ++i) {
             long point = chunk.getLong(i);
             int px = PosUtil.unpackLeft(point);
@@ -76,25 +76,31 @@ public class FastPoisson {
     }
     
     private static boolean checkNeighbours(int startX, int startZ, long point, int x, int z, int halfRadius, float radius2, LongIterSet region) {
-        region.reset();
         int boundHigh = 16 + halfRadius;
+        // a point that gives way to a neighbour beyond the chunk's bounds takes nothing with it. ReTerraForged 0.0.6 removed
+        // the neighbours it met before that one, so a neighbourhood could end up with no tree at all (#37)
+        region.reset();
         while (region.hasNext()) {
             long neighbour = region.nextLong();
-            if (neighbour == Long.MAX_VALUE) {
+            // none left: the last places in the list were removed. 0.0.6 refused the point here, and from the moment the
+            // list's last place was removed (the list is shuffled: soon) all the other points of the chunk with it (#37)
+            if (neighbour == LongIterSet.NULL) {
+                break;
+            }
+            if (point != neighbour && dist2(x, z, PosUtil.unpackLeft(neighbour), PosUtil.unpackRight(neighbour)) <= radius2
+                && !inChunkBoundsHigh(PosUtil.unpackLeft(neighbour), PosUtil.unpackRight(neighbour), startX, startZ, boundHigh)) {
                 return false;
             }
-            if (point == neighbour) {
-                continue;
+        }
+        region.reset();
+        while (region.hasNext()) {
+            long neighbour = region.nextLong();
+            if (neighbour == LongIterSet.NULL) {
+                break;
             }
-            int px = PosUtil.unpackLeft(neighbour);
-            int pz = PosUtil.unpackRight(neighbour);
-            if (dist2(x, z, px, pz) > radius2) {
-                continue;
+            if (point != neighbour && dist2(x, z, PosUtil.unpackLeft(neighbour), PosUtil.unpackRight(neighbour)) <= radius2) {
+                region.remove();
             }
-            if (!inChunkBoundsHigh(px, pz, startX, startZ, boundHigh)) {
-                return false;
-            }
-            region.remove();
         }
         return true;
     }

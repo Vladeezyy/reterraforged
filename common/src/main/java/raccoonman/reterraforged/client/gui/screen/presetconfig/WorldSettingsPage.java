@@ -123,7 +123,7 @@ public class WorldSettingsPage extends PresetEditorPage {
 		this.applyContinentType(this.continentType.getValue());
 
 		this.islandInland = PresetWidgets.createFloatSlider(controlPoints.islandInland, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_ISLAND_INLAND, (slider, value) -> {
-			// what an island's center counts as, for its biomes; a preset's order, not related to the continents' points
+			// points of an island's profile (ArchipelagoPopulator), not related to the continents' points
 			value = Math.max(value, this.islandCoast.getValue());
 			controlPoints.islandInland = (float) slider.scaleValue(value);
 			this.regenerate();

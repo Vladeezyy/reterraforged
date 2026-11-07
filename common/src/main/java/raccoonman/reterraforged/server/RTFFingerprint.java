@@ -100,7 +100,7 @@ public final class RTFFingerprint {
 	}
 
 	/** Every block state (by its id) and every biome of the chunk, section by section */
-	private static long hash(ServerLevel level, ChunkAccess chunk) {
+	static long hash(ServerLevel level, ChunkAccess chunk) {
 		long h = 1125899906842597L;
 		LevelChunkSection[] sections = chunk.getSections();
 		for (int s = 0; s < sections.length; s++) {

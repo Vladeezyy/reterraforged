@@ -15,6 +15,7 @@
 		"MixinRandomState",
 		"MixinChunkMap",
 		"MixinUtil",
+		"MixinBlockableEventLoop",
 		"MixinBiomeGenerationSettings",
 		"MixinMaterialSystem",
 		"MaterialRuleContextAccessor",

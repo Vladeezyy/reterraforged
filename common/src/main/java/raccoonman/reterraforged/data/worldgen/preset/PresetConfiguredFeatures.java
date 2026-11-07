@@ -244,14 +244,17 @@ public class PresetConfiguredFeatures {
 					makeWeighted(0.2F, makePatch(Blocks.FERN, 24))
 				)
 			));
+			// as the forests' above, with a few of the birch forests' lilacs and peonies (#37): it was tall grass in 4 of 5
+			// patches, 5 times as much as in forests and on top of 7 patches a chunk where a vanilla birch forest has none
 			ctx.register(BIRCH_FOREST_GRASS, makeRandom(
-				makePatch(Blocks.TALL_GRASS, 48),
+				makePatch(Blocks.SHORT_GRASS, 48),
 				List.of(
-					makeWeighted(0.8F, makePatch(Blocks.TALL_GRASS, 56)),
-					makeWeighted(0.5F, makePatch(Blocks.LILAC, 64)),
-					makeWeighted(0.3F, makePatch(Blocks.LARGE_FERN, 48)),
-					makeWeighted(0.2F, makePatch(Blocks.FERN, 24)),
-					makeWeighted(0.1F, makePatch(Blocks.PEONY, 32))
+					makeWeighted(0.5F, makePatch(Blocks.SHORT_GRASS, 56)),
+					makeWeighted(0.25F, makePatch(Blocks.TALL_GRASS, 56)),
+					makeWeighted(0.1F, makePatch(Blocks.LILAC, 64)),
+					makeWeighted(0.1F, makePatch(Blocks.LARGE_FERN, 48)),
+					makeWeighted(0.1F, makePatch(Blocks.FERN, 24)),
+					makeWeighted(0.05F, makePatch(Blocks.PEONY, 32))
 				)
 			));
 

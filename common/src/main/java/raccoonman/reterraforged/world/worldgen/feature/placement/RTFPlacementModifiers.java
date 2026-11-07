@@ -15,6 +15,7 @@ public class RTFPlacementModifiers {
     	register("blacklist_dimension", BlacklistDimensionFilter.CODEC);
     	register("fast_poission", FastPoissonModifier.CODEC);
     	register("legacy_count_extra", LegacyCountExtraModifier.CODEC);
+    	register("density", DensityFilter.CODEC);
     }
     
     @SafeVarargs
@@ -24,11 +25,11 @@ public class RTFPlacementModifiers {
     	return new BlacklistDimensionFilter(ImmutableList.copyOf(levels));
     }
 	
-    public static FastPoissonModifier poisson(int radius, float scale, float biomeFade, int densityVariationScale, float densityVariation) {
+    public static FastPoissonModifier poisson(float radius, float scale, float biomeFade, int densityVariationScale, float densityVariation) {
 		 return poisson(radius, scale, 0.8F, biomeFade, densityVariationScale, densityVariation);
 	}
 	
-    public static FastPoissonModifier poisson(int radius, float scale, float jitter, float biomeFade, int densityVariationScale, float densityVariation) {
+    public static FastPoissonModifier poisson(float radius, float scale, float jitter, float biomeFade, int densityVariationScale, float densityVariation) {
 		 return new FastPoissonModifier(radius, scale, jitter, biomeFade, densityVariationScale, densityVariation);
 	}
     

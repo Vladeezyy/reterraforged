@@ -2,8 +2,10 @@ package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.awt.Color;
 
+import raccoonman.reterraforged.world.worldgen.biome.Erosion;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public enum RenderMode {
@@ -54,6 +56,13 @@ public enum RenderMode {
                 default:
                     if (cell.terrain.isRiver() || cell.terrain.isWetland()) {
                         return rgba(0.6F, 0.6F, 0.8F);
+                    }
+                    // the parts of an island that Island Coast and Island Inland set: its beaches, its inland
+                    if (cell.terrain == TerrainType.ISLAND_BEACH) {
+                        return rgba(0.2F, 0.4F, 0.75F);
+                    }
+                    if ((cell.terrain == TerrainType.ISLAND || cell.terrain == TerrainType.ISLAND_MOUNTAINS) && cell.erosion == Erosion.LEVEL_2.mid()) {
+                        return rgba(0.2F, 0.7F, 0.5F);
                     }
                     return rgba(0.3F, 0.7F, 0.5F);
             }

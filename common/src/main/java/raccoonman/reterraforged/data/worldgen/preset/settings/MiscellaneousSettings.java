@@ -1,10 +1,12 @@
 package raccoonman.reterraforged.data.worldgen.preset.settings;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public class MiscellaneousSettings {
-	public static final Codec<MiscellaneousSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	// the codec builder takes 16 fields at most: the ones added later are in CODEC, in the same object of the file
+	private static final MapCodec<MiscellaneousSettings> FIRST_FIELDS = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.BOOL.fieldOf("smoothLayerDecorator").forGetter((s) -> s.smoothLayerDecorator),
 		Codec.INT.fieldOf("strataRegionSize").forGetter((s) -> s.strataRegionSize),
 		Codec.BOOL.fieldOf("strataDecorator").forGetter((s) -> s.strataDecorator),
@@ -31,7 +33,22 @@ public class MiscellaneousSettings {
 		settings.settingsVersion = settingsVersion;
 		return settings;
 	}));
-	public static final int SETTINGS_VERSION = 1;
+	public static final Codec<MiscellaneousSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		FIRST_FIELDS.forGetter((s) -> s),
+		// presets saved before have the usual amounts (#37)
+		Codec.FLOAT.optionalFieldOf("grassDensity", 1.0F).forGetter((s) -> s.grassDensity),
+		Codec.FLOAT.optionalFieldOf("treeDensity", 1.0F).forGetter((s) -> s.treeDensity),
+		Codec.FLOAT.optionalFieldOf("plantDensity", 1.0F).forGetter((s) -> s.plantDensity)
+	).apply(instance, (settings, grassDensity, treeDensity, plantDensity) -> {
+		settings.grassDensity = grassDensity;
+		settings.treeDensity = treeDensity;
+		settings.plantDensity = plantDensity;
+		return settings;
+	}));
+	public static final int SETTINGS_VERSION = 2;
+	public static final float MAX_GRASS_DENSITY = 3.0F;
+	public static final float MAX_TREE_DENSITY = 2.0F;
+	public static final float MAX_PLANT_DENSITY = 3.0F;
 	
 	public boolean smoothLayerDecorator;
 	public int strataRegionSize;
@@ -42,6 +59,10 @@ public class MiscellaneousSettings {
 	public int settingsVersion = SETTINGS_VERSION;
 	public boolean naturalSnowDecorator;
 	public boolean customBiomeFeatures;
+	// with custom biome features: 1 the usual amount, 0 none (PresetBiomeModifierData, VegetationDensity)
+	public float grassDensity = 1.0F;
+	public float treeDensity = 1.0F;
+	public float plantDensity = 1.0F;
 	public boolean vanillaSprings;
 	public boolean vanillaLavaLakes;
 	public boolean vanillaLavaSprings;
@@ -104,6 +125,9 @@ public class MiscellaneousSettings {
 		MiscellaneousSettings copy = new MiscellaneousSettings(this.smoothLayerDecorator, this.strataRegionSize, this.strataDecorator, this.oreCompatibleStoneOnly, this.erosionDecorator, this.plainStoneErosion, this.naturalSnowDecorator, this.customBiomeFeatures, this.vanillaSprings, this.vanillaLavaLakes, this.vanillaLavaSprings, this.mountainBiomeUsage, this.volcanoBiomeUsage, this.strata.copy());
 		copy.snowLine = this.snowLine.copy();
 		copy.settingsVersion = this.settingsVersion;
+		copy.grassDensity = this.grassDensity;
+		copy.treeDensity = this.treeDensity;
+		copy.plantDensity = this.plantDensity;
 		return copy;
 	}
 

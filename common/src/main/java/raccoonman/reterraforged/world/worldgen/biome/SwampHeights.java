@@ -30,7 +30,8 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
  *
  * Lowland Swamps with generation fixes (ClimateSettings.lowlandSwamps, #28): the lowlands it gives a swamp's climate only get
  * a swamp where the biome table keeps one on it. Terralith keeps them on another erosion and weirdness, and there the setting
- * did nothing: such a place is picked again on those, and takes the result only if it is a swamp.
+ * did nothing: such a place is picked again on those, and takes the result only if it is a swamp. So is low land of a dry or
+ * cold climate, which gets no swamp's climate itself: Terralith's orchid swamp and ice marsh are there.
  */
 public final class SwampHeights {
 	private static final long[] EROSION_OFFSETS = { Climate.quantizeCoord(-0.25F), Climate.quantizeCoord(-0.5F), Climate.quantizeCoord(-0.75F) };
@@ -38,7 +39,7 @@ public final class SwampHeights {
 	private static final long LOWLAND_WEIRDNESS = Climate.quantizeCoord(Weirdness.LOW_SLICE_NORMAL_DESCENDING.mid());
 	private static final TagKey<Biome> IS_SWAMP = TagKey.create(Registries.BIOME, Identifier.parse("c:is_swamp"));
 	// for the mods that do not tag their swamps
-	private static final String[] SWAMP_NAMES = { "swamp", "marsh", "bayou", "bog", "fen", "mire", "wetland", "mangrove", "muskeg" };
+	private static final String[] SWAMP_NAMES = { "swamp", "marsh", "bayou", "bog", "fen", "mire", "wetland", "mangrove", "muskeg", "floodplain" };
 	// a surface this far above the place: its caves keep their biomes
 	private static final int LOWLAND_DEPTH = 16;
 	// of this thread's climate samples while a biome is picked again: the erosion offset, then the erosion and weirdness that
@@ -157,7 +158,8 @@ public final class SwampHeights {
 			this.lookup.applyCell(cell, quartX << 2, quartZ << 2, false, this.lowlands);
 			last[0] = key;
 			last[1] = this.levels.scale(cell.height);
-			last[2] = this.lowlands && this.lookup.getHeightmap().isLowlandSwamp(cell) ? 1 : 0;
+			Heightmap heightmap = this.lookup.getHeightmap();
+			last[2] = this.lowlands && (heightmap.isLowlandSwamp(cell) || heightmap.isLowSwampLand(cell)) ? 1 : 0;
 		}
 		return last;
 	}
