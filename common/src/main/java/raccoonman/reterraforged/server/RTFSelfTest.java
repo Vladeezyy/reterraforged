@@ -117,6 +117,10 @@ public final class RTFSelfTest {
 			String result = RTFSwampTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("islands").executes(ctx -> {
+			String result = RTFIslandTest.run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})).then(Commands.literal("structures").executes(ctx -> {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
@@ -204,6 +208,14 @@ public final class RTFSelfTest {
 			return 1;
 		}).then(Commands.argument("chunks", IntegerArgumentType.integer(2, 64)).executes(ctx -> {
 			String result = RTFSnowGridTest.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})))).then(Commands.literal("vegetation").executes(ctx -> {
+			String result = RTFVegetationTest.run(ctx.getSource().getServer(), null, 16);
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}).then(Commands.argument("biome", net.minecraft.commands.arguments.ResourceLocationArgument.id()).then(Commands.argument("chunks", IntegerArgumentType.integer(2, 64)).executes(ctx -> {
+			String result = RTFVegetationTest.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.ResourceLocationArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
 		})))).then(Commands.literal("strata").executes(ctx -> {

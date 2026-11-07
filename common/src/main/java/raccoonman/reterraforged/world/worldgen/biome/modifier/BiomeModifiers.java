@@ -61,6 +61,12 @@ public class BiomeModifiers {
 		throw new UnsupportedOperationException();
 	}
 
+	// the preset's vegetation densities on all biomes: after the "replace" modifiers, by the order of the names
+	@ExpectPlatform
+	public static BiomeModifier density(VegetationDensity density) {
+		throw new UnsupportedOperationException();
+	}
+
 	public static void register(String name, MapCodec<? extends BiomeModifier> value) {
 		RegistryUtil.register(RTFBuiltInRegistries.BIOME_MODIFIER_TYPE, name, value);
 	}

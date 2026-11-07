@@ -246,14 +246,17 @@ public class PresetConfiguredFeatures {
 					makeWeighted(0.2F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.FERN, 24)))
 				)
 			));
+			// as the forests' above, with a few of the birch forests' lilacs and peonies (#37): it was tall grass in 4 of 5
+			// patches, 5 times as much as in forests and on top of 7 patches a chunk where a vanilla birch forest has none
 			FeatureUtils.register(ctx, BIRCH_FOREST_GRASS, Feature.RANDOM_SELECTOR, makeRandom(
-				makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.TALL_GRASS, 48)),
+				makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.SHORT_GRASS, 48)),
 				List.of(
-					makeWeighted(0.8F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.TALL_GRASS, 56))),
-					makeWeighted(0.5F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.LILAC, 64))),
-					makeWeighted(0.3F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.LARGE_FERN, 48))),
-					makeWeighted(0.2F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.FERN, 24))),
-					makeWeighted(0.1F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.PEONY, 32)))
+					makeWeighted(0.5F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.SHORT_GRASS, 56))),
+					makeWeighted(0.25F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.TALL_GRASS, 56))),
+					makeWeighted(0.1F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.LILAC, 64))),
+					makeWeighted(0.1F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.LARGE_FERN, 48))),
+					makeWeighted(0.1F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.FERN, 24))),
+					makeWeighted(0.05F, makeInlined(Feature.RANDOM_PATCH, makePatch(Blocks.PEONY, 32)))
 				)
 			));
 

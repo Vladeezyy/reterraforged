@@ -23,6 +23,7 @@ import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Filter;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.Order;
+import raccoonman.reterraforged.world.worldgen.biome.modifier.VegetationDensity;
 
 public class BiomeModifiersImpl {
 	// The data registry of the modifiers is "forge:biome_modifier", so Forge biome modifiers that other mods ship in
@@ -50,6 +51,7 @@ public class BiomeModifiersImpl {
 	public static void bootstrap() {
 		register("add", AddModifier.CODEC);
 		register("replace", ReplaceModifier.CODEC);
+		register("vegetation_density", DensityModifier.CODEC);
 	}
 	
 	public static String registryNamespace() {
@@ -68,6 +70,10 @@ public class BiomeModifiersImpl {
 		return new ReplaceModifier(step, biomes, replacements);
 	}
 	
+	public static BiomeModifier density(VegetationDensity density) {
+		return new DensityModifier(density);
+	}
+
 	public static void register(String name, MapCodec<? extends BiomeModifier> value) {
 		RegistryUtil.register(RTFBuiltInRegistries.BIOME_MODIFIER_TYPE, name, value);
 	}

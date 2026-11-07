@@ -73,6 +73,10 @@ public final class RTFEffectTest {
 		// the islands' control points shape the archipelago's islands; the branch river sizes need their own sizes on
 		CONTEXTS.put("world().controlPoints.island", (p) -> p.island().enableArchipelago = true);
 		CONTEXTS.put("rivers().branchRivers.", (p) -> p.rivers().branchSizeFromMain = false);
+		// the densities of the vegetation work on custom biome features (on in Default)
+		CONTEXTS.put("miscellaneous().grassDensity", (p) -> p.miscellaneous().customBiomeFeatures = true);
+		CONTEXTS.put("miscellaneous().treeDensity", (p) -> p.miscellaneous().customBiomeFeatures = true);
+		CONTEXTS.put("miscellaneous().plantDensity", (p) -> p.miscellaneous().customBiomeFeatures = true);
 	}
 
 	// world tiles where the terrain is: the spawn, then from the Default preview the highest land, a river, a coast

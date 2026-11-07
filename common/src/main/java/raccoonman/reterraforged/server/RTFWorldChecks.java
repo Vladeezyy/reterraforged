@@ -35,6 +35,7 @@ import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
+import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 
 /**
  * Checks from the FreeTerraForged release test plan that the self test did not have: the Nether and the End far from
@@ -334,7 +335,7 @@ public final class RTFWorldChecks {
 			var cp = old.world().controlPoints;
 			// PresetMigration: the values that keep the world of such a preset as it was
 			boolean migrated = !old.miscellaneous().plainStoneErosion && old.miscellaneous().mountainBiomeUsage == 1.0F && old.miscellaneous().volcanoBiomeUsage == 0.0F
-				&& old.rivers().branchSizeFromMain && old.rivers().lakes.maxStartDistance == 0.0F && cp.islandCoast == cp.coast && cp.islandInland == cp.inland;
+				&& old.rivers().branchSizeFromMain && old.rivers().lakes.maxStartDistance == 0.0F && cp.islandCoast == WorldSettings.ControlPoints.DEFAULT_ISLAND_COAST && cp.islandInland == WorldSettings.ControlPoints.DEFAULT_ISLAND_INLAND;
 			ok = old.world().properties.lavaLevel == -54 && migrated;
 			why = "lavaLevel " + old.world().properties.lavaLevel + ", settings that did nothing " + (migrated ? "migrated" : "NOT migrated");
 		} catch (Throwable t) {
