@@ -129,6 +129,11 @@ public final class RTFGuiTest {
 				if (mc.gui.screen() instanceof TitleScreen title) {
 					CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(title));
 					next(60);
+				} else if (mc.gui.screen() != null && mc.gui.screen().getClass().getSimpleName().equals("LoadingErrorScreen")) {
+					// NeoForge: mods with loading warnings (the deprecated logoFile of other mods) show a screen that waits for
+					// "Proceed", and a click on it did not work
+					log("closing {}", name(mc.gui.screen()));
+					mc.gui.setScreen(new TitleScreen());
 				}
 			}
 			case 1 -> {
@@ -331,7 +336,13 @@ public final class RTFGuiTest {
 		List<String> trees = forest.getGenerationSettings().features().stream().flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream)
 			.map((key) -> key.identifier().toString()).filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		log("trees in the forest: {}", trees);
-		if (!trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees"))) fail("the forest of the new world does not grow ReTerraForged trees: " + trees);
+		if (trees.stream().anyMatch((id) -> !id.startsWith("minecraft:") && !id.startsWith(RTFCommon.MOD_ID + ":"))) {
+			// another mod's datapack rewrites the forest's features (Terralith: terralith:forest/vanilla/trees): the forest
+			// grows that mod's trees and our modifier finds no vanilla trees to replace
+			log("the forest grows another mod's trees, not checked: {}", trees);
+		} else if (!trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees"))) {
+			fail("the forest of the new world does not grow ReTerraForged trees: " + trees);
+		}
 	}
 
 	private static void finish(Minecraft mc) {
