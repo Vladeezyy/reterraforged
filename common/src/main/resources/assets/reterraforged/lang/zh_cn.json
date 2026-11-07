@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "沼泽最高高度",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "高于海平面此格数的沼泽生物群系会被替换为该处地形更崎岖时的生物群系。Terralith 等生物群系模组会在 ReTerraForged 世界中把沼泽放在山丘上。关闭：不限制。",
   "reterraforged.gui.slider.swampBasins": "沼泽盆地",
-  "reterraforged.gui.slider.swampBasins.tooltip": "气候湿润且不寒冷的地形区域中，此比例会变成略高于海面的平地，每个都是远离河流的一大片沼泽，可容纳大型沼泽建筑。会改变地形。关闭：没有此类区域。",
+  "reterraforged.gui.slider.swampBasins.tooltip": "气候湿润且不寒冷的地形区域中，此比例会变成略高于海面的平地，每个都是一大片沼泽，可容纳大型沼泽建筑。会改变地形。关闭：没有此类区域。",
   "reterraforged.gui.slider.gorgeChance": "峡谷比例",
   "reterraforged.gui.slider.gorgeChance.tooltip": "河谷为峡谷的河流与支流所占比例：紧邻水边的谷坡陡峭，其余部分平缓。25%：与 ReTerraForged 0.0.6 相同。",
   "reterraforged.gui.slider.rockMin": "岩石最小高度",
