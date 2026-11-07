@@ -45,6 +45,7 @@ final class SliderUnits {
 		UNITS.put(RTFTranslationKeys.GUI_SLIDER_VALLEY_SLOPE, Unit.DEGREES);
 		UNITS.put(RTFTranslationKeys.GUI_SLIDER_LOWLAND_SWAMPS, Unit.BLOCKS_OR_OFF);
 		UNITS.put(RTFTranslationKeys.GUI_SLIDER_SWAMP_MAX_HEIGHT, Unit.BLOCKS_OR_OFF);
+		UNITS.put(RTFTranslationKeys.GUI_SLIDER_SWAMP_BASINS, Unit.PERCENT_OR_OFF);
 	}
 
 	private SliderUnits() {
@@ -71,6 +72,18 @@ final class SliderUnits {
 		DEGREES(RTFTranslationKeys.GUI_UNIT_DEGREES),
 		// 0 turns the setting off
 		BLOCKS_OR_OFF(RTFTranslationKeys.GUI_UNIT_BLOCKS) {
+			@Override
+			Component text(String shown) {
+				return this.number(shown).equals("0") ? Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE) : super.text(shown);
+			}
+		},
+		// 0 turns the setting off
+		PERCENT_OR_OFF(RTFTranslationKeys.GUI_UNIT_PERCENT) {
+			@Override
+			String number(String shown) {
+				return PERCENT.number(shown);
+			}
+
 			@Override
 			Component text(String shown) {
 				return this.number(shown).equals("0") ? Component.translatable(RTFTranslationKeys.GUI_BUTTON_FALSE) : super.text(shown);

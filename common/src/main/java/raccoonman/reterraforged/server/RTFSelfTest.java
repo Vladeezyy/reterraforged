@@ -85,7 +85,11 @@ public final class RTFSelfTest {
 			String result = RTFBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "size"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))).then(Commands.literal("tilebench").executes(ctx -> {
+		}).then(Commands.argument("chunkX", IntegerArgumentType.integer()).then(Commands.argument("chunkZ", IntegerArgumentType.integer()).executes(ctx -> {
+			String result = RTFBench.start(ctx.getSource().getServer(), IntegerArgumentType.getInteger(ctx, "size"), IntegerArgumentType.getInteger(ctx, "chunkX"), IntegerArgumentType.getInteger(ctx, "chunkZ"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))))).then(Commands.literal("tilebench").executes(ctx -> {
 			String result = RTFTileBench.start(ctx.getSource().getServer(), 60);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
@@ -190,7 +194,11 @@ public final class RTFSelfTest {
 			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		})))).then(Commands.literal("snowgrid").then(Commands.argument("biome", net.minecraft.commands.arguments.IdentifierArgument.id()).executes(ctx -> {
+		}).then(Commands.argument("x", IntegerArgumentType.integer()).then(Commands.argument("z", IntegerArgumentType.integer()).executes(ctx -> {
+			String result = RTFSurfaceMap.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "biome").toString(), IntegerArgumentType.getInteger(ctx, "chunks"), new net.minecraft.core.BlockPos(IntegerArgumentType.getInteger(ctx, "x"), 0, IntegerArgumentType.getInteger(ctx, "z")));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		})))))).then(Commands.literal("snowgrid").then(Commands.argument("biome", net.minecraft.commands.arguments.IdentifierArgument.id()).executes(ctx -> {
 			String result = RTFSnowGridTest.run(ctx.getSource().getServer(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "biome").toString(), 12);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
