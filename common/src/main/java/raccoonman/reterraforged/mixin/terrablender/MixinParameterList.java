@@ -22,6 +22,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings.Compa
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.platform.ModLoaderUtil;
 import raccoonman.reterraforged.registries.RTFRegistries;
+import raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint;
@@ -132,9 +133,11 @@ class MixinParameterList<T> {
 		if(depth >= UNDERGROUND_DEPTH_THRESHOLD || (hasUndergroundBiomeCompatTarget() && QuartPos.toBlock(y) < CAVE_BIOME_COMPAT_Y_MAX)) {
 			return null;
 		}
-		int selected = NoiseUtil.round(this.maxIndex * (float) uniqueness);
+		// Swamp Basins: one climate over the whole basin, no shift
+		boolean heldClimate = uniqueness >= SwampBasins.HELD_CLIMATE;
+		int selected = NoiseUtil.round(this.maxIndex * (float) (heldClimate ? uniqueness - SwampBasins.HELD_CLIMATE : uniqueness));
 		this.recordDiagnosticSelection(selected, false, false);
-		if(selected != 0 && this.regionTemperatureNoise != null && !TBCompat.probing) {
+		if(!heldClimate && selected != 0 && this.regionTemperatureNoise != null && !TBCompat.probing) {
 			double bx = QuartPos.toBlock(x) * REGION_CLIMATE_SCALE, bz = QuartPos.toBlock(z) * REGION_CLIMATE_SCALE;
 			float temperature = Climate.unquantizeCoord(targetPoint.temperature()) + REGION_CLIMATE_SHIFT * (float) this.regionTemperatureNoise.get(bx, bz);
 			float humidity = Climate.unquantizeCoord(targetPoint.humidity()) + REGION_CLIMATE_SHIFT * (float) this.regionHumidityNoise.get(bx, bz);
