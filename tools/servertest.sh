@@ -31,8 +31,12 @@
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
 # VEGETATION=1|"<biome> ..." trees, empty ground and plants per biome ("rtf vegetation", #37, run/vegetation-<loader>.txt, maps in run/vegetation-<loader>/).
+# VEGETATION_CHUNKS=<n> with a list of biomes: n x n chunks each (16); a bigger sample for a small change.
+# LOCATE="<structure id> ..." "locate structure" for each, after the world starts: the nearest one or none.
+# LOCATE_AT="x,z ..." the searches start at these places, not the spawn; it counts the places that found one.
 # FAULT=ticket|block an exception in a tile's generation thread ("rtf fault"): the cache, then under a chunk made in the background or one the
 # server thread waits for; the process must end by itself.
+# MAX_TICK_TIME=<ms> the server's watchdog (vanilla's default is 60000); without it -1, no watchdog.
 # VANILLA_CLIENT=1 a client without any mod joins the world first (tools/vanillaclient.sh, macOS).
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
@@ -146,7 +150,7 @@ for loader in $LOADERS; do
     cp "$jar" "$dir/mods/"
     bash tools/extramods.sh $loader "$dir/mods" $MODS || { FAILS=$((FAILS+1)); continue; }
     echo "eula=true" > "$dir/eula.txt"
-    props="online-mode=false\nserver-port=$PORT\nlevel-seed=${SEED:-20261013}\nspawn-protection=0\nmax-players=5\nmax-tick-time=-1\nwhite-list=false\n"
+    props="online-mode=false\nserver-port=$PORT\nlevel-seed=${SEED:-20261013}\nspawn-protection=0\nmax-players=5\nmax-tick-time=${MAX_TICK_TIME:--1}\nwhite-list=false\n"
 
     # pass 1: export the preset datapack
     rm -rf "$dir/world-export" "$dir/reterraforged-preset.zip"
@@ -309,7 +313,7 @@ for loader in $LOADERS; do
     # VEGETATION=1 or VEGETATION="<biome> ...": trees, empty ground and plants per biome ("rtf vegetation", #37), first thing
     # in the new world: the time it reports is that of new chunks
     if [ -n "$VEGETATION" ]; then
-        if [ "$VEGETATION" = 1 ]; then cmds=("rtf vegetation"); else cmds=(); for b in $VEGETATION; do cmds+=("rtf vegetation $b 16"); done; fi
+        if [ "$VEGETATION" = 1 ]; then cmds=("rtf vegetation"); else cmds=(); for b in $VEGETATION; do cmds+=("rtf vegetation $b ${VEGETATION_CHUNKS:-16}"); done; fi
         for c in "${cmds[@]}"; do
             seen=$(grep -c 'RTF vegetation\] done' "$dir/console.log")
             echo "$c" >> "$dir/console.in"
@@ -350,6 +354,25 @@ for loader in $LOADERS; do
         wait_for "$dir/console.log" 'RTF dungeons\]' 1800
         grep -o 'RTF dungeons\].*' "$dir/console.log" | tail -1 | sed 's/^/  /'
     fi
+    # LOCATE="<structure id> ...": "locate structure" for each (structures of other mods), the answer from the log (not the
+    # "Locating element ... took" line after it). LOCATE_AT="x,z ...": around each of these places instead of the spawn. A
+    # search goes 100 placement cells out, so a spread structure is nearly always found: the distances say how rare it is
+    if [ -n "$LOCATE" ]; then
+        for s in $LOCATE; do
+            found=0; n=0; dists=""
+            for at in ${LOCATE_AT:-spawn}; do
+                seen=$(grep -F "$s" "$dir/console.log" | grep -vc 'Locating element')
+                if [ "$at" = spawn ]; then echo "locate structure $s" >> "$dir/console.in"; else echo "execute positioned ${at%,*} 64 ${at#*,} run locate structure $s" >> "$dir/console.in"; fi
+                for i in $(seq 1 600); do [ "$(grep -F "$s" "$dir/console.log" | grep -vc 'Locating element')" -gt "$seen" ] && break; pgrep -f "rtf.run=$TAG " > /dev/null || break; sleep 1; done
+                answer=$(grep -F "$s" "$dir/console.log" | grep -v 'Locating element' | tail -1 | sed 's/.*\]: //')
+                n=$((n+1)); [[ "$answer" == *"nearest"* ]] && found=$((found+1))
+                dists="$dists $(echo "$answer" | sed -n 's/.*(\([0-9]*\) blocks away).*/\1/p')"
+                echo "  locate $s at $at: $answer ($i s)"
+            done
+            median=$(echo $dists | tr ' ' '\n' | grep . | sort -n | awk '{a[NR]=$1} END {print NR ? a[int((NR+1)/2)] : "-"}')
+            echo "  locate $s: found from $found of $n places, median distance $median"
+        done
+    fi
     # every overworld structure near the spawn, built and checked (RTFStructureTest); SKIP_STRUCTURES=1 for quick runs
     if [ -n "$SKIP_STRUCTURES" ]; then
         structures="RTF structures] PASS (skipped)"
@@ -358,7 +381,8 @@ for loader in $LOADERS; do
         wait_for "$dir/console.log" 'RTF structures\] \(PASS\|FAIL\)' 1200
         structures=$(grep -o 'RTF structures\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-400)
     fi
-    if [ -n "$MODS" ]; then
+    # NOPRESET=1: a vanilla world, nothing to compare the other mods' biomes with
+    if [ -n "$MODS" ] && [ -z "$NOPRESET" ]; then
         echo "rtf biomemods" >> "$dir/console.in"
         wait_for "$dir/console.log" 'RTF biomemods\] \(rtf\|FAIL\)' 1200
     fi
@@ -388,7 +412,8 @@ for loader in $LOADERS; do
     fi
     grep -E '/ERROR\]|Exception' "$dir/console.log" | grep -vE "$noise" | sed 's/^\[[0-9:]*\] //' | cut -c1-160 | sort | uniq -c | sort -rn | head -8
     biomemods=PASS
-    if [ -n "$MODS" ]; then
+    [ -n "$MODS" ] && [ -n "$NOPRESET" ] && echo "  biomes of other mods: not checked (NOPRESET=1)"
+    if [ -n "$MODS" ] && [ -z "$NOPRESET" ]; then
         # the other mods' biomes as in a vanilla world with the same mods: at least 80 % of the biome kinds found
         # there, a share of the surface at least half as large, not more often under water, and their own surface
         # blocks in as many biomes (less 10 %)

@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.data.worldgen.features.OreFeatures;
+import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -66,6 +67,7 @@ public class PresetPlacedFeatures {
 
 	public static final ResourceKey<PlacedFeature> FOREST_GRASS = createKey("forest_grass");
 	public static final ResourceKey<PlacedFeature> BIRCH_FOREST_GRASS = createKey("birch_forest_grass");
+	public static final ResourceKey<PlacedFeature> FLOWER_FOREST_FLOWERS = createKey("flower_forest_flowers");
 	
 	public static final ResourceKey<PlacedFeature> PLAINS_TREES = createKey("plains_trees");
 	public static final ResourceKey<PlacedFeature> FOREST_TREES = createKey("forest_trees");
@@ -157,6 +159,11 @@ public class PresetPlacedFeatures {
             
             PlacementUtils.register(ctx, FOREST_GRASS, features.getOrThrow(PresetConfiguredFeatures.FOREST_GRASS), worldSurfaceSquaredWithCount(7));
             PlacementUtils.register(ctx, BIRCH_FOREST_GRASS, features.getOrThrow(PresetConfiguredFeatures.BIRCH_FOREST_GRASS), worldSurfaceSquaredWithCount(5));
+            // vanilla's flower forest flowers (3 patches at a chance of 1 in 2) on the top block, so a patch on the leaves of
+            // our trees grows nothing: 0.0.30 had 10-35 % fewer flowers than vanilla's features on the same chunks (#37).
+            // 17 at a chance of 1 in 8 is 2.125 patches a chunk instead of 1.5: on three seeds (32 x 32 chunks each) 60.3
+            // flowers per 256 columns against vanilla's 60.0. One place varies by up to a fifth with how dense its trees are.
+            PlacementUtils.register(ctx, FLOWER_FOREST_FLOWERS, features.getOrThrow(VegetationFeatures.FLOWER_FLOWER_FOREST), CountPlacement.of(17), RarityFilter.onAverageOnceEvery(8), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
             
             // the trees placed by a count or a rarity are spread over the chunk (InSquarePlacement): ReTerraForged 0.0.6
             // put them all on the chunk's corner, so swamps, plains, savannas, meadows, windswept hills and snowy plains
