@@ -15,6 +15,8 @@ public class MixinPlugin implements IMixinConfigPlugin {
 	private static final String C2ME_OPENCL_MIXIN = "raccoonman.reterraforged.mixin.c2me.MixinC2MEOpenCL";
 	// the client tests' tick: not in a normal game's client tick at all
 	private static final String CLIENT_TEST_MIXIN = "raccoonman.reterraforged.mixin.MixinMinecraft";
+	// a tile that fails on purpose (RTFFaultTest): not in a normal game's generation at all
+	private static final String FAULT_TEST_MIXIN = "raccoonman.reterraforged.mixin.MixinTileFault";
 
 	@Override
 	public void onLoad(String mixinPackage) {
@@ -38,6 +40,9 @@ public class MixinPlugin implements IMixinConfigPlugin {
 		}
 		if(mixinClassName.equals(CLIENT_TEST_MIXIN)) {
 			return System.getProperty("rtf.clienttest") != null;
+		}
+		if(mixinClassName.equals(FAULT_TEST_MIXIN)) {
+			return System.getProperty("rtf.faulttest") != null;
 		}
 		return TBCompat.isTBMixin(mixinClassName) ? TBCompat.isEnabled() : true;
 	}
