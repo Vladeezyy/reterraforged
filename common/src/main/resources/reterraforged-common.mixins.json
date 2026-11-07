@@ -22,6 +22,7 @@
 		"MixinSpawnFinder",
 		"MixinClimateSampler",
 		"MixinBiome",
+		"MixinTileFault",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
 		"terrablender.MixinTargetPoint",
