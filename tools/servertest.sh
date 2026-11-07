@@ -337,9 +337,9 @@ for loader in $LOADERS; do
     fi
     stop_server "$dir" console.log
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
-    # Biomes O' Plenty on a Fabric server: a client class of Fabric API it names, its boats without a data fixer;
+    # a class a mixin plugin of another mod looks for and does not need (mostly client classes, other mods); Biomes O' Plenty on a Fabric server: its boats without a data fixer;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
-    noise='Error loading class: net/fabricmc/fabric/api/client|No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|UnknownHostException: api\.minecraftservices\.com|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
+    noise='Error loading class: |No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|UnknownHostException: api\.minecraftservices\.com|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"
