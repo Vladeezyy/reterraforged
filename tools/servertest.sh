@@ -28,6 +28,9 @@
 # TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
+# FAULT=ticket|block an exception in a tile's generation thread ("rtf fault"): the cache, then under a chunk made in the background or one the
+# server thread waits for; the process must end by itself.
+# VANILLA_CLIENT=1 a client without any mod joins the world first (tools/vanillaclient.sh, macOS).
 # EXTRA_JVM="..." more JVM arguments for the server.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
@@ -110,6 +113,7 @@ echo $$ > run/.servertest.lock/pid
 trap 'rm -rf run/.servertest.lock' EXIT
 
 [ -z "$FINGERPRINT$FINGERPRINT_REF" ] || EXTRA_JVM="$EXTRA_JVM -Dmax.bg.threads=1"
+[ -z "$FAULT" ] || EXTRA_JVM="$EXTRA_JVM -Drtf.faulttest=true"
 kill_servers
 for loader in $LOADERS; do
     dir=run/server-$loader
@@ -205,6 +209,36 @@ for loader in $LOADERS; do
     start_server "$dir" console.log
     if ! wait_for "$dir/console.log" 'Done (' 600; then
         echo "$loader: server did not start"; grep -m5 -E "Exception|Error" "$dir/console.log"; FAILS=$((FAILS+1)); stop_server "$dir" console.log; continue
+    fi
+    # FAULT=ticket|block: an exception in a tile's generation thread (RTFFaultTest). This world is only for that: the run ends here
+    if [ -n "$FAULT" ]; then
+        echo "rtf fault" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF fault\] \(PASS\|FAIL\)' 120
+        cached=$(grep -o 'RTF fault\] \(PASS\|FAIL\).*' "$dir/console.log" | tail -1 | cut -c1-300)
+        echo "rtf fault $FAULT" >> "$dir/console.in"
+        # the chunk system reports it and ends the game: the process must go away by itself, a host restarts it then
+        crash=no; ended="FAIL still running ${FAULT_WAIT:-180} s after the failure"
+        for i in $(seq 1 "${FAULT_WAIT:-180}"); do
+            grep -q -- '---- Minecraft Crash Report ----' "$dir/console.log" && crash=yes
+            pgrep -f "rtf.run=$TAG " > /dev/null || { ended="PASS after $i s"; break; }
+            sleep 1
+        done
+        if [[ "$ended" == FAIL* ]]; then
+            for p in $(pgrep -f "rtf.run=$TAG "); do "${JAVA%java}jstack" "$p" > "run/fault-$loader-$FAULT-jstack.txt" 2>&1; done
+        fi
+        # a stuck exit does not answer SIGTERM
+        kill "$(cat "$dir/tail.pid")" 2>/dev/null; pkill -9 -f "rtf.run=$TAG " 2>/dev/null; wait $pid 2>/dev/null
+        logged=$(grep -c 'RTF fault test: this tile fails on purpose' "$dir/console.log")
+        echo "$loader: ${cached:-RTF fault] no result}"
+        echo "  $FAULT: crash report in the log: $crash; the error in the log $logged times; the server ended: $ended"
+        [[ "$cached" == *"] PASS"* && "$ended" == PASS* && "$logged" -gt 0 ]] || FAILS=$((FAILS+1))
+        continue
+    fi
+    # VANILLA_CLIENT=1: a client without any mod joins this world and stays (tools/vanillaclient.sh)
+    if [ -n "$VANILLA_CLIENT" ]; then
+        vanilla=$(JAVA="$JAVA" bash tools/vanillaclient.sh "$dir" console.log "$PORT" "$loader" | tail -3)
+        echo "$vanilla" | sed 's/^/  /'
+        [[ "$vanilla" == *"] PASS"* ]] || FAILS=$((FAILS+1))
     fi
     # FINGERPRINT=1: the hash of every block and biome of chunks in several places (RTFFingerprint), first thing in the
     # new world; FINGERPRINT_REF=<file>: must be the same as that run's (a change of the code keeps the generation)
@@ -304,7 +338,7 @@ for loader in $LOADERS; do
     # not the mod: NeoForge 21.11+ on Windows logs failed netty epoll/kqueue native probes when the network starts;
     # Biomes O' Plenty on a Fabric server: a client class of Fabric API it names, its boats without a data fixer;
     # 26.2+ reads system info with OSHI, which fails on Windows with broken performance counters (Perflib)
-    noise='Error loading class: net/fabricmc/fabric/api/client|No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
+    noise='Error loading class: net/fabricmc/fabric/api/client|No data fixer registered for|Yggdrasil|api\.minecraftservices\.com/publickeys|UnknownHostException: api\.minecraftservices\.com|SocketTimeoutException: Connect timed out|io\.netty\.channel\.(epoll|kqueue)|Only supported on (Linux|OSX/BSD)|oshi\.|Win32Exception|Perflib'
     errors=$(grep -E '/ERROR\]|Exception|Caused by' "$dir/console.log" | grep -vE "$noise" | grep -c .)
     echo "$loader: ${line:-no result}; errors in log: $errors"
     echo "  ${structures:-RTF structures] no result}"
