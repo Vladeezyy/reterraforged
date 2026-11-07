@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "Najwyższe bagna",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "Biom bagna wyżej niż tyle bloków nad morzem zostaje zastąpiony biomem, jaki miałby tam bardziej nierówny teren. Mody biomów, takie jak Terralith, umieszczają swoje bagna na wzgórzach w światach ReTerraForged. Wył.: bez limitu.",
   "reterraforged.gui.slider.swampBasins": "Niecki bagienne",
-  "reterraforged.gui.slider.swampBasins.tooltip": "Taki odsetek regionów terenu o wilgotnym, niezimnym klimacie staje się płaskim lądem tuż nad morzem, każdy jednym wielkim bagnem z dala od rzek: jest miejsce na duże budowle bagienne. Zmienia teren. Wył.: brak takich regionów.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "Taki odsetek regionów terenu o wilgotnym, niezimnym klimacie staje się płaskim lądem tuż nad morzem, każdy jednym wielkim bagnem: jest miejsce na duże budowle bagienne. Zmienia teren. Wył.: brak takich regionów.",
   "reterraforged.gui.slider.gorgeChance": "Udział wąwozów",
   "reterraforged.gui.slider.gorgeChance.tooltip": "Jaka część rzek i dopływów płynie wąwozem: strome zbocza tuż przy wodzie, dalej łagodna dolina. 25 %: jak w ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Skała min.",
