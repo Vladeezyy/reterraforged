@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "湿地の最高高度",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "海面からこのブロック数より高い湿地バイオームは、その場所がより起伏のある地形だった場合のバイオームに置き換えられます。TerralithなどのバイオームMODはReTerraForgedの世界で湿地を丘の上に置きます。オフ：制限なし。",
   "reterraforged.gui.slider.swampBasins": "湿地盆地",
-  "reterraforged.gui.slider.swampBasins.tooltip": "湿潤で寒くない気候の地形リージョンのうち、この割合が海面すぐ上の平地になり、それぞれ川から離れた一つの大きな湿地になります。大きな湿地の構造物が収まります。地形が変わります。オフ：そのようなリージョンはありません。",
+  "reterraforged.gui.slider.swampBasins.tooltip": "湿潤で寒くない気候の地形リージョンのうち、この割合が海面すぐ上の平地になり、それぞれ一つの大きな湿地になります。大きな湿地の構造物が収まります。地形が変わります。オフ：そのようなリージョンはありません。",
   "reterraforged.gui.slider.gorgeChance": "峡谷の割合",
   "reterraforged.gui.slider.gorgeChance.tooltip": "谷が峡谷になる川と支流の割合。水辺のすぐ近くが急斜面で、その先はゆるやかな谷になります。25 %：ReTerraForged 0.0.6 と同じ。",
   "reterraforged.gui.slider.rockMin": "岩の最低高度",

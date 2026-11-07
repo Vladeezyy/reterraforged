@@ -83,11 +83,16 @@ The mod only affects new worlds created with its preset. It does not change an e
 - **Generation Fixes** (0.0.30, World page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28), [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): fixes that change the
   terrain, on in new presets and off in presets saved before, so existing worlds keep their terrain. Islands differ from seed to seed, their beaches
   are above the water, and their horizontal scale changes only their terrain, not their outline. Swamp floors no longer repeat from chunk to chunk.
-  Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates. The Infinite continent type has land. Another mod's
+  Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates, and reaches the mixed terrains it used to leave
+  out, most of the terrain regions. The Infinite continent type has land. Another mod's
   dimension on the overworld's noise settings gets terrain instead of a flat sea.
 - **Lowland Swamps and Highest Swamps** (0.0.29, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): wet,
   flat lowlands can get wide swamps (off by default), and a swamp biome too high above the sea is picked again (12 blocks in
   new presets), which keeps Terralith's swamps off the hills.
+- **Swamp Basins** (0.0.30, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): this share of the terrain
+  regions with a wet, not cold climate become flat land just above the sea, one big swamp each. With Highest Swamps at 12 and Biomes O'
+  Plenty and Terralith, 25 % gives swamps on 5 to 7 % of the land, 36 to 46 % of them wide, in patches of 1 to 1.5 km². It changes the terrain, so it is
+  off by default and presets saved before have none. Generation is 4 to 5 % slower at 25 %. Rivers still cross the basins.
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -167,7 +172,7 @@ from files are held to valid values, and a broken file in the presets folder no 
 - **`tileSize` in `performance.conf`** also changes a few surface blocks (7 to 11 % of the surface chunks have some difference), as erosion runs per
   tile. Keep one value for the life of a world, and the same on all machines of a modpack. Above 5 it is cut to 5: 8 needed about 9 GB.
 - **Lowland Swamps with biome mods:** swamps go where the terrain is low, mostly river valleys, because the setting does not reshape the land. With
-  Biomes O' Plenty and Terralith at 12 / 12 they cover 3 % of the land and few are wide: 16 / 64 gives the widest (see
+  Biomes O' Plenty and Terralith at 12 / 12 they cover 7 % of the land and only 3 % of them are wide. Wide swamps come from Swamp Basins (see
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Problems and fixes in detail
@@ -758,11 +763,15 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Исправления генерации** (0.0.30, страница «Мир», [#28](https://github.com/Vladeezyy/reterraforged/issues/28), [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): исправления, которые меняют
   рельеф. В новых пресетах включены, в сохранённых раньше выключены, поэтому существующие миры не меняются. Острова разные у разных сидов, их пляжи
   над водой, горизонтальный масштаб меняет только их рельеф, а не очертания. Дно болот не повторяется от чанка к чанку. «Болота в низинах»
-  подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате. У типа материков «Бесконечный» появляется суша. Измерение
+  подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате, и доходят до смешанных областей рельефа, которые раньше пропускали, а это большинство областей. У типа материков «Бесконечный» появляется суша. Измерение
   другого мода на шуме верхнего мира получает рельеф вместо ровного моря.
 - **Болота в низинах и Самые высокие болота** (0.0.29, страница «Климат», [#28](https://github.com/Vladeezyy/reterraforged/issues/28)):
   на влажных ровных низинах могут появляться широкие болота (по умолчанию выключено), а болотный биом слишком высоко над морем
   выбирается заново (12 блоков в новых пресетах), поэтому болота Terralith не забираются на холмы.
+- **Болотные низины** (0.0.30, страница «Климат», [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): такая доля областей рельефа
+  с влажным, не холодным климатом становится ровной сушей чуть выше моря, каждая одним большим болотом. С «Самыми высокими болотами» на 12 и с Biomes O'
+  Plenty и Terralith 25 % дают болота на 5–7 % суши, из них широких 36–46 %, участками по 1–1,5 км². Настройка меняет рельеф, поэтому по умолчанию
+  выключена, а в сохранённых раньше пресетах её нет. Генерация при 25 % медленнее на 4–5 %. Реки по-прежнему идут и через низины.
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
@@ -841,7 +850,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **`tileSize` в `performance.conf`** меняет и часть блоков поверхности (различия есть в 7–11 % поверхностных чанков), потому что эрозия считается по
   тайлам. Держите одно значение всю жизнь мира и одно на всех машинах модпака. Больше 5 обрезается до 5: для 8 требовалось около 9 ГБ.
 - **«Болота в низинах» с модами биомов:** болота идут туда, где рельеф низкий, в основном в долины рек, потому что настройка не меняет форму суши. С
-  Biomes O' Plenty и Terralith при 12 / 12 они занимают 3 % суши и широких мало, шире всего при 16 / 64 (см.
+  Biomes O' Plenty и Terralith при 12 / 12 они занимают 7 % суши, и широких среди них только 3 %. Широкие болота даёт настройка «Болотные низины» (см.
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
 
 ## Проблемы и исправления подробно

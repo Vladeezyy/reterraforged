@@ -301,7 +301,7 @@
   "reterraforged.gui.slider.swampMaxHeight": "Highest Swamps",
   "reterraforged.gui.slider.swampMaxHeight.tooltip": "A swamp biome more than this many blocks above the sea is replaced by the biome a rougher place there would have. Biome mods such as Terralith put their swamps on hills in ReTerraForged worlds. Off: no limit.",
   "reterraforged.gui.slider.swampBasins": "Swamp Basins",
-  "reterraforged.gui.slider.swampBasins.tooltip": "This percent of the terrain regions with a wet, not cold climate become flat land just above the sea, one big swamp each, away from the rivers: room for big swamp structures. Changes the terrain. Off: no such regions.",
+  "reterraforged.gui.slider.swampBasins.tooltip": "This percent of the terrain regions with a wet, not cold climate become flat land just above the sea, one big swamp each: room for big swamp structures. Changes the terrain. Off: no such regions.",
   "reterraforged.gui.slider.gorgeChance": "Gorge Chance",
   "reterraforged.gui.slider.gorgeChance.tooltip": "The share of rivers and their branches whose valley is a gorge: steep sides close to the water, the rest of the valley gentle. 25 %: as in ReTerraForged 0.0.6.",
   "reterraforged.gui.slider.rockMin": "Rock Min",
