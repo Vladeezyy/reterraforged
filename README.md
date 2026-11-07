@@ -513,8 +513,9 @@ the biome up at the surface already.
 - Works with **Distant Horizons**, **Iris** and **Sodium**.
 - **Ecliptic Seasons**: rain, snow and their sound work since 0.0.25 (tested with 0.15.5 on 1.21.1 NeoForge).
 - **TerraBlender** and biome mods using it are supported: biome regions follow the ReTerraForged map. Tested with
-  **Biomes O' Plenty** on 1.21.1, 1.21.11 and 26.3 (NeoForge and Fabric). On 26.3 install TerraBlender yourself: Biomes
-  O' Plenty needs it but its Modrinth page does not list it.
+  **Biomes O' Plenty** and **Terralith** together on 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3 (NeoForge and Fabric). On
+  26.3 install TerraBlender yourself: Biomes O' Plenty needs it but its Modrinth page does not list it. With Terralith
+  the vanilla forests grow Terralith's trees instead of the ReTerraForged ones: Terralith rewrites their feature lists.
 - For cave biome mods there is a cave compatibility mode on the Caves page.
 - **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge and Fabric): its biomes and surfaces generate,
   no seams on cliffs since 0.0.17. Its forests grow its own trees instead of the ReTerraForged ones. On Fabric it
@@ -1205,8 +1206,9 @@ y 0, так что рельеф не меняется. Чанки, создан�
 - Работает вместе с **Distant Horizons**, **Iris** и **Sodium**.
 - **Ecliptic Seasons**: дождь, снег и их звук работают с 0.0.25 (проверено с 0.15.5 на 1.21.1 NeoForge).
 - **TerraBlender** и моды на биомы через него поддерживаются: регионы биомов берутся из карты ReTerraForged.
-  Проверено с **Biomes O' Plenty** на 1.21.1, 1.21.11 и 26.3 (NeoForge и Fabric). На 26.3 TerraBlender ставьте сами:
-  Biomes O' Plenty он нужен, но на его странице Modrinth не указан.
+  Проверено с **Biomes O' Plenty** и **Terralith** вместе на 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3 (NeoForge и Fabric).
+  На 26.3 TerraBlender ставьте сами: Biomes O' Plenty он нужен, но на его странице Modrinth не указан. С Terralith
+  в ванильных лесах растут деревья Terralith, а не ReTerraForged: Terralith переписывает их списки фич.
 - Для модов на пещерные биомы есть режим совместимости пещер на странице «Пещеры».
 - **William Wythers' Overhauled Overworld** 2.6.7 (1.21.1 NeoForge и Fabric): его биомы и поверхности генерируются,
   швов на склонах нет с 0.0.17. В лесах растут его деревья вместо деревьев ReTerraForged. На Fabric ему нужны
