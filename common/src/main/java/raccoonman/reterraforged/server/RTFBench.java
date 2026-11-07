@@ -24,14 +24,19 @@ public final class RTFBench {
 	}
 
 	public static String start(MinecraftServer server, int size) {
+		return start(server, size, ORIGIN, ORIGIN);
+	}
+
+	// originX, originZ: the chunk at the square's corner, for a square on some terrain (a swamp basin)
+	public static String start(MinecraftServer server, int size, int originX, int originZ) {
 		ServerLevel level = server.overworld();
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState state && state.generatorContext() != null;
 		Thread thread = new Thread(() -> {
-			generate(level, ORIGIN - 64, ORIGIN - 64, 6);
+			generate(level, originX - 64, originZ - 64, 6);
 			RTFCommon.LOGGER.info("[RTF bench] warmed up, measuring");
 			Runtime runtime = Runtime.getRuntime();
 			long start = System.nanoTime();
-			generate(level, ORIGIN, ORIGIN, size);
+			generate(level, originX, originZ, size);
 			double seconds = (System.nanoTime() - start) / 1.0E9;
 			int chunks = size * size;
 			long heap = (runtime.totalMemory() - runtime.freeMemory()) >> 20;

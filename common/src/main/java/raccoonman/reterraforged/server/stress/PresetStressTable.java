@@ -49,6 +49,7 @@ final class PresetStressTable {
 		Setting.ofBoolean("climate().warmRainforestOceans", (p, v) -> p.climate().warmRainforestOceans = v),
 		Setting.ofInt("climate().lowlandSwamps", 0, ClimateSettings.MAX_LOWLAND_SWAMPS, (p, v) -> p.climate().lowlandSwamps = v),
 		Setting.ofInt("climate().swampMaxHeight", 0, ClimateSettings.MAX_SWAMP_HEIGHT, (p, v) -> p.climate().swampMaxHeight = v),
+		Setting.ofFloat("climate().swampBasins", 0.0F, 1.0F, (p, v) -> p.climate().swampBasins = v),
 		Setting.ofBoolean("fakeWaterBiomes().enableFakeWaterBiomes", (p, v) -> p.fakeWaterBiomes().enableFakeWaterBiomes = v),
 		Setting.ofBoolean("fakeWaterBiomes().steppeBelowSeaLevelRiverBiomes", (p, v) -> p.fakeWaterBiomes().steppeBelowSeaLevelRiverBiomes = v),
 		Setting.ofBoolean("fakeWaterBiomes().badlandsBelowSeaLevelOceanBiomes", (p, v) -> p.fakeWaterBiomes().badlandsBelowSeaLevelOceanBiomes = v),

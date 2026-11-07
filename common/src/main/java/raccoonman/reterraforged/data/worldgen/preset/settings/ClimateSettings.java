@@ -21,12 +21,15 @@ public class ClimateSettings {
 		Codec.BOOL.optionalFieldOf("warmRainforestOceans", false).forGetter((o) -> o.warmRainforestOceans),
 		// added in 0.0.29 (#28), 0 (off) for presets saved before: their worlds keep their swamps
 		Codec.INT.optionalFieldOf("lowlandSwamps", 0).forGetter((o) -> o.lowlandSwamps),
-		Codec.INT.optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight)
-	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight) -> {
+		Codec.INT.optionalFieldOf("swampMaxHeight", 0).forGetter((o) -> o.swampMaxHeight),
+		// 0 (off) for presets saved before: their worlds keep their terrain
+		Codec.FLOAT.optionalFieldOf("swampBasins", 0.0F).forGetter((o) -> o.swampBasins)
+	).apply(instance, (temperature, moisture, biomeShape, biomeEdgeShape, warmRainforestOceans, lowlandSwamps, swampMaxHeight, swampBasins) -> {
 		ClimateSettings settings = new ClimateSettings(temperature, moisture, biomeShape, biomeEdgeShape);
 		settings.warmRainforestOceans = warmRainforestOceans;
 		settings.lowlandSwamps = lowlandSwamps;
 		settings.swampMaxHeight = swampMaxHeight;
+		settings.swampBasins = swampBasins;
 		return settings;
 	}));
 	
@@ -45,6 +48,9 @@ public class ClimateSettings {
     // place there would have (biome mods such as Terralith put their swamps on erosion that ReTerraForged's hills have);
     // 0: no limit
     public int swampMaxHeight = 0;
+    // Swamp Basins: this share of the terrain regions with a wet, not cold climate at their center are flat land just
+    // above the sea, one swamp each (SwampBasins); 0: off, no such regions, the terrain as without the setting
+    public float swampBasins = 0.0F;
     
     public ClimateSettings(RangeValue temperature, RangeValue moisture, BiomeShape biomeShape, BiomeNoise biomeEdgeShape) {
     	this.temperature = temperature;
@@ -58,6 +64,7 @@ public class ClimateSettings {
     	copy.warmRainforestOceans = this.warmRainforestOceans;
     	copy.lowlandSwamps = this.lowlandSwamps;
     	copy.swampMaxHeight = this.swampMaxHeight;
+    	copy.swampBasins = this.swampBasins;
     	return copy;
     }
     
