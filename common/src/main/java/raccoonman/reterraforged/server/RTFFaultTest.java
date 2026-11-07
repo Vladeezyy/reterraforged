@@ -113,7 +113,7 @@ public final class RTFFaultTest {
 			// the server thread stays in here, waiting for the chunk
 			level.getChunk(FORCED_CHUNK, FORCED_CHUNK);
 		} else {
-			level.getChunkSource().addRegionTicket(TicketType.FORCED, pos, 2, pos);
+			level.getChunkSource().addTicketWithRadius(TicketType.FORCED, pos, 2);
 		}
 		return "[RTF fault] chunk armed: " + FORCED_CHUNK + " " + FORCED_CHUNK;
 	}
