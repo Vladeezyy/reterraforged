@@ -14,6 +14,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Levels;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.WorldLookup;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint;
@@ -49,20 +50,26 @@ public final class SwampHeights {
 	private final Levels levels;
 	private final int maxY;
 	private final boolean lowlands;
+	// the lowlands are the swamp basins' only
+	private final boolean basinsOnly;
 	// of this world: a static map kept the holders, with their registries, of every world played since the game started
 	private final Map<Holder<Biome>, Boolean> swamps = new ConcurrentHashMap<>();
 	// the last column a thread asked about, a chunk's biomes come column by column: quart x, z packed; surface; lowland swamp
 	private final ThreadLocal<long[]> column = ThreadLocal.withInitial(() -> new long[] { Long.MIN_VALUE, 0, 0 });
+	// the same for basinsOnly: quart x, z packed; in a basin's region
+	private final ThreadLocal<long[]> basinColumn = ThreadLocal.withInitial(() -> new long[] { Long.MIN_VALUE, 0 });
 
 	/**
 	 * @param maxAboveSea Highest Swamps, 0 no limit
-	 * @param lowlands Lowland Swamps also on the biome tables that keep their swamps elsewhere
+	 * @param lowlands Lowland Swamps and Swamp Basins also on the biome tables that keep their swamps elsewhere
+	 * @param basinsOnly without Lowland Swamps: most columns are told apart by their terrain region alone
 	 */
-	public SwampHeights(GeneratorContext context, int maxAboveSea, boolean lowlands) {
+	public SwampHeights(GeneratorContext context, int maxAboveSea, boolean lowlands, boolean basinsOnly) {
 		this.lookup = context.lookup;
 		this.levels = context.levels;
 		this.maxY = maxAboveSea > 0 ? context.levels.waterLevel + maxAboveSea : Integer.MAX_VALUE;
 		this.lowlands = lowlands;
+		this.basinsOnly = basinsOnly;
 	}
 
 	public static Climate.TargetPoint offset(Climate.TargetPoint point) {
@@ -107,6 +114,9 @@ public final class SwampHeights {
 	}
 
 	private Holder<Biome> lowland(int quartX, int quartY, int quartZ, Holder<Biome> biome, Supplier<Holder<Biome>> pickAgain) {
+		if (this.basinsOnly && !this.inBasinRegion(quartX, quartZ)) {
+			return biome;
+		}
 		long[] column = this.column(quartX, quartZ);
 		if (column[2] == 0 || column[1] > this.maxY || QuartPos.toBlock(quartY) < column[1] - LOWLAND_DEPTH) {
 			return biome;
@@ -123,6 +133,20 @@ public final class SwampHeights {
 			offset[2] = 0;
 			OFFSETTING.decrementAndGet();
 		}
+	}
+
+	// the whole cell of every column of land was 3.7 % of the generation's samples
+	private boolean inBasinRegion(int quartX, int quartZ) {
+		long key = PosUtil.pack(quartX, quartZ);
+		long[] last = this.basinColumn.get();
+		if (last[0] != key) {
+			Heightmap heightmap = this.lookup.getHeightmap();
+			Cell cell = new Cell();
+			heightmap.region().apply(cell, quartX << 2, quartZ << 2);
+			last[0] = key;
+			last[1] = heightmap.swampBasins().isBasinRegion(cell) ? 1 : 0;
+		}
+		return last[1] != 0;
 	}
 
 	private long[] column(int quartX, int quartZ) {
