@@ -67,17 +67,47 @@ public class PresetSurfaceRuleData {
 		if(rule == null) {
 			return SurfaceRuleData.overworld(registries.lookupOrThrow(Registries.BIOME));
 		}
-		// a world that has started: surfaceRule() is TerraBlender's wrapper. Only what it wraps goes into the preset: it wraps
-		// the preset's rules again with the mods' own when a world starts (LevelUtils). TerraBlender 26.2 cannot write this
-		// wrapper at all: it registers terrablender:merged as CODEC.codec(), not as CODEC ("Unregistered holder")
-		if(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
+		return withoutStrata(unwrapped(saved(unwrapped(rule), registries)));
+    }
+
+    // TerraBlender's wrapper taken off: in a world that has started, surfaceRule() is TerraBlender's wrapper. Only what it
+    // wraps goes into the preset: it wraps the preset's rules again with the mods' own when a world starts (LevelUtils).
+    // TerraBlender 26.2 cannot write this wrapper at all: it registers terrablender:merged as CODEC.codec(), not as CODEC
+    // ("Unregistered holder"). Before and after saved(), in case Lithostitched wrapped TerraBlender's
+    private static SurfaceRules.RuleSource unwrapped(SurfaceRules.RuleSource rule) {
+		while(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
 			rule = namespaced.base();
 		}
-		if(rule instanceof SurfaceRules.SequenceRuleSource sequence && sequence.sequence().stream().anyMatch((r) -> r instanceof StrataRule)) {
-			List<SurfaceRules.RuleSource> without = sequence.sequence().stream().filter((r) -> !(r instanceof StrataRule)).toList();
-			return without.size() == 1 ? without.get(0) : SurfaceRules.sequence(without.toArray(SurfaceRules.RuleSource[]::new));
-		}
 		return rule;
+    }
+
+    // the rules as the noise settings save them. A mod may wrap them when a server starts: Lithostitched (Regions
+    // Unexplored 0.6) puts the rules and its add_surface_rule modifiers' in a transient_merged rule, which saves only the
+    // rules it wrapped and is made again at every start. Taken as they were on such a server, our strata stayed inside the
+    // wrapper and the preset got them twice. Rules that cannot be saved are taken as they are.
+    private static SurfaceRules.RuleSource saved(SurfaceRules.RuleSource rule, RegistryAccess registries) {
+		RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registries);
+		return SurfaceRules.RuleSource.CODEC.encodeStart(ops, rule)
+			.flatMap((json) -> SurfaceRules.RuleSource.CODEC.parse(ops, json))
+			.resultOrPartial((error) -> RTFCommon.LOGGER.warn("[RTF] the overworld's surface rules taken as they are, they could not be saved: {}", error))
+			.orElse(rule);
+    }
+
+    // our strata taken out of the sequences, at any depth; the rest as it was
+    private static SurfaceRules.RuleSource withoutStrata(SurfaceRules.RuleSource rule) {
+		if(!(rule instanceof SurfaceRules.SequenceRuleSource sequence)) {
+			return rule;
+		}
+		List<SurfaceRules.RuleSource> rules = sequence.sequence();
+		List<SurfaceRules.RuleSource> without = rules.stream().filter((r) -> !(r instanceof StrataRule)).map(PresetSurfaceRuleData::withoutStrata).toList();
+		boolean changed = without.size() != rules.size();
+		for(int i = 0; !changed && i < rules.size(); i++) {
+			changed = without.get(i) != rules.get(i);
+		}
+		if(!changed) {
+			return rule;
+		}
+		return without.size() == 1 ? without.get(0) : SurfaceRules.sequence(without.toArray(SurfaceRules.RuleSource[]::new));
     }
     
     // 26.2: the rule from the registries refers to their biomes and noises, which the preset's patch cannot write (the
