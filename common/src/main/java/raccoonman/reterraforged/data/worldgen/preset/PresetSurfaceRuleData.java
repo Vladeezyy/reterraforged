@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -23,6 +27,8 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.surface.rule.RTFSurfaceRules;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
+import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
+import terrablender.worldgen.surface.NamespacedSurfaceRuleSource;
 
 //TODO add forest surfaces
 // maybe have a custom meadow or cherry forest surface ?
@@ -56,11 +62,48 @@ public class PresetSurfaceRuleData {
 		if(rule == null) {
 			return SurfaceRuleData.overworld();
 		}
-		if(rule instanceof SurfaceRules.SequenceRuleSource sequence && sequence.sequence().stream().anyMatch((r) -> r instanceof StrataRule)) {
-			List<SurfaceRules.RuleSource> without = sequence.sequence().stream().filter((r) -> !(r instanceof StrataRule)).toList();
-			return without.size() == 1 ? without.get(0) : SurfaceRules.sequence(without.toArray(SurfaceRules.RuleSource[]::new));
+		return withoutStrata(unwrapped(saved(unwrapped(rule), registries)));
+    }
+
+    // TerraBlender's wrapper taken off. On a started server surfaceRule() is TerraBlender's NamespacedSurfaceRuleSource: the
+    // noise settings' rules (with our old strata inside, where withoutStrata did not look) and the mods' own; with Biomes O'
+    // Plenty the export failed as with Lithostitched's wrapper. Only what it wraps goes into the preset: TerraBlender wraps
+    // the preset's rules again when a world starts. Before and after saved(), in case Lithostitched wrapped TerraBlender's
+    private static SurfaceRules.RuleSource unwrapped(SurfaceRules.RuleSource rule) {
+		while(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
+			rule = namespaced.base();
 		}
 		return rule;
+    }
+
+    // the rules as the noise settings save them. A mod may wrap them when a server starts: Lithostitched (Regions
+    // Unexplored 0.6) puts the rules and its add_surface_rule modifiers' in a transient_merged rule, which saves only the
+    // rules it wrapped and is made again at every start. Taken as they were on such a server, our strata stayed inside the
+    // wrapper with the server's strata noises, which the preset's own registries cannot write ("reterraforged:strata/depth
+    // is not valid in current registry set"); the export failed. Rules that cannot be saved are taken as they are.
+    private static SurfaceRules.RuleSource saved(SurfaceRules.RuleSource rule, RegistryAccess registries) {
+		RegistryOps<JsonElement> ops = registries.createSerializationContext(JsonOps.INSTANCE);
+		return SurfaceRules.RuleSource.CODEC.encodeStart(ops, rule)
+			.flatMap((json) -> SurfaceRules.RuleSource.CODEC.parse(ops, json))
+			.resultOrPartial((error) -> RTFCommon.LOGGER.warn("[RTF] the overworld's surface rules taken as they are, they could not be saved: {}", error))
+			.orElse(rule);
+    }
+
+    // our strata taken out of the sequences, at any depth; the rest as it was
+    private static SurfaceRules.RuleSource withoutStrata(SurfaceRules.RuleSource rule) {
+		if(!(rule instanceof SurfaceRules.SequenceRuleSource sequence)) {
+			return rule;
+		}
+		List<SurfaceRules.RuleSource> rules = sequence.sequence();
+		List<SurfaceRules.RuleSource> without = rules.stream().filter((r) -> !(r instanceof StrataRule)).map(PresetSurfaceRuleData::withoutStrata).toList();
+		boolean changed = without.size() != rules.size();
+		for(int i = 0; !changed && i < rules.size(); i++) {
+			changed = without.get(i) != rules.get(i);
+		}
+		if(!changed) {
+			return rule;
+		}
+		return without.size() == 1 ? without.get(0) : SurfaceRules.sequence(without.toArray(SurfaceRules.RuleSource[]::new));
     }
     
 	// vanilla's deepslate rule (stone to deepslate from y 8 down to y 0, "deepslate" gradient) moved to the preset's
