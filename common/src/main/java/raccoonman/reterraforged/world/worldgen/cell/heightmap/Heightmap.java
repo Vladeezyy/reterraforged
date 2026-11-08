@@ -44,8 +44,7 @@ import raccoonman.reterraforged.world.worldgen.util.Seed;
 public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands) {
 	
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
-		this.applyTerrain(cell, x, z);
-		this.applyRivers(cell, x, z, this.continent.getRivermap(cell));
+		this.applyGround(cell, x, z);
 		this.applyClimate(cell, x, z, applyClimate);
 		// after the climate: the same climate as a tile's cell (TileGenerator), so a biome asked here is the chunk's
 		if (cell.terrain == TerrainType.ISLAND_BEACH) {
@@ -53,6 +52,12 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 		}
 	}
 	
+	// the terrain and the rivers: the height and the terrain type, before the climate and the tile's filters
+	public void applyGround(Cell cell, float x, float z) {
+		this.applyTerrain(cell, x, z);
+		this.applyRivers(cell, x, z, this.continent.getRivermap(cell));
+	}
+
 	public void applyTerrain(Cell cell, float x, float z) {
         cell.terrain = TerrainType.FLATS;
         cell.beachNoise = this.beachNoise.compute(x, z, 0);
