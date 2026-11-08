@@ -28,6 +28,8 @@
 # SWAMPS=1 where the swamp biomes are against the river valleys and the heights (run/swamps-<loader>.txt, #28).
 # ISLANDS=1 with PRESET=set:island().enableArchipelago=true;... what the land of the islands is made of (run/islands-<loader>.txt, .png,
 # #38); ISLANDS_REF=<file> says what differs from that run (tools/compareislands.py). With SKIP_SELFTEST=1 SKIP_STRUCTURES=1 about 1 minute.
+# COASTS=1 what the shores are ("rtf coasts", #38, #40): coast biomes, beaches on steep shores, stony shores, sand on slopes in real
+# chunks at the steepest shores; in the vanilla export world too, the reference (run/coasts-<loader>-<rtf|vanilla>.txt).
 # TILECACHE=1 biomes, surface heights and the structure rule asked before and after the tile is cached must agree.
 # SURFACEMAPS="<biome> ..." maps of the ground and trees from above where each biome is (run/surfacemap-<loader>/).
 # SNOWGRID="<biome> ..." snow layers on chunk edges against inside where each biome is (run/snowgrid-<loader>/, #28).
@@ -164,6 +166,13 @@ for loader in $LOADERS; do
             echo "rtf biomemods" >> "$dir/console.in"
             wait_for "$dir/export.log" 'RTF biomemods\] \(vanilla\|FAIL\)' 1200
         fi
+        if [ -n "$COASTS" ]; then
+            rm -f "$dir/rtf-coasts-vanilla.txt"
+            echo "rtf coasts" >> "$dir/console.in"
+            wait_for "$dir/export.log" 'RTF coasts\] \(vanilla\|FAIL\)' 900
+            grep -o 'RTF coasts\] [vF].*' "$dir/export.log" | tail -1 | cut -c1-1200 | sed 's/^/  /'
+            cp "$dir/rtf-coasts-vanilla.txt" "run/coasts-$loader-vanilla.txt" 2>/dev/null
+        fi
     fi
     stop_server "$dir" export.log
     if [ ! -f "$dir/reterraforged-preset.zip" ]; then
@@ -298,6 +307,14 @@ for loader in $LOADERS; do
         grep -o 'RTF islands\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-1200 | sed 's/^/  /'
         cp "$dir/rtf-islands.txt" "run/islands-$loader.txt" 2>/dev/null; cp "$dir/rtf-islands.png" "run/islands-$loader.png" 2>/dev/null
         [ -z "$ISLANDS_REF" ] || echo "  islands against $ISLANDS_REF: $($PY tools/compareislands.py "$ISLANDS_REF" "run/islands-$loader.txt")"
+    fi
+    # COASTS=1: the shores ("rtf coasts", #38, #40), the table copied to run/coasts-<loader>-rtf.txt
+    if [ -n "$COASTS" ]; then
+        rm -f "$dir/rtf-coasts-rtf.txt" "run/coasts-$loader-rtf.txt"
+        echo "rtf coasts" >> "$dir/console.in"
+        wait_for "$dir/console.log" 'RTF coasts\] \(rtf\|FAIL\)' 900
+        grep -o 'RTF coasts\] [rF].*' "$dir/console.log" | tail -1 | cut -c1-1200 | sed 's/^/  /'
+        cp "$dir/rtf-coasts-rtf.txt" "run/coasts-$loader-rtf.txt" 2>/dev/null
     fi
     # TILEBENCH=<tiles>: the generator's time per tile ("rtf tilebench", RTFTileBench), without Minecraft's generation
     if [ -n "$TILEBENCH" ]; then

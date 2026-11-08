@@ -62,6 +62,9 @@ public class ArchipelagoPopulator implements CellPopulator {
 		float hScale = Math.max(0.1F, settings.islandHorizontalScale);
 		// the scale of the islands' terrain: it also scaled their outline before, so it changed their size
 		float shapeScale = fixes ? 1.0F : hScale;
+		// the sizes of the terrain noises were divided by the scale, so a larger value made the hills and mountains finer,
+		// unlike every other horizontal scale and the continents' mountains on the islands (#38); with the fixes larger is larger
+		float terrainScale = fixes ? 1.0F / hScale : hScale;
 		
 		IslandSettings.CoastNoise coast = settings.coastNoise;
 		Noise sizeN = Noises.simplex(seed + 1273, Math.max(1, Math.round(size * 3.5F / shapeScale)), coast.octaves, coast.lacunarity, coast.gain);
@@ -75,23 +78,23 @@ public class ArchipelagoPopulator implements CellPopulator {
 		densityN = Noises.clamp(densityN, 0.0F, 1.0F);
 		this.densityNoise = densityN;
 		
-		Noise ridge = Noises.perlinRidge(seed + 4829, Math.max(1, Math.round(size * 1.6F / hScale)), 4, 2.1F, 0.82F);
-		ridge = Noises.warpPerlin(ridge, seed + 4830, Math.max(1, Math.round(size * 0.9F / hScale)), 2, size * 0.35F / hScale);
+		Noise ridge = Noises.perlinRidge(seed + 4829, Math.max(1, Math.round(size * 1.6F / terrainScale)), 4, 2.1F, 0.82F);
+		ridge = Noises.warpPerlin(ridge, seed + 4830, Math.max(1, Math.round(size * 0.9F / terrainScale)), 2, size * 0.35F / terrainScale);
 		ridge = Noises.clamp(ridge, 0.0F, 1.0F);
 		this.ridgeHeight = continentMountains != null ? Noises.clamp(continentMountains, 0.0F, 1.0F) : ridge;
 		
-		Noise hills = Noises.billow(seed + 3811, Math.max(1, Math.round(size * 0.35F / hScale)), 3, 2.25F, 0.55F);
-		hills = Noises.warpPerlin(hills, seed + 3812, Math.max(1, Math.round(size * 0.7F / hScale)), 1, size * 0.2F / hScale);
+		Noise hills = Noises.billow(seed + 3811, Math.max(1, Math.round(size * 0.35F / terrainScale)), 3, 2.25F, 0.55F);
+		hills = Noises.warpPerlin(hills, seed + 3812, Math.max(1, Math.round(size * 0.7F / terrainScale)), 1, size * 0.2F / terrainScale);
 		hills = Noises.clamp(hills, 0.0F, 1.0F);
 		this.hillHeight = hills;
 		
-		Noise volcano = Noises.perlinRidge(seed + 6721, Math.max(1, Math.round(size * 0.45F / hScale)), 3, 2.4F, 0.9F);
+		Noise volcano = Noises.perlinRidge(seed + 6721, Math.max(1, Math.round(size * 0.45F / terrainScale)), 3, 2.4F, 0.9F);
 		volcano = Noises.powCurve(volcano, 1.8F);
 		volcano = Noises.clamp(volcano, 0.0F, 1.0F);
 		this.volcanoHeight = volcano;
 		
-		this.mountainSelector = Noises.clamp(Noises.simplex(seed + 11867, Math.max(1, Math.round(size * 1.25F / hScale)), 2), 0.0F, 1.0F);
-		this.volcanoSelector = Noises.clamp(Noises.simplex(seed + 22193, Math.max(1, Math.round(size * 1.75F / hScale)), 2), 0.0F, 1.0F);
+		this.mountainSelector = Noises.clamp(Noises.simplex(seed + 11867, Math.max(1, Math.round(size * 1.25F / terrainScale)), 2), 0.0F, 1.0F);
+		this.volcanoSelector = Noises.clamp(Noises.simplex(seed + 22193, Math.max(1, Math.round(size * 1.75F / terrainScale)), 2), 0.0F, 1.0F);
 		
 		this.islandErosion = Erosion.LEVEL_4.source();
 		this.islandWeirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.source();
