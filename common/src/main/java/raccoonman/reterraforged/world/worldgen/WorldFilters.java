@@ -10,11 +10,13 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Filte
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.NoiseCorrection;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Smoothing;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.Steepness;
+import raccoonman.reterraforged.world.worldgen.densityfunction.tile.filter.SteepShores;
 
 public class WorldFilters {
     private final Smoothing smoothing;
     private final Steepness steepness;
     private final BeachDetect beach;
+    private final SteepShores shores;
     private final NoiseCorrection corrections;
     private final FilterSettings settings;
     private final WorldErosion<Erosion> erosion;
@@ -25,6 +27,7 @@ public class WorldFilters {
         IntFunction<Erosion> factory = Erosion.factory(context);
         this.settings = context.preset.filters();
         this.beach = BeachDetect.make(context);
+        this.shores = new SteepShores(context.levels);
         this.smoothing = Smoothing.make(context.preset.filters().smoothing, context.levels);
         this.steepness = Steepness.make(1, 10.0F, context.levels);
         this.corrections = new NoiseCorrection(context.levels);
@@ -45,6 +48,8 @@ public class WorldFilters {
         if(optionalFilters) {
         	this.applyCorrections(tile, regionX, regionZ);
         }
+        // last: on the beaches the corrections spread
+        this.shores.apply(tile, regionX, regionZ, 1);
     }
     
     private void applyRequiredFilters(Filterable map, int seedX, int seedZ) {
