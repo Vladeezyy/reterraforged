@@ -121,6 +121,10 @@ public final class RTFSelfTest {
 			String result = RTFIslandTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
+		})).then(Commands.literal("coasts").executes(ctx -> {
+			String result = RTFCoastTest.run(ctx.getSource().getServer());
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
 		})).then(Commands.literal("structures").executes(ctx -> {
 			String result = RTFStructureTest.run(ctx.getSource().getServer());
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);

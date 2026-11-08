@@ -8,7 +8,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ChunkPos;
@@ -39,6 +43,8 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public record ErodeFeature(Config config) implements Feature {
+	// the conventional tag of the biomes whose surface is sand (deserts, badlands, beaches; on NeoForge and Fabric)
+	private static final TagKey<Biome> SANDY = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("c", "is_sandy"));
 	public static final MapCodec<ErodeFeature> CODEC = Config.CODEC.fieldOf("config").xmap(ErodeFeature::new, ErodeFeature::config);
 
 
@@ -123,7 +129,7 @@ public record ErodeFeature(Config config) implements Feature {
 				pos.set(worldX, surfaceY, worldZ);
 				
 		        if(surfaceY <= scaledY && surfaceY >= generator.getSeaLevel() - 1 && !biome.is(Biomes.WOODED_BADLANDS) && !biome.is(Biomes.BADLANDS)) {
-					erodeColumn(config, rand, generator, chunk, cell, pos, surfaceY);
+					erodeColumn(config, rand, generator, chunk, cell, pos, surfaceY, biome);
 					if(eroded != null) {
 						eroded.accept(worldX, surfaceY, worldZ);
 					}
@@ -132,7 +138,7 @@ public record ErodeFeature(Config config) implements Feature {
 		}
 	}
 	
-	private static void erodeColumn(Config config, Noise rand, ChunkGenerator generator, ChunkAccess chunk, Cell cell, BlockPos.MutableBlockPos pos, int surfaceY) {
+	private static void erodeColumn(Config config, Noise rand, ChunkGenerator generator, ChunkAccess chunk, Cell cell, BlockPos.MutableBlockPos pos, int surfaceY, Holder<Biome> biome) {
         if (cell.terrain.isRiver() || cell.terrain.isWetland()) {
             return;
         }
@@ -157,8 +163,18 @@ public record ErodeFeature(Config config) implements Feature {
                 }
             }
             placeScree(config, rand, chunk, cell, pos, surfaceY);
+        } else if(top.is(BlockTags.SAND) && steepness(config, rand, cell, pos) > config.rockSteepness() && (!biome.is(SANDY) || biome.is(BiomeTags.IS_BEACH))) {
+            // sand on a slope steep enough for rock (#38): rock as the grass and dirt around it. Where vanilla's surface rules
+            // leave a cliff's top block stone, the strata's sediment layer (sand, gravel) comes to the surface, and a beach
+            // biome reaches a few blocks up a cliff; the gravel and dirt eroded and the sand stayed on the rock. Only at the
+            // rock's steepness (not the dirt's, not by height); the deserts and badlands keep their sand on any slope, as in 0.0.6
+            erodeRock(config, volcanic, chunk, cell, pos, surfaceY);
         }
 	}
+
+    private static float steepness(Config config, Noise rand, Cell cell, BlockPos pos) {
+        return cell.gradient + rand.compute(pos.getX(), pos.getZ(), 1) * config.slopeModifier();
+    }
 
     // Volcano Biome Usage: this share of the volcanoes (by their terrain region) has a volcanic surface, basalt on
     // the rock of its cone and magma and blackstone in its crater. 0 (presets saved before 0.0.20, when the setting did

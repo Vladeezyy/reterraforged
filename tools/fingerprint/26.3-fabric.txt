@@ -1918,7 +1918,7 @@ base -4608 8192 31 minecraft:deep_ocean
 base -4608 8704 35 minecraft:deep_ocean
 base -4608 9216 21 minecraft:deep_lukewarm_ocean
 base -4608 9728 40 minecraft:deep_lukewarm_ocean
-base -4608 10240 65 minecraft:beach
+base -4608 10240 65 minecraft:stony_shore
 base -4608 10752 124 minecraft:bamboo_jungle
 base -4608 11264 103 minecraft:savanna
 base -4608 11776 74 minecraft:savanna
