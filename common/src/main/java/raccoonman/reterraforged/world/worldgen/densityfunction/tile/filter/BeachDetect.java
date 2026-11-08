@@ -6,8 +6,8 @@ import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.TerrainType;
 
 // A coast below the beach point is a beach whatever its slope. The slope test it had compared heights on the 0 to 1 scale with
-// a limit they cannot reach, so it held nothing back: removed, not repaired, since rock beaches would change the coasts of
-// every world and of the Default preset.
+// a limit they cannot reach, so it held nothing back. The steep ones get a stony shore's climate after all the filters
+// (SteepShores, #38, #40), on the beaches the corrections spread too.
 public record BeachDetect(ControlPoints transition) implements Filter {
 
     @Override

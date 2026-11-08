@@ -15,6 +15,8 @@ public class WorldLookup {
 	// the tile when it happened to be cached: structures and their heights depended on the order chunks were generated in
 	private static final ThreadLocal<int[]> STRUCTURE_GENERATION = ThreadLocal.withInitial(() -> new int[1]);
 	private static final AtomicInteger NEXT_ID = new AtomicInteger();
+	// the neighbours of a shore (steepShore)
+	private static final ThreadLocal<Cell> NEIGHBOUR = ThreadLocal.withInitial(Cell::new);
 	// tells the lookups apart without keeping them (a thread's cached cell, CellSampler.Cache2d)
 	public final int id = NEXT_ID.incrementAndGet();
 	private final float waterLevel;
@@ -80,6 +82,26 @@ public class WorldLookup {
 		if (cell.terrain == TerrainType.ISLAND_BEACH && cell.height > this.waterLevel && cell.height <= this.beachLevel) {
 			cell.terrain = TerrainType.BEACH;
 		}
+		this.steepShore(cell, x, z);
 		return false;
+	}
+
+	// a stony shore where the ground rises steeply (Shores), as the tile's filter (SteepShores) decides it, from the
+	// neighbours' heights before the tile's erosion; only a shore computes its neighbours
+	private void steepShore(Cell cell, int x, int z) {
+		if (!Shores.isShore(cell, this.levels)) {
+			return;
+		}
+		float limit = Shores.limit(cell, this.levels);
+		Cell neighbour = NEIGHBOUR.get();
+		if (this.height(neighbour, x + Shores.NEAR, z) >= limit || this.height(neighbour, x - Shores.NEAR, z) >= limit
+			|| this.height(neighbour, x, z + Shores.NEAR) >= limit || this.height(neighbour, x, z - Shores.NEAR) >= limit) {
+			Shores.makeStony(cell);
+		}
+	}
+
+	private float height(Cell cell, int x, int z) {
+		this.heightmap.applyGround(cell.reset(), x, z);
+		return cell.height;
 	}
 }
