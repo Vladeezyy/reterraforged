@@ -25,6 +25,7 @@ import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
+import raccoonman.reterraforged.world.worldgen.terrablender.TBRegions;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint;
 import terrablender.api.RegionType;
 import terrablender.api.Regions;
@@ -51,6 +52,8 @@ class MixinParameterList<T> {
 	private static final float REGION_CLIMATE_SCALE = 1.0F / 700.0F, REGION_CLIMATE_SHIFT = 0.35F;
 	private SimplexNoise regionTemperatureNoise, regionHumidityNoise;
 	private int maxIndex;
+	// the regions' shares of the biome cells (TBRegions)
+	private float[] regionBounds;
 	private CompatibilityMode caveCompatibilityMode = CompatibilityMode.AUTO;
 	private int darkerDepthsIndex = -1;
 	private int deeperDarkerIndex = -1;
@@ -71,6 +74,7 @@ class MixinParameterList<T> {
 	)
     public void initializeForTerraBlender(RegistryAccess registryAccess, RegionType regionType, long seed, CallbackInfo callback) {
     	this.maxIndex = Regions.getCount(regionType) - 1;
+		this.regionBounds = TBRegions.bounds(registryAccess, regionType);
 		this.regionTemperatureNoise = regionType == RegionType.OVERWORLD ? new SimplexNoise(RandomSource.create(seed ^ 0x52544654L)) : null;
 		this.regionHumidityNoise = regionType == RegionType.OVERWORLD ? new SimplexNoise(RandomSource.create(seed ^ 0x52544648L)) : null;
 		this.caveCompatibilityMode = getCaveCompatibilityMode(registryAccess);
@@ -127,7 +131,10 @@ class MixinParameterList<T> {
 		// Swamp Basins: one climate over the whole basin, no shift
 		float uniqueness = (float) tbTargetPoint.getUniqueness();
 		boolean heldClimate = uniqueness >= SwampBasins.HELD_CLIMATE;
-		int selected = NoiseUtil.round(this.maxIndex * (heldClimate ? uniqueness - SwampBasins.HELD_CLIMATE : uniqueness));
+		float id = heldClimate ? uniqueness - SwampBasins.HELD_CLIMATE : uniqueness;
+		// the region is a hash of the biome cell's id, by the regions' weights (TBRegions); the biome mod test's probe
+		// asks for region r with the uniqueness r / last index
+		int selected = TBCompat.probing ? NoiseUtil.round(this.maxIndex * id) : TBRegions.region(id, this.regionBounds);
 		this.recordDiagnosticSelection(selected, false, false);
 		if(!heldClimate && selected != 0 && this.regionTemperatureNoise != null && !TBCompat.probing) {
 			double bx = QuartPos.toBlock(x) * REGION_CLIMATE_SCALE, bz = QuartPos.toBlock(z) * REGION_CLIMATE_SCALE;
