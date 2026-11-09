@@ -28,7 +28,10 @@ public class RTFBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
 		this.tag(RTFBlockTags.SOIL).add(Blocks.DIRT, Blocks.COARSE_DIRT);
 		this.tag(RTFBlockTags.CLAY).add(Blocks.CLAY);
 		this.tag(RTFBlockTags.SEDIMENT).add(Blocks.SAND, Blocks.GRAVEL);
-		this.tag(RTFBlockTags.ERODIBLE).add(Blocks.SNOW_BLOCK).add(Blocks.POWDER_SNOW).add(Blocks.GRAVEL).addOptionalTag(BlockTags.DIRT.location());
+		// the vanilla blocks of the dirt tag by name (#40): other mods put their own surface blocks in it, and the erosion
+		// turned them to the strata's rock on slopes, Regions Unexplored's chalk grass on its Chalk Cliffs. A datapack may
+		// add a mod's block to this tag
+		this.tag(RTFBlockTags.ERODIBLE).add(Blocks.SNOW_BLOCK).add(Blocks.POWDER_SNOW).add(Blocks.GRAVEL).add(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.PODZOL, Blocks.COARSE_DIRT, Blocks.MYCELIUM, Blocks.ROOTED_DIRT, Blocks.MOSS_BLOCK, Blocks.MUD, Blocks.MUDDY_MANGROVE_ROOTS);
 		
 		// the rock of the strata: vanilla's ore-bearing stones, and the overworld stones of other mods as optional entries
 		// (nothing changes without them); "Ore Compatible Stone Only" keeps those ores generate in (StrataRule.Strata)
