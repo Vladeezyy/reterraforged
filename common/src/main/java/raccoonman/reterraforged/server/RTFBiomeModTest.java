@@ -147,6 +147,7 @@ public final class RTFBiomeModTest {
 			var gen = level.getChunkSource().getGenerator();
 			var rs = level.getChunkSource().randomState();
 			boolean rtf = (Object) rs instanceof RTFRandomState s && s.generatorContext() != null;
+			float[] bounds = raccoonman.reterraforged.world.worldgen.terrablender.TBRegions.bounds(level.registryAccess(), terrablender.api.RegionType.OVERWORLD);
 			List<String> points = new ArrayList<>();
 			for (int x = -RADIUS; x <= RADIUS; x += STEP) {
 				for (int z = -RADIUS; z <= RADIUS; z += STEP) {
@@ -154,7 +155,9 @@ public final class RTFBiomeModTest {
 					int top = gen.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, rs);
 					Climate.TargetPoint p = rs.sampler().sample(QuartPos.fromBlock(x), QuartPos.fromBlock(top), QuartPos.fromBlock(z));
 					double u = ((raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint) (Object) p).getUniqueness();
-					points.add((Double.isNaN(u) ? -1 : Math.round((list.size() - 1) * u)) + " " + p.temperature() + " " + p.humidity() + " " + p.continentalness() + " " + p.erosion() + " " + p.depth() + " " + p.weirdness() + " " + x + " " + z + " " + ground + " " + top);
+					// the region MixinParameterList picks for the point (a Swamp Basin's id is held at id + 2)
+					float id = (float) (u >= raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins.HELD_CLIMATE ? u - raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins.HELD_CLIMATE : u);
+					points.add((Double.isNaN(u) ? -1 : raccoonman.reterraforged.world.worldgen.terrablender.TBRegions.region(id, bounds)) + " " + p.temperature() + " " + p.humidity() + " " + p.continentalness() + " " + p.erosion() + " " + p.depth() + " " + p.weirdness() + " " + x + " " + z + " " + ground + " " + top);
 				}
 			}
 			Files.write(server.getServerDirectory().resolve("rtf-points-" + (rtf ? "rtf" : "vanilla") + ".txt"), points);
