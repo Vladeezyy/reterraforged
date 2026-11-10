@@ -11,6 +11,15 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Fu
 - **Preset export on a started server** works with Regions Unexplored and Biomes O' Plenty.
 - **Flower Forest** has as many flowers as vanilla ([#37](https://github.com/Vladeezyy/reterraforged/issues/37)).
 
+## Fixes
+
+- Fabric: biome modifiers of one world no longer apply to the next world of the same session (a vanilla world got the mod's trees).
+- No "Feature placement" crash in other mods' dimensions with birch forests, groves or old growth taigas.
+- Trees grown from saplings no longer replace nearby saplings (and flowers on 1.21.1, as vanilla).
+- Preset export works in folders whose names end in "!".
+- River maps stay cached while used and no longer pause world generation every 5 minutes.
+- Chunks of another mod's generator no longer come out flat while the mod's terrain starts up.
+
 ## Versions
 
 - **1.21.1:** NeoForge 21.1.201; Fabric Loader 0.16.3, Fabric API 0.102; Java 21
