@@ -24,6 +24,7 @@
 		"MixinNoiseBasedChunkGenerator",
 		"MixinBiome",
 		"MixinTileFault",
+		"MixinTreeGrower",
 		"terrablender.MixinParameterList",
 		"terrablender.MixinClimateSampler",
 		"terrablender.MixinTargetPoint",
