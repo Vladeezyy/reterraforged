@@ -38,6 +38,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.PresetConfiguredFeatures;
@@ -506,6 +508,55 @@ public final class RTFSelfTest {
 			if (level.getBlockState(ground).is(Blocks.SPRUCE_SAPLING)) roofed++;
 		}
 		check("no mod's tree grows under a low roof (" + roofed + " of 12 saplings stay)", !templates || (SaplingTrees.grown == before && roofed == 12));
+		// a grown tree leaves the player's saplings and flowers around it, as Minecraft's: our generation rules replaced
+		// them, and a tree farm lost its saplings to the first tree. On dirt pillars 2 to 5 high around each oak sapling,
+		// in its crown; "in the crown" counts the plants next to the tree's leaves, so the check is not empty. Flowers as
+		// Minecraft's trees: from 1.21.5 on its #replaceable_by_trees has #small_flowers, its trees take them too
+		boolean flowersReplaced = Blocks.POPPY.defaultBlockState().is(BlockTags.REPLACEABLE_BY_TREES);
+		int plants = 0, kept = 0, inCrown = 0, farmGrown = 0, saplingsPlaced = 0, saplingsKept = 0;
+		before = SaplingTrees.grown;
+		for (int i = 0; i < 12; i++) {
+			int x = spawn.getX() + 1100, z = spawn.getZ() + i * 40;
+			BlockPos ground = this.saplingGround(level, x, z, 1);
+			List<BlockPos> placed = new ArrayList<>();
+			java.util.Set<BlockPos> placedSaplings = new java.util.HashSet<>();
+			int n = 0;
+			for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++) {
+				if (Math.max(Math.abs(dx), Math.abs(dz)) < 2 || (dx + dz) % 2 != 0) continue;
+				int h = 2 + (n++ % 4);
+				for (int dy = 0; dy < h; dy++) level.setBlock(ground.offset(dx, dy, dz), Blocks.DIRT.defaultBlockState(), 2);
+				BlockPos top = ground.offset(dx, h, dz);
+				level.setBlock(top, (n % 2 == 0 ? Blocks.OAK_SAPLING : Blocks.POPPY).defaultBlockState(), 2);
+				placed.add(top);
+				if (n % 2 == 0) placedSaplings.add(top);
+			}
+			level.setBlock(ground, Blocks.OAK_SAPLING.defaultBlockState().setValue(SaplingBlock.STAGE, 1), 3);
+			((SaplingBlock) Blocks.OAK_SAPLING).advanceTree(level, ground, level.getBlockState(ground), RandomSource.create(5000 + i));
+			if (level.getBlockState(ground).is(Blocks.OAK_SAPLING)) continue;
+			farmGrown++;
+			for (BlockPos p : placed) {
+				plants++;
+				BlockState state = level.getBlockState(p);
+				boolean sapling = placedSaplings.contains(p);
+				if (sapling) saplingsPlaced++;
+				if (sapling ? state.is(Blocks.OAK_SAPLING) : state.is(Blocks.POPPY)) {
+					kept++;
+					if (sapling) saplingsKept++;
+				}
+				for (Direction d : Direction.values()) {
+					if (level.getBlockState(p.relative(d)).getBlock() instanceof LeavesBlock) {
+						inCrown++;
+						break;
+					}
+				}
+			}
+		}
+		int farmMod = SaplingTrees.grown - before;
+		check("a grown tree leaves the saplings and flowers around it (" + kept + " of " + plants + " stay, saplings " + saplingsKept + " of " + saplingsPlaced + ", " + inCrown + " in its crown, " + farmGrown + " trees, the mod's " + farmMod + (flowersReplaced ? "; flowers replaceable as in Minecraft" : "") + ")",
+			farmGrown >= 6 && saplingsKept == saplingsPlaced && saplingsPlaced > 0 && (flowersReplaced || kept == plants) && (!templates || (farmMod == farmGrown && inCrown > 0)));
+		// Fabric: the preset's biome modifiers are applied from a copy of Fabric's list, not added to it. Added, they stayed
+		// for every world loaded after this one in the same game (a vanilla world got the preset's trees)
+		check("the preset's biome modifiers are not left in Fabric's list (" + fabricModifiersOfThisMod() + ")", fabricModifiersOfThisMod() <= 0);
 
 		// a village exists and its start sits on the terrain, not floating or buried
 		BlockPos village = level.findNearestMapStructure(StructureTags.VILLAGE, BlockPos.ZERO, 100, false);
@@ -519,8 +570,44 @@ public final class RTFSelfTest {
 		}
 	}
 
+	// -1 without Fabric API
+	private static int fabricModifiersOfThisMod() {
+		try {
+			Class<?> impl = Class.forName("net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl");
+			Object instance = impl.getField("INSTANCE").get(null);
+			java.lang.reflect.Field listField = impl.getDeclaredField("modifiers");
+			listField.setAccessible(true);
+			int count = 0;
+			for (Object record : (List<?>) listField.get(instance)) {
+				java.lang.reflect.Field id = record.getClass().getDeclaredField("id");
+				id.setAccessible(true);
+				if (String.valueOf(id.get(record)).startsWith(RTFCommon.MOD_ID + ":")) count++;
+			}
+			return count;
+		} catch (ClassNotFoundException e) {
+			return -1;
+		} catch (ReflectiveOperationException e) {
+			RTFCommon.LOGGER.warn("[RTF selftest] Fabric's biome modifier list could not be read", e);
+			return -1;
+		}
+	}
+
 	private void nether(ServerLevel level) {
 		if (level == null) return;
+		// the mod's trees in a dimension without its terrain: the preset's biome modifiers replace a biome's trees in every
+		// dimension (a mod's or a datapack's with a birch forest), and their chance modifiers threw there ("Feature
+		// placement" crash). Placed here in the Nether, whose random state has no ReTerraForged context
+		Holder<ConfiguredFeature<?, ?>> birchTrees = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).get(PresetConfiguredFeatures.BIRCH_TREES).orElse(null);
+		if (birchTrees != null) {
+			String error = null;
+			try {
+				for (int i = 0; i < 16; i++) birchTrees.value().place(level, level.getChunkSource().getGenerator(), RandomSource.create(i), new BlockPos(i * 16, 70, 0));
+			} catch (RuntimeException e) {
+				error = e.toString();
+				RTFCommon.LOGGER.error("[RTF selftest] the mod's trees in the Nether", e);
+			}
+			check("the mod's trees place in a dimension without its terrain" + (error != null ? " (" + error + ")" : ""), error == null);
+		}
 		int floorHoles = 0, roofHoles = 0;
 		int floorY = level.getMinY(), roofY = floorY + level.dimensionType().logicalHeight() - 1;
 		for (int cx = -3; cx <= 3; cx++) for (int cz = -3; cz <= 3; cz++) {

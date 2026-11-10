@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 
 class BiomeEdgeChanceModifier extends RangeChanceModifier {
 	public static final MapCodec<BiomeEdgeChanceModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -24,7 +25,7 @@ class BiomeEdgeChanceModifier extends RangeChanceModifier {
 	}
 
 	@Override
-	protected float getValue(ChanceContext chanceCtx, FeaturePlaceContext<?> placeCtx) {
-		return cellAt(generatorContext(placeCtx), placeCtx.origin()).biomeRegionEdge;
+	protected float getValue(GeneratorContext generatorContext, ChanceContext chanceCtx, FeaturePlaceContext<?> placeCtx) {
+		return cellAt(generatorContext, placeCtx.origin()).biomeRegionEdge;
 	}
 }
