@@ -10,6 +10,7 @@ public class LegacyRiverCache extends RiverCache {
     
     @Override
     public Rivermap getRivers(int x, int z) {
-        return this.cache.computeIfAbsent(NoiseUtil.seed(x, z), id -> this.generator.generateRivers(x, z, id));
+        long id = NoiseUtil.seed(x, z);
+        return this.cache.computeIfAbsent(id, Entry::new).get(this.generator, x, z, id);
     }
 }

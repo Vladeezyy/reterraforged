@@ -54,19 +54,23 @@ class MixinRandomState {
 	@Final
 	private NoiseRouter router;
 
+	// volatile: generation threads read these while the lazy initialization below sets them
 	@Nullable
-	private GeneratorContext generatorContext;
+	private volatile GeneratorContext generatorContext;
 	@Nullable
-	private Preset preset;
+	private volatile Preset preset;
 	@Nullable
-	private BlockPos spawnSearchCenter;
+	private volatile BlockPos spawnSearchCenter;
 	@Nullable
-	private BiPredicate<Integer, Integer> spawnWater;
+	private volatile BiPredicate<Integer, Integer> spawnWater;
 	// TerraBlender's region choice from the preset's biome regions (MixinParameterList)
 	@Nullable
-	private DensityFunction tbUniqueness;
-	// initialize ran, or the lazy one was tried
+	private volatile DensityFunction tbUniqueness;
+	// initialize started (also while it runs: a call back into it from the same thread gets no context, not a loop)
 	private volatile boolean initialized;
+	// initialize finished: only then may a missing context be taken for "no context". With the flag above alone, a thread
+	// that came while another one built the context got none, and its chunks were made with a height of 0 (a sea)
+	private volatile boolean ready;
 
 	// 26.3: density functions are compiled with this context; the mod's functions reach this RandomState through it
 	@ModifyArg(
@@ -81,33 +85,41 @@ class MixinRandomState {
 		return new RTFCompileContext(context, (RandomState) (Object) this);
 	}
 
-	public void reterraforged$RTFRandomState$initialize(ServerLevel level) {
+	public synchronized void reterraforged$RTFRandomState$initialize(ServerLevel level) {
 		RegistryAccess registries = level.registryAccess();
 		this.initialized = true;
-
-		if(level.dimension().equals(Level.OVERWORLD)) {
-			OverworldRegistries.set(registries);
-		} else if(!this.usesCellSamplers(registries) || !generationFixes(registries)) {
-			this.clearGeneratorContext();
-			return;
+		try {
+			if(level.dimension().equals(Level.OVERWORLD)) {
+				OverworldRegistries.set(registries);
+			} else if(!this.usesCellSamplers(registries) || !generationFixes(registries)) {
+				this.clearGeneratorContext();
+				return;
+			}
+			// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
+			// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
+			// preset saved before: what was explored of such a dimension stays as it is
+			this.initialize(registries);
+		} finally {
+			this.ready = true;
 		}
-		// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
-		// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
-		// preset saved before: what was explored of such a dimension stays as it is
-		this.initialize(registries);
 	}
 
 	private static boolean generationFixes(RegistryAccess registries) {
 		return registries.lookupOrThrow(RTFRegistries.PRESET).get(Preset.KEY).map((preset) -> preset.value().world().properties.generationFixes).orElse(false);
 	}
 
-	// a random state no ChunkMap set up: if its router has our cells, they are the overworld's preset's
+	// a random state no ChunkMap set up: if its router has our cells, they are the overworld's preset's. Synchronized:
+	// the other threads wait here until the context is made, and get it
 	@Nullable
 	private synchronized GeneratorContext initializeLazily() {
 		RegistryAccess registries = OverworldRegistries.get();
 		if(!this.initialized && registries != null) {
 			this.initialized = true;
-			this.initialize(registries);
+			try {
+				this.initialize(registries);
+			} finally {
+				this.ready = true;
+			}
 			if(this.generatorContext != null) {
 				RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
 			}
@@ -193,7 +205,7 @@ class MixinRandomState {
 	@Nullable
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
 		GeneratorContext context = this.generatorContext;
-		if(context == null && !this.initialized) {
+		if(context == null && !this.ready) {
 			context = this.initializeLazily();
 		}
 		return context;

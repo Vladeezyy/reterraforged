@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import raccoonman.reterraforged.world.worldgen.feature.util.PlaceContext;
+import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 
 class BiomeEdgeChanceModifier extends RangeChanceModifier {
 	public static final MapCodec<BiomeEdgeChanceModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -25,7 +26,7 @@ class BiomeEdgeChanceModifier extends RangeChanceModifier {
 	}
 
 	@Override
-	protected float getValue(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
-		return cellAt(generatorContext(placeCtx), placeCtx.origin()).biomeRegionEdge;
+	protected float getValue(GeneratorContext generatorContext, ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
+		return cellAt(generatorContext, placeCtx.origin()).biomeRegionEdge;
 	}
 }

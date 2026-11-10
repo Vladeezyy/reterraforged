@@ -21,11 +21,18 @@ public abstract class RangeChanceModifier implements ChanceModifier {
         this.exclusive = exclusive;
     }
     
-    protected abstract float getValue(ChanceContext chanceCtx, PlaceContext<?> placeCtx);
+    protected abstract float getValue(GeneratorContext generatorContext, ChanceContext chanceCtx, PlaceContext<?> placeCtx);
     
     @Override
 	public float getChance(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
-        return this.apply(this.getValue(chanceCtx, placeCtx));
+    	GeneratorContext generatorContext = generatorContext(placeCtx);
+    	// a dimension without ReTerraForged terrain (a mod's or a datapack's) with a biome whose trees the preset replaced:
+    	// the biome modifiers change the biome in every dimension. The chance stays as it is there; this threw, and the
+    	// server stopped with a "Feature placement" crash
+    	if(generatorContext == null) {
+    		return 1.0F;
+    	}
+        return this.apply(this.getValue(generatorContext, chanceCtx, placeCtx));
     }
 
     private float apply(float value) {
@@ -61,12 +68,11 @@ public abstract class RangeChanceModifier implements ChanceModifier {
         return chunk.getCell(x, z);
     }
 
-    protected static GeneratorContext generatorContext(PlaceContext<?> placeCtx) {
-        @Nullable
-        GeneratorContext generatorContext;
-        if((Object) placeCtx.level().getLevel().getChunkSource().randomState() instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
-            return generatorContext;
+    @Nullable
+    private static GeneratorContext generatorContext(PlaceContext<?> placeCtx) {
+        if((Object) placeCtx.level().getLevel().getChunkSource().randomState() instanceof RTFRandomState rtfRandomState) {
+            return rtfRandomState.generatorContext();
         }
-        throw new UnsupportedOperationException();
+        return null;
     }
 }

@@ -26,8 +26,7 @@ class ElevationChanceModifier extends RangeChanceModifier {
 	}
 
 	@Override
-	protected float getValue(ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
-		GeneratorContext generatorContext = generatorContext(placeCtx);
+	protected float getValue(GeneratorContext generatorContext, ChanceContext chanceCtx, PlaceContext<?> placeCtx) {
 		return generatorContext.generator.getHeightmap().levels().elevation(cellAt(generatorContext, placeCtx.origin()).height);
 	}
 }
