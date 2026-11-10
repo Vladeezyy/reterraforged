@@ -27,7 +27,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -45,6 +48,7 @@ import raccoonman.reterraforged.data.worldgen.preset.settings.StructureSettings;
 import raccoonman.reterraforged.server.stress.RTFEffectTest;
 import raccoonman.reterraforged.server.stress.RTFStressTest;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
+import raccoonman.reterraforged.world.worldgen.feature.template.SaplingTrees;
 
 /**
  * "rtf selftest" — only registered with -Drtf.selftest=true (tools/servertest.sh). Generates real chunks in the
@@ -296,6 +300,17 @@ public final class RTFSelfTest {
 		RTFCommon.LOGGER.info("[RTF selftest] {} {}", ok ? "ok  " : "FAIL", name);
 	}
 
+	// a size x size square of grass blocks at the surface at x, z, cleared above, for saplings
+	private BlockPos saplingGround(ServerLevel level, int x, int z, int size) {
+		for (int cx = (x >> 4) - 1; cx <= ((x + size) >> 4) + 1; cx++) for (int cz = (z >> 4) - 1; cz <= ((z + size) >> 4) + 1; cz++) full(level, cx, cz);
+		BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+		for (int dx = 0; dx < size; dx++) for (int dz = 0; dz < size; dz++) {
+			level.setBlock(ground.offset(dx, -1, dz), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			for (int dy = 0; dy < 3; dy++) level.setBlock(ground.offset(dx, dy, dz), Blocks.AIR.defaultBlockState(), 3);
+		}
+		return ground;
+	}
+
 	private static ChunkAccess full(ServerLevel level, int cx, int cz) {
 		return level.getChunk(cx, cz, ChunkStatus.FULL, true);
 	}
@@ -430,23 +445,67 @@ public final class RTFSelfTest {
 			}
 		}
 		check("bee nests grow on the mod's trees" + (meadowTree == null ? " (the preset has no meadow tree)" : ""), nest);
-		// and saplings grown with bone meal next to flowers are Minecraft's own trees, with its 5 % chance of a nest: 200
-		// oak saplings, each with a poppy beside it, on grass blocks east of the spawn
-		int grown = 0, nests = 0;
+		// saplings grow the mod's trees where the preset puts them in the biomes (#41), Minecraft's otherwise: 200 oak
+		// saplings, each with a poppy beside it, on grass blocks east of the spawn, get bee nests as Minecraft's 5 %
+		boolean templates = (Object) level.getChunkSource().randomState() instanceof RTFRandomState srs && srs.preset() != null && srs.preset().miscellaneous().customBiomeFeatures;
+		int grown = 0, nests = 0, before = SaplingTrees.grown;
 		for (int i = 0; i < 200; i++) {
 			int x = spawn.getX() + 400 + (i % 20) * 7, z = spawn.getZ() + (i / 20) * 7;
-			full(level, x >> 4, z >> 4);
-			BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
-			level.setBlock(ground.below(), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+			BlockPos ground = this.saplingGround(level, x, z, 1);
 			level.setBlock(ground.east(), Blocks.POPPY.defaultBlockState(), 3);
 			level.setBlock(ground.east().below(), Blocks.GRASS_BLOCK.defaultBlockState(), 3);
 			level.setBlock(ground, Blocks.OAK_SAPLING.defaultBlockState(), 3);
 			if (TreeGrower.OAK.growTree(level, level.getChunkSource().getGenerator(), ground, level.getBlockState(ground), RandomSource.create(i))) {
 				grown++;
-				if (BlockPos.betweenClosedStream(ground.offset(-2, 0, -2), ground.offset(2, 12, 2)).anyMatch((p) -> level.getBlockState(p).is(Blocks.BEE_NEST))) nests++;
+				if (BlockPos.betweenClosedStream(ground.offset(-4, 0, -4), ground.offset(4, 16, 4)).anyMatch((p) -> level.getBlockState(p).is(Blocks.BEE_NEST))) nests++;
 			}
 		}
-		check("saplings grown next to flowers get bee nests (" + nests + " of " + grown + ")", grown >= 50 && nests > 0);
+		int mod = SaplingTrees.grown - before;
+		check("saplings grown next to flowers get bee nests (" + nests + " of " + grown + ", the mod's " + mod + ")", grown >= 50 && nests > 0 && nests < grown / 4 && mod == (templates ? grown : 0));
+		// each of Minecraft's saplings, with bone meal (its last stage), a 2 x 2 one with its trunk on the four saplings,
+		// the trees' leaves not persistent and not about to decay: the mod's trees with its features, Minecraft's own
+		// for a cherry sapling and without them
+		Object[][] saplings = {
+			{ Blocks.OAK_SAPLING, 1 }, { Blocks.BIRCH_SAPLING, 1 }, { Blocks.SPRUCE_SAPLING, 1 }, { Blocks.JUNGLE_SAPLING, 1 }, { Blocks.ACACIA_SAPLING, 1 },
+			{ Blocks.SPRUCE_SAPLING, 2 }, { Blocks.JUNGLE_SAPLING, 2 }, { Blocks.DARK_OAK_SAPLING, 2 }, { Blocks.CHERRY_SAPLING, 1 }
+		};
+		for (int k = 0; k < saplings.length; k++) {
+			Block block = (Block) saplings[k][0];
+			int size = (Integer) saplings[k][1];
+			boolean modTree = templates && block != Blocks.CHERRY_SAPLING;
+			int grownTrees = 0, onSaplings = 0, badLeaves = 0;
+			before = SaplingTrees.grown;
+			for (int i = 0; i < 12; i++) {
+				int x = spawn.getX() + 600 + k * 40, z = spawn.getZ() + i * 40;
+				BlockPos ground = this.saplingGround(level, x, z, size);
+				for (int dx = 0; dx < size; dx++) for (int dz = 0; dz < size; dz++) level.setBlock(ground.offset(dx, 0, dz), block.defaultBlockState().setValue(SaplingBlock.STAGE, 1), 3);
+				((SaplingBlock) block).advanceTree(level, ground, level.getBlockState(ground), RandomSource.create(k * 100 + i));
+				if (level.getBlockState(ground).is(block)) continue;
+				grownTrees++;
+				boolean trunk = true;
+				for (int dx = 0; dx < size; dx++) for (int dz = 0; dz < size; dz++) trunk &= level.getBlockState(ground.offset(dx, 0, dz)).is(BlockTags.LOGS);
+				if (trunk) onSaplings++;
+				badLeaves += (int) BlockPos.betweenClosedStream(ground.offset(-12, 0, -12), ground.offset(12, 40, 12)).map(level::getBlockState)
+					.filter((state) -> state.getBlock() instanceof LeavesBlock && (state.getValue(LeavesBlock.PERSISTENT) || state.getValue(LeavesBlock.DISTANCE) >= LeavesBlock.DECAY_DISTANCE)).count();
+			}
+			mod = SaplingTrees.grown - before;
+			String name = size + "x" + size + " " + block.getName().getString();
+			RTFCommon.LOGGER.info("[RTF selftest] saplings {}: {} of 12 grown, {} the mod's, {} on their saplings, {} leaves persistent or decaying", name, grownTrees, mod, onSaplings, badLeaves);
+			check("a " + name + " grows " + (modTree ? "the mod's tree" : "Minecraft's tree") + " on its sapling (" + grownTrees + " of 12, the mod's " + mod + ")", grownTrees >= 6 && onSaplings == grownTrees && mod == (modTree ? grownTrees : 0) && (!modTree || badLeaves == 0));
+		}
+		// no tree grows where it does not fit, under a roof 4 blocks above (the mod's spruces are 8 to 14 high, and
+		// saplings grow none of its bushes): the saplings stay
+		int roofed = 0;
+		before = SaplingTrees.grown;
+		for (int i = 0; i < 12; i++) {
+			int x = spawn.getX() + 1000, z = spawn.getZ() + i * 40;
+			BlockPos ground = this.saplingGround(level, x, z, 1);
+			for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) level.setBlock(ground.offset(dx, 4, dz), Blocks.STONE.defaultBlockState(), 3);
+			level.setBlock(ground, Blocks.SPRUCE_SAPLING.defaultBlockState().setValue(SaplingBlock.STAGE, 1), 3);
+			((SaplingBlock) Blocks.SPRUCE_SAPLING).advanceTree(level, ground, level.getBlockState(ground), RandomSource.create(i));
+			if (level.getBlockState(ground).is(Blocks.SPRUCE_SAPLING)) roofed++;
+		}
+		check("no mod's tree grows under a low roof (" + roofed + " of 12 saplings stay)", !templates || (SaplingTrees.grown == before && roofed == 12));
 
 		// a village exists and its start sits on the terrain, not floating or buried
 		BlockPos village = level.findNearestMapStructure(StructureTags.VILLAGE, BlockPos.ZERO, 100, false);

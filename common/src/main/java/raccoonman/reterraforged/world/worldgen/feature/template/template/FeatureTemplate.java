@@ -29,13 +29,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.nbt.*;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -209,6 +212,27 @@ public class FeatureTemplate {
         }
 
         return placed;
+    }
+
+    // the north-west log of the 2 x 2 trunk around the template's origin, in its lowest layers, or null: a tree grown
+    // from four saplings goes there, on the saplings, whatever way it is turned (the origin is one of the four logs)
+    public BlockPos trunkCorner(Mirror mirror, Rotation rotation) {
+        Set<BlockPos> logs = new HashSet<>();
+        for (BlockInfo block : this.template.get(mirror, rotation)) {
+            if (block.pos().getY() >= 0 && block.pos().getY() <= 3 && block.state().is(BlockTags.LOGS)) {
+                logs.add(block.pos());
+            }
+        }
+        for (int y = 0; y <= 3; y++) {
+            for (int x = -1; x <= 0; x++) {
+                for (int z = -1; z <= 0; z++) {
+                    if (logs.contains(new BlockPos(x, y, z)) && logs.contains(new BlockPos(x + 1, y, z)) && logs.contains(new BlockPos(x, y, z + 1)) && logs.contains(new BlockPos(x + 1, y, z + 1))) {
+                        return new BlockPos(x, 0, z);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public Dimensions getDimensions(Mirror mirror, Rotation rotation) {

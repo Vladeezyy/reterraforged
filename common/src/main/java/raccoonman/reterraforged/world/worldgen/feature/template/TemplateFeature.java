@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
@@ -20,6 +21,8 @@ import raccoonman.reterraforged.server.RTFMinecraftServer;
 import raccoonman.reterraforged.world.worldgen.feature.template.TemplateFeature.Config;
 import raccoonman.reterraforged.world.worldgen.feature.template.decorator.DecoratorConfig;
 import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TemplateDecorator;
+import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TemplateDecorators;
+import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TreeContext;
 import raccoonman.reterraforged.world.worldgen.feature.template.paste.Paste;
 import raccoonman.reterraforged.world.worldgen.feature.template.paste.PasteConfig;
 import raccoonman.reterraforged.world.worldgen.feature.template.paste.PasteType;
@@ -80,6 +83,41 @@ public class TemplateFeature extends Feature<Config<?>> {
         } else {
         	throw new IllegalStateException();
         }
+    }
+
+    // a tree grown from a sapling (#41), as the tree is pasted in generation: a 2 x 2 one with its trunk on the four
+    // saplings whose north-west one is at pos, and a bee nest with the given chance, as Minecraft's tree grown next to
+    // flowers has
+    public static <T extends TemplateContext> boolean growSapling(ServerLevel level, RandomSource rand, BlockPos pos, Config<T> config, boolean twoByTwo, float beeNest) {
+        if (config.templates().isEmpty() || !(level.getServer() instanceof RTFMinecraftServer rtfMinecraftServer)) {
+            return false;
+        }
+        Mirror mirror = nextMirror(rand);
+        Rotation rotation = nextRotation(rand);
+        FeatureTemplate template = rtfMinecraftServer.getFeatureTemplateManager().load(nextTemplate(config.templates, rand));
+        if (twoByTwo) {
+            BlockPos corner = template.trunkCorner(mirror, rotation);
+            if (corner != null) {
+                pos = pos.subtract(corner);
+            }
+        }
+
+        TemplatePlacement<T> placement = config.placement();
+        if (!placement.canPlaceAt(level, pos, template.getDimensions(mirror, rotation))) {
+            return false;
+        }
+        T buffer = placement.createContext();
+        if (!FeatureTemplate.WORLD_GEN.get(template).apply(level, buffer, pos, mirror, rotation, placement, config.paste())) {
+            return false;
+        }
+        Identifier biome = level.getBiome(pos).unwrapKey().map(ResourceKey::identifier).orElse(null);
+        for (TemplateDecorator<T> decorator : config.decorator().getDecorators(biome)) {
+            decorator.apply(level, buffer, rand, true);
+        }
+        if (beeNest > 0.0F && buffer instanceof TreeContext tree) {
+            TemplateDecorators.beeNest(beeNest).apply(level, tree, rand, true);
+        }
+        return true;
     }
 
 	private static Identifier nextTemplate(List<Identifier> templates, RandomSource random) {
