@@ -4,6 +4,7 @@ import raccoonman.reterraforged.RTFCommon;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -49,7 +50,9 @@ public class MixinBiomeModificationImpl {
 		remap = false
 	)
 	public List<Object> getSortedModifiers(BiomeModificationImpl self, RegistryAccess registries) {
-		List<Object> modifiers = this.getSortedModifiers();
+		// a copy: Fabric's list is the one of the whole game. Added to it, the modifiers of a world stayed for every world
+		// loaded after it in the same session (a vanilla world got the preset's trees, an RTF world its density twice)
+		List<Object> modifiers = new ArrayList<>(this.getSortedModifiers());
 		for(Holder.Reference<BiomeModifier> holder : registries.lookupOrThrow(RTFRegistries.BIOME_MODIFIER).listElements().toList()) {
 			if(holder.value() instanceof FabricBiomeModifier modifier) {
 				Object record = this.makeModifierRecord(holder.key().identifier(), ModificationPhase.POST_PROCESSING, (ctx) -> {
