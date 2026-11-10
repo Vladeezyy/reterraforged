@@ -32,16 +32,16 @@ generation is that of the original **ReTerraForged 0.0.6** for 1.20.1, without i
 
 | Minecraft | Release | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 Every release has a NeoForge jar, a Fabric jar (Fabric API required) and a preset datapack for servers.
 New versions are released for 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3; 1.21.3 to 1.21.10 stay at 0.0.25.
@@ -95,6 +95,7 @@ The mod only affects new worlds created with its preset. It does not change an e
   off by default and presets saved before have none. Generation is 4 to 5 % slower at 25 %. Rivers still cross the basins.
 - **Island settings** (0.0.30, Islands page, [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): Coast Noise Octaves (1 to 8, default 5), Coast Noise Gain (0 to 1, default 0.5) and Coast Noise Lacunarity (1 to 4, default 2) make island coasts rough instead of always smooth. Island Seed Offset (with a button for a random one) moves the islands to another layout. Distance From Continents (0 to 1, default 0) keeps islands away from continents: at 1 the nearest island is about 190 blocks from a continent and the median island 860, against 30 and 610 at 0. Continent Mountains (off by default) gives islands the continents' mountain noise; with the island mountain sliders at maximum, the highest point is about 300 instead of 235.
 - **Vegetation density** (0.0.30, Miscellaneous page, [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): Grass Density (0 to 3), Tree Density (0 to 2) and Plant Density (0 to 3, flowers, bushes, mushrooms and other plants): 1 is the usual amount, 0 none. They need Custom Biome Features (on in Default). They also scale the vegetation of other mods' biomes, recognised by the names of their features (one with an unknown name stays as it is). At 1 they cost nothing.
+- **Saplings grow the mod's trees** (0.0.31, [#41](https://github.com/Vladeezyy/reterraforged/issues/41), with Custom Biome Features on, on in Default): an oak, birch, spruce, jungle, acacia or dark oak sapling, bone meal too, grows one of the mod's template trees instead of the vanilla one. Spruce, jungle and dark oak grow 2 × 2 from four saplings. Next to flowers a bee nest appears with a 5 % chance, as in vanilla. Vanilla still picks the tree and puts the saplings back when the tree does not fit: the mod's trees are taller (jungle 16–19 blocks, redwood about 20), so a sapling needs more room than in vanilla. Saplings of other mods, cherry, mangrove and azalea are unchanged. With Custom Biome Features off, saplings grow vanilla trees.
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
   Stones of other mods go in through the block tag `reterraforged:rock`; Quark's jasper, limestone and shale are in it
@@ -142,6 +143,13 @@ New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so 
 **Seams on cliffs, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): with mods that repaint
 mountain surfaces, such as William Wythers' Overhauled Overworld, the rock of steep slopes came out in chunk-sized
 squares and stripes.
+
+**Other fixes, 0.0.31**:
+- **Erosion leaves other mods' surface blocks alone** ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)): the erodible tag lists vanilla's dirt blocks by name, not the whole dirt tag. Regions Unexplored's Chalk Cliffs kept 29.1 % chalk grass (was 11.2 %, with 18.3 % strata rock). A datapack can add a mod's block to the tag. Old worlds keep their preset datapack's tag; new worlds get the fix, and a world's preset can be re-exported.
+- **Island Horizontal Scale** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) no longer works backwards. **Steep shores** get a stony shore's climate, so beach sand stays off mountain slopes ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) and Regions Unexplored's Chalk Cliffs generate ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)).
+- **TerraBlender regions of other biome mods:** a biome's region is now a hash of its id, by the regions' weights. Regions Unexplored with Biomes O' Plenty: 89 of 121 biome kinds, was 76; on 26.x Biomes O' Plenty alone: 51 of 59, was 50. Worlds without TerraBlender are not affected.
+- **Preset export on a started server** with Regions Unexplored or Biomes O' Plenty failed with `reterraforged:strata/depth is not valid in current registry set`. It works now.
+- **Flower Forest** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37)) has as many flowers as vanilla: 2.125 patches a chunk instead of 1.5. On 26.2, three seeds of 32 × 32 chunks gave 60.3 flowers per 256 columns, vanilla 60.0. Plant Density scales them.
 
 **Tree and grass density, 0.0.30** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), with Custom Biome Features on):
 forests, taigas and jungles had half of vanilla's trees, because a tree could not grow on a column with grass or under
@@ -730,16 +738,16 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 | Minecraft | Релиз | NeoForge | Fabric Loader / API | Java |
 |---|---|---|---|---|
-| 26.3 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
-| 26.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
-| 26.1.2 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
-| 1.21.11 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
+| 26.3 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.3) | 26.3.0.76 | 0.19.5 / 0.162 | 25 |
+| 26.2 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.2) | 26.2.0.90 | 0.19.5 / 0.161 | 25 |
+| 26.1.2 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-26.1.2) | 26.1.2.116 | 0.19.5 / 0.155 | 25 |
+| 1.21.11 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-1.21.11) | 21.11.45 | 0.17.3 / 0.141 | 21 |
 | 1.21.10 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.10) | 21.10.64 | 0.17.3 / 0.138 | 21 |
 | 1.21.8 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.8) | 21.8.54 | 0.17.2 / 0.136 | 21 |
 | 1.21.5 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.5) | 21.5.98 | 0.16.14 / 0.128 | 21 |
 | 1.21.4 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.4) | 21.4.158 | 0.16.14 / 0.119 | 21 |
 | 1.21.3 | [0.0.25](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.25-1.21.3) | 21.3.97 | 0.16.14 / 0.114 | 21 |
-| 1.21.1 | [0.0.30](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.30-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
+| 1.21.1 | [0.0.31](https://github.com/Vladeezyy/reterraforged/releases/tag/v0.0.31-1.21.1) | 21.1.201 | 0.16.3 / 0.102 | 21 |
 
 В каждом релизе — jar для NeoForge, jar для Fabric (нужен Fabric API) и датапак пресета для серверов.
 Новые версии выходят для 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3; 1.21.3–1.21.10 остаются на 0.0.25.
@@ -792,6 +800,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
   выключена, а в сохранённых раньше пресетах её нет. Генерация при 25 % медленнее на 4–5 %. Реки по-прежнему идут и через низины.
 - **Настройки островов** (0.0.30, страница «Острова», [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): «Октавы шума берегов» (от 1 до 8, по умолчанию 5), «Усиление шума берегов» (от 0 до 1, по умолчанию 0,5) и «Лакунарность шума берегов» (от 1 до 4, по умолчанию 2) делают берега островов неровными, а не всегда гладкими. «Смещение сида островов» (с кнопкой для случайного значения) переносит острова на другое расположение. «Расстояние от континентов» (от 0 до 1, по умолчанию 0) держит острова дальше от континентов: при 1 ближайший остров примерно в 190 блоках от континента, а медианный остров — в 860, против 30 и 610 при 0. «Горы континентов» (по умолчанию выключено) дают островам шум гор континентов; при максимальных ползунках гор островов самая высокая точка около 300 вместо 235.
 - **Плотность растительности** (0.0.30, страница «Прочее», [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): «Плотность травы» (от 0 до 3), «Плотность деревьев» (от 0 до 2) и «Плотность растений» (от 0 до 3; цветы, кусты, грибы и другие растения): 1 — обычное количество, 0 — ни одного. Нужны «Свои элементы биомов» (включены в «По умолчанию»). Они меняют и растительность биомов других модов, которых узнают по именам элементов (элемент с неизвестным именем остаётся как есть). При 1 ничего не стоят.
+- **Саженцы выращивают деревья мода** (0.0.31, [#41](https://github.com/Vladeezyy/reterraforged/issues/41), при включённых «Своих элементах биомов», в «По умолчанию» они включены): саженец дуба, берёзы, ели, джунглей, акации или тёмного дуба, в том числе с костной мукой, вырастает одним из деревьев-шаблонов мода вместо ванильного. Ель, джунгли и тёмный дуб растут 2 × 2 из четырёх саженцев. Рядом с цветами с шансом 5 % появляется улей, как в ванили. Ваниль по-прежнему выбирает дерево и возвращает саженцы, если дерево не помещается: деревья мода выше (джунгли 16–19 блоков, секвойя около 20), поэтому саженцу нужно больше места, чем в ванили. Саженцы других модов, вишня, мангровое дерево и азалия не меняются. При выключенных «Своих элементах биомов» саженцы растят ванильные деревья.
 - **Пласты горных пород** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): слои гранита, диорита, андезита
   и камня под землёй. Число слоёв и их относительная толщина настраиваются ползунками на странице «Прочее». Камни
   других модов добавляются через тег блоков `reterraforged:rock`; jasper, limestone и shale из Quark уже в нём.
@@ -838,6 +847,13 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 **Швы на склонах, 0.0.17** ([#2](https://github.com/Vladeezyy/reterraforged/issues/2)): с модами, которые
 перекрашивают поверхность гор, например William Wythers' Overhauled Overworld, камень крутых склонов выходил
 квадратами и полосами по чанкам.
+
+**Прочие исправления, 0.0.31**:
+- **Эрозия не трогает поверхностные блоки других модов** ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)): тег размываемых блоков перечисляет земляные блоки ванили по именам, а не весь тег земли. Chalk Cliffs из Regions Unexplored держали 29,1 % мелового травяного блока (было 11,2 %, при 18,3 % породы пластов). Датапак может добавить блок мода в тег. В старых мирах остаётся тег датапака их пресета; новые миры получают исправление, а пресет мира можно экспортировать заново.
+- **Горизонтальный масштаб островов** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) больше не работает наоборот. **Крутые берега** получают климат каменистого берега, поэтому песок пляжа не выходит на склоны гор ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)), а Chalk Cliffs из Regions Unexplored генерируются ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)).
+- **Регионы TerraBlender у других модов биомов:** регион биома теперь хэш его id по весам регионов. Regions Unexplored с Biomes O' Plenty: 89 из 121 вида биомов (было 76); на 26.x один Biomes O' Plenty: 51 из 59 (было 50). Миры без TerraBlender не меняются.
+- **Экспорт пресета на запущенном сервере** с Regions Unexplored или Biomes O' Plenty падал с ошибкой `reterraforged:strata/depth is not valid in current registry set`. Теперь работает.
+- **Flower Forest** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37)) имеет столько же цветов, сколько ваниль: 2,125 участка на чанк вместо 1,5. На 26.2 по трём сидам по 32 × 32 чанка вышло 60,3 цветка на 256 колонок, в ванили 60,0. «Плотность растений» их масштабирует.
 
 **Плотность деревьев и травы, 0.0.30** ([#37](https://github.com/Vladeezyy/reterraforged/issues/37), при включённых «Своих элементах биомов»):
 в лесах, тайге и джунглях было вдвое меньше деревьев, чем в ванили: дерево не вырастало в колонке с травой и под листвой. Теперь
