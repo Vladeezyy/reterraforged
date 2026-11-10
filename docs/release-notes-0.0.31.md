@@ -25,4 +25,4 @@ Each version has a NeoForge jar, a Fabric jar (Fabric API required) and a preset
 
 - Replace the old jar in `mods/` with the new one. New worlds are made with the preset as before.
 - Saplings work right away, also in existing worlds.
-- Old worlds keep their preset datapack, so the erosion fix (#40) applies to new worlds; a world's preset can be re-exported to get it.
+- An existing world keeps its preset datapack, so the erosion fix (#40) is for new worlds.
