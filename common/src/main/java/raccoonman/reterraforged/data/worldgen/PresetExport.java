@@ -1,7 +1,7 @@
 package raccoonman.reterraforged.data.worldgen;
 
 import java.io.IOException;
-import java.net.URI;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,18 +40,26 @@ public final class PresetExport {
 			copyToZip(datagenOutputPath, tempPath);
 			Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
 		} finally {
-			// also when the export failed: every failure left a folder in the system's temporary files
-			Files.deleteIfExists(tempPath);
-			PathUtils.deleteDirectory(datagenPath);
+			// also when the export failed: every failure left a folder in the system's temporary files. A cleanup that
+			// fails (Windows: an antivirus still holds a file) is only logged: it hid the export that worked, and the
+			// world was made without the preset
+			try {
+				Files.deleteIfExists(tempPath);
+				PathUtils.deleteDirectory(datagenPath);
+			} catch (IOException | UncheckedIOException e) {
+				RTFCommon.LOGGER.warn("Could not delete the temporary files of the export in {}", datagenPath, e);
+			}
 		}
 
 		RTFCommon.LOGGER.info("Exported datapack to {}", outputPath);
 	}
 
-	private static void copyToZip(Path input, Path output) throws IOException {
+	// the path, not a "jar:" URI: the zip provider cuts such a URI at its first "!/", and Path.toUri does not escape "!".
+	// With a folder whose name ends in "!" (an instance "Pack!", a Windows user "Name!" for the temporary files) the zip
+	// was written to the path before it, and the export or the preset of every new world failed
+	static void copyToZip(Path input, Path output) throws IOException {
 		Map<String, String> env = ImmutableMap.of("create", "true");
-		URI uri = URI.create("jar:" + output.toUri());
-		try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
+		try (FileSystem fs = FileSystems.newFileSystem(output, env)) {
 			PathUtils.copyDirectory(input, fs.getPath("/"), StandardCopyOption.REPLACE_EXISTING);
 		}
 	}

@@ -56,18 +56,22 @@ class MixinRandomState {
 	@Final
     private SurfaceSystem surfaceSystem;
 	
-	private boolean hasContext;
+	private volatile boolean hasContext;
+	// volatile: generation threads read it while the lazy initialization below sets it
 	@Nullable
-	private GeneratorContext generatorContext;
+	private volatile GeneratorContext generatorContext;
 	@Nullable
-	private Preset preset;
+	private volatile Preset preset;
 	// the noise router has ReTerraForged density functions (set while the router is built, never cleared)
 	private boolean reTerraForgedFunctions;
 	
 	private long seed;
 	private NoiseGeneratorSettings noiseGeneratorSettings;
-	// initialize ran, or the lazy one was tried
+	// initialize started (also while it runs: a call back into it from the same thread gets no context, not a loop)
 	private volatile boolean initialized;
+	// initialize finished: only then may a missing context be taken for "no context". With the flag above alone, a thread
+	// that came while another one built the context got none, and its chunks were made with a height of 0 (a sea)
+	private volatile boolean ready;
 	
 	@Redirect(
 		at = @At(
@@ -87,7 +91,7 @@ class MixinRandomState {
 		// of 8 (D-42). lithostitched 1.8+ hides this with its MapAllCache, 1.7.2 on 1.21.11 does not have it.
 		Supplier<WorldLookup> lookup = () -> {
 			GeneratorContext context = this.generatorContext;
-			if(context == null && !this.initialized) {
+			if(context == null && !this.ready) {
 				context = this.initializeLazily();
 			}
 			return context != null ? context.lookup : null;
@@ -117,20 +121,23 @@ class MixinRandomState {
 		return router.mapAll(this.densityFunctionWrapper);
 	}
 
-	public void reterraforged$RTFRandomState$initialize(ServerLevel level) {
+	public synchronized void reterraforged$RTFRandomState$initialize(ServerLevel level) {
 		RegistryAccess registries = level.registryAccess();
 		this.initialized = true;
-
-		if(level.dimension().equals(Level.OVERWORLD)) {
-			OverworldRegistries.set(registries);
-		} else if(!this.hasContext || !generationFixes(registries)) {
-			this.clearGeneratorContext();
-			return;
+		try {
+			if(level.dimension().equals(Level.OVERWORLD)) {
+				OverworldRegistries.set(registries);
+			} else if(!this.hasContext || !generationFixes(registries)) {
+				this.clearGeneratorContext();
+				return;
+			}
+			// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
+			// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
+			// preset saved before: what was explored of such a dimension stays as it is
+			this.initialize(registries);
+		} finally {
+			this.ready = true;
 		}
-		// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
-		// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
-		// preset saved before: what was explored of such a dimension stays as it is
-		this.initialize(registries);
 	}
 
 	private static boolean generationFixes(RegistryAccess registries) {
@@ -139,12 +146,17 @@ class MixinRandomState {
 
 	// a random state no ChunkMap set up: our noise settings are the overworld's, so it gets the overworld's preset
 	@Nullable
+	// synchronized: the other threads wait here until the context is made, and get it
 	private synchronized GeneratorContext initializeLazily() {
 		RegistryAccess registries = OverworldRegistries.get();
 		if(!this.initialized && registries != null) {
 			this.initialized = true;
 			RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
-			this.initialize(registries);
+			try {
+				this.initialize(registries);
+			} finally {
+				this.ready = true;
+			}
 		}
 		return this.generatorContext;
 	}
@@ -200,7 +212,13 @@ class MixinRandomState {
 
 	@Nullable
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
-		return this.generatorContext;
+		GeneratorContext context = this.generatorContext;
+		// a random state no ChunkMap set up: a NoiseChunk asks for the context before any density function did, and
+		// without it the chunk had no ReTerraForged terrain at all
+		if(context == null && !this.ready && this.hasContext) {
+			context = this.initializeLazily();
+		}
+		return context;
 	}
 
 	@Nullable

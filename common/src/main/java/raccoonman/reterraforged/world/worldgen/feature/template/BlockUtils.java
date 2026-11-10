@@ -35,6 +35,16 @@ public class BlockUtils {
         return state.is(BlockTags.REPLACEABLE_BY_TREES) && state.getFluidState().isEmpty();
     }
 
+    // a tree grown from a sapling in the world, as vanilla's (TreeFeature.validTreePos): saplings and flowers stay. Our
+    // generation rules above took them, and a grown tree cleared the saplings and the flowers of a tree farm around it
+    public static boolean canSaplingTreeReplace(LevelAccessor world, BlockPos pos) {
+        if (TreeFeature.isAirOrLeaves(world, pos)) {
+            return true;
+        }
+        BlockState state = world.getBlockState(pos);
+        return state.is(BlockTags.REPLACEABLE_BY_TREES) && state.getFluidState().isEmpty();
+    }
+
     public static boolean isSolid(BlockGetter reader, BlockPos pos) {
         BlockState state = reader.getBlockState(pos);
         return isSolid(state);

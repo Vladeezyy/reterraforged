@@ -3,6 +3,7 @@ package raccoonman.reterraforged.world.worldgen.feature.template;
 import java.util.List;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
@@ -10,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -102,7 +104,7 @@ public class TemplateFeature extends Feature<Config<?>> {
             }
         }
 
-        TemplatePlacement<T> placement = config.placement();
+        TemplatePlacement<T> placement = new SaplingPlacement<>(config.placement());
         if (!placement.canPlaceAt(level, pos, template.getDimensions(mirror, rotation))) {
             return false;
         }
@@ -141,4 +143,28 @@ public class TemplateFeature extends Feature<Config<?>> {
 			DecoratorConfig.CODEC.fieldOf("decorator").forGetter(Config::decorator)
 		).apply(instance, (templates, placement, paste, decorator) -> new Config(templates, placement, paste, decorator)));
 	}
+
+    // the placement of a tree grown from a sapling: what it may replace is vanilla's (the player's saplings and flowers stay)
+    private record SaplingPlacement<T extends TemplateContext>(TemplatePlacement<T> placement) implements TemplatePlacement<T> {
+
+        @Override
+        public boolean canPlaceAt(LevelAccessor world, BlockPos pos, Dimensions dimensions) {
+            return this.placement.canPlaceAt(world, pos, dimensions);
+        }
+
+        @Override
+        public boolean canReplaceAt(LevelAccessor world, BlockPos pos) {
+            return this.placement.canReplaceAt(world, pos) && BlockUtils.canSaplingTreeReplace(world, pos);
+        }
+
+        @Override
+        public T createContext() {
+            return this.placement.createContext();
+        }
+
+        @Override
+        public MapCodec<? extends TemplatePlacement<T>> codec() {
+            throw new UnsupportedOperationException();
+        }
+    }
 }
