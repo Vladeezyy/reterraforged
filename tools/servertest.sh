@@ -25,6 +25,8 @@
 # the neighbours are decorated in, so with more threads two runs of the same build differ in a few full chunks.
 # TILEBENCH=<tiles> the generator's median time per tile (cells and filters only, "rtf tilebench").
 # SWAMPS=1 where the swamp biomes are against the river valleys and the heights (run/swamps-<loader>.txt, #28).
+# PREVIEWMAPS="<name> <spec>|<name> <spec>|...": "rtf previewmap" of each (spec: default, preset:<built-in name>, set:...),
+# no world needed, PREVIEWMAP_ZOOM blocks per pixel (16); PNGs and the lines go to run/previewmap-<loader>/.
 # ISLANDS=1 with PRESET=set:island().enableArchipelago=true;... what the land of the islands is made of (run/islands-<loader>.txt, .png,
 # #38); ISLANDS_REF=<file> says what differs from that run (tools/compareislands.py). With SKIP_SELFTEST=1 SKIP_STRUCTURES=1 about 1 minute.
 # COASTS=1 what the shores are ("rtf coasts", #38, #40): coast biomes, beaches on steep shores, stony shores, sand on slopes in real
@@ -303,6 +305,17 @@ for loader in $LOADERS; do
         wait_for "$dir/console.log" 'RTF swamps\] [0-9F]' 1200
         grep -o 'RTF swamps\] [0-9F].*' "$dir/console.log" | tail -1 | cut -c1-400 | sed 's/^/  /'
         cp "$dir/rtf-swamps.txt" "run/swamps-$loader.txt" 2>/dev/null; cp "$dir/rtf-swamps.png" "run/swamps-$loader.png" 2>/dev/null
+    fi
+    if [ -n "$PREVIEWMAPS" ]; then
+        mkdir -p "run/previewmap-$loader"; rm -f "run/previewmap-$loader"/*
+        IFS='|' read -r -a maps <<< "$PREVIEWMAPS"
+        for m in "${maps[@]}"; do
+            seen=$(grep -c 'RTF previewmap\] ' "$dir/console.log")
+            echo "rtf previewmap ${m%% *} ${PREVIEWMAP_ZOOM:-16} ${m#* }" >> "$dir/console.in"
+            for i in $(seq 1 600); do [ "$(grep -c 'RTF previewmap\] ' "$dir/console.log")" -gt "$seen" ] && break; pgrep -f "rtf.run=$TAG " > /dev/null || break; sleep 1; done
+            cp "$dir/rtf-previewmap-${m%% *}.png" "$dir/rtf-previewmap-${m%% *}-screen.png" "run/previewmap-$loader/" 2>/dev/null
+        done
+        grep -o 'RTF previewmap\] .*' "$dir/console.log" | sed 's/ -> .*//' | tee "run/previewmap-$loader/previewmap.txt" | sed 's/^/  /'
     fi
     # ISLANDS=1: what the land of the islands is made of ("rtf islands", #38), the table copied to run/islands-<loader>.txt;
     # ISLANDS_REF=<file>: what differs from that run

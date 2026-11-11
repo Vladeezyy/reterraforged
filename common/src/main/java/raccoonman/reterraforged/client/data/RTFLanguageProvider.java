@@ -137,6 +137,14 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "edgetype.sin"), "Sine waves: regular stripes.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_ENUM_PREFIX + "edgetype.white"), "White noise: random at every point, very jagged borders.");
 			this.add(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME, "Default");
+			this.add(RTFTranslationKeys.GUI_ARCHIPELAGO_PRESET_NAME, "Archipelago");
+			this.add(RTFTranslationKeys.GUI_WETLANDS_PRESET_NAME, "Wetlands");
+			this.add(RTFTranslationKeys.GUI_TOWERING_PEAKS_PRESET_NAME, "Towering Peaks");
+			this.add(RTFTranslationKeys.GUI_ENDLESS_CONTINENT_PRESET_NAME, "Endless Continent");
+			this.add(RTFTranslationKeys.GUI_RIVER_VALLEYS_PRESET_NAME, "River Valleys");
+			this.add(RTFTranslationKeys.GUI_LUSH_WILDS_PRESET_NAME, "Lush Wilds");
+			this.add(RTFTranslationKeys.GUI_ROLLING_PLAINS_PRESET_NAME, "Rolling Plains");
+			this.add(RTFTranslationKeys.GUI_RUGGED_HIGHLANDS_PRESET_NAME, "Rugged Highlands");
 			this.add(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME, "TerraForged - Beautiful (Legacy)");
 			this.add(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME, "TerraForged - Huge Biomes (Legacy)");
 			this.add(RTFTranslationKeys.GUI_LITE_PRESET_NAME, "TerraForged - Lite (Legacy)");
