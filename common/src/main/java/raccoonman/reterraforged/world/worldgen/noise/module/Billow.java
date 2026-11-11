@@ -10,7 +10,7 @@ import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 record Billow(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float[] spectralWeights, float min, float max) implements Noise {
 	public static final MapCodec<Billow> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("frequency").forGetter(Billow::frequency),
-		Codec.INT.fieldOf("octaves").forGetter(Billow::octaves),
+		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(Billow::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Billow::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Billow::gain),
 		Interpolation.CODEC.fieldOf("interpolation").forGetter(Billow::interpolation)

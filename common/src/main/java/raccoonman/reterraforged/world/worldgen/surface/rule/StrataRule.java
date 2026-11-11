@@ -198,9 +198,15 @@ public record StrataRule(ResourceLocation name, Holder<Noise> selector, List<Str
 		}
 		
 		private List<Layer> selectLayers(int x, int z) {
+			int size = this.strata.size();
+			// no strata (an empty list or no iterations in the datapack): no layers, the rule gives nothing
+			if(size == 0) {
+				return List.of();
+			}
 			float selector = this.selector.compute(x, z, 0);
-	        int index = (int) (selector * this.strata.size());
-	        index = Math.min(this.strata.size() - 1, index);
+	        int index = (int) (selector * size);
+	        // a selector below 0 gave a negative index
+	        index = Math.max(0, Math.min(size - 1, index));
 	        return this.strata.get(index);
 	    }
 	}
