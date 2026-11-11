@@ -10,7 +10,7 @@ import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 record PerlinRidge(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float[] spectralWeights, float min, float max) implements Noise {
 	public static final MapCodec<PerlinRidge> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("frequency").forGetter(PerlinRidge::frequency),
-		Codec.INT.fieldOf("octaves").forGetter(PerlinRidge::octaves),
+		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(PerlinRidge::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(PerlinRidge::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(PerlinRidge::gain),
 		Interpolation.CODEC.fieldOf("interpolation").forGetter(PerlinRidge::interpolation)

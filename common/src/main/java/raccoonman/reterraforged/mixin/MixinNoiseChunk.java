@@ -6,11 +6,14 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.Blocks;
@@ -22,6 +25,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
@@ -29,19 +33,28 @@ import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.densityfunction.C2MECompat;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 import raccoonman.reterraforged.world.worldgen.densityfunction.ClampToNearestUnit;
+import raccoonman.reterraforged.world.worldgen.densityfunction.ColumnCache;
 import raccoonman.reterraforged.world.worldgen.densityfunction.ConditionalFlatCache;
 import raccoonman.reterraforged.world.worldgen.densityfunction.LinearSplineFunction;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 
 @Mixin(NoiseChunk.class)
 class MixinNoiseChunk {
+	@Unique
 	private RandomState randomState;
+	@Unique
 	private int chunkX, chunkZ;
+	@Unique
 	@Nullable
 	private Tile.Chunk chunk;
+	// made with the first cell sampler: a noise chunk of a world without ReTerraForged has none
+	@Unique
+	@Nullable
 	private CellSampler.Cache2d cache2d;
+	@Unique
 	private static final boolean C2ME_PRESENT = isC2MEPresent();
 
+	@Unique
 	private static boolean isC2MEPresent() {
 		try {
 			Class.forName("com.ishland.c2me.base.common.GlobalExecutors");
@@ -61,14 +74,16 @@ class MixinNoiseChunk {
     @Final
 	private int cellCountXZ;
 	
-	@Redirect(
+	// a wrap, not a @Redirect: another mod's wrap or redirect of the same call still applies
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/level/levelgen/RandomState;router()Lnet/minecraft/world/level/levelgen/NoiseRouter;"
 		),
-		method = "<init>"
+		method = "<init>",
+		require = 1
 	)
-	private NoiseRouter NoiseChunk(RandomState randomState1, int cellCountXZ, RandomState randomState2, int minBlockX, int minBlockZ) {
+	private NoiseRouter NoiseChunk(RandomState randomState1, Operation<NoiseRouter> original, int cellCountXZ, RandomState randomState2, int minBlockX, int minBlockZ, NoiseSettings noiseSettings, DensityFunctions.BeardifierOrMarker beardifierOrMarker, NoiseGeneratorSettings noiseGeneratorSettings, Aquifer.FluidPicker fluidPicker, Blender blender) {
 		this.randomState = randomState1;
 		this.chunkX = SectionPos.blockToSectionCoord(minBlockX);
 		this.chunkZ = SectionPos.blockToSectionCoord(minBlockZ);
@@ -83,8 +98,7 @@ class MixinNoiseChunk {
 			}
 			this.chunk = generatorContext.cache.provideAtChunk(this.chunkX, this.chunkZ).getChunkReader(this.chunkX, this.chunkZ);
 		}
-		this.cache2d = new CellSampler.Cache2d();
-		return randomState.router();
+		return original.call(randomState1);
 	}
 
 	@ModifyVariable(
@@ -135,6 +149,13 @@ class MixinNoiseChunk {
 				callback.setReturnValue(this.wrapCellSampler(mapped, randomState));
 				return;
 			}
+			// the rounded height of the offset reads the tile's cell of the column (children are wrapped first): the same
+			// for every y. Not with C2ME, which wraps and compiles the functions its own way
+			if(!C2ME_PRESENT && this.chunk != null && function instanceof ClampToNearestUnit clamp
+				&& clamp.function() instanceof CellSampler.CacheChunk cacheChunk && cacheChunk.readsTileOf(this.chunk, this.chunkX, this.chunkZ)) {
+				callback.setReturnValue(new ColumnCache(clamp, this.chunkX, this.chunkZ));
+				return;
+			}
 			if(C2ME_PRESENT) {
 				DensityFunction repaired = C2MECompat.repairShallowMapping(function, (mapped) -> {
 					return this.wrapCellSampler(mapped, randomState);
@@ -146,8 +167,13 @@ class MixinNoiseChunk {
 		}
 	}
 
+	@Unique
 	private DensityFunction wrapCellSampler(CellSampler sampler, RTFRandomState randomState) {
 		if(randomState.generatorContext() != null) {
+			// one for all the samplers of this chunk, as before
+			if(this.cache2d == null) {
+				this.cache2d = new CellSampler.Cache2d();
+			}
 			return sampler.new CacheChunk(this.chunk, this.cache2d, this.chunkX, this.chunkZ);
 		}
 		return DensityFunctions.zero();
