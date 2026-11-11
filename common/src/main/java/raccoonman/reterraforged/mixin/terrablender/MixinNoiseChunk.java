@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -23,6 +24,8 @@ import raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler;
 
 @Mixin(NoiseChunk.class)
 public class MixinNoiseChunk {
+	// unique: the general MixinNoiseChunk has a field of the same name
+	@Unique
 	private RandomState randomState;
 
 	@Inject(
@@ -38,7 +41,7 @@ public class MixinNoiseChunk {
 		method = "cachedClimateSampler"
 	)
 	private void cachedClimateSampler(NoiseRouter noiseRouter, List<Climate.ParameterPoint> list, CallbackInfoReturnable<Climate.Sampler> callback) {
-    	if((Object) callback.getReturnValue() instanceof TBClimateSampler cachedSampler && (Object) this.randomState.sampler() instanceof TBClimateSampler globalSampler) {
+    	if(this.randomState != null && (Object) callback.getReturnValue() instanceof TBClimateSampler cachedSampler && (Object) this.randomState.sampler() instanceof TBClimateSampler globalSampler) {
     		DensityFunction uniqueness = globalSampler.getUniqueness();
 
     		if(uniqueness != null) {

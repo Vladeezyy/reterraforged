@@ -31,6 +31,9 @@
     "fabric-api": ">=${fabric_api_min}",
     "minecraft": "${minecraft_range_fabric}"
   },
+  "suggests": {
+    "terrablender": ">=4.1.0.0"
+  },
   "mixins": [
     "reterraforged-common.mixins.json",
     "reterraforged-fabric.mixins.json"

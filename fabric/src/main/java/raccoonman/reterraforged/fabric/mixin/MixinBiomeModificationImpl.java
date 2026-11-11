@@ -12,12 +12,14 @@ import java.util.function.Predicate;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.google.common.base.Suppliers;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.fabricmc.fabric.api.biome.v1.BiomeModificationContext;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
@@ -39,20 +41,26 @@ public class MixinBiomeModificationImpl {
 	@Final
 	private static Comparator<Object> MODIFIER_ORDER_COMPARATOR;
 	
+	@Unique
 	private static final Constructor<?> CTOR;
+	// this world's registries gave biome modifiers of ReTerraForged (finalizeWorldGen, server thread)
+	@Unique
+	private boolean addedModifiers;
 	
-	@Redirect(
+	// a wrap, not a @Redirect: another mod's wrap of the same call still applies
+	@WrapOperation(
 		method = "finalizeWorldGen",
 		at = @At(
 			value = "INVOKE",
-			target = "getSortedModifiers"
+			target = "Lnet/fabricmc/fabric/impl/biome/modification/BiomeModificationImpl;getSortedModifiers()Ljava/util/List;"
 		),
 		remap = false
 	)
-	public List<Object> getSortedModifiers(BiomeModificationImpl self, RegistryAccess registries) {
+	private List<Object> getSortedModifiers(BiomeModificationImpl self, Operation<List<Object>> original, RegistryAccess registries) {
 		// a copy: Fabric's list is the one of the whole game. Added to it, the modifiers of a world stayed for every world
 		// loaded after it in the same session (a vanilla world got the preset's trees, an RTF world its density twice)
-		List<Object> modifiers = new ArrayList<>(this.getSortedModifiers());
+		List<Object> modifiers = new ArrayList<>(original.call(self));
+		int fabricModifiers = modifiers.size();
 		for(Holder.Reference<BiomeModifier> holder : registries.lookupOrThrow(RTFRegistries.BIOME_MODIFIER).listElements().toList()) {
 			if(holder.value() instanceof FabricBiomeModifier modifier) {
 				Object record = this.makeModifierRecord(holder.key().location(), ModificationPhase.POST_PROCESSING, (ctx) -> {
@@ -64,6 +72,7 @@ public class MixinBiomeModificationImpl {
 				}
 			}
 		}
+		this.addedModifiers = modifiers.size() > fabricModifiers;
 		modifiers.sort(MODIFIER_ORDER_COMPARATOR);
 		return modifiers;
     }
@@ -71,13 +80,18 @@ public class MixinBiomeModificationImpl {
 	// The modifiers above change biome feature lists directly, not through Fabric's context, so Fabric does not
 	// know the features changed and keeps the generators' cached per-step feature lists. If that cache was built
 	// before the modifications, the step the erosion is added to is empty there and decorating a new chunk fails
-	// with "Index -1 out of bounds" (seen when loading a world in single player): rebuild it, as Fabric does.
+	// with "Index -1 out of bounds" (seen when loading a world in single player): rebuild it, as Fabric does. Only when
+	// there were such modifiers: the other worlds keep the lists Fabric left them.
 	@Inject(
 		method = "finalizeWorldGen",
 		at = @At("TAIL"),
 		remap = false
 	)
 	private void rebuildFeaturesPerStep(RegistryAccess registries, CallbackInfo callback) {
+		if(!this.addedModifiers) {
+			return;
+		}
+		this.addedModifiers = false;
 		registries.lookupOrThrow(Registries.LEVEL_STEM).listElements().forEach((stem) -> {
 			ChunkGenerator generator = stem.value().generator();
 			((ChunkGeneratorAccessor) generator).reterraforged$setFeaturesPerStep(Suppliers.memoize(() -> {
@@ -88,11 +102,7 @@ public class MixinBiomeModificationImpl {
 		});
 	}
 
-	@Shadow(remap = false)
-	private List<Object> getSortedModifiers() {
-		throw new UnsupportedOperationException();
-	}
-	
+	@Unique
 	private Object makeModifierRecord(ResourceLocation id, ModificationPhase phase, Predicate<BiomeSelectionContext> selector, BiConsumer<BiomeSelectionContext, BiomeModificationContext> modifier) {
 		if(CTOR == null) {
 			return null;
