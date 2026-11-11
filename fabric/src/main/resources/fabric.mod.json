@@ -32,6 +32,9 @@
     "minecraft": "${minecraft_range_fabric}"
   },
   "accessWidener": "reterraforged.accesswidener",
+  "suggests": {
+    "terrablender": ">=26.1.2.0.3"
+  },
   "mixins": [
     "reterraforged-common.mixins.json",
     "reterraforged-fabric.mixins.json"

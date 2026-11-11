@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Climate;
@@ -20,7 +21,9 @@ import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 @Mixin(Climate.Sampler.class)
 @Implements(@Interface(iface = RTFClimateSampler.class, prefix = "reterraforged$RTFClimateSampler$"))
 class MixinClimateSampler {
+	@Unique
 	private BlockPos spawnSearchCenter = BlockPos.ZERO;
+	@Unique
 	@Nullable
 	private BiPredicate<Integer, Integer> spawnWater;
 	

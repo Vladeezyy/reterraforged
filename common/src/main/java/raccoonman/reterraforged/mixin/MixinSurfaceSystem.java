@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -32,14 +33,18 @@ import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.surface.RTFSurfaceSystem;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 
 @Mixin(SurfaceSystem.class)
 @Implements(@Interface(iface = RTFSurfaceSystem.class, prefix = RTFCommon.MOD_ID + "$RTFSurfaceSystem$"))
 class MixinSurfaceSystem {
+	@Unique
 	private static final Identifier GEOLOGY_RANDOM = RTFCommon.location("geology");
+	@Unique
 	private RandomState randomState;
+	@Unique
 	private Map<Identifier, List<List<StrataRule.Layer>>> strata;
 	
 	@Inject(
@@ -63,14 +68,15 @@ class MixinSurfaceSystem {
 	// (the surface, aquifers and ore veins of ReTerraForged 0.0.6), vanilla looks it up at y 0 instead of at the surface,
 	// in ReTerraForged's terrain often a cave biome (dripstone caves under plains: no rain with Ecliptic Seasons). The
 	// lookup gives the surface biome, and vanilla's own uses of it below (eroded badlands spires, frozen ocean
-	// icebergs) still get the one at y 0, so the terrain stays the same.
+	// icebergs) still get the one at y 0, so the terrain stays the same. Only with a ReTerraForged context: the vanilla
+	// Nether and End (legacy_random_source too) keep vanilla's lookup, and no second lookup per column.
 	@WrapOperation(
 		method = "buildSurface",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/biome/BiomeManager;getBiome(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/Holder;")
 	)
 	private Holder<Biome> surfaceBiome(BiomeManager biomes, BlockPos pos, Operation<Holder<Biome>> original, @Local(argsOnly = true) boolean legacyRandomSource, @Local(argsOnly = true) ChunkAccess chunk, @Share("legacyBiome") LocalRef<Holder<Biome>> legacyBiome) {
 		Holder<Biome> biome = original.call(biomes, pos);
-		if (!legacyRandomSource) {
+		if (!legacyRandomSource || !((Object) this.randomState instanceof RTFRandomState rtfRandomState) || rtfRandomState.generatorContext() == null) {
 			legacyBiome.set(null);
 			return biome;
 		}
