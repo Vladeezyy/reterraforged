@@ -1,5 +1,6 @@
 package raccoonman.reterraforged.world.worldgen.biome;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,10 +56,9 @@ public final class SwampHeights {
 	private final boolean basinsOnly;
 	// of this world: a static map kept the holders, with their registries, of every world played since the game started
 	private final Map<Holder<Biome>, Boolean> swamps = new ConcurrentHashMap<>();
-	// the last column a thread asked about, a chunk's biomes come column by column: quart x, z packed; surface; lowland swamp
-	private final ThreadLocal<long[]> column = ThreadLocal.withInitial(() -> new long[] { Long.MIN_VALUE, 0, 0 });
-	// the same for basinsOnly: quart x, z packed; in a basin's region
-	private final ThreadLocal<long[]> basinColumn = ThreadLocal.withInitial(() -> new long[] { Long.MIN_VALUE, 0 });
+	// the columns a thread asked about last, one per quart column of a 4 x 4 block: a section's biomes come x, then y, then z
+	// (LevelChunkSection.fillBiomesFromNoise), so a cache of one column missed on every call
+	private final ThreadLocal<Columns> columns = ThreadLocal.withInitial(Columns::new);
 
 	/**
 	 * @param maxAboveSea Highest Swamps, 0 no limit
@@ -86,7 +86,15 @@ public final class SwampHeights {
 			}
 			return forced;
 		}
-		return offset[0] == 0 ? point : new Climate.TargetPoint(point.temperature(), point.humidity(), point.continentalness(), point.erosion() + offset[0], point.depth(), point.weirdness());
+		if (offset[0] == 0) {
+			return point;
+		}
+		Climate.TargetPoint rougher = new Climate.TargetPoint(point.temperature(), point.humidity(), point.continentalness(), point.erosion() + offset[0], point.depth(), point.weirdness());
+		// as for the lowlands: TerraBlender's sampler sets the uniqueness again after this, the copy only matters when it does not
+		if ((Object) point instanceof TBTargetPoint from && (Object) rougher instanceof TBTargetPoint to) {
+			to.setUniqueness(from.getUniqueness());
+		}
+		return rougher;
 	}
 
 	/** The biome of the quart: biome itself, unless it is a swamp too high up or no swamp on a lowland swamp's surface */
@@ -94,7 +102,11 @@ public final class SwampHeights {
 		if (!this.swamp(biome)) {
 			return this.lowlands ? this.lowland(quartX, quartY, quartZ, biome, pickAgain) : biome;
 		}
-		if (this.maxY == Integer.MAX_VALUE || this.column(quartX, quartZ)[1] <= this.maxY) {
+		if (this.maxY == Integer.MAX_VALUE) {
+			return biome;
+		}
+		Columns columns = this.columns.get();
+		if (columns.surface[this.column(columns, quartX, quartZ)] <= this.maxY) {
 			return biome;
 		}
 		long[] offset = OFFSET.get();
@@ -118,8 +130,10 @@ public final class SwampHeights {
 		if (this.basinsOnly && !this.inBasinRegion(quartX, quartZ)) {
 			return biome;
 		}
-		long[] column = this.column(quartX, quartZ);
-		if (column[2] == 0 || column[1] > this.maxY || QuartPos.toBlock(quartY) < column[1] - LOWLAND_DEPTH) {
+		Columns columns = this.columns.get();
+		int slot = this.column(columns, quartX, quartZ);
+		int surface = columns.surface[slot];
+		if (!columns.lowland[slot] || surface > this.maxY || QuartPos.toBlock(quartY) < surface - LOWLAND_DEPTH) {
 			return biome;
 		}
 		long[] offset = OFFSET.get();
@@ -139,29 +153,31 @@ public final class SwampHeights {
 	// the whole cell of every column of land was 3.7 % of the generation's samples
 	private boolean inBasinRegion(int quartX, int quartZ) {
 		long key = PosUtil.pack(quartX, quartZ);
-		long[] last = this.basinColumn.get();
-		if (last[0] != key) {
+		Columns columns = this.columns.get();
+		int slot = Columns.slot(quartX, quartZ);
+		if (columns.basinKeys[slot] != key) {
 			Heightmap heightmap = this.lookup.getHeightmap();
 			Cell cell = new Cell();
 			heightmap.region().apply(cell, quartX << 2, quartZ << 2);
-			last[0] = key;
-			last[1] = heightmap.swampBasins().isBasinRegion(cell) ? 1 : 0;
+			columns.basin[slot] = heightmap.swampBasins().isBasinRegion(cell);
+			columns.basinKeys[slot] = key;
 		}
-		return last[1] != 0;
+		return columns.basin[slot];
 	}
 
-	private long[] column(int quartX, int quartZ) {
+	// the slot of the column in this thread's table, filled if it held another column
+	private int column(Columns columns, int quartX, int quartZ) {
 		long key = PosUtil.pack(quartX, quartZ);
-		long[] last = this.column.get();
-		if (last[0] != key) {
+		int slot = Columns.slot(quartX, quartZ);
+		if (columns.keys[slot] != key) {
 			Cell cell = new Cell();
 			this.lookup.applyCell(cell, quartX << 2, quartZ << 2, false, this.lowlands);
-			last[0] = key;
-			last[1] = this.levels.scale(cell.height);
+			columns.surface[slot] = this.levels.scale(cell.height);
 			Heightmap heightmap = this.lookup.getHeightmap();
-			last[2] = this.lowlands && (heightmap.isLowlandSwamp(cell) || heightmap.isLowSwampLand(cell)) ? 1 : 0;
+			columns.lowland[slot] = this.lowlands && (heightmap.isLowlandSwamp(cell) || heightmap.isLowSwampLand(cell));
+			columns.keys[slot] = key;
 		}
-		return last;
+		return slot;
 	}
 
 	private boolean swamp(Holder<Biome> biome) {
@@ -179,5 +195,26 @@ public final class SwampHeights {
 			}
 		}
 		return false;
+	}
+
+	/** A thread's columns: the slot of a column is its place in a 4 x 4 block of quart columns, the key tells which one it holds */
+	private static final class Columns {
+		private static final int SIZE = 16;
+		// quart x, z packed; surface; lowland swamp
+		private final long[] keys = new long[SIZE];
+		private final int[] surface = new int[SIZE];
+		private final boolean[] lowland = new boolean[SIZE];
+		// for basinsOnly: quart x, z packed; in a basin's region
+		private final long[] basinKeys = new long[SIZE];
+		private final boolean[] basin = new boolean[SIZE];
+
+		private Columns() {
+			Arrays.fill(this.keys, Long.MIN_VALUE);
+			Arrays.fill(this.basinKeys, Long.MIN_VALUE);
+		}
+
+		private static int slot(int quartX, int quartZ) {
+			return (quartX & 3) | (quartZ & 3) << 2;
+		}
 	}
 }

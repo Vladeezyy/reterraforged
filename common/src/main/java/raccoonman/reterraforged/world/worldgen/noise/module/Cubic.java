@@ -9,7 +9,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 public record Cubic(float frequency, int octaves, float lacunarity, float gain, float minValue, float maxValue) implements Noise {
 	public static final MapCodec<Cubic> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("frequency").forGetter(Cubic::frequency),
-		Codec.INT.fieldOf("octaves").forGetter(Cubic::octaves),
+		NoiseCodecs.OCTAVES_ANY_LOW.fieldOf("octaves").forGetter(Cubic::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Cubic::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Cubic::gain)
 	).apply(instance, Cubic::new));

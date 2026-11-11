@@ -13,7 +13,7 @@ public record Terrace(Noise input, Noise ramp, Noise cliff, Noise rampHeight, fl
 		Noise.HOLDER_HELPER_CODEC.fieldOf("cliff").forGetter(Terrace::cliff),
 		Noise.HOLDER_HELPER_CODEC.fieldOf("ramp_height").forGetter(Terrace::rampHeight),
 		Codec.FLOAT.fieldOf("blend_range").forGetter(Terrace::blendRange),
-		Codec.INT.fieldOf("steps").forGetter((terrace) -> terrace.steps().length)
+		NoiseCodecs.TERRACE_STEPS.fieldOf("steps").forGetter((terrace) -> terrace.steps().length)
 	).apply(instance, Terrace::new));
 	
 	public Terrace(Noise input, Noise ramp, Noise cliff, Noise rampHeight, float blendRange, int steps) {

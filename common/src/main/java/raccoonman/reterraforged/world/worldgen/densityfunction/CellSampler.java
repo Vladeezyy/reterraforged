@@ -36,7 +36,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 public final class CellSampler {
-	private static final ThreadLocal<Cache2d> CELL = ThreadLocal.withInitial(Cache2d::new);
+	private static final ThreadLocal<Cache2d> CELL = ThreadLocal.withInitial(() -> new Cache2d(Cache2d.THREAD_BITS));
 
 	private CellSampler() {
 	}
@@ -141,32 +141,73 @@ public final class CellSampler {
 		}
 	}
 
+	/**
+	 * The cells of the places asked about last, one per slot: a slot is taken by the place's low bits, the key (place,
+	 * lookup, tiles, climate) tells which cell it holds. A hit is the cell the computation would give: the cell depends on
+	 * the key alone, and what the fields write into it (fakeWaterBiome, from its height and terrain) is what it already
+	 * holds. The returned cell is only read before the next call on the same cache (Sampler).
+	 */
 	public static class Cache2d {
-		private long lastPos = Long.MAX_VALUE;
-		private boolean lastTiles;
-		// a thread goes on to the next world, and the same place there is another cell
-		private int lastLookup;
-		private Cell cell = new Cell();
-		
+		// the thread's cache outside the noise chunks (surface, the surface rules' biomes, features): they ask about
+		// places in turn, the biome manager about the 8 corners of a block's quarts, and one slot missed nearly always
+		static final int THREAD_BITS = 3;
+		private final int bits, mask;
+		private final long[] positions;
+		// a thread goes on to the next world, and the same place there is another cell; 0, no lookup's id: empty
+		private final int[] lookups;
+		private final byte[] flags;
+		private final Cell[] cells;
+
+		// one slot: a noise chunk's reads outside its own chunk, and the one-cell queries
+		public Cache2d() {
+			this(0);
+		}
+
+		// 4 ^ bits slots
+		public Cache2d(int bits) {
+			this.bits = bits;
+			this.mask = (1 << bits) - 1;
+			int size = 1 << (bits * 2);
+			this.positions = new long[size];
+			this.lookups = new int[size];
+			this.flags = new byte[size];
+			this.cells = new Cell[size];
+		}
+
 		// tiles: the cell of the place's tile (generated if it is not cached), else computed without the tile
 		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate, boolean tiles) {
 			long packedPos = PosUtil.pack(blockX, blockZ);
-			if(this.lastPos != packedPos || this.lastTiles != tiles || this.lastLookup != lookup.id) {
-				lookup.applyCell(this.cell.reset(), blockX, blockZ, tiles, sampleClimate);
-				this.lastTiles = tiles;
-				this.lastLookup = lookup.id;
-				lookup.getHeightmap().fakeWaterBiomeResolver().apply(this.cell);
-				this.lastPos = packedPos;
-				if (this.cell.fakeWaterBiome.isRiver()) {
-					this.cell.erosion = Erosion.LEVEL_6.mid();
-					this.cell.weirdness = Weirdness.VALLEY.mid();
+			byte flags = (byte) ((tiles ? 1 : 0) | (sampleClimate ? 2 : 0));
+			int slot = this.slot(blockX, blockZ);
+			Cell cell = this.cells[slot];
+			if(cell == null || this.positions[slot] != packedPos || this.flags[slot] != flags || this.lookups[slot] != lookup.id) {
+				if(cell == null) {
+					cell = this.cells[slot] = new Cell();
 				}
-				if (this.cell.terrain == TerrainType.ISLAND_BEACH) {
-					this.cell.erosion = Erosion.LEVEL_4.mid();
-					this.cell.weirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.mid();
+				// empty until the cell is complete: an exception on the way leaves no half cell behind
+				this.lookups[slot] = 0;
+				lookup.applyCell(cell.reset(), blockX, blockZ, tiles, sampleClimate);
+				lookup.getHeightmap().fakeWaterBiomeResolver().apply(cell);
+				if (cell.fakeWaterBiome.isRiver()) {
+					cell.erosion = Erosion.LEVEL_6.mid();
+					cell.weirdness = Weirdness.VALLEY.mid();
 				}
+				if (cell.terrain == TerrainType.ISLAND_BEACH) {
+					cell.erosion = Erosion.LEVEL_4.mid();
+					cell.weirdness = Weirdness.MID_SLICE_NORMAL_DESCENDING.mid();
+				}
+				this.positions[slot] = packedPos;
+				this.flags[slot] = flags;
+				this.lookups[slot] = lookup.id;
 			}
-			return this.cell;
+			return cell;
+		}
+
+		// x ^ x >> 2: the low bits differ for the 8 blocks of an aligned row (half a chunk) and for any 8 quarts in a row
+		int slot(int blockX, int blockZ) {
+			int x = (blockX ^ (blockX >> 2)) & this.mask;
+			int z = (blockZ ^ (blockZ >> 2)) & this.mask;
+			return x | (z << this.bits);
 		}
 	}
 	
