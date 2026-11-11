@@ -310,6 +310,14 @@ public final class RTFStressTest {
 	private static List<Variant> variants(int randomCount) {
 		List<Variant> variants = new ArrayList<>();
 		variants.add(new Variant("preset Default", Presets::makeDefault, List.of()));
+		variants.add(new Variant("preset Archipelago", Presets::makeArchipelago, List.of()));
+		variants.add(new Variant("preset Wetlands", Presets::makeWetlands, List.of()));
+		variants.add(new Variant("preset Towering Peaks", Presets::makeToweringPeaks, List.of()));
+		variants.add(new Variant("preset Endless Continent", Presets::makeEndlessContinent, List.of()));
+		variants.add(new Variant("preset River Valleys", Presets::makeRiverValleys, List.of()));
+		variants.add(new Variant("preset Lush Wilds", Presets::makeLushWilds, List.of()));
+		variants.add(new Variant("preset Rolling Plains", Presets::makeRollingPlains, List.of()));
+		variants.add(new Variant("preset Rugged Highlands", Presets::makeRuggedHighlands, List.of()));
 		variants.add(new Variant("preset Legacy Vanillaish", Presets::makeLegacyVanillaish, List.of()));
 		variants.add(new Variant("preset Legacy Beautiful", Presets::makeLegacyBeautiful, List.of()));
 		variants.add(new Variant("preset Legacy Lite", Presets::makeLegacyLite, List.of()));

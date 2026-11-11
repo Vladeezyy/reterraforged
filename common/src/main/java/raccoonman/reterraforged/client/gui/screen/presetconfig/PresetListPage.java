@@ -220,6 +220,14 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 
 		// as in ReTerraForged 0.0.6: "Default" is TerraForged's default
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeDefault(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ARCHIPELAGO_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeArchipelago(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_WETLANDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeWetlands(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_TOWERING_PEAKS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeToweringPeaks(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ENDLESS_CONTINENT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeEndlessContinent(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_RIVER_VALLEYS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRiverValleys(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LUSH_WILDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLushWilds(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ROLLING_PLAINS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRollingPlains(), true, this));
+		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_RUGGED_HIGHLANDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRuggedHighlands(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyBeautiful(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyHugeBiomes(), true, this));
 		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LITE_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyLite(), true, this));
