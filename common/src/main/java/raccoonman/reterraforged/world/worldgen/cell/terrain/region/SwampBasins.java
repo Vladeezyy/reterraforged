@@ -51,10 +51,23 @@ public final class SwampBasins implements CellPopulator {
 	// a region only changes every few hundred cells, and only the chosen ones get here
 	private final ThreadLocal<Center> center = ThreadLocal.withInitial(Center::new);
 
-	private static final class Center {
+	// keyed by the region's center too: ids repeat (valCoord2D's cube in a float), and with the id alone a region took the
+	// basin and climate of another one with its id, the one this thread had last
+	static final class Center {
 		private boolean valid;
-		private float id, temperature, moisture, biomeRegion;
+		private float id, centerX, centerZ, temperature, moisture, biomeRegion;
 		private boolean basin;
+
+		boolean holds(float id, float centerX, float centerZ) {
+			return this.valid && this.id == id && this.centerX == centerX && this.centerZ == centerZ;
+		}
+
+		void hold(float id, float centerX, float centerZ) {
+			this.id = id;
+			this.centerX = centerX;
+			this.centerZ = centerZ;
+			this.valid = true;
+		}
 	}
 
 	private SwampBasins(CellPopulator regions, CellPopulator border, TerrainPopulator basin, ClimateModule climate, int seed, float share, float top) {
@@ -127,11 +140,10 @@ public final class SwampBasins implements CellPopulator {
 			return null;
 		}
 		Center center = this.center.get();
-		if (!center.valid || center.id != id) {
+		if (!center.holds(id, cell.terrainRegionCenterX, cell.terrainRegionCenterZ)) {
 			Cell sample = new Cell();
 			// the climate is what the center's biome cell has; mask false: the terrain is not looked at
 			this.climate.apply(sample, cell.terrainRegionCenterX, cell.terrainRegionCenterZ, cell.terrainRegionCenterX, cell.terrainRegionCenterZ, false);
-			center.id = id;
 			center.basin = isWet(sample.biome);
 			int hash = this.hash(id);
 			float temperature = sample.temperature + VARIETY * ((hash >>> 8 & 0xFF) / 127.5F - 1.0F);
@@ -139,7 +151,7 @@ public final class SwampBasins implements CellPopulator {
 			center.temperature = Math.max(temperature, Temperature.LEVEL_1.min());
 			center.moisture = Math.max(moisture, Humidity.LEVEL_3.min());
 			center.biomeRegion = sample.biomeRegionId + HELD_CLIMATE;
-			center.valid = true;
+			center.hold(id, cell.terrainRegionCenterX, cell.terrainRegionCenterZ);
 		}
 		return center.basin ? center : null;
 	}
