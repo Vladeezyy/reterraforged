@@ -28,6 +28,8 @@ public class RTFNeoForge {
     	modEventBus.addListener(RTFNeoForge::gatherData);
     	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent event) -> raccoonman.reterraforged.server.RTFSelfTest.register(event.getDispatcher()));
     	RegistryUtilImpl.register(modEventBus);
+    	// its queued tiles are not generated ahead of the next world's (the generation threads are shared)
+    	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppedEvent event) -> raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache.closeAll());
     }
     
     // the language file is client data (NeoForge 21.4 splits GatherDataEvent into Client and Server)

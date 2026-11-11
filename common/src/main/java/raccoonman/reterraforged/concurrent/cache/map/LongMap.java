@@ -10,6 +10,9 @@ public interface LongMap<T> {
     
     void remove(long key);
     
+    // whether it was there: only the value given leaves
+    boolean remove(long key, T value);
+    
     
     int removeIf(Predicate<T> predicate);
     

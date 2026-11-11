@@ -1,6 +1,8 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction.tile.generation;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.world.worldgen.WorldFilters;
@@ -13,6 +15,8 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile.Chunk;
 
 public class TileGenerator {
+	private static final BooleanSupplier NEVER = () -> false;
+	private static final String CANCELLED = "the world of this tile stopped";
 	private final Heightmap heightmap;
 	private final WorldFilters filters;
 	private final int tileChunks;
@@ -42,25 +46,34 @@ public class TileGenerator {
 	}
 	
 	public CompletableFuture<Tile> generate(int tileX, int tileZ) {
+		return this.generate(tileX, tileZ, NEVER);
+	}
+
+	/** The tile's batches and filters are not done once cancelled says so (a world that stopped): it fails with a CancellationException */
+	public CompletableFuture<Tile> generate(int tileX, int tileZ, BooleanSupplier cancelled) {
 		// x * 1 + 0 is x in floats: the cells are those of the block positions
-		return this.generate(this.makeTile(tileX, tileZ), 1.0F, 0.0F, 0.0F, true);
+		return this.generate(this.makeTile(tileX, tileZ), 1.0F, 0.0F, 0.0F, true, cancelled);
 	}
 
 	/** A map around a center, one cell every zoom blocks (the preset screen's preview) */
 	public CompletableFuture<Tile> generateZoomed(float centerX, float centerZ, float zoom, boolean applyOptionalFilters) {
 		float translateX = centerX - this.tileSizeBlocks.size() * zoom / 2.0F;
 		float translateZ = centerZ - this.tileSizeBlocks.size() * zoom / 2.0F;
-		return this.generate(this.makeTile(0, 0), zoom, translateX, translateZ, applyOptionalFilters);
+		return this.generate(this.makeTile(0, 0), zoom, translateX, translateZ, applyOptionalFilters, NEVER);
 	}
 
 	// the tile's chunks in batchCount x batchCount batches on the generation threads, then the filters (erosion, smoothing)
-	private CompletableFuture<Tile> generate(Tile tile, float zoom, float translateX, float translateZ, boolean applyOptionalFilters) {
+	private CompletableFuture<Tile> generate(Tile tile, float zoom, float translateX, float translateZ, boolean applyOptionalFilters, BooleanSupplier cancelled) {
 		CompletableFuture<?>[] futures = new CompletableFuture<?>[this.batchCount * this.batchCount];
 		for (int batchZ = 0; batchZ < this.batchCount; batchZ++) {
 			for (int batchX = 0; batchX < this.batchCount; batchX++) {
 				int chunkX = batchX * this.batchSize;
 				int chunkZ = batchZ * this.batchSize;
 				futures[batchX * this.batchCount + batchZ] = CompletableFuture.runAsync(() -> {
+					// the pool is all worlds': a stopped one's batches still queued would be ahead of the next world's first tile
+					if (cancelled.getAsBoolean()) {
+						throw new CancellationException(CANCELLED);
+					}
 					int maxX = Math.min(this.tileSizeChunks.total(), chunkX + this.batchSize);
 					int maxZ = Math.min(this.tileSizeChunks.total(), chunkZ + this.batchSize);
 					for (int cZ = chunkZ; cZ < maxZ; cZ++) {
@@ -85,6 +98,9 @@ public class TileGenerator {
 			}
 		}
 		return CompletableFuture.allOf(futures).thenApply((v) -> {
+			if (cancelled.getAsBoolean()) {
+				throw new CancellationException(CANCELLED);
+			}
 			this.filters.apply(tile, applyOptionalFilters);
 			return tile;
 		});
