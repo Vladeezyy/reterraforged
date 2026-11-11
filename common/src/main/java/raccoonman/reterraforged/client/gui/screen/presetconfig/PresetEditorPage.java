@@ -2,6 +2,7 @@ package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.awt.Color;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 import org.jetbrains.annotations.Nullable;
@@ -140,6 +141,36 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	// a picture of the preview, made off the render thread
 	private record Drawn(Tile tile, Levels levels, int topY, int[] colors, int hash, int centerX, int centerZ, int zoom) {
 	}
+
+	// a picture being made: a closed preview (another page, a resize, the screen left) stops it between its steps and
+	// stops waiting for its tile, whose filters then do not run. Each page made a new preview, and the old one's picture
+	// was still drawn to the end on the background threads
+	private static final class Job {
+		private volatile boolean cancelled;
+		@Nullable
+		private volatile CompletableFuture<Tile> tile;
+
+		private void check() {
+			if(this.cancelled) {
+				throw new CancellationException("preset preview closed");
+			}
+		}
+
+		private Tile join(CompletableFuture<Tile> tile) {
+			this.tile = tile;
+			// after publishing it: a cancel in between either sees the tile or is seen here
+			this.check();
+			return tile.join();
+		}
+
+		private void cancel() {
+			this.cancelled = true;
+			CompletableFuture<Tile> tile = this.tile;
+			if(tile != null) {
+				tile.cancel(false);
+			}
+		}
+	}
 	
 	public class Preview extends AbstractWidget {
 	    private static final int FACTOR = 4;
@@ -169,6 +200,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    private boolean closed;
 	    @Nullable
 	    private CompletableFuture<Drawn> pending;
+	    @Nullable
+	    private Job job;
 	
 	    public Preview() {
 	        super(-1, -1, -1, -1, CommonComponents.EMPTY);
@@ -186,6 +219,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    			RTFCommon.LOGGER.error("Could not draw the preset preview", e);
 	    		}
 	    		this.pending = null;
+	    		this.job = null;
 	    	}
 	    	if(this.pending == null && this.dirty) {
 	    		this.dirty = false;
@@ -196,19 +230,25 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    		int seed = (int) settings.options().seed();
 	    		RenderMode mode = PresetEditorPage.this.renderMode.getValue();
 	    		int x = this.offsetX, z = this.offsetZ, zoom = this.getZoom();
-	    		this.pending = CompletableFuture.supplyAsync(() -> draw(edited, registries, seed, x, z, zoom, mode), Util.backgroundExecutor());
+	    		Job job = new Job();
+	    		this.job = job;
+	    		this.pending = CompletableFuture.supplyAsync(() -> draw(job, edited, registries, seed, x, z, zoom, mode), Util.backgroundExecutor());
 	    	}
 	    }
 	    
-	    private static Drawn draw(Preset edited, RegistryAccess.Frozen registries, int seed, int centerX, int centerZ, int zoom, RenderMode renderMode) {
+	    private static Drawn draw(Job job, Preset edited, RegistryAccess.Frozen registries, int seed, int centerX, int centerZ, int zoom, RenderMode renderMode) {
+	        job.check();
 	        HolderLookup.Provider provider = edited.buildPatch(registries);
 	        HolderGetter<Preset> presets = provider.lookupOrThrow(RTFRegistries.PRESET);
 	        HolderGetter<Noise> noises = provider.lookupOrThrow(RTFRegistries.NOISE);
 	        Preset preset = presets.getOrThrow(Preset.KEY).value();
 	        WorldSettings.Properties properties = preset.world().properties;
 	        
+	        job.check();
 	        GeneratorContext generatorContext = GeneratorContext.makeUncached(preset, noises, seed, FACTOR, 0, PerformanceConfig.makeDefault().batchCount());
-	        Tile tile = generatorContext.generator.generateZoomed(centerX, centerZ, zoom, false).join();
+	        job.check();
+	        Tile tile = job.join(generatorContext.generator.generateZoomed(centerX, centerZ, zoom, false));
+	        job.check();
 	        Levels levels = new Levels(properties.terrainScaler(), properties.seaLevel);
 	        int topY = properties.worldHeight - 1;
 
@@ -251,8 +291,17 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    	this.hash = drawn.hash();
 	    }
 	    
+	    // the texture is the pages' one (previewTexture), kept for the next preview: nothing of this one to free
 	    public void close() {
 	    	this.closed = true;
+	    	if(this.job != null) {
+	    		this.job.cancel();
+	    		this.job = null;
+	    	}
+	    	if(this.pending != null) {
+	    		this.pending.cancel(false);
+	    		this.pending = null;
+	    	}
 	    }
 	
 	    @Override
