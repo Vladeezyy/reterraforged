@@ -104,7 +104,7 @@ public class TemplateFeature extends Feature<Config<?>> {
             }
         }
 
-        TemplatePlacement<T> placement = new SaplingPlacement<>(config.placement());
+        TemplatePlacement<T> placement = saplingPlacement(config.placement());
         if (!placement.canPlaceAt(level, pos, template.getDimensions(mirror, rotation))) {
             return false;
         }
@@ -144,6 +144,11 @@ public class TemplateFeature extends Feature<Config<?>> {
 		).apply(instance, (templates, placement, paste, decorator) -> new Config(templates, placement, paste, decorator)));
 	}
 
+    // the placement of a tree grown from a sapling (public for the self test)
+    public static <T extends TemplateContext> TemplatePlacement<T> saplingPlacement(TemplatePlacement<T> placement) {
+        return new SaplingPlacement<>(placement);
+    }
+
     // the placement of a tree grown from a sapling: what it may replace is vanilla's (the player's saplings and flowers stay)
     private record SaplingPlacement<T extends TemplateContext>(TemplatePlacement<T> placement) implements TemplatePlacement<T> {
 
@@ -155,6 +160,12 @@ public class TemplateFeature extends Feature<Config<?>> {
         @Override
         public boolean canReplaceAt(LevelAccessor world, BlockPos pos) {
             return this.placement.canReplaceAt(world, pos) && BlockUtils.canSaplingTreeReplace(world, pos);
+        }
+
+        // the base below the roots too: it took glass, water, rails and flowers under the tree
+        @Override
+        public boolean canExtendBase(LevelAccessor world, BlockPos pos) {
+            return this.placement.canExtendBase(world, pos) && this.canReplaceAt(world, pos);
         }
 
         @Override

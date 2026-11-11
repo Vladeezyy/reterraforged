@@ -199,7 +199,8 @@ public class DecorateSnowFeature extends Feature<Config> {
     private static void erodeSnow(ChunkAccess chunk, BlockPos.MutableBlockPos pos) {
         chunk.setBlockState(pos, Blocks.AIR.defaultBlockState());
 
-        if (pos.getY() > 0) {
+        // the world's bottom, not 0: worlds go below it (snow here is above the sea level, 0 or more, so the same)
+        if (pos.getY() > chunk.getMinY()) {
             pos.setY(pos.getY() - 1);
             BlockState below = chunk.getBlockState(pos);
             if (below.hasProperty(GrassBlock.SNOWY)) {
