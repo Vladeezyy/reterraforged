@@ -51,6 +51,16 @@ import raccoonman.reterraforged.server.stress.RTFEffectTest;
 import raccoonman.reterraforged.server.stress.RTFStressTest;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.feature.template.SaplingTrees;
+import raccoonman.reterraforged.world.worldgen.feature.template.TemplateFeature;
+import raccoonman.reterraforged.world.worldgen.feature.template.decorator.TreeContext;
+import raccoonman.reterraforged.world.worldgen.feature.template.paste.PasteConfig;
+import raccoonman.reterraforged.world.worldgen.feature.template.paste.PasteType;
+import raccoonman.reterraforged.world.worldgen.feature.template.placement.TemplatePlacement;
+import raccoonman.reterraforged.world.worldgen.feature.template.placement.TemplatePlacements;
+import raccoonman.reterraforged.world.worldgen.feature.template.template.BlockInfo;
+import raccoonman.reterraforged.world.worldgen.feature.template.template.FeatureTemplate;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 
 /**
  * "rtf selftest" — only registered with -Drtf.selftest=true (tools/servertest.sh). Generates real chunks in the
@@ -554,6 +564,32 @@ public final class RTFSelfTest {
 		int farmMod = SaplingTrees.grown - before;
 		check("a grown tree leaves the saplings and flowers around it (" + kept + " of " + plants + " stay, saplings " + saplingsKept + " of " + saplingsPlaced + ", " + inCrown + " in its crown, " + farmGrown + " trees, the mod's " + farmMod + (flowersReplaced ? "; flowers replaceable as in Minecraft" : "") + ")",
 			farmGrown >= 6 && saplingsKept == saplingsPlaced && saplingsPlaced > 0 && (flowersReplaced || kept == plants) && (!templates || (farmMod == farmGrown && inCrown > 0)));
+		// a tree grown from a sapling keeps the blocks below its roots: the base pasted down from a template's lowest logs
+		// (3 deep for all the preset's trees) took glass, flowers and water there. A trunk with a root beside it over
+		// each of them, both pastes; generation still fills them, as the worlds were made
+		FeatureTemplate rooted = new FeatureTemplate(List.of(new BlockInfo(BlockPos.ZERO, Blocks.OAK_LOG.defaultBlockState()), new BlockInfo(new BlockPos(1, 0, 0), Blocks.OAK_LOG.defaultBlockState()), new BlockInfo(new BlockPos(0, 1, 0), Blocks.OAK_LOG.defaultBlockState())));
+		BlockState[] under = { Blocks.GLASS.defaultBlockState(), Blocks.POPPY.defaultBlockState(), Blocks.WATER.defaultBlockState() };
+		PasteType[] pastes = { FeatureTemplate.UNCHECKED, FeatureTemplate.CHECKED };
+		PasteConfig baseConfig = new PasteConfig(3, false, false, false, false);
+		int cases = under.length * pastes.length, keptUnder = 0, filledUnder = 0, roots = 0;
+		for (int i = 0; i < cases * 2; i++) {
+			boolean sapling = i % 2 == 0;
+			BlockState underRoot = under[(i / 2) % under.length];
+			PasteType paste = pastes[i / (2 * under.length)];
+			BlockPos ground = this.saplingGround(level, spawn.getX() + 1200, spawn.getZ() + i * 40, 2);
+			BlockPos root = ground.east();
+			level.setBlock(root.below(2), Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+			level.setBlock(root.below(), underRoot, 2);
+			TemplatePlacement<TreeContext> generation = TemplatePlacements.tree();
+			TemplatePlacement<TreeContext> placement = sapling ? TemplateFeature.saplingPlacement(generation) : generation;
+			paste.get(rooted).apply(level, placement.createContext(), ground, Mirror.NONE, Rotation.NONE, placement, baseConfig);
+			if (!level.getBlockState(root).is(Blocks.OAK_LOG)) continue;
+			roots++;
+			BlockState after = level.getBlockState(root.below());
+			if (sapling && after == underRoot) keptUnder++;
+			if (!sapling && after.is(Blocks.OAK_LOG)) filledUnder++;
+		}
+		check("a sapling's tree keeps the glass, flowers and water below its roots (" + keptUnder + " of " + cases + ", generation fills " + filledUnder + " of " + cases + ", roots " + roots + ")", roots == cases * 2 && keptUnder == cases && filledUnder == cases);
 		// Fabric: the preset's biome modifiers are applied from a copy of Fabric's list, not added to it. Added, they stayed
 		// for every world loaded after this one in the same game (a vanilla world got the preset's trees)
 		check("the preset's biome modifiers are not left in Fabric's list (" + fabricModifiersOfThisMod() + ")", fabricModifiersOfThisMod() <= 0);
