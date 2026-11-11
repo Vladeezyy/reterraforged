@@ -11,7 +11,7 @@ public record Perlin2(int seed, float frequency, int octaves, float lacunarity, 
 	public static final MapCodec<Perlin2> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.fieldOf("seed").forGetter(Perlin2::seed),
 		Codec.FLOAT.fieldOf("frequency").forGetter(Perlin2::frequency),
-		Codec.INT.fieldOf("octaves").forGetter(Perlin2::octaves),
+		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(Perlin2::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Perlin2::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Perlin2::gain),
 		Interpolation.CODEC.fieldOf("interpolation").forGetter(Perlin2::interpolation)

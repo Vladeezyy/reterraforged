@@ -10,7 +10,7 @@ import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 public record Simplex(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float min, float max) implements Noise {
 	public static final MapCodec<Simplex> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("frequency").forGetter(Simplex::frequency),
-		Codec.INT.fieldOf("octaves").forGetter(Simplex::octaves),
+		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(Simplex::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Simplex::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Simplex::gain),
 		Interpolation.CODEC.fieldOf("interpolation").forGetter(Simplex::interpolation)
