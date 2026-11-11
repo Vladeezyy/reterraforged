@@ -41,6 +41,17 @@ import raccoonman.reterraforged.world.worldgen.cell.Cell;
  */
 public final class RTFSurfaceMap {
 
+	// a file of the server directory named after a biome id: ':' and '/' (and anything else of a typed id but letters,
+	// digits, '_', '.' and '-') become '_', so the id's path is no folder, and the file must be right in the directory
+	static Path outputFile(MinecraftServer server, String prefix, String biome, String suffix) {
+		Path base = server.getServerDirectory().toAbsolutePath().normalize();
+		Path file = base.resolve(prefix + biome.replaceAll("[^A-Za-z0-9_.-]", "_") + suffix).normalize();
+		if (!base.equals(file.getParent())) {
+			throw new IllegalArgumentException("not a file of " + base + ": " + biome);
+		}
+		return file;
+	}
+
 	private RTFSurfaceMap() {
 	}
 
@@ -107,13 +118,13 @@ public final class RTFSurfaceMap {
 			}
 			grid.add(line.toString());
 		}
-		java.nio.file.Files.write(server.getServerDirectory().resolve("rtf-surfacemap-" + kind + "-" + biome.replace(':', '_') + ".txt"), grid);
+		java.nio.file.Files.write(outputFile(server, "rtf-surfacemap-" + kind + "-", biome, ".txt"), grid);
 		// every column's ground block and height, to compare two worlds (another build, other mods) column by column
 		List<String> columns = new ArrayList<>();
 		for (int z = 0; z < size; z++) for (int x = 0; x < size; x++) {
 			columns.add(((cx0 << 4) + x) + " " + ((cz0 << 4) + z) + " " + height[x][z] + " " + BuiltInRegistries.BLOCK.getKey(top[x][z]).getPath());
 		}
-		java.nio.file.Files.write(server.getServerDirectory().resolve("rtf-surfacemap-" + kind + "-" + biome.replace(':', '_') + ".columns"), columns);
+		java.nio.file.Files.write(outputFile(server, "rtf-surfacemap-" + kind + "-", biome, ".columns"), columns);
 		// neighbour pairs (x, x + 1) and (z, z + 1): across a chunk border or inside a chunk
 		long border = 0, borderDiff = 0, inner = 0, innerDiff = 0;
 		for (int a = 0; a < size; a++) for (int b = 0; b + 1 < size; b++) {
@@ -131,8 +142,7 @@ public final class RTFSurfaceMap {
 			int r = Math.min(255, (int) (((col >> 16) & 255) * f)), g = Math.min(255, (int) (((col >> 8) & 255) * f)), bl = Math.min(255, (int) ((col & 255) * f));
 			image.setRGB(x, z, r << 16 | g << 8 | bl);
 		}
-		String name = biome.replace(':', '_');
-		Path out = server.getServerDirectory().resolve("rtf-surfacemap-" + kind + "-" + name + ".png");
+		Path out = outputFile(server, "rtf-surfacemap-" + kind + "-", biome, ".png");
 		ImageIO.write(image, "png", out.toFile());
 		List<Map.Entry<Block, Integer>> sorted = new ArrayList<>(counts.entrySet());
 		sorted.sort((p, q) -> q.getValue() - p.getValue());

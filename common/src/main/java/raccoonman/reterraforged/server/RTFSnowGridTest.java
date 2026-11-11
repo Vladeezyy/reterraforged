@@ -117,7 +117,7 @@ public final class RTFSnowGridTest {
 			int rgb = l == 0 ? 0x5a6e3c : l == 1 ? 0xffffff : Math.max(0, 255 - l * 28) << 16 | Math.max(0, 255 - l * 20) << 8 | 255;
 			image.setRGB(x, z, rgb);
 		}
-		Path out = server.getServerDirectory().resolve("rtf-snowgrid-" + biome.replace(':', '_') + ".png");
+		Path out = RTFSurfaceMap.outputFile(server, "rtf-snowgrid-", biome, ".png");
 		ImageIO.write(image, "png", out.toFile());
 		double b = border == 0 ? 0 : (double) borderDiff / border, i = in == 0 ? 0 : (double) inDiff / in;
 		String r = String.format(Locale.ROOT, "[RTF snowgrid] %s seam=%.2f (layers differ across borders %.3f, inside %.3f); mean layers edge %.2f inner %.2f; "

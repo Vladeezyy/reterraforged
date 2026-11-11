@@ -186,7 +186,7 @@ public final class RTFVegetationTest {
 				if (x + dx >= 0 && z + dz >= 0 && x + dx < size && z + dz < size) image.setRGB(x + dx, z + dz, 0x103010);
 			}
 		}
-		Path out = server.getServerDirectory().resolve("rtf-vegetation-" + biome.replace(':', '_') + ".png");
+		Path out = RTFSurfaceMap.outputFile(server, "rtf-vegetation-", biome, ".png");
 		ImageIO.write(image, "png", out.toFile());
 		return new Measured(line, chunks * chunks, nanos);
 	}
