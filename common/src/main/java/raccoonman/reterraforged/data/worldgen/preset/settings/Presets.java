@@ -25,6 +25,100 @@ public class Presets {
 		return preset;
 	}
 
+	// presets that each show one side of the mod; all are "Default" with a few settings changed
+
+	// continents with groups of big islands off their coasts, the spawn on an island
+	public static Preset makeArchipelago() {
+		Preset preset = makeDefault();
+		preset.island().enableArchipelago = true;
+		preset.island().islandDensity = 0.8F;
+		preset.island().islandSize = 450.0F;
+		preset.island().continentDistance = 0.3F;
+		preset.island().volcanoChance = 0.15F;
+		preset.world().properties.spawnType = SpawnType.ISLANDS;
+		return preset;
+	}
+
+	// wide swamps just above the sea, more lakes and wetlands
+	public static Preset makeWetlands() {
+		Preset preset = makeDefault();
+		preset.climate().swampBasins = 0.25F;
+		preset.climate().lowlandSwamps = 12;
+		preset.rivers().lakes.chance = 0.5F;
+		preset.rivers().wetlands.chance = 0.9F;
+		return preset;
+	}
+
+	// a world 384 blocks high where mountain chains take a third of the land and reach about 215 blocks above the sea
+	// (generation is slower than "Default")
+	public static Preset makeToweringPeaks() {
+		Preset preset = makeDefault();
+		preset.world().properties.worldHeight = 384;
+		preset.climate().biomeShape.biomeSize = 300;
+		preset.terrain().mountains.weight = 10.0F;
+		preset.terrain().mountains.verticalScale = 1.5F;
+		preset.terrain().hills.weight = 3.0F;
+		preset.terrain().plains.weight = 0.8F;
+		preset.terrain().steppe.weight = 0.3F;
+		preset.terrain().dales.weight = 0.8F;
+		return preset;
+	}
+
+	// one land without oceans, crossed by more rivers and lakes
+	public static Preset makeEndlessContinent() {
+		Preset preset = makeDefault();
+		preset.world().continent.continentType = ContinentType.INFINITE;
+		preset.rivers().riverCount = 12;
+		preset.rivers().lakes.chance = 0.45F;
+		return preset;
+	}
+
+	// many rivers in wide valleys that follow their bends, gorges and lakes
+	public static Preset makeRiverValleys() {
+		Preset preset = makeDefault();
+		preset.rivers().riverCount = 14;
+		preset.rivers().valleyWidth = 1.6F;
+		preset.rivers().valleyFollowsMeanders = true;
+		preset.rivers().gorgeChance = 0.45F;
+		preset.rivers().lakes.chance = 0.5F;
+		return preset;
+	}
+
+	// dense forests, grass and flowers
+	public static Preset makeLushWilds() {
+		Preset preset = makeDefault();
+		preset.miscellaneous().treeDensity = 1.6F;
+		preset.miscellaneous().grassDensity = 1.5F;
+		preset.miscellaneous().plantDensity = 1.8F;
+		return preset;
+	}
+
+	// wide, gentle plains and steppes with few mountains: room to build
+	public static Preset makeRollingPlains() {
+		Preset preset = makeDefault();
+		preset.terrain().plains.weight = 5.0F;
+		preset.terrain().steppe.weight = 4.0F;
+		preset.terrain().hills.weight = 1.0F;
+		preset.terrain().mountains.weight = 0.6F;
+		preset.terrain().volcano.weight = 1.0F;
+		preset.terrain().general.globalVerticalScale = 0.75F;
+		return preset;
+	}
+
+	// plateaus, badlands, torridonian steps, hills and volcanoes instead of plains
+	public static Preset makeRuggedHighlands() {
+		Preset preset = makeDefault();
+		preset.terrain().plateau.weight = 6.0F;
+		preset.terrain().badlands.weight = 5.0F;
+		preset.terrain().torridonian.weight = 6.0F;
+		preset.terrain().hills.weight = 4.0F;
+		preset.terrain().volcano.weight = 6.0F;
+		preset.terrain().plains.weight = 0.5F;
+		preset.terrain().steppe.weight = 0.3F;
+		preset.terrain().dales.weight = 0.5F;
+		return preset;
+	}
+
 	public static Preset makeLegacyDefault() {
 		return new Preset(
 			new WorldSettings(
