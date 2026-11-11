@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,8 +37,11 @@ import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 @Mixin(MaterialSystem.class)
 @Implements(@Interface(iface = RTFSurfaceSystem.class, prefix = RTFCommon.MOD_ID + "$RTFSurfaceSystem$"))
 class MixinMaterialSystem {
+	@Unique
 	private static final Identifier GEOLOGY_RANDOM = RTFCommon.location("geology");
+	@Unique
 	private RandomState randomState;
+	@Unique
 	private Map<Identifier, List<List<StrataRule.Layer>>> strata;
 
 	@Inject(

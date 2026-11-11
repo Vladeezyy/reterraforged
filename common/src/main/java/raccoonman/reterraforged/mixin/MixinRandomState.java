@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -55,21 +56,28 @@ class MixinRandomState {
 	private NoiseRouter router;
 
 	// volatile: generation threads read these while the lazy initialization below sets them
+	@Unique
 	@Nullable
 	private volatile GeneratorContext generatorContext;
+	@Unique
 	@Nullable
 	private volatile Preset preset;
+	@Unique
 	@Nullable
 	private volatile BlockPos spawnSearchCenter;
+	@Unique
 	@Nullable
 	private volatile BiPredicate<Integer, Integer> spawnWater;
 	// TerraBlender's region choice from the preset's biome regions (MixinParameterList)
+	@Unique
 	@Nullable
 	private volatile DensityFunction tbUniqueness;
 	// initialize started (also while it runs: a call back into it from the same thread gets no context, not a loop)
+	@Unique
 	private volatile boolean initialized;
 	// initialize finished: only then may a missing context be taken for "no context". With the flag above alone, a thread
 	// that came while another one built the context got none, and its chunks were made with a height of 0 (a sea)
+	@Unique
 	private volatile boolean ready;
 
 	// 26.3: density functions are compiled with this context; the mod's functions reach this RandomState through it
@@ -104,12 +112,27 @@ class MixinRandomState {
 		}
 	}
 
+	@Unique
 	private static boolean generationFixes(RegistryAccess registries) {
 		return registries.lookupOrThrow(RTFRegistries.PRESET).get(Preset.KEY).map((preset) -> preset.value().world().properties.generationFixes).orElse(false);
 	}
 
+	// no lock while there are no overworld registries to initialize from (a random state made before a server, or after
+	// it stopped): it stays without a context, and every sample went through the lock below for nothing.
+	// initialize(ServerLevel) sets initialized before it makes the context, so a thread that comes while it runs still
+	// waits on the lock and gets the context
+	@Unique
+	@Nullable
+	private GeneratorContext lazyContext() {
+		if(!this.initialized && OverworldRegistries.get() == null) {
+			return null;
+		}
+		return this.initializeLazily();
+	}
+
 	// a random state no ChunkMap set up: if its router has our cells, they are the overworld's preset's. Synchronized:
 	// the other threads wait here until the context is made, and get it
+	@Unique
 	@Nullable
 	private synchronized GeneratorContext initializeLazily() {
 		RegistryAccess registries = OverworldRegistries.get();
@@ -127,6 +150,7 @@ class MixinRandomState {
 		return this.generatorContext;
 	}
 
+	@Unique
 	private void initialize(RegistryAccess registries) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
@@ -172,6 +196,7 @@ class MixinRandomState {
 
 	// the generator context is only made when the noise router (or the functions tagged as additional router
 	// functions) samples the preset's cells
+	@Unique
 	private boolean usesCellSamplers(RegistryAccess registries) {
 		Set<DensityFunction> visited = Collections.newSetFromMap(new IdentityHashMap<>());
 		boolean[] found = new boolean[1];
@@ -206,7 +231,7 @@ class MixinRandomState {
 	public GeneratorContext reterraforged$RTFRandomState$generatorContext() {
 		GeneratorContext context = this.generatorContext;
 		if(context == null && !this.ready) {
-			context = this.initializeLazily();
+			context = this.lazyContext();
 		}
 		return context;
 	}
@@ -225,6 +250,7 @@ class MixinRandomState {
 		return Noises.shiftSeed(noise, (int) this.seed);
 	}
 
+	@Unique
 	private void clearGeneratorContext() {
 		this.generatorContext = null;
 		this.preset = null;
