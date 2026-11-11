@@ -100,10 +100,10 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		this.createPreset.active = this.isValidPresetName(this.input.getValue());
 		this.copyPreset = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_COPY, () -> {
 			PresetEntry preset = this.screen.editable(this.left.getSelected().getWidget());
-			String name = preset.getName().getString();
+			String name = fileName(preset.getName().getString());
 			int counter = 1;
 			String uniqueName;
-			while(Files.exists(PRESET_PATH.resolve((uniqueName = name + " (" + counter + ")") + ".json"))) { 
+			while(Files.exists(inside(PRESET_PATH, (uniqueName = name + " (" + counter + ")") + ".json"))) { 
 				counter++;
 			}
 			new PresetEntry(Component.literal(uniqueName), preset.getPreset().copy(), false, this).save();
@@ -131,7 +131,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		});
 		this.exportAsDatapack = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_EXPORT_AS_DATAPACK, () -> {
 			PresetEntry preset = this.screen.editable(this.left.getSelected().getWidget());
-			Path path = EXPORT_PATH.resolve(preset.getName().getString() + ".zip");
+			Path path = inside(EXPORT_PATH, fileName(preset.getName().getString()) + ".zip");
 			this.screen.exportAsDatapack(path, preset);
 			this.rebuildPresets();
 			
@@ -226,6 +226,23 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		}
 	}
 	
+	// a file name from a preset's shown name (a built-in preset's is its translation, any text): what a typed name
+	// may have (PresetNames) and the brackets of a copy's number, the rest '_'
+	private static String fileName(String name) {
+		String safe = name.replaceAll("[^\\p{L}\\p{M}\\p{N}\\-_ ()]", "_").strip();
+		return safe.isEmpty() ? "preset" : safe;
+	}
+
+	// the file of that name, and only in the folder
+	private static Path inside(Path folder, String fileName) throws IOException {
+		Path base = folder.toAbsolutePath().normalize();
+		Path file = base.resolve(fileName).normalize();
+		if(!base.equals(file.getParent())) {
+			throw new IOException("Not a file name in " + base + ": " + fileName);
+		}
+		return file;
+	}
+
 	private boolean isValidPresetName(String text) {
 		// the file too: on macOS and Windows "Foo" would overwrite "foo"
 		return PresetNames.isValid(text) && !this.hasPresetWithName(text) && !Files.exists(PRESET_PATH.resolve(text + ".json"));
