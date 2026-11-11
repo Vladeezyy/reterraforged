@@ -61,6 +61,16 @@ public class Cache<V extends ExpiringEntry> implements AutoCloseable {
     public void discard(long key) {
         this.map.remove(key);
     }
+
+    // only this entry: the one under the key may already be a new one
+    public boolean discard(long key, V entry) {
+        return this.map.remove(key, entry);
+    }
+
+    // drops the entries, the polling goes on (close stops it)
+    public void clear() {
+        this.map.clear();
+    }
     
     public V get(long key) {
         return this.map.get(key);

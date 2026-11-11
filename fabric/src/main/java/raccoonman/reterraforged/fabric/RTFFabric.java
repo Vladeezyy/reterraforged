@@ -32,6 +32,8 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 			}
 		});
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.RTFCommon.onServerStopped());
+		// its queued tiles are not generated ahead of the next world's (the generation threads are shared)
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache.closeAll());
 		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			if (net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(handler, raccoonman.reterraforged.network.AltitudeCoolingPayload.TYPE)) {
 				sender.sendPacket(new raccoonman.reterraforged.network.AltitudeCoolingPayload(raccoonman.reterraforged.world.worldgen.AltitudeCooling.of(server.overworld())));
