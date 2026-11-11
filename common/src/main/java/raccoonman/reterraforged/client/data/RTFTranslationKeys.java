@@ -43,6 +43,14 @@ public final class RTFTranslationKeys {
 	public static final String GUI_ENUM_PREFIX = resolve("gui.enum.");
 	public static final String GUI_ENUM_OLD_NAME = resolve("gui.enum.oldName");
 	public static final String GUI_DEFAULT_PRESET_NAME = resolve("gui.preset.default.name");
+	public static final String GUI_ARCHIPELAGO_PRESET_NAME = resolve("gui.preset.archipelago.name");
+	public static final String GUI_WETLANDS_PRESET_NAME = resolve("gui.preset.wetlands.name");
+	public static final String GUI_TOWERING_PEAKS_PRESET_NAME = resolve("gui.preset.toweringPeaks.name");
+	public static final String GUI_ENDLESS_CONTINENT_PRESET_NAME = resolve("gui.preset.endlessContinent.name");
+	public static final String GUI_RIVER_VALLEYS_PRESET_NAME = resolve("gui.preset.riverValleys.name");
+	public static final String GUI_LUSH_WILDS_PRESET_NAME = resolve("gui.preset.lushWilds.name");
+	public static final String GUI_ROLLING_PLAINS_PRESET_NAME = resolve("gui.preset.rollingPlains.name");
+	public static final String GUI_RUGGED_HIGHLANDS_PRESET_NAME = resolve("gui.preset.ruggedHighlands.name");
 	public static final String GUI_BEAUTIFUL_PRESET_NAME = resolve("gui.preset.beautiful.name");
 	public static final String GUI_HUGE_BIOMES_PRESET_NAME = resolve("gui.preset.hugeBiomes.name");
 	public static final String GUI_LITE_PRESET_NAME = resolve("gui.preset.lite.name");
