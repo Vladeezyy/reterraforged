@@ -13,34 +13,48 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 public class FeatureTemplateManager {
-	private ResourceManager resourceManager;
-	private final Map<ResourceLocation, FeatureTemplate> cache;
+	// the resource manager and the templates read from it, swapped as one: a paste still reading with the old manager
+	// fills the old map, never the new one (clearing a shared map left old templates in it after a reload)
+	private volatile Cache cache;
 	
 	public FeatureTemplateManager(ResourceManager resourceManager) {
-		this.resourceManager = resourceManager;
-		this.cache = new ConcurrentHashMap<>();
+		this.cache = new Cache(resourceManager);
 	}
 	
-	public void onReload(ResourceManager resourceManager) {
-		this.resourceManager = resourceManager;
-		this.cache.clear();
+	public synchronized void onReload(ResourceManager resourceManager) {
+		this.cache = new Cache(resourceManager);
 	}
 
 	// the server's resource manager is a new object after every reload (/reload, datapack changes): templates are read
-	// again from the new one. Checked on use, so it does not depend on the name of the server's reload lambda.
-	public synchronized FeatureTemplateManager forResources(ResourceManager resourceManager) {
-		if (resourceManager != this.resourceManager) {
-			this.onReload(resourceManager);
+	// again from the new one. Checked on use, so it does not depend on the name of the server's reload lambda. Called
+	// for every template pasted from all generation threads: a plain read, the lock only when the manager changed
+	public FeatureTemplateManager forResources(ResourceManager resourceManager) {
+		if (this.cache.resourceManager != resourceManager) {
+			synchronized (this) {
+				if (this.cache.resourceManager != resourceManager) {
+					this.cache = new Cache(resourceManager);
+				}
+			}
 		}
 		return this;
 	}
 	
 	public FeatureTemplate load(ResourceLocation location) {
-		return this.cache.computeIfAbsent(location, this::read);
+		Cache cache = this.cache;
+		// a plain read first: computeIfAbsent may lock its bin even when the template is there
+		FeatureTemplate template = cache.templates.get(location);
+		return template != null ? template : cache.templates.computeIfAbsent(location, (key) -> read(cache.resourceManager, key));
+	}
+
+	private record Cache(ResourceManager resourceManager, Map<ResourceLocation, FeatureTemplate> templates) {
+
+		Cache(ResourceManager resourceManager) {
+			this(resourceManager, new ConcurrentHashMap<>());
+		}
 	}
 	
-	private FeatureTemplate read(ResourceLocation location) {
-		return this.resourceManager.getResource(location).flatMap((resource) -> {
+	private static FeatureTemplate read(ResourceManager resourceManager, ResourceLocation location) {
+		return resourceManager.getResource(location).flatMap((resource) -> {
 			try(InputStream stream = resource.open()) {
 				return FeatureTemplate.load(stream);
 			} catch (IOException e) {
