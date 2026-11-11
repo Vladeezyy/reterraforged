@@ -32,3 +32,11 @@ license="LGPL-3.0-only"
 	versionRange = "${minecraft_range_neoforge}"
 	ordering = "NONE"
 	side = "BOTH"
+
+# biome mods' regions (compat mixins, only with it installed); 26.1.2.0.3 is the version built against
+[[dependencies.reterraforged]]
+	modId = "terrablender"
+	type = "optional"
+	versionRange = "[26.1.2.0.3,)"
+	ordering = "NONE"
+	side = "BOTH"

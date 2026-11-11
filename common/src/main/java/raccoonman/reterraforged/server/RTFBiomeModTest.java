@@ -94,15 +94,20 @@ public final class RTFBiomeModTest {
 			float[] c = { -0.15F, -0.04F, 0.16F, 0.65F }, e = { -0.9F, -0.55F, -0.3F, -0.08F, 0.25F, 0.5F, 0.8F };
 			float[] w = { -0.9F, -0.65F, -0.48F, -0.33F, -0.15F, 0.0F, 0.15F, 0.5F };
 			Map<String, List<String>> where = new TreeMap<>();
-			raccoonman.reterraforged.world.worldgen.terrablender.TBCompat.probing = true;
-			for (int r = 1; r < regions; r++) for (int ti = 0; ti < t.length; ti++) for (int hi = 0; hi < h.length; hi++) for (int ci = 0; ci < c.length; ci++) for (int ei = 0; ei < e.length; ei++) for (int wi = 0; wi < w.length; wi++) {
-				// a sampler of constants; the region is chosen by the uniqueness ReTerraForged gives the points it samples
-				// (MixinClimateSampler, MixinParameterList)
-				Climate.Sampler sampler = new Climate.Sampler(constant(t[ti]), constant(h[hi]), constant(c[ci]), constant(e[ei]), constant(0.0F), constant(w[wi]), List.of());
-				((raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler) (Object) sampler).setUniqueness(constant(r / (float) (regions - 1)));
-				Holder<Biome> biome = source.getNoiseBiome(0, QuartPos.fromBlock(level.getSeaLevel() + 8), 0, sampler);
-				if (!modded(biome)) continue;
-				where.computeIfAbsent(name(biome), (k) -> new ArrayList<>()).add("r" + r + " t" + ti + " h" + hi + " c" + (ci + 3) + " e" + ei + " w" + wi);
+			raccoonman.reterraforged.world.worldgen.terrablender.TBCompat.setProbing(true);
+			try {
+				for (int r = 1; r < regions; r++) for (int ti = 0; ti < t.length; ti++) for (int hi = 0; hi < h.length; hi++) for (int ci = 0; ci < c.length; ci++) for (int ei = 0; ei < e.length; ei++) for (int wi = 0; wi < w.length; wi++) {
+					// a sampler of constants; the region is chosen by the uniqueness ReTerraForged gives the points it samples
+					// (MixinClimateSampler, MixinParameterList)
+					Climate.Sampler sampler = new Climate.Sampler(constant(t[ti]), constant(h[hi]), constant(c[ci]), constant(e[ei]), constant(0.0F), constant(w[wi]), List.of());
+					((raccoonman.reterraforged.world.worldgen.terrablender.TBClimateSampler) (Object) sampler).setUniqueness(constant(r / (float) (regions - 1)));
+					Holder<Biome> biome = source.getNoiseBiome(0, QuartPos.fromBlock(level.getSeaLevel() + 8), 0, sampler);
+					if (!modded(biome)) continue;
+					where.computeIfAbsent(name(biome), (k) -> new ArrayList<>()).add("r" + r + " t" + ti + " h" + hi + " c" + (ci + 3) + " e" + ei + " w" + wi);
+				}
+			} finally {
+				// also after an exception: left on, the probe's thread kept the probe's regions
+				raccoonman.reterraforged.world.worldgen.terrablender.TBCompat.setProbing(false);
 			}
 			List<String> lines = new ArrayList<>();
 			for (Map.Entry<String, List<String>> en : where.entrySet()) {
@@ -115,7 +120,6 @@ public final class RTFBiomeModTest {
 				}
 				lines.add(String.format("%-40s %4d  %s %s %s %s %s %s", en.getKey(), en.getValue().size(), rs, ts, hs, cs, es, ws));
 			}
-			raccoonman.reterraforged.world.worldgen.terrablender.TBCompat.probing = false;
 			Files.write(server.getServerDirectory().resolve("rtf-biomeprobe.txt"), lines);
 			return "[RTF biomemods] rtf probe " + where.size() + " biomes";
 		} catch (Throwable th) {

@@ -8,10 +8,13 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
-import net.minecraft.core.HolderGetter;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
 import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -24,7 +27,6 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 import raccoonman.reterraforged.concurrent.ThreadPools;
@@ -48,6 +50,7 @@ import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 @Mixin(RandomState.class)
 @Implements(@Interface(iface = RTFRandomState.class, prefix = "reterraforged$RTFRandomState$"))
 class MixinRandomState {
+	@Unique
 	private DensityFunction.Visitor densityFunctionWrapper;
 	@Shadow
 	@Final
@@ -56,24 +59,33 @@ class MixinRandomState {
 	@Final
     private SurfaceSystem surfaceSystem;
 	
+	@Unique
 	private volatile boolean hasContext;
 	// volatile: generation threads read it while the lazy initialization below sets it
+	@Unique
 	@Nullable
 	private volatile GeneratorContext generatorContext;
+	@Unique
 	@Nullable
 	private volatile Preset preset;
 	// the noise router has ReTerraForged density functions (set while the router is built, never cleared)
+	@Unique
 	private boolean reTerraForgedFunctions;
 	
+	@Unique
 	private long seed;
+	@Unique
 	private NoiseGeneratorSettings noiseGeneratorSettings;
 	// initialize started (also while it runs: a call back into it from the same thread gets no context, not a loop)
+	@Unique
 	private volatile boolean initialized;
 	// initialize finished: only then may a missing context be taken for "no context". With the flag above alone, a thread
 	// that came while another one built the context got none, and its chunks were made with a height of 0 (a sea)
+	@Unique
 	private volatile boolean ready;
 	
-	@Redirect(
+	// a wrap, not a @Redirect: another mod's wrap of the same call still applies
+	@WrapOperation(
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;mapAll(Lnet/minecraft/world/level/levelgen/DensityFunction$Visitor;)Lnet/minecraft/world/level/levelgen/NoiseRouter;"
@@ -81,7 +93,7 @@ class MixinRandomState {
 		method = "<init>",
 		require = 1
 	)
-	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter<NormalNoise.NoiseParameters> params, final long seed) {
+	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, Operation<NoiseRouter> original, @Local(argsOnly = true) NoiseGeneratorSettings noiseGeneratorSettings, @Local(argsOnly = true) final long seed) {
 		this.seed = seed;
 		this.noiseGeneratorSettings = noiseGeneratorSettings;
 		// one for all the samplers of this state, not one per visit: CellSampler is a record, and NoiseChunk.wrap tells
@@ -92,7 +104,7 @@ class MixinRandomState {
 		Supplier<WorldLookup> lookup = () -> {
 			GeneratorContext context = this.generatorContext;
 			if(context == null && !this.ready) {
-				context = this.initializeLazily();
+				context = this.lazyContext();
 			}
 			return context != null ? context.lookup : null;
 		};
@@ -118,7 +130,7 @@ class MixinRandomState {
 	            return visitor.visitNoise(noiseHolder);
 	        }
 		};
-		return router.mapAll(this.densityFunctionWrapper);
+		return original.call(router, this.densityFunctionWrapper);
 	}
 
 	public synchronized void reterraforged$RTFRandomState$initialize(ServerLevel level) {
@@ -144,7 +156,21 @@ class MixinRandomState {
 		return registries.lookupOrThrow(RTFRegistries.PRESET).get(Preset.KEY).map((preset) -> preset.value().world().properties.generationFixes).orElse(false);
 	}
 
+	// no lock while there are no overworld registries to initialize from (a random state made before a server, or after
+	// it stopped): it stays without a context, and every CellSampler.compute went through the lock below for nothing.
+	// initialize(ServerLevel) sets initialized before it makes the context, so a thread that comes while it runs still
+	// waits on the lock and gets the context
+	@Unique
+	@Nullable
+	private GeneratorContext lazyContext() {
+		if(!this.initialized && OverworldRegistries.get() == null) {
+			return null;
+		}
+		return this.initializeLazily();
+	}
+
 	// a random state no ChunkMap set up: our noise settings are the overworld's, so it gets the overworld's preset
+	@Unique
 	@Nullable
 	// synchronized: the other threads wait here until the context is made, and get it
 	private synchronized GeneratorContext initializeLazily() {
@@ -216,7 +242,7 @@ class MixinRandomState {
 		// a random state no ChunkMap set up: a NoiseChunk asks for the context before any density function did, and
 		// without it the chunk had no ReTerraForged terrain at all
 		if(context == null && !this.ready && this.hasContext) {
-			context = this.initializeLazily();
+			context = this.lazyContext();
 		}
 		return context;
 	}
