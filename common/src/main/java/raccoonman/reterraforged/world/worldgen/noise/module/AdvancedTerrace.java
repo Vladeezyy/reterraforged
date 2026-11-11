@@ -15,7 +15,7 @@ record AdvancedTerrace(Noise source, Noise modulation, Noise mask, Noise slope, 
 		Codec.FLOAT.fieldOf("blend_min").forGetter(AdvancedTerrace::blendMin),
 		Codec.FLOAT.fieldOf("blend_max").forGetter(AdvancedTerrace::blendMax),
 		Codec.INT.fieldOf("steps").forGetter(AdvancedTerrace::steps),
-		Codec.INT.fieldOf("octaves").forGetter(AdvancedTerrace::octaves)
+		NoiseCodecs.OCTAVES_ANY_LOW.fieldOf("octaves").forGetter(AdvancedTerrace::octaves)
 	).apply(instance, AdvancedTerrace::new));
 	
 	@Override

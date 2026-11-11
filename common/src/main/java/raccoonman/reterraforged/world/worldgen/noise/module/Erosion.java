@@ -14,7 +14,7 @@ public record Erosion(Noise input, int seed, int octaves, float strength, float 
 	public static final MapCodec<Erosion> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Noise.HOLDER_HELPER_CODEC.fieldOf("input").forGetter(Erosion::input),
 		Codec.INT.fieldOf("seed").forGetter(Erosion::seed),
-		Codec.INT.fieldOf("octaves").forGetter(Erosion::octaves),
+		NoiseCodecs.OCTAVES_ANY_LOW.fieldOf("octaves").forGetter(Erosion::octaves),
 		Codec.FLOAT.fieldOf("strength").forGetter(Erosion::strength),
 		Codec.FLOAT.fieldOf("grid_size").forGetter(Erosion::gridSize),
 		Codec.FLOAT.fieldOf("amplitude").forGetter(Erosion::amplitude),
