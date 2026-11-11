@@ -113,6 +113,9 @@ public class FeatureTemplate {
         BlockReader reader = new BlockReader();
         PasteBuffer buffer = PASTE_BUFFER.get();
         TemplateRegion region = TEMPLATE_REGION.get().init(origin);
+        // the buffer is the thread's: without clearing, the blocks of the pastes before (another template, another
+        // place) were updated too, even in a far chunk
+        buffer.clear();
         buffer.setRecording(config.updatePostPaste());
 
         BlockPos.MutableBlockPos pos1 = new BlockPos.MutableBlockPos();
@@ -142,7 +145,7 @@ public class FeatureTemplate {
 
             // generate a base going downwards if necessary
             if (block.pos().getY() <= 0 && block.state().isCollisionShapeFullBlock(reader.setState(block.state()), BlockPos.ZERO)) {
-            	this.placeBase(world, setter, pos1, pos2, block.state(), config.baseDepth());
+            	this.placeBase(world, setter, placement, pos1, pos2, block.state(), config.baseDepth());
             }
 
             setter.setBlock(pos1, block.state(), 2);
@@ -191,7 +194,7 @@ public class FeatureTemplate {
             addPos(pos1, origin, block.pos());
 
             if (pos1.getY() <= origin.getY() && block.state().isCollisionShapeFullBlock(reader.setState(block.state()), BlockPos.ZERO)) {
-            	this.placeBase(world, setter, pos1, pos2, block.state(), config.baseDepth());
+            	this.placeBase(world, setter, placement, pos1, pos2, block.state(), config.baseDepth());
                 setter.setBlock(pos1, block.state(), 2);
                 placed = true;
             } else if (buffer.test(pos1)) {
@@ -306,10 +309,12 @@ public class FeatureTemplate {
         }
     }
 
-    private void placeBase(LevelAccessor world, BlockSetter setter, BlockPos pos, BlockPos.MutableBlockPos pos2, BlockState state, int depth) {
+    // the placement decides how far down: generation fills all that does not occlude, a sapling's tree keeps the
+    // player's blocks (glass, water, flowers) below its roots
+    private void placeBase(LevelAccessor world, BlockSetter setter, TemplatePlacement<?> placement, BlockPos pos, BlockPos.MutableBlockPos pos2, BlockState state, int depth) {
         for (int dy = 0; dy < depth; dy++) {
             pos2.set(pos).move(Direction.DOWN, dy);
-            if (world.getBlockState(pos2).canOcclude()) {
+            if (!placement.canExtendBase(world, pos2)) {
                 return;
             }
             setter.setBlock(pos2, state, 2);

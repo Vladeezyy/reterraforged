@@ -52,7 +52,11 @@ public record DiskFeature(Holder<BlockStateProvider> stateProvider, BlockPredica
                     int dz = z - pos.getZ();
                     float rad2 = DOMAIN.compute(x, z, 0) * radius2;
                     if (dx * dx + dz * dz <= rad2) {
-                        for(int y = pos.getY() - ySize; y <= pos.getY() + ySize && y + 1 < generator.getGenDepth(); ++y) {
+                        // within the world's bounds: the generator's depth is the world's height, not its top, and a
+                        // block outside them is never the target (the bound on the depth stays, it is the same disk)
+                        int minY = Math.max(pos.getY() - ySize, level.getMinY());
+                        int maxY = Math.min(pos.getY() + ySize, level.getMaxY());
+                        for(int y = minY; y <= maxY && y + 1 < generator.getGenDepth(); ++y) {
                             blockPos.set(x, y, z);
                             
                             if(this.target.test(level, blockPos)) {
