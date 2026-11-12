@@ -22,6 +22,9 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 
 		RegistryUtil.createDataRegistry(RTFRegistries.BIOME_MODIFIER, BiomeModifiersImpl.DATA_CODEC, false);
 		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> raccoonman.reterraforged.server.RTFSelfTest.register(dispatcher));
+		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> RTFCommon.registerCommands(dispatcher));
+		// Fabric's own folder is forge/biome_modifier; NeoForge's is read in its place (BiomeModifiersImpl.withFallback)
+		raccoonman.reterraforged.server.WorldInfo.setPlatform(new raccoonman.reterraforged.server.WorldInfo.Platform("Fabric", version("fabricloader"), version("minecraft"), version(RTFCommon.MOD_ID), "forge/biome_modifier", "neoforge/biome_modifier", true));
 
 		// the altitude cooling scale: the default set from the overworld's preset before its spawn chunks, the player's
 		// dimension's sent on join and on every change of dimension (raccoonman.reterraforged.world.worldgen.AltitudeCooling)
@@ -29,14 +32,21 @@ public class RTFFabric implements ModInitializer, DataGeneratorEntrypoint {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.LOAD.register((server, level) -> {
 			if (level.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
 				raccoonman.reterraforged.world.worldgen.AltitudeCooling.set(raccoonman.reterraforged.world.worldgen.AltitudeCooling.of(level));
+				// once per world, before its spawn chunks: a crash while they generate has it in its report
+				raccoonman.reterraforged.server.WorldInfo.onOverworldLoad(level);
 			}
 		});
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.RTFCommon.onServerStopped());
 		// its queued tiles are not generated ahead of the next world's (the generation threads are shared)
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register((server) -> raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache.closeAll());
 		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sendAltitudeCooling(handler.player));
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> raccoonman.reterraforged.server.WorldInfo.onPlayerJoin(handler.player));
 		net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> sendAltitudeCooling(player));
 		net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> sendAltitudeCooling(newPlayer));
+	}
+
+	private static String version(String modId) {
+		return net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(modId).map((mod) -> mod.getMetadata().getVersion().getFriendlyString()).orElse("?");
 	}
 
 	// the scale of the player's dimension: another mod's dimension cools as in vanilla
