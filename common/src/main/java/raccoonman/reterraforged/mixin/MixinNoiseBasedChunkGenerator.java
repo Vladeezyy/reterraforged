@@ -20,6 +20,7 @@ import raccoonman.reterraforged.data.worldgen.preset.PresetPlacedFeatures;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.feature.ErodeFeature;
+import raccoonman.reterraforged.world.worldgen.surface.SurfaceBiomes;
 
 // The erosion decorator runs as the surface is built, not as a feature (see ErodeFeature.erodeChunk)
 @Mixin(NoiseBasedChunkGenerator.class)
@@ -40,8 +41,8 @@ class MixinNoiseBasedChunkGenerator {
 			return;
 		}
 		NoiseBasedChunkGenerator generator = (NoiseBasedChunkGenerator) (Object) this;
-		// the biomes the surface rules see (NoiseBasedChunkGenerator.buildSurface): the same as the chunk's
-		BiomeManager biomes = region.getBiomeManager().withDifferentSource((x, y, z) -> generator.getBiomeSource().getNoiseBiome(x, y, z, randomState.sampler()));
+		// new worlds: the chunk's biomes, as the surface rules see them; older ones: the biome source's (SurfaceBiomes)
+		BiomeManager biomes = SurfaceBiomes.erosion(generatorContext, region.getBiomeManager(), generator, randomState);
 		ErodeFeature.erodeChunk(config, generatorContext, generator, chunk, biomes::getBiome, null);
 		chunk.setInhabitedTime(Math.max(chunk.getInhabitedTime(), ErodeFeature.ERODED));
 	}
