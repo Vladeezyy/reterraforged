@@ -53,6 +53,28 @@ public final class PresetDiff {
 		return changes(preset, base).stream().map(Change::line).toList();
 	}
 
+	/**
+	 * The settings of the preset that differ from Default, without the structure sets that have their own values (the
+	 * entries the structure page fills in). The create world screen: StructureOriginals.of(its worldgenLoadContext());
+	 * a running world: StructureOriginals.of(server.getResourceManager())
+	 */
+	public static List<String> lines(Preset preset, StructureOriginals originals) {
+		return lines(changedOnly(preset, originals));
+	}
+
+	/** The name of the built-in preset this one is, the structure sets with their own values aside */
+	public static Optional<String> builtInName(Preset preset, StructureOriginals originals) {
+		return builtInName(changedOnly(preset, originals));
+	}
+
+	/** The preset without the structure entries that are the sets' own values */
+	public static Preset changedOnly(Preset preset, StructureOriginals originals) {
+		if (originals == StructureOriginals.NONE || preset.structures().entries.isEmpty()) {
+			return preset;
+		}
+		return new Preset(preset.world(), preset.surface(), preset.caves(), preset.climate(), preset.terrain(), preset.island(), preset.fakeWaterBiomes(), preset.rivers(), preset.filters(), StructureOriginals.changedOnly(preset.structures(), originals), preset.miscellaneous());
+	}
+
 	/** The name of the built-in preset this one is (its generation version and fixes aside), if it is one */
 	public static Optional<String> builtInName(Preset preset) {
 		for (Map.Entry<String, Supplier<Preset>> entry : BuiltIn.PRESETS.entrySet()) {
