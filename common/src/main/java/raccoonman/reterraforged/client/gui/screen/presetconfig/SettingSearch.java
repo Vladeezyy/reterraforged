@@ -1,7 +1,10 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.text.Normalizer;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -38,6 +41,22 @@ final class SettingSearch {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Which settings of a page share their shown name with another one of the page: a search result needs their section.
+	 * By the shown name, not the key: the climate page's three "Scale" sliders have three keys.
+	 */
+	static boolean[] repeated(List<String> names) {
+		Map<String, Integer> counts = new HashMap<>();
+		for (String name : names) {
+			counts.merge(normalize(name), 1, Integer::sum);
+		}
+		boolean[] repeated = new boolean[names.size()];
+		for (int i = 0; i < repeated.length; i++) {
+			repeated[i] = counts.get(normalize(names.get(i))) > 1;
+		}
+		return repeated;
 	}
 
 	static String normalize(String text) {

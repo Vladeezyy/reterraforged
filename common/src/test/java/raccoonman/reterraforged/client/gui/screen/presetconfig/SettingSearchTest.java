@@ -1,7 +1,10 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +44,15 @@ class SettingSearchTest {
 	void kanaKeepTheirMarks() {
 		assertTrue(SettingSearch.of("大陸").matches("大陸の規模"));
 		assertFalse(SettingSearch.of("が").matches("か"));
+	}
+
+	// the climate page: three "Scale" sliders with three keys (temperature, moisture, biome edges) looked alike in the
+	// results without their sections
+	@Test
+	void theSameShownNameIsRepeatedWhateverTheKeys() {
+		boolean[] repeated = SettingSearch.repeated(List.of("Масштаб", "Смещение сида", "Масштаб", "масштаб ", "Масштаб искажения"));
+		assertArrayEquals(new boolean[] { true, false, true, true, false }, repeated);
+		assertArrayEquals(new boolean[] { false, false }, SettingSearch.repeated(List.of("Scale", "Jitter")));
 	}
 
 	@Test
