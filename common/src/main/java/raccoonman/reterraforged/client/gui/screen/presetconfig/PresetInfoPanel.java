@@ -22,7 +22,8 @@ import raccoonman.reterraforged.RTFCommon;
  */
 final class PresetInfoPanel {
 	private static final int MIN_MAP = 64;
-	private static final int MAX_MAP = 2 * PresetMapDrawer.SIZE;
+	// GUI pixels: at GUI scale 2 the picture's cells are the screen's pixels
+	private static final int MAX_MAP = PresetMapDrawer.SIZE / 2;
 	private static final int LINE = 10;
 	private static final int TEXT = 0xFFA0A0A0;
 	private static final int BACKGROUND = 0xFF101010;
@@ -129,6 +130,8 @@ final class PresetInfoPanel {
 	private void upload(String key, int[] picture) {
 		if(this.texture == null) {
 			this.texture = new DynamicTexture(PresetMapDrawer.SIZE, PresetMapDrawer.SIZE, false);
+			// smaller than its cells at GUI scale 3 and up: smoothed, or the rivers break into dots
+			this.texture.setFilter(true, false);
 			this.textureId = Minecraft.getInstance().getTextureManager().register(RTFCommon.MOD_ID + "-preset-map", this.texture);
 			this.uploaded = null;
 		}
