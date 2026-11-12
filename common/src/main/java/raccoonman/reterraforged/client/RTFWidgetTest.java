@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.util.StringRepresentable;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
+import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
@@ -122,7 +123,11 @@ public final class RTFWidgetTest {
 				edited = flatten(RTFGuiTest.preset(mc));
 				RTFGuiTest.click(mc, ((LinkedPageScreen) mc.screen).doneButton, 0.5);
 				// the datapacks reload now: nothing to click in the create world screen until the new preset is in it
-				if (mc.screen instanceof CreateWorldScreen) RTFGuiTest.fail("Done went back to the create world screen before the preset was applied");
+				// unless the edits came back to the preset the screen already has: then its pack is kept, without an export
+				if (mc.screen instanceof CreateWorldScreen create) {
+					if (RTFCreateWorld.lastApplySkipped(create)) RTFGuiTest.log("Done: the preset is the one applied already, no export");
+					else RTFGuiTest.fail("Done went back to the create world screen before the preset was applied");
+				}
 				timeout = 600;
 				next(20);
 			}

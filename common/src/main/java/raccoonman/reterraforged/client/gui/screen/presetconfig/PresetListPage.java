@@ -20,7 +20,9 @@ import com.mojang.serialization.JsonOps;
 
 import io.netty.util.internal.StringUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -39,6 +41,7 @@ import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.Pr
 import raccoonman.reterraforged.client.gui.widget.Label;
 import raccoonman.reterraforged.client.gui.widget.WidgetList;
 import raccoonman.reterraforged.client.gui.widget.WidgetList.Entry;
+import raccoonman.reterraforged.data.worldgen.preset.PresetDiff;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.platform.ConfigUtil;
@@ -47,7 +50,14 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private static final Path PRESET_PATH = ConfigUtil.rtf("presets");
 	private static final Path EXPORT_PATH = ConfigUtil.rtf("exports");
 	private static final Path LEGACY_PRESET_PATH = ConfigUtil.legacy("presets");
-	
+	// the strings of this page; the texts are in the language files
+	public static final String GUI_BUTTON_COPY_WORLD_INFO = RTFCommon.MOD_ID + ".gui.button.copyWorldInfo";
+	public static final String GUI_BUTTON_COPY_WORLD_INFO_SUCCESS = GUI_BUTTON_COPY_WORLD_INFO + ".success";
+	public static final String GUI_PRESET_INFO_DIFFERS = RTFCommon.MOD_ID + ".gui.presetInfo.differs";
+	public static final String GUI_PRESET_INFO_SAME = RTFCommon.MOD_ID + ".gui.presetInfo.same";
+	// the right column's rows (BisectedPage) and the gap above the map
+	private static final int ROW = 25;
+	private static final int INFO_GAP = 6;
 
 	private EditBox input;
 	private Button createPreset;
@@ -56,20 +66,34 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private Button copyPreset;
 	private Button openPresetFolder;
 	private Button openExportFolder;
-	// selected when the list is shown: the preset whose settings pages "<<" came back from
+	private Button copyWorldInfo;
+	// selected when the list is shown: the preset whose settings pages "<<" came back from, by its working key (two
+	// presets may be shown with the same name), or by name when only that is known
 	@Nullable
 	private final String selectName;
 	@Nullable
+	private final String selectKey;
+	@Nullable
 	private PresetEntry selected;
-	
+
 	public PresetListPage(PresetConfigScreen screen) {
-		this(screen, null);
+		this(screen, null, null);
 	}
 
+	// by name: the preset of the settings pages left last, if it has that name (WorldSettingsPage's "<<")
 	public PresetListPage(PresetConfigScreen screen, @Nullable String selectName) {
+		this(screen, selectName, screen.lastEdited());
+	}
+
+	public PresetListPage(PresetConfigScreen screen, PresetEntry select) {
+		this(screen, select.getName().getString(), select.workingKey());
+	}
+
+	private PresetListPage(PresetConfigScreen screen, @Nullable String selectName, @Nullable String selectKey) {
 		super(screen);
 		this.selectName = selectName;
-		
+		this.selectKey = selectKey;
+
 		try {
 			if(!Files.exists(PRESET_PATH)) Files.createDirectory(PRESET_PATH);
 			if(!Files.exists(EXPORT_PATH)) Files.createDirectory(EXPORT_PATH);
@@ -86,7 +110,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	@Override
 	public void init() {
 		super.init();
-		
+
 		this.input = PresetWidgets.createEditBox(this.screen.font, (text) -> {
 			boolean isValid = this.isValidPresetName(text);
 			final int white = 14737632;
@@ -105,7 +129,8 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			String name = fileName(preset.getName().getString());
 			int counter = 1;
 			String uniqueName;
-			while(Files.exists(inside(PRESET_PATH, (uniqueName = name + " (" + counter + ")") + ".json"))) { 
+			// nor the name of another preset in the list (one in TerraForged's folder): two would be shown alike
+			while(Files.exists(inside(PRESET_PATH, (uniqueName = name + " (" + counter + ")") + ".json")) || this.hasPresetWithName(uniqueName)) {
 				counter++;
 			}
 			new PresetEntry(Component.literal(uniqueName), preset.getPreset().copy(), false, this).save();
@@ -150,6 +175,13 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			});
 		});
 
+		this.copyWorldInfo = PresetWidgets.createThrowingButton(GUI_BUTTON_COPY_WORLD_INFO, () -> {
+			PresetEntry entry = this.left.getSelected().getWidget();
+			this.screen.minecraft.keyboardHandler.setClipboard(this.worldInfo(entry));
+			Toasts.notify(GUI_BUTTON_COPY_WORLD_INFO_SUCCESS, entry.getName(), SystemToastId.WORLD_BACKUP);
+		});
+		this.copyWorldInfo.setTooltip(Tooltips.create(Tooltips.translationKey(GUI_BUTTON_COPY_WORLD_INFO)));
+
 		this.right.addWidget(this.input);
 		this.right.addWidget(this.createPreset);
 		this.right.addWidget(this.copyPreset);
@@ -157,10 +189,11 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		this.right.addWidget(this.openPresetFolder);
 		this.right.addWidget(this.openExportFolder);
 		this.right.addWidget(this.exportAsDatapack);
-		
+		this.right.addWidget(this.copyWorldInfo);
+
 		this.left.setRenderSelected(true);
 		this.left.onSelect(this::selectPreset);
-		
+
 		try {
 			this.rebuildPresets();
 		} catch (IOException e) {
@@ -179,17 +212,17 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			return new WorldSettingsPage(this.screen, this.screen.editable(e.getWidget()));
 		});
 	}
-	
+
 	@Override
 	public void onDone() {
 		super.onDone();
-		
+
 		Entry<PresetEntry> selected = this.left.getSelected();
 		if(selected != null) {
 			Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, () -> this.screen.applyPreset(this.screen.editable(selected.getWidget())));
 		}
 	}
-	
+
 	private void selectPreset(@Nullable PresetEntry entry) {
 		// the selected preset is drawn yellow with a marker (and framed by the list): nothing showed which one it was
 		if(this.selected != null) {
@@ -200,17 +233,19 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			entry.setMessage(Component.literal("» ").append(entry.getName().copy().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.YELLOW));
 		}
 		boolean active = entry != null;
-		
+		this.screen.infoPanel.show(entry != null ? this.info(entry) : null);
+
 		this.screen.doneButton.active = active;
+		this.copyWorldInfo.active = active;
 		this.copyPreset.active = active;
 		this.deletePreset.active = active && !entry.isBuiltin();
 		this.exportAsDatapack.active = active && !this.screen.isExporting();
 		this.screen.nextButton.active = active;
 	}
-	
+
 	private void rebuildPresets() throws IOException {
 		this.selectPreset(null);
-		
+
 		List<PresetEntry> entries = new ArrayList<>();
 		entries.addAll(this.listPresets(PRESET_PATH));
 		// TerraForged's folder: the same name in the mod's own folder wins
@@ -221,31 +256,93 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		}
 
 		// as in ReTerraForged 0.0.6: "Default" is TerraForged's default
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeDefault(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ARCHIPELAGO_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeArchipelago(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_WETLANDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeWetlands(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_TOWERING_PEAKS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeToweringPeaks(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ENDLESS_CONTINENT_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeEndlessContinent(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_RIVER_VALLEYS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRiverValleys(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LUSH_WILDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLushWilds(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_ROLLING_PLAINS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRollingPlains(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_RUGGED_HIGHLANDS_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeRuggedHighlands(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_BEAUTIFUL_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyBeautiful(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_HUGE_BIOMES_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyHugeBiomes(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_LITE_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyLite(), true, this));
-		entries.add(new PresetEntry(Component.translatable(RTFTranslationKeys.GUI_VANILLAISH_PRESET_NAME).withStyle(ChatFormatting.GRAY), Presets.makeLegacyVanillaish(), true, this));
+		for(BuiltinPresets.Builtin builtin : BuiltinPresets.ALL) {
+			entries.add(PresetEntry.builtin(builtin.id(), Component.translatable(builtin.nameKey()).withStyle(ChatFormatting.GRAY), builtin.factory().get(), this));
+		}
 		this.left.replaceEntries(entries.stream().map(WidgetList.Entry::new).toList());
 		if(this.selectName != null) {
+			Entry<PresetEntry> found = null;
 			for(Entry<PresetEntry> entry : this.left.children()) {
-				if(entry.getWidget().getName().getString().equals(this.selectName)) {
-					this.left.setSelected(entry);
-					this.selectPreset(entry.getWidget());
+				PresetEntry preset = entry.getWidget();
+				if(!preset.getName().getString().equals(this.selectName)) {
+					continue;
+				}
+				if(preset.workingKey().equals(this.selectKey)) {
+					found = entry;
 					break;
 				}
+				if(found == null) {
+					found = entry;
+				}
+			}
+			if(found != null) {
+				this.left.setSelected(found);
+				this.selectPreset(found.getWidget());
 			}
 		}
 	}
-	
+
+	// the map and description of the preset, with the settings it has on this screen (edits not yet saved too)
+	private PresetInfoPanel.Shown info(PresetEntry entry) {
+		Preset preset = this.screen.current(entry);
+		long seed = this.screen.getSettings().options().seed();
+		// the settings as text: an edited preset gets a new map, the same settings under another name share one
+		String json = Preset.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, preset).result().map(JsonElement::toString).orElse("unencodable:" + entry.workingKey());
+		PresetMapDrawer.Input input = new PresetMapDrawer.Input(preset.copy(), this.screen.getSettings().worldgenLoadContext(), seed);
+		return new PresetInfoPanel.Shown(seed + "|" + json, input, this.description(entry, preset));
+	}
+
+	private Component description(PresetEntry entry, Preset preset) {
+		if(entry.builtinId() != null) {
+			for(BuiltinPresets.Builtin builtin : BuiltinPresets.ALL) {
+				if(builtin.id().equals(entry.builtinId())) {
+					return Component.translatable(builtin.descriptionKey());
+				}
+			}
+		}
+		int differences = differences(preset).size();
+		return differences == 0 ? Component.translatable(GUI_PRESET_INFO_SAME) : Component.translatable(GUI_PRESET_INFO_DIFFERS, differences);
+	}
+
+	private static List<String> differences(Preset preset) {
+		try {
+			return PresetDiff.lines(preset);
+		} catch(RuntimeException e) {
+			RTFCommon.LOGGER.error("Could not compare the preset with Default", e);
+			return List.of("(could not compare with Default: " + e + ")");
+		}
+	}
+
+	private String worldInfo(PresetEntry entry) {
+		Preset preset = this.screen.current(entry);
+		String source = entry.builtinId() != null ? "built-in " + entry.builtinId() : entry.isBuiltin() ? "built-in" : entry.getPath().getFileName().toString();
+		String game = "Minecraft " + SharedConstants.getCurrentVersion().getName() + ", " + CopyWorldInfo.loader();
+		return CopyWorldInfo.text(CopyWorldInfo.modVersion(), game, this.screen.getSettings().options().seed(), entry.getName().getString(), source, differences(preset));
+	}
+
+	// PresetConfigScreen.render: under the right column's last button, while the column does not scroll (on a small
+	// window the buttons take the whole column, and the map is left out)
+	void renderInfo(GuiGraphics graphics) {
+		if(this.right == null || this.right.getMaxScroll() > 0) {
+			return;
+		}
+		int rowWidth = this.right.getRowWidth();
+		int width = Math.min(450, rowWidth);
+		int x = this.right.getRowLeft() + (rowWidth - width) / 2;
+		int top = this.right.getY() + 4 + this.right.children().size() * ROW + INFO_GAP;
+		int bottom = this.right.getBottom() - 4;
+		this.screen.infoPanel.render(graphics, x, top, width, bottom - top);
+	}
+
+	// for the GUI test: the selected preset's map is drawn, or could not be
+	public boolean infoMapShown() {
+		return this.screen.infoPanel.mapShown();
+	}
+
+	public boolean infoMapFailed() {
+		return this.screen.infoPanel.mapFailed();
+	}
+
 	// a file name from a preset's shown name (a built-in preset's is its translation, any text): what a typed name
 	// may have (PresetNames) and the brackets of a copy's number, the rest '_'
 	private static String fileName(String name) {
@@ -267,13 +364,13 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		// the file too: on macOS and Windows "Foo" would overwrite "foo"
 		return PresetNames.isValid(text) && !this.hasPresetWithName(text) && !Files.exists(PRESET_PATH.resolve(text + ".json"));
 	}
-	
+
 	private boolean hasPresetWithName(String name) {
 		return this.left.children().stream().filter((entry) -> {
 			return PresetNames.sameFile(entry.getWidget().getName().getString(), name);
 		}).findAny().isPresent();
 	}
-	
+
 	private List<PresetEntry> listPresets(Path path) throws IOException	{
 		List<PresetEntry> presets = new ArrayList<>();
 		if(Files.exists(path)) {
@@ -308,23 +405,26 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		}
 		return presets;
 	}
-	
+
 	public static class PresetEntry extends Label {
 		private final Component name;
 		private final Preset preset;
 		private final boolean builtin;
+		// a built-in preset's own id (BuiltinPresets), whatever its name is in the game's language
+		@Nullable
+		private String builtinId;
 		// the file it was read from (the presets folder or TerraForged's); null: a new one in the presets folder
 		@Nullable
 		private Path path;
-		
+
 		public PresetEntry(Component name, Preset preset, boolean builtin, OnPress onPress) {
 			super(-1, -1, -1, -1, onPress, name);
-			
+
 			this.name = name;
 			this.preset = preset;
 			this.builtin = builtin;
 		}
-		
+
 		public PresetEntry(Component name, Preset preset, boolean builtin, PresetListPage page) {
 			this(name, preset, builtin, (b) -> {
 				if(b instanceof PresetEntry entry) {
@@ -333,29 +433,50 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			});
 		}
 
+		static PresetEntry builtin(String id, Component name, Preset preset, PresetListPage page) {
+			PresetEntry entry = new PresetEntry(name, preset, true, page);
+			entry.builtinId = id;
+			return entry;
+		}
+
+		@Nullable
+		public String builtinId() {
+			return this.builtinId;
+		}
+
+		// what the preset screen keeps its edits under: not the shown name, which two presets can share
+		public String workingKey() {
+			if(this.builtin && this.builtinId == null) {
+				// a built-in preset made outside the list: its name is all there is
+				return "builtin-name:" + this.name.getString();
+			}
+			return PresetNames.workingKey(this.builtinId, this.getPath());
+		}
+
 		public Component getName() {
 			return this.name;
 		}
-		
+
 		public Preset getPreset() {
 			return this.preset;
 		}
-		
+
 		public boolean isBuiltin() {
 			return this.builtin;
 		}
-		
+
 		public Path getPath() {
 			return this.path != null ? this.path : PRESET_PATH.resolve(this.name.getString() + ".json");
 		}
-		
+
 		// the same preset file with these settings
 		public PresetEntry withPreset(Preset preset) {
 			PresetEntry entry = new PresetEntry(this.name, preset, this.builtin, (b) -> {});
 			entry.path = this.path;
+			entry.builtinId = this.builtinId;
 			return entry;
 		}
-		
+
 		// encoded first, written to a temporary file and moved over the old one: the file was opened (emptied) before the
 		// preset was encoded, so a failure left the player's preset an empty file
 		public void save() throws IOException {

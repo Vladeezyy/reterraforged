@@ -13,7 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.Nullable;
+
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,6 +29,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.GenericMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -46,6 +51,8 @@ import raccoonman.reterraforged.registries.RTFRegistries;
 public final class RTFCreateWorld {
 	public static final String PACK_NAME = "reterraforged-preset";
 	// the files apply makes; a pack of the player's that only starts like them is theirs
+	// the id of a pack in the screen's datapack folder
+	private static final String PACK_PREFIX = "file/";
 	private static final Pattern OWN_PACK = Pattern.compile("^" + PACK_NAME + "-\\d+\\.zip$");
 	// what an export the game was closed in the middle of left next to them
 	private static final Pattern OWN_TEMP = Pattern.compile("^" + PACK_NAME + "-\\d+\\.zip\\.tmp$");
@@ -58,6 +65,10 @@ public final class RTFCreateWorld {
 	// the export of each create world screen, off the render thread: it froze the game for seconds when the screen
 	// opened and on Done. A new one supersedes the one before
 	private static final Map<CreateWorldScreen, LatestTask<Path>> EXPORTS = new WeakHashMap<>();
+	// the pack each screen has in it, to skip an export that would make it again (AppliedExport)
+	private static final Map<CreateWorldScreen, AppliedExport> APPLIED_EXPORTS = new WeakHashMap<>();
+	// the screens whose last apply was skipped as unchanged (the tests tell it from an apply that did not happen)
+	private static final Set<CreateWorldScreen> SKIPPED = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean freshPending;
 
 	private RTFCreateWorld() {
@@ -97,6 +108,11 @@ public final class RTFCreateWorld {
 		return task != null && task.isBusy();
 	}
 
+	// the last apply on the screen found its pack up to date: no export, no reload, no waiting screen
+	public static boolean lastApplySkipped(CreateWorldScreen screen) {
+		return SKIPPED.contains(screen);
+	}
+
 	public static Component presetName(CreateWorldScreen screen) {
 		Pair<Component, Preset> applied = APPLIED_PRESETS.get(screen);
 		if (applied != null) {
@@ -124,19 +140,32 @@ public final class RTFCreateWorld {
 	// failed export is a toast, and the create world screen comes back
 	public static void apply(CreateWorldScreen screen, Component name, Preset preset) throws IOException {
 		Minecraft minecraft = Minecraft.getInstance();
-		Pair<Path, PackRepository> path = screen.getDataPackSelectionSettings(screen.getUiState().getSettings().dataConfiguration());
+		WorldCreationContext settings = screen.getUiState().getSettings();
+		Pair<Path, PackRepository> path = screen.getDataPackSelectionSettings(settings.dataConfiguration());
 		Path folder = path.getFirst();
 		PackRepository repository = path.getSecond();
+		// what the export reads, taken on the render thread: the name, and the screen's worldgen registries, which are
+		// frozen. The preset is not copied: nothing edits it any more (the preset screen is closed, the waiting screen
+		// is in front of everything until the export is over)
+		String presetName = name.getString();
+		RegistryAccess registries = settings.worldgenLoadContext();
+		List<String> enabledBefore = List.copyOf(settings.dataConfiguration().dataPacks().getEnabled());
+		String presetJson = encode(preset);
+		AppliedExport applied = appliedExport(screen);
+		// the same preset, packs and registries as the pack the screen has: Done without a change went through the
+		// export and the reload of the datapacks all the same
+		if (applied.isCurrent(presetJson, presetName, registries, enabledBefore, (id) -> Files.isRegularFile(folder.resolve(id.substring(PACK_PREFIX.length()))))) {
+			APPLIED_PRESETS.put(screen, Pair.of(name, preset));
+			SKIPPED.add(screen);
+			return;
+		}
+		SKIPPED.remove(screen);
+		applied.forget();
 		// the preset goes in under a new file name each time: the create world screen reloads the datapacks only when
 		// the list of them changes, so a preset edited and applied again (Customize, Done, Customize, Done) used to
 		// keep the first one, and the new world was made with the old settings
 		removePacks(folder, repository);
 		Path exportPath = folder.resolve(PACK_NAME + "-" + APPLIED.incrementAndGet() + ".zip");
-		// what the export reads, taken on the render thread: the name, and the screen's worldgen registries, which are
-		// frozen. The preset is not copied: nothing edits it any more (the preset screen is closed, the waiting screen
-		// is in front of everything until the export is over)
-		String presetName = name.getString();
-		RegistryAccess registries = screen.getUiState().getSettings().worldgenLoadContext();
 		Screen waiting = new GenericMessageScreen(Component.translatable(PREPARING));
 		minecraft.setScreen(waiting);
 		exports(screen).submit(() -> {
@@ -154,10 +183,13 @@ public final class RTFCreateWorld {
 					throw error;
 				}
 				repository.reload();
-				if (!repository.addPack("file/" + exportPath.getFileName())) {
+				String packId = PACK_PREFIX + exportPath.getFileName();
+				if (!repository.addPack(packId)) {
 					throw new IOException("the game did not find the pack " + exportPath);
 				}
 				APPLIED_PRESETS.put(screen, Pair.of(name, preset));
+				// before the reload: its new registries are the ones a later apply compares with
+				applied.exported(presetJson, presetName, packId, registries, enabledBefore);
 				// brings the create world screen back when the reload is over, also when it fails
 				screen.tryApplyNewDataPacks(repository, false, (data) -> {
 				});
@@ -173,6 +205,28 @@ public final class RTFCreateWorld {
 		});
 	}
 
+	@Nullable
+	private static String encode(Preset preset) {
+		try {
+			return Preset.DIRECT_CODEC.encodeStart(JsonOps.INSTANCE, preset).result().map(JsonElement::toString).orElse(null);
+		} catch (RuntimeException e) {
+			// not comparable: exported
+			return null;
+		}
+	}
+
+	// made with the first apply on a screen; it follows the screen's settings from then on
+	private static AppliedExport appliedExport(CreateWorldScreen screen) {
+		AppliedExport applied = APPLIED_EXPORTS.get(screen);
+		if (applied == null) {
+			applied = new AppliedExport((id) -> id.startsWith(PACK_PREFIX) && OWN_PACK.matcher(id.substring(PACK_PREFIX.length())).matches());
+			APPLIED_EXPORTS.put(screen, applied);
+			AppliedExport listener = applied;
+			screen.getUiState().addListener((state) -> listener.settingsChanged(state.getSettings().worldgenLoadContext(), state.getSettings().dataConfiguration().dataPacks().getEnabled()));
+		}
+		return applied;
+	}
+
 	private static LatestTask<Path> exports(CreateWorldScreen screen) {
 		return EXPORTS.computeIfAbsent(screen, (key) -> new LatestTask<>(Minecraft.getInstance()));
 	}
@@ -185,6 +239,11 @@ public final class RTFCreateWorld {
 		if (task != null) {
 			task.cancel();
 		}
+		AppliedExport applied = APPLIED_EXPORTS.get(screen);
+		if (applied != null) {
+			applied.forget();
+		}
+		SKIPPED.remove(screen);
 		Minecraft minecraft = Minecraft.getInstance();
 		Pair<Path, PackRepository> path = screen.getDataPackSelectionSettings(screen.getUiState().getSettings().dataConfiguration());
 		boolean[] reloading = { false };
@@ -208,7 +267,7 @@ public final class RTFCreateWorld {
 			previous = files.filter((file) -> OWN_PACK.matcher(file.getFileName().toString()).matches()).toList();
 		}
 		for (Path file : previous) {
-			repository.removePack("file/" + file.getFileName());
+			repository.removePack(PACK_PREFIX + file.getFileName());
 			deleteQuietly(file);
 		}
 		return !previous.isEmpty();
