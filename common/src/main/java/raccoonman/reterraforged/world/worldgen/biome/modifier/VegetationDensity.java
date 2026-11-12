@@ -22,7 +22,8 @@ import raccoonman.reterraforged.world.worldgen.feature.placement.poisson.FastPoi
  * The density sliders of the preset (#37) on the vegetation of every overworld biome, the biomes of other mods too. The
  * biome modifier is in the preset only when a slider is off 1, so the usual amounts cost nothing. It runs once for each
  * biome when the world loads: a feature to scale gets a DensityFilter, chunks then roll one random number for each of
- * its positions. What a feature is goes by its name, as nothing else tells across Minecraft versions and mods; a feature
+ * its positions, and only where the preset builds the world (a biome is also in other dimensions, DensityFilter). What a
+ * feature is goes by its name, as nothing else tells across Minecraft versions and mods; a feature
  * with an unknown name stays as it is.
  */
 public final class VegetationDensity {
