@@ -80,8 +80,17 @@ public final class RTFGuiTest {
 		new TooltipShot("WorldSettingsPage", "continent-type", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof ContinentType),
 		new TooltipShot("WorldSettingsPage", "render-mode", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof RenderMode),
 		new TooltipShot("IslandSettingsPage", "island-density", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY)),
-		new TooltipShot("StructureSettingsPage", "placement-seed", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_SALT))
+		new TooltipShot("StructureSettingsPage", "placement-seed", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_SALT)),
+		// the five tooltips whose texts were lost once (0.0.22 to 0.0.31), the longest of the screen; down their pages, in the
+		// pages' order from the top (the page is only scrolled down to a widget)
+		new TooltipShot("RiverSettingsPage", "lake-min-start-distance", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_LAKE_MIN_START_DISTANCE)),
+		new TooltipShot("RiverSettingsPage", "lake-max-start-distance", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_LAKE_MAX_START_DISTANCE)),
+		new TooltipShot("MiscellaneousPage", "plain-stone-erosion", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION)),
+		new TooltipShot("MiscellaneousPage", "mountain-biome-usage", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE)),
+		new TooltipShot("MiscellaneousPage", "volcano-biome-usage", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE))
 	);
+	// the wheel steps a page was scrolled by for a tooltip's widget
+	private static int tooltipScrolls;
 	private static final Set<String> TOOLTIPS_SHOT = new HashSet<>();
 	@Nullable
 	private static String tooltipShot;
@@ -219,6 +228,20 @@ public final class RTFGuiTest {
 							fail("no widget for the tooltip " + tooltip.name() + " on " + page(mc));
 							continue;
 						}
+						// a widget down the page is not drawn and has no place yet: a wheel step down, and again after the next frames
+						WidgetList<?> list = settingsList(mc);
+						if (list != null && (widget.getY() < list.getY() || widget.getY() + widget.getHeight() > list.getY() + list.getHeight())) {
+							if (++tooltipScrolls > 60) {
+								fail("the widget of the tooltip " + tooltip.name() + " does not come into view on " + page(mc));
+								tooltipScrolls = 0;
+								continue;
+							}
+							mc.screen.mouseScrolled(list.getX() + list.getWidth() / 2.0, list.getY() + list.getHeight() / 2.0, 0, -1);
+							TOOLTIPS_SHOT.remove(tooltip.name());
+							wait = 2;
+							return;
+						}
+						tooltipScrolls = 0;
 						double scale = mc.getWindow().getGuiScale();
 						moveMouse(mc, (widget.getX() + widget.getWidth() / 2.0) * scale, (widget.getY() + widget.getHeight() / 2.0) * scale);
 						tooltipShot = "gui-tooltip-" + tooltip.name();
@@ -407,6 +430,15 @@ public final class RTFGuiTest {
 	private static PresetEntry selectedPreset(Screen screen) {
 		for (GuiEventListener child : screen.children()) {
 			if (child instanceof WidgetList<?> list && list.getSelected() != null && list.getSelected().getWidget() instanceof PresetEntry entry) return entry;
+		}
+		return null;
+	}
+
+	// the left column (the settings) of a page
+	@Nullable
+	private static WidgetList<?> settingsList(Minecraft mc) {
+		for (GuiEventListener child : mc.screen.children()) {
+			if (child instanceof WidgetList<?> list) return list;
 		}
 		return null;
 	}
