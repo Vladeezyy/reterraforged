@@ -7,7 +7,6 @@ import java.util.Optional;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.Component;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
-import raccoonman.reterraforged.client.gui.Tooltips;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.client.gui.widget.Slider;
@@ -81,14 +80,9 @@ public class CaveSettingsPage extends PresetEditorPage {
 		this.legacyCarverDistribution = PresetWidgets.createToggle(caves.legacyCarverDistribution, RTFTranslationKeys.GUI_BUTTON_LEGACY_CARVER_DISTRIBUTION, (button, value) -> {
 			caves.legacyCarverDistribution = value;
 		});
-		this.compatibilityMode = CycleButton.<CaveSettings.CompatibilityMode>builder(CaveSettingsPage::compatibilityModeName)
-			.withInitialValue(caves.compatibilityMode)
-			.withValues(Arrays.asList(CaveSettings.CompatibilityMode.values()))
-			.withTooltip((value) -> Tooltips.create(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE)))
-			.create(-1, -1, -1, -1, Component.translatable(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE), (button, value) -> {
-				caves.compatibilityMode = value;
-			});
-		this.compatibilityMode.setTooltip(Tooltips.create(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE)));
+		this.compatibilityMode = PresetWidgets.createNamedCycle(Arrays.asList(CaveSettings.CompatibilityMode.values()), caves.compatibilityMode, RTFTranslationKeys.GUI_BUTTON_CAVE_COMPATIBILITY_MODE, CaveSettingsPage::compatibilityModeName, (button, value) -> {
+			caves.compatibilityMode = value;
+		});
 
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_NOISE_CAVES));
 		this.left.addWidget(this.entranceCaveProbability);

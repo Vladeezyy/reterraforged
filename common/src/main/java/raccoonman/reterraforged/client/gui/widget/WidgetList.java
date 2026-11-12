@@ -1,12 +1,16 @@
 package raccoonman.reterraforged.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -15,15 +19,57 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
 
 public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelectionList<WidgetList.Entry<T>> {
+	private static final long HIGHLIGHT_MILLIS = 2000L;
 	private boolean renderSelected;
 	@Nullable
 	private Consumer<T> onSelect;
-	
+	// widgets with a ChangeMarker next to them
+	@Nullable
+	private Predicate<T> marked;
+	// a right click on a widget: true if it did something
+	@Nullable
+	private Predicate<T> onRightClick;
+	// a widget outlined for a moment (the one a search result led to)
+	@Nullable
+	private T highlighted;
+	private long highlightUntil;
+
     public WidgetList(Minecraft minecraft, int i, int j, int k, int l) {
         super(minecraft, i, j, k, l);
     }
 
-    
+    public void setMarked(@Nullable Predicate<T> marked) {
+    	this.marked = marked;
+    }
+
+    public void onRightClick(@Nullable Predicate<T> onRightClick) {
+    	this.onRightClick = onRightClick;
+    }
+
+    public void highlight(T widget) {
+    	this.highlighted = widget;
+    	this.highlightUntil = Util.getMillis() + HIGHLIGHT_MILLIS;
+    }
+
+    // the widgets in the list, in order
+    public List<T> widgets() {
+    	List<T> widgets = new ArrayList<>(this.children().size());
+    	for(Entry<T> entry : this.children()) {
+    		widgets.add(entry.widget);
+    	}
+    	return widgets;
+    }
+
+    // other widgets in place of the ones in the list (the search results, and the page back)
+    public void setWidgets(List<? extends T> widgets) {
+    	List<Entry<T>> entries = new ArrayList<>(widgets.size());
+    	for(T widget : widgets) {
+    		entries.add(new Entry<>(widget, this));
+    	}
+    	this.replaceEntries(entries);
+    }
+
+
     // scrolls the list so the widget is shown (its position is set when it is drawn next)
     public void reveal(T widget) {
     	for(Entry<T> entry : this.children()) {
@@ -35,7 +81,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     public <W extends T> W addWidget(W widget) {
-        super.addEntry(new Entry<>(widget));
+        super.addEntry(new Entry<>(widget, this));
         return widget;
     }
 
@@ -58,6 +104,14 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // the list takes only the left button (AbstractSelectionList.isValidMouseClick), so the right one was free; the
+        // screen offers every click to every child, hence the check that it is over the list
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && this.onRightClick != null && this.isMouseOver(mouseX, mouseY)) {
+            Entry<T> entry = this.getEntryAtPosition(mouseX, mouseY);
+            if (entry != null && entry.widget.isMouseOver(mouseX, mouseY) && this.onRightClick.test(entry.widget)) {
+                return true;
+            }
+        }
         // First check preview widgets
         for (Entry<T> entry : this.children()) {
             T widget = entry.getWidget();
@@ -128,9 +182,16 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
 
     public static class Entry<T extends AbstractWidget> extends ContainerObjectSelectionList.Entry<Entry<T>> {
         private final T widget;
+        @Nullable
+        private final WidgetList<T> list;
 
         public Entry(T widget) {
+            this(widget, null);
+        }
+
+        Entry(T widget, @Nullable WidgetList<T> list) {
             this.widget = widget;
+            this.list = list;
         }
 
         public T getWidget() {
@@ -155,6 +216,14 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
             	widget.setHeight(widget.getWidth());
             }
             widget.render(guiGraphics, mouseX, mouseY, partialTicks);
+            if(this.list != null) {
+            	if(this.list.marked != null && this.list.marked.test(widget)) {
+            		ChangeMarker.render(guiGraphics, widget);
+            	}
+            	if(this.list.highlighted == widget && Util.getMillis() < this.list.highlightUntil) {
+            		guiGraphics.renderOutline(widget.getX() - 1, widget.getY() - 1, widget.getWidth() + 2, widget.getHeight() + 2, 0xFFFFFFFF);
+            	}
+            }
         }
 
 		@Override

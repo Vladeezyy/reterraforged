@@ -15,8 +15,19 @@ public abstract class BisectedPage<S extends Screen, L extends AbstractWidget, R
 		this.screen = screen;
 	}
 	
+	// a page built only to read its widgets (PresetEditorPage: Default's values, the settings of the other pages): its
+	// lists are not added to the screen
+	protected boolean isDetached() {
+		return false;
+	}
+
 	@Override
 	public void init() {
+		if (this.isDetached()) {
+			this.left = new WidgetList<>(this.screen.minecraft, 0, 0, 0, 25);
+			this.right = new WidgetList<>(this.screen.minecraft, 0, 0, 0, 25);
+			return;
+		}
 		ColumnAlignment alignment = new ColumnAlignment(this.screen, 4, 0, 10, 30, this.screen instanceof LinkedPageScreen linked ? linked.leftInset() : 0);
 		// the right column holds buttons like "Open Preset Folder" and the preview: at least 150 px, so they are not
 		// cut off on small windows / large GUI scales
