@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "プリセットを保存または適用できませんでした",
   "reterraforged.gui.button.delete.confirm": "このプリセットを削除しますか? 元に戻せません。",
   "reterraforged.gui.button.generationFixes": "生成の修正",
-  "reterraforged.gui.button.generationFixes.tooltip": "地形を変える修正です: 島はシードごとに異なり、砂浜は水面より上になり、島の水平スケールは島の地形だけを変えます。沼地の底はチャンクごとに繰り返さなくなります。「低地の湿地」は沼地を別の場所に置くバイオームMODでも機能します。大陸タイプ「無限」に陸地ができます。以前のバージョンで保存したプリセットではオフのため、そのワールドの地形は変わりません。",
+  "reterraforged.gui.button.generationFixes.tooltip": "地形を変える修正です: 島はシードごとに異なり、砂浜は水面より上になり、島の水平スケールは島の地形だけを変えます。沼地の底はチャンクごとに繰り返さなくなります。「低地の湿地」は沼地を別の場所に置くバイオームMODでも機能します。大陸タイプ「無限」に陸地ができます。新しいワールドでは、川や湖の下の深い構造物(要塞、古代都市、試練の間)、ワールドのシードに沿った岩の層、64ビット全体のシードによる地形も適用されます。以前のバージョンで保存したプリセットではオフのため、そのワールドの地形は変わりません。",
   "reterraforged.gui.button.islandContinentMountains": "大陸の山",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "島が独自の尾根の代わりに大陸の山のノイズを使います。",
   "reterraforged.gui.button.islandSeedOffset": "島のシードオフセット",
