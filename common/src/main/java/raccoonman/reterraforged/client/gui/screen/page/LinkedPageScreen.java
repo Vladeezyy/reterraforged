@@ -73,6 +73,7 @@ public abstract class LinkedPageScreen extends Screen {
 		
 		this.currentPage.init();
 		this.currentPage.setScroll(this.scrolls.getOrDefault(this.currentPage.getClass(), 0.0));
+		this.currentPage.afterInit();
 
 		// these must be overlayed onto the current page
 		this.addRenderableOnly(new Label(16, 10, 20, 20, this.currentPage.title()));
@@ -81,6 +82,12 @@ public abstract class LinkedPageScreen extends Screen {
 		this.addRenderableWidget(this.doneButton);
 		this.addRenderableWidget(this.previousButton);
 		this.addRenderableWidget(this.nextButton);
+	}
+
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+		this.currentPage.extractRenderState(graphics, mouseX, mouseY, partialTick);
 	}
 
 	@Override
@@ -101,6 +108,14 @@ public abstract class LinkedPageScreen extends Screen {
 		
 		Optional<Page> next();
 		
+		// after init, with the page's widgets in place and its scroll back where it was
+		default void afterInit() {
+		}
+
+		// over the screen's widgets, under the tooltips
+		default void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		}
+
 		default void onClose() {
 		}
 		
