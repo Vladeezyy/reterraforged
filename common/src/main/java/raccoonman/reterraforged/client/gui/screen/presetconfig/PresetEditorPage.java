@@ -74,6 +74,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	static final String SEARCH_HINT = "reterraforged.gui.search.hint";
 	static final String SEARCH_NONE = "reterraforged.gui.search.none";
 	private static final int SEARCH_WIDTH = 160;
+	private static final int SEARCH_MIN_WIDTH = 80;
 	// one texture for all the pages: a new one registered for each page stayed in the TextureManager after it was closed
 	@Nullable
 	private static DynamicTexture previewTexture;
@@ -178,14 +179,15 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	}
 
 	private static List<Item> items(List<Row> rows) {
-		Map<String, Integer> keys = new HashMap<>();
+		List<String> names = new ArrayList<>(rows.size());
 		for(Row row : rows) {
-			keys.merge(row.control().key, 1, Integer::sum);
+			names.add(Component.translatable(row.control().key).getString());
 		}
+		boolean[] repeated = SettingSearch.repeated(names);
 		List<Item> items = new ArrayList<>(rows.size());
-		for(Row row : rows) {
-			String name = Component.translatable(row.control().key).getString();
-			items.add(new Item(row.id(), name, row.section(), keys.get(row.control().key) > 1, row.widget().getMessage()));
+		for(int i = 0; i < rows.size(); i++) {
+			Row row = rows.get(i);
+			items.add(new Item(row.id(), names.get(i), row.section(), repeated[i], row.widget().getMessage()));
 		}
 		return items;
 	}
@@ -326,7 +328,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		return this.searchBox;
 	}
 
-	// right of the page title (LinkedPageScreen draws it at x 16) and above the list, its right edge on the widgets' one
+	// right of the page title (LinkedPageScreen draws it at x 16) and above the list, its right edge on the widgets' one;
+	// narrower on small screens, never hidden there
 	@Nullable
 	private EditBox createSearchBox() {
 		Font font = Minecraft.getInstance().font;
@@ -335,10 +338,19 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		int right = this.left.getRowLeft() + (rowWidth - optionWidth) / 2 + optionWidth;
 		int leftLimit = Math.max(this.left.getRowLeft(), 16 + font.width(this.title()) + 8);
 		int width = Math.min(SEARCH_WIDTH, right - leftLimit);
-		if(width < 40) {
+		int x = right - width;
+		if(width < SEARCH_MIN_WIDTH) {
+			// a long title on a narrow screen: above the right column instead, where nothing is drawn
+			int column = Math.min(SEARCH_WIDTH, this.right.getRowWidth());
+			if(column > width) {
+				x = this.right.getRowLeft();
+				width = column;
+			}
+		}
+		if(width < 20) {
 			return null;
 		}
-		EditBox box = new EditBox(font, right - width, 6, width, 18, Component.translatable(SEARCH_HINT));
+		EditBox box = new EditBox(font, x, 6, width, 18, Component.translatable(SEARCH_HINT));
 		box.setMaxLength(64);
 		box.setHint(Component.translatable(SEARCH_HINT));
 		box.setValue(this.query);
