@@ -26,6 +26,8 @@ public final class NoiseFunction {
 
 		@Override
 		public DensitySampler compileSampler(CompileContext context) {
+			// the preset is not known yet when the router is compiled: the low 32 bits as before (no preset data has this
+			// function, only a datapack's)
 			int seed = context instanceof RTFCompileContext rtfContext ? (int) rtfContext.randomState().seed() : 0;
 			return new Sampler(this.noise.value(), seed);
 		}

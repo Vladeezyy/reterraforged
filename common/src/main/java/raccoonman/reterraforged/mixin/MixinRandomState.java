@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.config.PerformanceConfig;
+import raccoonman.reterraforged.config.WorldTileSize;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.registries.RTFRegistries;
@@ -106,7 +107,7 @@ class MixinRandomState {
 			// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
 			// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
 			// preset saved before: what was explored of such a dimension stays as it is
-			this.initialize(registries);
+			this.initialize(registries, level);
 		} finally {
 			this.ready = true;
 		}
@@ -139,7 +140,7 @@ class MixinRandomState {
 		if(!this.initialized && registries != null) {
 			this.initialized = true;
 			try {
-				this.initialize(registries);
+				this.initialize(registries, null);
 			} finally {
 				this.ready = true;
 			}
@@ -151,7 +152,7 @@ class MixinRandomState {
 	}
 
 	@Unique
-	private void initialize(RegistryAccess registries) {
+	private void initialize(RegistryAccess registries, @Nullable ServerLevel level) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
@@ -169,7 +170,9 @@ class MixinRandomState {
 				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.defaultFile())
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
-				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, (int) this.seed, config.tileSize(), config.batchCount(), ThreadPools.availableProcessors() > 4);
+				// the size the world was made with (WorldTileSize): erosion runs per tile, another size put seams
+				int tileSize = level != null ? WorldTileSize.of(level, config.tileSize()) : WorldTileSize.current(config.tileSize());
+				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, GeneratorContext.terrainSeed(this.seed, this.preset), tileSize, config.batchCount(), ThreadPools.availableProcessors() > 4);
 				// where the world spawn is searched from (MixinNoiseBasedChunkGenerator)
 				this.spawnSearchCenter = this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext);
 				// the climate takes rivers and lakes for land: without this the spawn could be in a lake too wide for
@@ -246,8 +249,10 @@ class MixinRandomState {
 		return this.spawnWater;
 	}
 
+	// the strata's selector: the terrain's seed (a random state without a preset has no strata rule that asks)
 	public Noise reterraforged$RTFRandomState$seed(Noise noise) {
-		return Noises.shiftSeed(noise, (int) this.seed);
+		Preset preset = this.preset;
+		return Noises.shiftSeed(noise, preset != null ? GeneratorContext.terrainSeed(this.seed, preset) : (int) this.seed);
 	}
 
 	@Unique

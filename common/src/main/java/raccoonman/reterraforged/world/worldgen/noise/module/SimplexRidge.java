@@ -8,13 +8,17 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
 record SimplexRidge(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float[] spectralWeights, float min, float max) implements Noise {
-	public static final MapCodec<PerlinRidge> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("frequency").forGetter(PerlinRidge::frequency),
-		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(PerlinRidge::octaves),
-		Codec.FLOAT.fieldOf("lacunarity").forGetter(PerlinRidge::lacunarity),
-		Codec.FLOAT.fieldOf("gain").forGetter(PerlinRidge::gain),
-		Interpolation.CODEC.fieldOf("interpolation").forGetter(PerlinRidge::interpolation)
-	).apply(instance, PerlinRidge::new));
+	// before 0.0.32 this was PerlinRidge's codec: "simplex_ridge" was read as a PerlinRidge and a SimplexRidge could not be
+	// written (a ClassCastException). No preset data has one; a datapack's "simplex_ridge" without "simplex" stays the
+	// PerlinRidge it was, so its world stays the same
+	public static final MapCodec<Noise> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+		Codec.FLOAT.fieldOf("frequency").forGetter((noise) -> ((SimplexRidge) noise).frequency),
+		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter((noise) -> ((SimplexRidge) noise).octaves),
+		Codec.FLOAT.fieldOf("lacunarity").forGetter((noise) -> ((SimplexRidge) noise).lacunarity),
+		Codec.FLOAT.fieldOf("gain").forGetter((noise) -> ((SimplexRidge) noise).gain),
+		Interpolation.CODEC.fieldOf("interpolation").forGetter((noise) -> ((SimplexRidge) noise).interpolation),
+		Codec.BOOL.optionalFieldOf("simplex", false).forGetter((noise) -> true)
+	).apply(instance, (frequency, octaves, lacunarity, gain, interpolation, simplex) -> simplex ? new SimplexRidge(frequency, octaves, lacunarity, gain, interpolation) : new PerlinRidge(frequency, octaves, lacunarity, gain, interpolation)));
 	
 	public SimplexRidge(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation) {
 		this(frequency, octaves, lacunarity, gain, interpolation, calculateSpectralWeights(lacunarity));
@@ -22,6 +26,11 @@ record SimplexRidge(float frequency, int octaves, float lacunarity, float gain, 
 	
 	private SimplexRidge(float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float[] spectralWeights) {
 		this(frequency, octaves, lacunarity, gain, interpolation, spectralWeights, 0.0F, Simplex2.max(octaves, gain));
+	}
+
+	// the weights are for 30 octaves, as PerlinRidge's at most
+	public SimplexRidge {
+		octaves = Math.min(octaves, 30);
 	}
 	
 	@Override
@@ -64,7 +73,7 @@ record SimplexRidge(float frequency, int octaves, float lacunarity, float gain, 
 	}
 
 	@Override
-	public MapCodec<PerlinRidge> codec() {
+	public MapCodec<Noise> codec() {
 		return CODEC;
 	}
 	
