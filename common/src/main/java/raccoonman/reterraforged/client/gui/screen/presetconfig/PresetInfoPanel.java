@@ -5,6 +5,8 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +26,8 @@ import raccoonman.reterraforged.RTFCommon;
  */
 final class PresetInfoPanel {
 	private static final int MIN_MAP = 64;
-	private static final int MAX_MAP = 2 * PresetMapDrawer.SIZE;
+	// GUI pixels: at GUI scale 2 the picture's cells are the screen's pixels
+	private static final int MAX_MAP = PresetMapDrawer.SIZE / 2;
 	private static final int LINE = 10;
 	private static final int TEXT = 0xFFA0A0A0;
 	private static final int BACKGROUND = 0xFF101010;
@@ -130,7 +133,8 @@ final class PresetInfoPanel {
 
 	private void upload(String key, int[] picture) {
 		if(this.texture == null) {
-			this.texture = new DynamicTexture(() -> "ReTerraForged preset map", PresetMapDrawer.SIZE, PresetMapDrawer.SIZE, false);
+			// smaller than its cells at GUI scale 3 and up: smoothed, or the rivers break into dots
+			this.texture = new SmoothTexture(PresetMapDrawer.SIZE);
 			this.textureId = RTFCommon.location("preset_map");
 			Minecraft.getInstance().getTextureManager().register(this.textureId, this.texture);
 			this.uploaded = null;
@@ -147,6 +151,15 @@ final class PresetInfoPanel {
 		}
 		this.texture.upload();
 		this.uploaded = key;
+	}
+
+	// the filter of a texture is its sampler in this Minecraft version (no AbstractTexture.setFilter): linear, repeating
+	// as a DynamicTexture's own one
+	private static final class SmoothTexture extends DynamicTexture {
+		SmoothTexture(int size) {
+			super(() -> "ReTerraForged preset map", size, size, false);
+			this.sampler = RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR);
+		}
 	}
 
 	/** Frees the texture (it closes with its release); a later picture makes a new one */
