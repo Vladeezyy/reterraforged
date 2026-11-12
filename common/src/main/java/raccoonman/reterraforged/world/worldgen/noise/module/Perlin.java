@@ -7,14 +7,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
-record Perlin(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float min, float max) implements Noise {
+record Perlin(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float min, float max, boolean seeded) implements Noise {
 	public static final MapCodec<Perlin> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.fieldOf("seed").forGetter(Perlin::seed),
 		Codec.FLOAT.fieldOf("frequency").forGetter(Perlin::frequency),
 		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(Perlin::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Perlin::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Perlin::gain),
-		Interpolation.CODEC.fieldOf("interpolation").forGetter(Perlin::interpolation)
+		Interpolation.CODEC.fieldOf("interpolation").forGetter(Perlin::interpolation),
+		// before 0.0.32 the seed it was computed with did nothing: the same noise in every world, and two shifted copies
+		// (the X and Z of the biome edges) the same. Not written when off, so the data of an older preset stays the same
+		Codec.BOOL.optionalFieldOf("seeded", false).forGetter(Perlin::seeded)
 	).apply(instance, Perlin::new));
 
     private static final float[] SIGNALS = new float[] { 
@@ -22,7 +25,11 @@ record Perlin(int seed, float frequency, int octaves, float lacunarity, float ga
     };
 
     public Perlin(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation) {
-    	this(seed, frequency, octaves, lacunarity, gain, interpolation, min(octaves, gain), max(octaves, gain));
+    	this(seed, frequency, octaves, lacunarity, gain, interpolation, false);
+    }
+
+    public Perlin(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, boolean seeded) {
+    	this(seed, frequency, octaves, lacunarity, gain, interpolation, min(octaves, gain), max(octaves, gain), seeded);
     }
     
 	@Override
@@ -30,10 +37,12 @@ record Perlin(int seed, float frequency, int octaves, float lacunarity, float ga
 		x *= this.frequency;
 		z *= this.frequency;
 
+		// seeded: the seed of the world and of a ShiftSeed around it, as the other noises have it
+		int base = this.seeded ? this.seed + seed : this.seed;
 		float sum = 0.0F;
 		float amplitude = this.gain;
 		for(int i = 0; i < this.octaves; ++i) {
-			sum += sample(x, z, this.seed + i, this.interpolation) * amplitude;
+			sum += sample(x, z, base + i, this.interpolation) * amplitude;
 			x *= this.lacunarity;
 			z *= this.lacunarity;
 			amplitude *= this.gain;
