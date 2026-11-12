@@ -7,14 +7,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
-public record Perlin2(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float min, float max) implements Noise {
+public record Perlin2(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, float min, float max, boolean seeded) implements Noise {
 	public static final MapCodec<Perlin2> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.fieldOf("seed").forGetter(Perlin2::seed),
 		Codec.FLOAT.fieldOf("frequency").forGetter(Perlin2::frequency),
 		NoiseCodecs.OCTAVES.fieldOf("octaves").forGetter(Perlin2::octaves),
 		Codec.FLOAT.fieldOf("lacunarity").forGetter(Perlin2::lacunarity),
 		Codec.FLOAT.fieldOf("gain").forGetter(Perlin2::gain),
-		Interpolation.CODEC.fieldOf("interpolation").forGetter(Perlin2::interpolation)
+		Interpolation.CODEC.fieldOf("interpolation").forGetter(Perlin2::interpolation),
+		// before 0.0.32 the seed it was computed with did nothing: the same noise in every world, and two shifted copies
+		// (the X and Z of the biome edges) the same. Not written when off, so the data of an older preset stays the same
+		Codec.BOOL.optionalFieldOf("seeded", false).forGetter(Perlin2::seeded)
 	).apply(instance, Perlin2::new));
 
 	private static final float[] SIGNALS = new float[] {
@@ -22,17 +25,23 @@ public record Perlin2(int seed, float frequency, int octaves, float lacunarity, 
 	};
 	
     public Perlin2(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation) {
-    	this(seed, frequency, octaves, lacunarity, gain, interpolation, min(octaves, gain), max(octaves, gain));
+    	this(seed, frequency, octaves, lacunarity, gain, interpolation, false);
+    }
+
+    public Perlin2(int seed, float frequency, int octaves, float lacunarity, float gain, Interpolation interpolation, boolean seeded) {
+    	this(seed, frequency, octaves, lacunarity, gain, interpolation, min(octaves, gain), max(octaves, gain), seeded);
     }
     
 	@Override
 	public float compute(float x, float z, int seed) {
         x *= this.frequency;
         z *= this.frequency;
+        // seeded: the seed of the world and of a ShiftSeed around it, as the other noises have it
+        int base = this.seeded ? this.seed + seed : this.seed;
         float sum = 0.0F;
         float amp = this.gain;
         for (int i = 0; i < this.octaves; ++i) {
-            sum += sample(x, z, this.seed + i, this.interpolation) * amp;
+            sum += sample(x, z, base + i, this.interpolation) * amp;
             x *= this.lacunarity;
             z *= this.lacunarity;
             amp *= this.gain;

@@ -31,6 +31,7 @@ import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.biome.RTFClimateSampler;
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.config.PerformanceConfig;
+import raccoonman.reterraforged.config.WorldTileSize;
 import raccoonman.reterraforged.data.worldgen.compat.terrablender.TBNoiseRouterData;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.registries.RTFRegistries;
@@ -115,6 +116,8 @@ class MixinRandomState {
 				if(function.getClass().getName().startsWith("raccoonman.reterraforged.")) {
 					MixinRandomState.this.reTerraForgedFunctions = true;
 				}
+				// the preset is not known yet when the router is mapped: the low 32 bits as before (no preset data has
+				// this function, only a datapack's)
 				if(function instanceof NoiseFunction.Marker marker) {
 					return new NoiseFunction(marker.noise(), (int) seed);
 				}
@@ -146,7 +149,7 @@ class MixinRandomState {
 			// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
 			// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
 			// preset saved before: what was explored of such a dimension stays as it is
-			this.initialize(registries);
+			this.initialize(registries, level);
 		} finally {
 			this.ready = true;
 		}
@@ -179,7 +182,7 @@ class MixinRandomState {
 			this.initialized = true;
 			RTFCommon.LOGGER.info("[RTF] a ReTerraForged random state made outside a ChunkMap (another mod's generator) takes the overworld's preset");
 			try {
-				this.initialize(registries);
+				this.initialize(registries, null);
 			} finally {
 				this.ready = true;
 			}
@@ -187,7 +190,7 @@ class MixinRandomState {
 		return this.generatorContext;
 	}
 
-	private void initialize(RegistryAccess registries) {
+	private void initialize(RegistryAccess registries, @Nullable ServerLevel level) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
@@ -210,7 +213,9 @@ class MixinRandomState {
 				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.defaultFile())
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
-				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, (int) this.seed, config.tileSize(), config.batchCount(), ThreadPools.availableProcessors() > 4);
+				// the size the world was made with (WorldTileSize): erosion runs per tile, another size put seams
+				int tileSize = level != null ? WorldTileSize.of(level, config.tileSize()) : WorldTileSize.current(config.tileSize());
+				this.generatorContext = GeneratorContext.makeCached(this.preset, noises, GeneratorContext.terrainSeed(this.seed, this.preset), tileSize, config.batchCount(), ThreadPools.availableProcessors() > 4);
 				// where the world spawn is searched from (setInitialSpawn runs after the levels are created)
 				if((Object) this.sampler instanceof RTFClimateSampler rtfClimateSampler) {
 					rtfClimateSampler.setSpawnSearchCenter(this.preset.world().properties.spawnType.getSearchCenter(this.generatorContext));
@@ -252,8 +257,10 @@ class MixinRandomState {
 		return function.mapAll(this.densityFunctionWrapper);
 	}
 
+	// the strata's selector: the terrain's seed (a random state without a preset has no strata rule that asks)
 	public Noise reterraforged$RTFRandomState$seed(Noise noise) {
-		return Noises.shiftSeed(noise, (int) this.seed);
+		Preset preset = this.preset;
+		return Noises.shiftSeed(noise, preset != null ? GeneratorContext.terrainSeed(this.seed, preset) : (int) this.seed);
 	}
 
 	private void clearGeneratorContext() {

@@ -45,7 +45,7 @@ public final class RTFPreviewMap {
 		Preset preset = spec.equals("default") ? Presets.makeDefault() : RTFStressTest.makePreset(spec);
 		HolderLookup.Provider patch = preset.buildPatch(server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS));
 		Preset patched = patch.lookupOrThrow(RTFRegistries.PRESET).getOrThrow(Preset.KEY).value();
-		GeneratorContext ctx = GeneratorContext.makeUncached(patched, patch.lookupOrThrow(RTFRegistries.NOISE), (int) server.overworld().getSeed(), 4, 0, PerformanceConfig.makeDefault().batchCount());
+		GeneratorContext ctx = GeneratorContext.makeUncached(patched, patch.lookupOrThrow(RTFRegistries.NOISE), GeneratorContext.terrainSeed(server.overworld().getSeed(), patched), 4, 0, PerformanceConfig.makeDefault().batchCount());
 		Levels levels = ctx.levels;
 		int worldHeight = levels.worldHeight;
 		int tile = 256, size = tile * TILES;
