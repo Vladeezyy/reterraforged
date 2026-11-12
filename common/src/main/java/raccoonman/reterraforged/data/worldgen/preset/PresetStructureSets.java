@@ -58,10 +58,23 @@ public final class PresetStructureSets {
 	private PresetStructureSets() {
 	}
 
-	// the preset file of a datapack, where the loader reads it (NeoForge and Fabric put the registry's namespace first);
-	// a class of its own: the rest of this one runs without the registries (the unit tests)
+	// the preset file of a datapack, where the loaders read it: data/reterraforged/reterraforged/worldgen/preset/preset.json,
+	// the registry's namespace first. NeoForge puts it there in Registries.elementsDirPath, Fabric where it loads the
+	// registries, so on Fabric the path comes without it (the files of an older datapack were not left out there, and
+	// a world with the structure set of a removed mod did not load). A class of its own: the rest of this one runs
+	// without the registries (the unit tests)
 	private static final class PresetFile {
-		static final Identifier LOCATION = FileToIdConverter.json(Registries.elementsDirPath(RTFRegistries.PRESET)).idToFile(Preset.KEY.identifier());
+		static final Identifier LOCATION = FileToIdConverter.json(presetDir(Registries.elementsDirPath(RTFRegistries.PRESET), RTFRegistries.PRESET.identifier().getNamespace())).idToFile(Preset.KEY.identifier());
+	}
+
+	/** The preset file of a datapack (the same place on both loaders) */
+	public static Identifier presetFile() {
+		return PresetFile.LOCATION;
+	}
+
+	// the folder of the preset registry in a datapack, given the loader's path of it
+	public static String presetDir(String elementsDirPath, String namespace) {
+		return elementsDirPath.startsWith(namespace + "/") ? elementsDirPath : namespace + "/" + elementsDirPath;
 	}
 
 	// nothing in the datapack: the entries are applied when the registries load
