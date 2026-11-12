@@ -22,7 +22,12 @@ import io.netty.util.internal.StringUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -42,6 +47,7 @@ import raccoonman.reterraforged.client.gui.widget.Label;
 import raccoonman.reterraforged.client.gui.widget.WidgetList;
 import raccoonman.reterraforged.client.gui.widget.WidgetList.Entry;
 import raccoonman.reterraforged.data.worldgen.preset.PresetDiff;
+import raccoonman.reterraforged.data.worldgen.preset.StructureOriginals;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.platform.ConfigUtil;
@@ -55,11 +61,11 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	public static final String GUI_BUTTON_COPY_WORLD_INFO_SUCCESS = GUI_BUTTON_COPY_WORLD_INFO + ".success";
 	public static final String GUI_PRESET_INFO_DIFFERS = RTFCommon.MOD_ID + ".gui.presetInfo.differs";
 	public static final String GUI_PRESET_INFO_SAME = RTFCommon.MOD_ID + ".gui.presetInfo.same";
-	// the right column's rows (BisectedPage) and the gap above the map
-	private static final int ROW = 25;
-	private static final int INFO_GAP = 6;
 
 	private EditBox input;
+	// the widths of the list and of the map's column, from the names in the list
+	@Nullable
+	private PresetListLayout layout;
 	private Button createPreset;
 	private Button deletePreset;
 	private Button exportAsDatapack;
@@ -260,6 +266,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 			entries.add(PresetEntry.builtin(builtin.id(), Component.translatable(builtin.nameKey()).withStyle(ChatFormatting.GRAY), builtin.factory().get(), this));
 		}
 		this.left.replaceEntries(entries.stream().map(WidgetList.Entry::new).toList());
+		this.layoutColumns();
 		if(this.selectName != null) {
 			Entry<PresetEntry> found = null;
 			for(Entry<PresetEntry> entry : this.left.children()) {
@@ -300,13 +307,23 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 				}
 			}
 		}
-		int differences = differences(preset).size();
+		int differences = this.differences(preset).size();
 		return differences == 0 ? Component.translatable(GUI_PRESET_INFO_SAME) : Component.translatable(GUI_PRESET_INFO_DIFFERS, differences);
 	}
 
-	private static List<String> differences(Preset preset) {
+	// the structure sets the structures page filled with their own values are no difference (StructureOriginals)
+	private StructureOriginals originals() {
 		try {
-			return PresetDiff.lines(preset);
+			return StructureOriginals.of(this.screen.getSettings().worldgenLoadContext());
+		} catch(RuntimeException e) {
+			RTFCommon.LOGGER.error("Could not read the structure sets of the world", e);
+			return StructureOriginals.NONE;
+		}
+	}
+
+	private List<String> differences(Preset preset) {
+		try {
+			return PresetDiff.lines(preset, this.originals());
 		} catch(RuntimeException e) {
 			RTFCommon.LOGGER.error("Could not compare the preset with Default", e);
 			return List.of("(could not compare with Default: " + e + ")");
@@ -316,31 +333,58 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 	private String worldInfo(PresetEntry entry) {
 		Preset preset = this.screen.current(entry);
 		String source = entry.builtinId() != null ? "built-in " + entry.builtinId() : entry.isBuiltin() ? "built-in" : entry.getPath().getFileName().toString();
+		// a player's file with a built-in preset's settings
+		if(entry.builtinId() == null) {
+			try {
+				source += PresetDiff.builtInName(preset, this.originals()).map((name) -> ", the settings of built-in " + name).orElse("");
+			} catch(RuntimeException e) {
+				RTFCommon.LOGGER.error("Could not compare the preset with the built-in ones", e);
+			}
+		}
 		String game = "Minecraft " + SharedConstants.getCurrentVersion().name() + ", " + CopyWorldInfo.loader();
-		return CopyWorldInfo.text(CopyWorldInfo.modVersion(), game, this.screen.getSettings().options().seed(), entry.getName().getString(), source, differences(preset));
+		return CopyWorldInfo.text(CopyWorldInfo.modVersion(), game, this.screen.getSettings().options().seed(), entry.getName().getString(), source, this.differences(preset));
 	}
 
-	// PresetConfigScreen.render: under the right column's last button, while the column does not scroll (on a small
-	// window the buttons take the whole column, and the map is left out)
+	// the list as wide as its names, the map and description between it and the buttons (PresetListLayout). Again after
+	// every change of the list: a new preset may have a longer name
+	private void layoutColumns() {
+		int namesWidth = 0;
+		int marker = this.screen.font.width("» ");
+		for(Entry<PresetEntry> entry : this.left.children()) {
+			namesWidth = Math.max(namesWidth, this.screen.font.width(entry.getWidget().getName()) + marker);
+		}
+		int total = this.right.getX() - this.left.getX() - 4;
+		this.layout = PresetListLayout.split(total, namesWidth);
+		this.left.setWidth(this.layout.listWidth());
+		// the rows are placed when they are added and when the list scrolls, not when they are drawn (since 1.21.9)
+		this.left.setScrollAmount(this.left.scrollAmount());
+	}
+
+	// PresetConfigScreen.render: the column between the list and the buttons, the list's height
 	void renderInfo(GuiGraphics graphics) {
-		if(this.right == null || this.right.maxScrollAmount() > 0) {
+		if(this.layout == null || this.layout.infoWidth() <= 0) {
+			this.screen.infoPanel.noRoom(this.layout != null ? this.layout.infoWidth() : 0);
 			return;
 		}
-		int rowWidth = this.right.getRowWidth();
-		int width = Math.min(450, rowWidth);
-		int x = this.right.getRowLeft() + (rowWidth - width) / 2;
-		int top = this.right.getY() + 4 + this.right.children().size() * ROW + INFO_GAP;
-		int bottom = this.right.getBottom() - 4;
-		this.screen.infoPanel.render(graphics, x, top, width, bottom - top);
+		int x = this.left.getX() + this.left.getWidth() + PresetListLayout.GAP;
+		int top = this.left.getY() + 4;
+		int bottom = this.left.getBottom() - 4;
+		// the same dark panel as the lists either side
+		graphics.fill(x, this.left.getY(), x + this.layout.infoWidth(), this.left.getBottom(), 0x55000000);
+		this.screen.infoPanel.render(graphics, x + 4, top, this.layout.infoWidth() - 8, bottom - top);
 	}
 
-	// for the GUI test: the selected preset's map is drawn, or could not be
+	// for the GUI test: the selected preset's map is drawn, or could not be, and why not
 	public boolean infoMapShown() {
 		return this.screen.infoPanel.mapShown();
 	}
 
 	public boolean infoMapFailed() {
 		return this.screen.infoPanel.mapFailed();
+	}
+
+	public String infoDiagnosis() {
+		return "screen " + this.screen.width + "x" + this.screen.height + " (GUI scale " + this.screen.minecraft.getWindow().getGuiScale() + "), info column " + (this.layout != null ? this.layout.infoWidth() : -1) + " wide: " + this.screen.infoPanel.diagnosis();
 	}
 
 	// a file name from a preset's shown name (a built-in preset's is its translation, any text): what a typed name
@@ -416,6 +460,8 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		// the file it was read from (the presets folder or TerraForged's); null: a new one in the presets folder
 		@Nullable
 		private Path path;
+		// the tooltip with the whole name is set (AbstractWidget has no getTooltip in this Minecraft version)
+		private boolean nameTooltip;
 
 		public PresetEntry(Component name, Preset preset, boolean builtin, OnPress onPress) {
 			super(-1, -1, -1, -1, onPress, name);
@@ -431,6 +477,26 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 					page.selectPreset(entry);
 				}
 			});
+		}
+
+		// a name wider than the row (the list gives way to the map on large GUI scales) is cut with "...", the whole name
+		// in a tooltip; it ran on under the map
+		@Override
+		protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+			Font font = Minecraft.getInstance().font;
+			Component message = this.getMessage();
+			int y = this.getY() + (this.height - 8) / 2;
+			if(this.width <= 0 || font.width(message) <= this.width) {
+				graphics.drawString(font, message, this.getX(), y, 0xFFFFFFFF);
+				return;
+			}
+			FormattedText ellipsis = FormattedText.of("...", message.getStyle());
+			FormattedText cut = font.substrByWidth(message, Math.max(0, this.width - font.width(ellipsis)));
+			graphics.drawString(font, Language.getInstance().getVisualOrder(FormattedText.composite(cut, ellipsis)), this.getX(), y, 0xFFFFFFFF);
+			if(!this.nameTooltip) {
+				this.nameTooltip = true;
+				this.setTooltip(Tooltip.create(this.name));
+			}
 		}
 
 		static PresetEntry builtin(String id, Component name, Preset preset, PresetListPage page) {
