@@ -8,18 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
+import net.minecraft.core.RegistryAccess;
 import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.client.gui.Toasts;
+import raccoonman.reterraforged.concurrent.LatestTask;
 import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
@@ -33,6 +37,9 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	private final String seedBefore;
 	private boolean seedChanged;
 	private boolean done;
+	// Export As Datapack, off the render thread; one at a time (the button waits for it), and one left running when the
+	// screen closes still writes its file
+	private final LatestTask<Path> exports = new LatestTask<>(Minecraft.getInstance());
 	// where the preview map is looking: the same on every page, and after the window changes size
 	public int previewOffsetX, previewOffsetZ;
 	public int previewZoom = 68;
@@ -94,12 +101,27 @@ public class PresetConfigScreen extends LinkedPageScreen {
 		return this.parent.getUiState().getSettings();
 	}
 
+	// the create world screen waits until the export is applied (RTFCreateWorld.apply), this screen is left at once
 	public void applyPreset(PresetEntry preset) throws IOException {
 		RTFCreateWorld.apply(this.parent, preset.getName(), preset.getPreset());
 	}
 	
-	public void exportAsDatapack(Path outputPath, PresetEntry presetEntry) throws IOException {
-		PresetExport.toZip(presetEntry.getPreset(), presetEntry.getName().getString(), this.getSettings().worldgenLoadContext(), outputPath);
+	// off the render thread (it froze the screen): what it reads is taken here, a copy of the preset that stays as it was
+	// while the player edits on. done gets the error, or null, on the render thread
+	public void exportAsDatapack(Path outputPath, PresetEntry presetEntry, Consumer<Exception> done) {
+		Preset preset = presetEntry.getPreset().copy();
+		String name = presetEntry.getName().getString();
+		RegistryAccess registries = this.getSettings().worldgenLoadContext();
+		this.exports.submit(() -> {
+			PresetExport.toZip(preset, name, registries, outputPath);
+			return outputPath;
+		}, (path) -> {
+			// not superseded: the button waits for the export before it
+		}, (path, error) -> done.accept(error));
+	}
+
+	public boolean isExporting() {
+		return this.exports.isBusy();
 	}
 
 	// the settings pages as tabs on the left (before, only "<<" and ">>" went from page to page, one at a time)
