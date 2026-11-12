@@ -31,8 +31,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.FeatureSorter;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
+import raccoonman.reterraforged.world.worldgen.biome.modifier.fabric.BiomeModifiersImpl;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.fabric.FabricBiomeModifier;
 
 @Mixin(BiomeModificationImpl.class)
@@ -61,7 +61,9 @@ public class MixinBiomeModificationImpl {
 		// loaded after it in the same session (a vanilla world got the preset's trees, an RTF world its density twice)
 		List<Object> modifiers = new ArrayList<>(original.call(self));
 		int fabricModifiers = modifiers.size();
-		for(Holder.Reference<BiomeModifier> holder : registries.lookupOrThrow(RTFRegistries.BIOME_MODIFIER).listElements().toList()) {
+		// the own folder's, and NeoForge's folder for a pack exported there by an older version (the order is Fabric's
+		// comparator below: by name, as before)
+		for(Holder.Reference<BiomeModifier> holder : BiomeModifiersImpl.modifiers(registries)) {
 			if(holder.value() instanceof FabricBiomeModifier modifier) {
 				Object record = this.makeModifierRecord(holder.key().identifier(), ModificationPhase.POST_PROCESSING, (ctx) -> {
 					return true;
