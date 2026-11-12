@@ -36,6 +36,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
@@ -97,7 +98,8 @@ public final class RTFClientTest {
 				}
 			}
 			case 1 -> {
-				if (mc.gui.screen() instanceof CreateWorldScreen create) {
+				// the Default preset's export runs in the background: its waiting screen first
+				if (mc.gui.screen() instanceof CreateWorldScreen create && !RTFCreateWorld.isExporting(create)) {
 					mc.gui.setScreen(new PresetConfigScreen(create));
 					next(40);
 				}

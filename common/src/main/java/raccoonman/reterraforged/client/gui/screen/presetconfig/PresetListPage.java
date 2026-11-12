@@ -134,10 +134,20 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		this.exportAsDatapack = PresetWidgets.createThrowingButton(RTFTranslationKeys.GUI_BUTTON_EXPORT_AS_DATAPACK, () -> {
 			PresetEntry preset = this.screen.editable(this.left.getSelected().getWidget());
 			Path path = inside(EXPORT_PATH, fileName(preset.getName().getString()) + ".zip");
-			this.screen.exportAsDatapack(path, preset);
-			this.rebuildPresets();
-			
-			Toasts.notify(RTFTranslationKeys.GUI_BUTTON_EXPORT_SUCCESS, Component.literal(path.toString()), SystemToastId.WORLD_BACKUP);
+			// in the background: the button waits for it, the rest of the screen does not
+			this.exportAsDatapack.active = false;
+			this.screen.exportAsDatapack(path, preset, (error) -> {
+				Toasts.tryOrToast(Tooltips.failTranslationKey(RTFTranslationKeys.GUI_BUTTON_EXPORT_AS_DATAPACK), () -> {
+					if(error != null) {
+						throw error;
+					}
+					Toasts.notify(RTFTranslationKeys.GUI_BUTTON_EXPORT_SUCCESS, Component.literal(path.toString()), SystemToastId.WORLD_BACKUP);
+				});
+				// the list shown now (the tabs make a new one), if the screen is still open; the toast comes in any case
+				if(this.screen.minecraft.gui.screen() == this.screen && this.screen.getCurrentPage() instanceof PresetListPage list) {
+					list.exportAsDatapack.active = list.selected != null;
+				}
+			});
 		});
 
 		this.right.addWidget(this.input);
@@ -194,7 +204,7 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 		this.screen.doneButton.active = active;
 		this.copyPreset.active = active;
 		this.deletePreset.active = active && !entry.isBuiltin();
-		this.exportAsDatapack.active = active;
+		this.exportAsDatapack.active = active && !this.screen.isExporting();
 		this.screen.nextButton.active = active;
 	}
 	
@@ -278,6 +288,8 @@ public class PresetListPage extends BisectedPage<PresetConfigScreen, PresetEntry
 						continue;
 					}
 					Preset preset = result.result().get();
+					// a preset of the library makes a new world: the current fixes (an existing world's datapack keeps its version)
+					preset.world().properties.upgradeGeneration();
 					PresetEntry entry = new PresetEntry(Component.literal(base), preset, false, this);
 					entry.path = presetPath;
 					presets.add(entry);

@@ -95,7 +95,8 @@ public final class RTFGuiTest {
 	// the create world screen with the generation on: it comes after reloads of the datapacks, which take as long as they
 	// take. A fixed wait failed on a busy machine ("no World tab"), with the message of the reload still on the screen
 	static boolean createWorldReady(Minecraft mc) {
-		if (mc.gui.screen() instanceof CreateWorldScreen screen && RTFCreateWorld.isEnabled(screen)) {
+		// and no export of its preset on the way (it runs in the background)
+		if (mc.gui.screen() instanceof CreateWorldScreen screen && RTFCreateWorld.isEnabled(screen) && !RTFCreateWorld.isExporting(screen)) {
 			readyWait = 0;
 			return true;
 		}
