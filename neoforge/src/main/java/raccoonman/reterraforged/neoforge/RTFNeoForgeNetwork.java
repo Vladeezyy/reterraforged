@@ -12,6 +12,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.network.AltitudeCoolingPayload;
+import raccoonman.reterraforged.server.WorldInfo;
 import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
 
 /** The altitude cooling scale: the default set from the overworld's preset, the player's dimension's sent on join and on every change of dimension (AltitudeCooling) */
@@ -28,10 +29,17 @@ final class RTFNeoForgeNetwork {
 		NeoForge.EVENT_BUS.addListener((LevelEvent.Load event) -> {
 			if (event.getLevel() instanceof ServerLevel level && level.dimension() == Level.OVERWORLD) {
 				AltitudeCooling.set(AltitudeCooling.of(level));
+				// once per world, before its spawn chunks: a crash while they generate has it in its report
+				WorldInfo.onOverworldLoad(level);
 			}
 		});
 		NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> RTFCommon.onServerStopped());
 		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> send(event.getEntity()));
+		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
+			if (event.getEntity() instanceof ServerPlayer player) {
+				WorldInfo.onPlayerJoin(player);
+			}
+		});
 		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent event) -> send(event.getEntity()));
 		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> send(event.getEntity()));
 	}
