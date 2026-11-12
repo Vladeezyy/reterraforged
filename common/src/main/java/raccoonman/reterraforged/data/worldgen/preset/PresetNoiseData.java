@@ -11,11 +11,18 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public class PresetNoiseData {
 
+	// the world's seed in the Perlin noises of the data (strata, biome edges of the Perlin types) from generation version 1:
+	// a preset of an existing world writes the same data as before
+	public static final int SEEDED_PERLIN_VERSION = 1;
+
 	public static void bootstrap(Preset preset, BootstrapContext<Noise> ctx) {
-		PresetTerrainNoise.bootstrap(preset, ctx);
-		PresetClimateNoise.bootstrap(preset, ctx);
-		PresetSurfaceNoise.bootstrap(preset, ctx);
-		PresetStrataNoise.bootstrap(preset, ctx);
+		Noises.withSeededPerlin(preset.world().properties.fixes(SEEDED_PERLIN_VERSION), () -> {
+			PresetTerrainNoise.bootstrap(preset, ctx);
+			PresetClimateNoise.bootstrap(preset, ctx);
+			PresetSurfaceNoise.bootstrap(preset, ctx);
+			PresetStrataNoise.bootstrap(preset, ctx);
+			return null;
+		});
 	}
 	
 	public static Noise getNoise(HolderGetter<Noise> noiseLookup, ResourceKey<Noise> key) {

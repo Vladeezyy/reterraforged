@@ -109,6 +109,9 @@ public class WorldSettings {
     
     public static class Properties {
     	public static final int DEFAULT_OCEAN_DEPTH = 64;
+    	// the fixes after 0.0.31 (with Generation Fixes on): 1 deep structures under rivers and lakes, Perlin noise of the
+    	// world's seed, the full 64 bits of the seed. Raise it with every fix that changes a world
+    	public static final int CURRENT_GENERATION_VERSION = 1;
     	
     	public static final Codec<Properties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
     		SpawnType.CODEC.fieldOf("spawnType").forGetter((o) -> o.spawnType),
@@ -122,11 +125,15 @@ public class WorldSettings {
     		// added in 0.0.27 (#32): 0 is vanilla's deepslate, from y 8 down to y 0
     		Codec.INT.optionalFieldOf("deepslateLevel", 0).forGetter((o) -> o.deepslateLevel),
     		// off in a preset saved before 0.0.30: its worlds keep their terrain
-    		Codec.BOOL.optionalFieldOf("generationFixes", false).forGetter((o) -> o.generationFixes)
-    	).apply(instance, (spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight, deepslateLevel, generationFixes) -> {
+    		Codec.BOOL.optionalFieldOf("generationFixes", false).forGetter((o) -> o.generationFixes),
+    		// none in a preset saved before 0.0.32: the world of its datapack keeps the fixes it was made with (0 is not
+    		// written, so such a preset saved again stays the same file)
+    		Codec.INT.optionalFieldOf("generationVersion", 0).forGetter((o) -> o.generationVersion)
+    	).apply(instance, (spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight, deepslateLevel, generationFixes, generationVersion) -> {
     		Properties properties = new Properties(spawnType, worldHeight, worldDepth, seaLevel, oceanDepth, lavaLevel, altitudeCoolingFollowsHeight);
     		properties.deepslateLevel = deepslateLevel;
     		properties.generationFixes = generationFixes;
+    		properties.generationVersion = generationVersion;
     		return properties;
     	}));
     	
@@ -145,6 +152,8 @@ public class WorldSettings {
         // the water and the horizontal scale only on their terrain, the floor of swamps, lowland swamps of the biome mods
         // and on mixed terrains, land with the Infinite continent type, terrain in other dimensions on the overworld's noise settings
         public boolean generationFixes = true;
+        // which of the later fixes a world has (CURRENT_GENERATION_VERSION); only read with generationFixes on
+        public int generationVersion = CURRENT_GENERATION_VERSION;
         
         public Properties(SpawnType spawnType, int worldHeight, int worldDepth, int seaLevel, int lavaLevel) {
         	this(spawnType, worldHeight, worldDepth, seaLevel, DEFAULT_OCEAN_DEPTH, lavaLevel);
@@ -168,7 +177,19 @@ public class WorldSettings {
         	Properties copy = new Properties(this.spawnType, this.worldHeight, this.worldDepth, this.seaLevel, this.oceanDepth, this.lavaLevel, this.altitudeCoolingFollowsHeight);
         	copy.deepslateLevel = this.deepslateLevel;
         	copy.generationFixes = this.generationFixes;
+        	copy.generationVersion = this.generationVersion;
         	return copy;
+        }
+
+        // the fixes of that generation version are on in this world
+        public boolean fixes(int version) {
+        	return this.generationFixes && this.generationVersion >= version;
+        }
+
+        // a preset that makes a new world (from the library, the toggle switched on) gets the fixes of this version;
+        // never for the preset of an existing world (its datapack), whose chunks stay as they were made
+        public void upgradeGeneration() {
+        	this.generationVersion = CURRENT_GENERATION_VERSION;
         }
         
         public int terrainScaler() {

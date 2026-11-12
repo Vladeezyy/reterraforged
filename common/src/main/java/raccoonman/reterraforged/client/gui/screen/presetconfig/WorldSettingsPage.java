@@ -204,6 +204,10 @@ public class WorldSettingsPage extends PresetEditorPage {
 		
 		this.generationFixes = PresetWidgets.createToggle(properties.generationFixes, RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES, (button, value) -> {
 			properties.generationFixes = value;
+			// switched on for a new world: all the fixes of this version (an older preset's version was kept until now)
+			if(value) {
+				properties.upgradeGeneration();
+			}
 			this.regenerate();
 		});
 		

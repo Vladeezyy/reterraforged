@@ -227,7 +227,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    		Preset edited = PresetEditorPage.this.preset.getPreset().copy();
 	    		WorldCreationContext settings = PresetEditorPage.this.screen.getSettings();
 	    		RegistryAccess.Frozen registries = settings.worldgenLoadContext();
-	    		int seed = (int) settings.options().seed();
+	    		int seed = GeneratorContext.terrainSeed(settings.options().seed(), edited);
 	    		RenderMode mode = PresetEditorPage.this.renderMode.getValue();
 	    		int x = this.offsetX, z = this.offsetZ, zoom = this.getZoom();
 	    		Job job = new Job();
