@@ -41,6 +41,7 @@ import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.createworld.RTFCreateWorld;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen;
+import raccoonman.reterraforged.client.gui.screen.presetconfig.BuiltinPresets;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScreen;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetEditorPage;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage;
@@ -74,6 +75,9 @@ public final class RTFGuiTest {
 	private static String seedBeforeCancel;
 	private static int timeout;
 	private static int readyWait;
+	// the shot of the preset list with a new preset's map: 0 to do, 1 waiting for the map, 2 done
+	private static int infoState;
+	private static int infoWait;
 	// tooltips to see on the screenshots: an enum option (what it does, its old name), greyed-out sliders (what they
 	// need), the structure placement seed
 	private static final List<TooltipShot> TOOLTIP_SHOTS = List.of(
@@ -163,7 +167,25 @@ public final class RTFGuiTest {
 					finish(mc);
 					return;
 				}
-				shoot(mc, "gui-" + round + "-presets");
+				if (infoState == 1) {
+					// the first round: a new preset's map and description next to the list, then Default as always
+					PresetListPage list = (PresetListPage) ((PresetConfigScreen) mc.screen).getCurrentPage();
+					if (!list.infoMapShown() && !list.infoMapFailed() && ++infoWait < 400) return;
+					log("preset map of Towering Peaks after {} ticks: {}", infoWait, list.infoMapShown() ? "shown" : list.infoMapFailed() ? "failed" : "not there");
+					if (!list.infoMapShown()) fail("the preset list shows no map of the selected preset");
+					if (!I18n.exists(BuiltinPresets.descriptionKey("toweringPeaks"))) fail("no description of Towering Peaks in the language file");
+					shoot(mc, "gui-preset-info");
+					infoState = 2;
+				} else {
+					shoot(mc, "gui-" + round + "-presets");
+					if (round == 0 && infoState == 0) {
+						if (!selectBuiltin(mc.screen, "toweringPeaks")) fail("no Towering Peaks preset in the list");
+						infoState = 1;
+						infoWait = 0;
+						wait = 2;
+						return;
+					}
+				}
 				if (!click(mc, (w) -> w instanceof PresetEntry && hasKey(w, RTFTranslationKeys.GUI_DEFAULT_PRESET_NAME), 0.3)) fail("no Default preset in the list");
 				next(10);
 			}
@@ -279,8 +301,78 @@ public final class RTFGuiTest {
 					if (!PAGES.equals(EXPECTED_PAGES.reversed())) fail("<< goes " + PAGES + ", expected " + EXPECTED_PAGES.reversed());
 					int scale = preset(mc).world().continent.continentScale;
 					if (scale != expectedScale) fail("the continent scale was lost on the way through the pages: " + scale + ", set " + expectedScale);
-					step = 9;
+					step = 40;
 				}
+			}
+			// settings that are not Default's, on the World page: a slider moved off Default is marked, a right click puts
+			// it back; then a search for a part of a setting's name and an empty one. Then Done (step 9)
+			case 40 -> {
+				AbstractWidget jitter = find(mc.screen, (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER));
+				if (jitter == null) {
+					fail("no continent jitter slider");
+					step = 9;
+					return;
+				}
+				@SuppressWarnings("unchecked") WidgetList<AbstractWidget> list = (WidgetList<AbstractWidget>) settingsList(mc);
+				list.reveal(jitter);
+				next(5);
+			}
+			case 41 -> {
+				AbstractWidget jitter = find(mc.screen, (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER));
+				PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+				float before = preset(mc).world().continent.continentJitter;
+				click(mc, jitter, 0.9);
+				log("continent jitter {} -> {} (slider click), marked {}", before, preset(mc).world().continent.continentJitter, page.isChanged(jitter));
+				if (preset(mc).world().continent.continentJitter == before) fail("the continent jitter slider click changed nothing");
+				if (!page.isChanged(jitter)) fail("a slider moved off Default's value is not marked");
+				if (!page.hasChanges(page.getClass())) fail("the World page with changed settings is not marked");
+				// the mouse on it for the shot: its tooltip has Default's value
+				double scale = mc.getWindow().getGuiScale();
+				moveMouse(mc, (jitter.getX() + jitter.getWidth() / 2.0) * scale, (jitter.getY() + jitter.getHeight() / 2.0) * scale);
+				next(10);
+			}
+			case 42 -> {
+				shoot(mc, "gui-changed-marker");
+				AbstractWidget jitter = find(mc.screen, (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_CONTINENT_JITTER));
+				PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+				double x = jitter.getX() + jitter.getWidth() / 2.0, y = jitter.getY() + jitter.getHeight() / 2.0;
+				MouseButtonEvent rightClick = new MouseButtonEvent(x, y, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_RIGHT, 0));
+				mc.screen.mouseClicked(rightClick, false);
+				mc.screen.mouseReleased(rightClick);
+				float reset = preset(mc).world().continent.continentJitter, standard = raccoonman.reterraforged.data.worldgen.preset.settings.Presets.makeDefault().world().continent.continentJitter;
+				log("continent jitter {} after the right click, Default {}, marked {}", reset, standard, page.isChanged(jitter));
+				if (Math.abs(reset - standard) > 1.0E-6F) fail("a right click did not put the continent jitter back to Default: " + reset + ", Default " + standard);
+				if (page.isChanged(jitter)) fail("the continent jitter is still marked after the reset");
+				moveMouse(mc, 0, 0);
+				next(5);
+			}
+			case 43 -> {
+				PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+				net.minecraft.client.gui.components.EditBox box = page.searchBox();
+				if (box == null) {
+					fail("no search field on " + page(mc));
+					step = 9;
+					return;
+				}
+				// typed as a player does: a click on the field, then the letters
+				String name = I18n.get(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE);
+				String query = name.substring(0, Math.min(6, name.length()));
+				click(mc, box, 0.5);
+				for (char c : query.toCharArray()) mc.screen.charTyped(new net.minecraft.client.input.CharacterEvent(c, 0));
+				log("search '{}': '{}' in the field", query, box.getValue());
+				if (!box.getValue().equals(query)) fail("the search field took '" + box.getValue() + "', typed '" + query + "'");
+				next(5);
+			}
+			case 44 -> {
+				shoot(mc, "gui-search");
+				PresetEditorPage page = (PresetEditorPage) ((LinkedPageScreen) mc.screen).getCurrentPage();
+				WidgetList<?> list = settingsList(mc);
+				String name = I18n.get(RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE);
+				if (list.children().stream().noneMatch((e) -> e.getWidget().getMessage().getString().contains(name))) fail("the search does not list the continent scale");
+				page.searchBox().setValue("");
+				if (list.children().stream().noneMatch((e) -> startsWith(e.getWidget(), RTFTranslationKeys.GUI_SLIDER_CONTINENT_SCALE))) fail("an empty search does not bring the page back");
+				step = 9;
+				wait = 5;
 			}
 			case 9 -> {
 				click(mc, round < 2 ? ((LinkedPageScreen) mc.screen).doneButton : ((LinkedPageScreen) mc.screen).cancelButton, 0.5);
@@ -424,6 +516,22 @@ public final class RTFGuiTest {
 	static Optional<Preset> appliedPreset(Minecraft mc) {
 		if (!(mc.screen instanceof CreateWorldScreen screen)) return Optional.empty();
 		return screen.getUiState().getSettings().worldgenLoadContext().lookup(RTFRegistries.PRESET).flatMap((registry) -> registry.get(Preset.KEY)).map(Holder::value);
+	}
+
+	// selects a built-in preset by its id, as a click would (the list's selection calls the page)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static boolean selectBuiltin(Screen screen, String id) {
+		for (GuiEventListener child : screen.children()) {
+			if (child instanceof WidgetList<?> list) {
+				for (WidgetList.Entry<?> entry : list.children()) {
+					if (entry.getWidget() instanceof PresetEntry preset && id.equals(preset.builtinId())) {
+						((WidgetList) list).setSelected(entry);
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Nullable
