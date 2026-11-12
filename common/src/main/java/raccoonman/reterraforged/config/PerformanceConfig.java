@@ -19,6 +19,8 @@ public record PerformanceConfig(int tileSize, int batchCount, int threadCount) {
     public static final int MAX_TILE_SIZE = 5;
     public static final int MAX_BATCH_COUNT = 20;
     public static final int MAX_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
+    // the one read last, for the world's block in the log (WorldInfo): reading the file again would write and apply it
+    private static volatile PerformanceConfig current;
 
     public static Path defaultFile() {
     	return ConfigUtil.rtf("performance.conf");
@@ -80,6 +82,13 @@ public record PerformanceConfig(int tileSize, int batchCount, int threadCount) {
 
     private static void apply(PerformanceConfig config) {
     	ThreadPools.configureWorldGenThreads(config.threadCount());
+    	current = config;
+    }
+
+    /** The config read last, else the defaults (nothing read yet) */
+    public static PerformanceConfig current() {
+    	PerformanceConfig config = current;
+    	return config != null ? config : makeDefault();
     }
 
     private static int parseInt(Properties props, String key, int fallback) {
