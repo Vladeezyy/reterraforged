@@ -31,11 +31,20 @@ TIMEOUT = 20 * 60
 WITHOUT_EFFECT = {"climate().swampMaxHeight", "miscellaneous().snowLine.height", "world().properties.altitudeCoolingFollowsHeight", "world().properties.lavaLevel"}
 
 
-def prop(checkout, key):
+def prop(checkout, key, required=True):
     for line in (checkout / "gradle.properties").read_text().splitlines():
         if line.startswith(key + "="):
             return line.split("=", 1)[1].strip()
-    raise SystemExit(f"{checkout}: no {key}")
+    if required:
+        raise SystemExit(f"{checkout}: no {key}")
+    return None
+
+
+def fabric_test(checkout):
+    # the Fabric test servers' loader and Fabric API (current C2ME and biome mods need new ones), from the checkout's
+    # gradle.properties: each Minecraft version has its own; None when the checkout does not name them
+    loader, api = prop(checkout, "fabric_loader_test_version", False), prop(checkout, "fabric_api_test_version", False)
+    return {"FABRIC_LOADER": loader, "FABRIC_API": api} if loader and api else None
 
 
 def last_release(checkout, mc):
@@ -55,14 +64,9 @@ def server(*loaders, **env):
 
 
 def cases(mc, full, retake):
-    # the mods a version's biome mods want, and the Fabric those need
+    # the mods a version's biome mods want (the Fabric they need: fabric_test in named)
     # Biomes O' Plenty lists no dependencies on Modrinth for 26.x
     mods = "biomes-o-plenty terrablender glitchcore terralith" if mc.startswith("26") else BIOME_MODS
-    fabric = {}
-    if mc.startswith("1.21"):
-        fabric["FABRIC_LOADER"] = "0.19.5"
-    if mc == "1.21.1":
-        fabric["FABRIC_API"] = "0.116.17+1.21.1"
     print_env = {"FINGERPRINT": "1"} if retake else None
     fingerprint = lambda name: print_env or {"FINGERPRINT_REF": f"tools/fingerprint/{name}.txt"}
 
@@ -84,16 +88,16 @@ def cases(mc, full, retake):
     yield "vanilla-client", server("neoforge", "fabric", VANILLA_CLIENT="1", **QUICK)
     # against the world without mods; the heights were saved after the fingerprint runs
     yield "mods-neoforge", server("neoforge", MODS=mods, EXTRA_JVM="-Xmx6G", HEIGHTS_REF="run/releasepass/heights-neoforge.txt", **QUICK)
-    yield "mods-fabric", server("fabric", MODS=mods, EXTRA_JVM="-Xmx6G", HEIGHTS_REF="run/releasepass/heights-fabric.txt", **QUICK, **fabric)
+    yield "mods-fabric", server("fabric", MODS=mods, EXTRA_JVM="-Xmx6G", HEIGHTS_REF="run/releasepass/heights-fabric.txt", **QUICK)
     yield "swamps-neoforge", server("neoforge", MODS=mods, EXTRA_JVM="-Xmx6G", SWAMPS="1", PRESET=BASINS, **QUICK)
     yield "islands-neoforge", server("neoforge", ISLANDS="1", PRESET=ISLANDS, **QUICK)
     yield "vegetation-neoforge", server("neoforge", VEGETATION="1", **QUICK)
     # ModernFix has builds on Modrinth only for these
     yield "compat-neoforge", server("neoforge", MODS="c2me-neoforge modernfix" if mc in ("1.21.1", "26.1.2") else "c2me-neoforge", JAVA="/opt/homebrew/opt/openjdk@25/bin/java", **QUICK)
-    yield "compat-fabric", server("fabric", MODS="c2me-fabric modernfix" if mc == "1.21.1" else "c2me-fabric", JAVA="/opt/homebrew/opt/openjdk@25/bin/java", **QUICK, **fabric)
+    yield "compat-fabric", server("fabric", MODS="c2me-fabric modernfix" if mc == "1.21.1" else "c2me-fabric", JAVA="/opt/homebrew/opt/openjdk@25/bin/java", **QUICK)
     yield "widgets", (["bash", "tools/clienttest.sh", "neoforge", "widgets"], {})
     if mc == full:
-        yield "swamps-fabric", server("fabric", MODS=mods, EXTRA_JVM="-Xmx6G", SWAMPS="1", PRESET=BASINS, **QUICK, **fabric)
+        yield "swamps-fabric", server("fabric", MODS=mods, EXTRA_JVM="-Xmx6G", SWAMPS="1", PRESET=BASINS, **QUICK)
         yield "islands-fabric", server("fabric", ISLANDS="1", PRESET=ISLANDS, **QUICK)
         yield "stress-abuse", (["bash", "tools/stresstest.sh", "neoforge", "abuse"], {})
         yield "stress-effects", (["bash", "tools/stresstest.sh", "neoforge", "effects"], {})
@@ -148,7 +152,11 @@ class Pass:
         (checkout / "run/releasepass").mkdir(parents=True, exist_ok=True)
         only = self.args.only.split(",") if self.args.only else None
         skip = self.args.skip.split(",") if self.args.skip else []
-        for name, (command, env) in self.named(checkout, mc):
+        named = self.named(checkout, mc)
+        if named is None:
+            self.report(mc, "config", False, 0, "no fabric_loader_test_version / fabric_api_test_version in gradle.properties")
+            return
+        for name, (command, env) in named:
             if (only and name not in only) or name in skip:
                 continue
             ok = self.run_case(checkout, mc, name, command, env)
@@ -163,8 +171,11 @@ class Pass:
                 shutil.copy(checkout / f"run/fingerprint-{loader}.txt", checkout / "tools/fingerprint" / target)
 
     def named(self, checkout, mc):
-        # the fingerprint names depend on the files of this checkout
+        # the fingerprint names depend on the files of this checkout, the Fabric versions on its gradle.properties
         result = []
+        fabric = fabric_test(checkout)
+        if fabric is None:
+            return None
         fabric_ref = f"{mc}-fabric" if (checkout / f"tools/fingerprint/{mc}-fabric.txt").exists() else mc
         for name, (command, env) in cases(mc, self.args.full, self.args.retake):
             if name == "legacy-neoforge":
@@ -174,7 +185,8 @@ class Pass:
                 env = {**env, "LEGACY": last}
             if name in ("fingerprint-fabric", "refcheck-fabric") and "FINGERPRINT_REF" in env:
                 env = {**env, "FINGERPRINT_REF": f"tools/fingerprint/{fabric_ref}.txt"}
-            result.append((name, (command, env)))
+            # every case on the same Fabric (servertest.sh reads these too; passed for checkouts whose script does not)
+            result.append((name, (command, {**fabric, **env})))
         return result
 
 
