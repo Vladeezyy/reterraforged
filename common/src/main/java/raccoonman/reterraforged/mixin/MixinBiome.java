@@ -12,8 +12,10 @@ import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
 class MixinBiome {
 
 	// rain or snow, frozen water and snow layers, on both sides: the height above 80 scaled to the vanilla world height
-	// when the preset asks for it (AltitudeCooling)
-	@ModifyVariable(method = "getHeightAdjustedTemperature", at = @At("HEAD"), argsOnly = true)
+	// in a dimension whose preset asks for it (AltitudeCooling). Before the per thread cache of temperatures, not in
+	// getHeightAdjustedTemperature (its only caller): the cache is keyed by the position alone, and with the scaled
+	// position as the key an entry stays right for every dimension
+	@ModifyVariable(method = "getTemperature", at = @At("HEAD"), argsOnly = true)
 	private BlockPos scaleCoolingHeight(BlockPos pos) {
 		return AltitudeCooling.adjust(pos);
 	}
