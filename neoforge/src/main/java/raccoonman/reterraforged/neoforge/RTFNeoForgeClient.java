@@ -6,9 +6,9 @@ import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetConfigScree
 
 class RTFNeoForgeClient {
 
-	// another server must not keep this world's altitude cooling scale
+	// another server must not keep this world's altitude cooling scale (the client thread's own, AltitudeCooling)
 	static void registerEvents() {
-		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) -> raccoonman.reterraforged.world.worldgen.AltitudeCooling.reset());
+		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) -> net.minecraft.client.Minecraft.getInstance().execute(raccoonman.reterraforged.world.worldgen.AltitudeCooling::clearClient));
 	}
 
 	public static void registerPresetEditors(RegisterPresetEditorsEvent event) {
