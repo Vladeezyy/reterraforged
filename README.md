@@ -673,7 +673,7 @@ the biome up at the surface already.
 
 ## Testing
 
-Every release is checked on all 10 Minecraft versions and both loaders before it is published. The tests are part
+Every release is checked on every Minecraft version it is published for (currently five) and both loaders before it is published. The tests are part
 of the mod (`rtf` commands, enabled only in test runs) and of the repository (`tools/*.sh`), so anyone can repeat them.
 
 <details>
@@ -1536,7 +1536,7 @@ y 0, так что рельеф не меняется. Чанки, создан�
 
 ## Проверка
 
-Каждый релиз перед публикацией проверяется на всех 10 версиях Minecraft и обоих загрузчиках. Тесты встроены в мод
+Каждый релиз перед публикацией проверяется на каждой версии Minecraft, для которой он выходит (сейчас пять), и на обоих загрузчиках. Тесты встроены в мод
 (команды `rtf`, включаются только в тестовых запусках) и лежат в репозитории (`tools/*.sh`), так что их может
 повторить кто угодно.
 
