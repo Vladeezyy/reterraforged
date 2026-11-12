@@ -144,6 +144,19 @@ New chunks of worlds made with fork versions before 0.0.11 follow 0.0.6 too, so 
 mountain surfaces, such as William Wythers' Overhauled Overworld, the rock of steep slopes came out in chunk-sized
 squares and stripes.
 
+**Other fixes, 0.0.32**:
+- **Swamp Basins in another region's climate** ([#42](https://github.com/Vladeezyy/reterraforged/issues/42), a possible cause): a piece of the world could get the swamp basin and the climate of another region, as whole chunks of swamp in the middle of a desert, for example. Region ids repeat, and the cache of each generation thread looked a region up by its id alone. It depended on the order of the threads and was gone when the world was made again. Not reproduced, so the cause is not proven.
+- **Generation speed, the same world:** a cache of 16 swamp columns and 64 terrain cells per thread instead of one entry, a column's rounded height computed once per chunk column, tiles made outside the shared lock, the feature step no longer waiting for a tile, tree templates read without a shared lock per tree, and a tree checking the structures of its own chunk only. The world stays block for block the same as in 0.0.31: the chunk fingerprints of the Default preset and of the preset with Swamp Basins and Lowland Swamps are the same 4501 lines as in 0.0.31. No speed figures yet.
+- **Leaving a world cancels its unfinished tiles**, so they do not delay the first tile of the next world.
+- **Trees from saplings keep the blocks under their roots** (glass, water, flowers, saplings, rails). It touched tree templates from datapacks with blocks beside the trunk on the bottom layer; the mod's built-in trees are not affected.
+- **Noise in datapacks:** the number of octaves and terrace steps is limited (a huge or negative value hung or crashed generation); a strata selector below 0 no longer crashes the game; the `simplex_ridge` type can be written.
+- **Other mods:** injections that would conflict with another mod at the same place are replaced with compatible ones (wrap instead of redirect, no capture of local variables), mixin fields are unique, and the spawn point search is replaced only in worlds with a preset. TerraBlender is an optional dependency. TerraBlender's diagnostic counters, which ran on every biome pick and wrote lines to the log with Darker Depths or Deeper Darker installed, now run only with `-Drtf.tbdiag=true`.
+- **Snow Line Follows World Height** works only in the dimension the preset builds. Before, one scale applied to the whole game, so snow and ice moved in other mods' dimensions too.
+- **Tile size is stored in the world** (`reterraforged/generation.json` in the world folder). Before, changing `tileSize` in `performance.conf` (or another config on a server) gave erosion seams between old and new chunks. Now the config applies to new worlds.
+- **Preset screen:** the datapack export no longer runs on the render thread, so opening Create World, Done and Export As Datapack no longer freezes the game (the vanilla loading screen shows during the export). A stale preview calculation is stopped. Five hints describe their settings again (Plain Stone Erosion, the two lake start distances, Mountain Biome Usage, Volcano Biome Usage): their texts from 0.0.21 were lost in all 11 languages.
+- **Generation version 1, new worlds only** (worlds made before keep every block; a preset from the player's library gets it when a new world is created; it comes with Generation Fixes): deep structures are built under rivers and lakes (strongholds, ancient cities, trial chambers; the structure rule refused them at any depth, so there were fewer strongholds and the Eye of Ender skipped their point); the rock strata follow the world's seed (before, they were the same in every world); a 64-bit seed gives its own terrain (before, only the lower 32 bits counted; seeds that fit 32 bits, text seeds included, give the terrain they gave before).
+- **Build:** the Loom and Architectury plugin versions are pinned (not snapshots); the CI token only reads.
+
 **Other fixes, 0.0.31**:
 - **Erosion leaves other mods' surface blocks alone** ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)): the erodible tag lists vanilla's dirt blocks by name, not the whole dirt tag. Regions Unexplored's Chalk Cliffs kept 29.1 % chalk grass (was 11.2 %, with 18.3 % strata rock). A datapack can add a mod's block to the tag. An existing world keeps the tag of its preset datapack, so the fix is for new worlds.
 - **Island Horizontal Scale** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) no longer works backwards. **Steep shores** get a stony shore's climate, so beach sand stays off mountain slopes ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) and Regions Unexplored's Chalk Cliffs generate ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)).
@@ -197,16 +210,120 @@ from files are held to valid values, and a broken file in the presets folder no 
 ## Known limitations
 
 - **Far from the center** (past 16.7 million blocks, 2^24) terrain coordinates lose precision and the ground comes in steps of 2 blocks. No crash and no
-  holes. Fixing it would change the noise of every world.
-- **Seeds:** the terrain uses the lower 32 bits of the seed, so seeds `x` and `x + 2^32` have nearly the same terrain (99 % of the heights). Using the
-  upper bits would change every world made from a 64-bit seed.
+  holes. Fixing it would change the noise of every world. The coordinates are floats, as in the original ReTerraForged, and the noise
+  distortion gets coarse already around 8 million blocks: keep the world border within 8 million blocks (`/worldborder`).
+- **Seeds:** in worlds made without generation version 1 the terrain uses the lower 32 bits of the seed, so seeds `x` and `x + 2^32` have nearly
+  the same terrain there (99 % of the heights). Generation version 1 (new worlds, with Generation Fixes) uses the whole 64-bit seed. Switching old
+  worlds to the upper bits would change every world made from a 64-bit seed.
 - **`tileSize` in `performance.conf`** also changes a few surface blocks (7 to 11 % of the surface chunks have some difference), as erosion runs per
-  tile. Keep one value for the life of a world, and the same on all machines of a modpack. Above 5 it is cut to 5: 8 needed about 9 GB.
+  tile. A world keeps the tile size it was made with (`reterraforged/generation.json`); the config applies to new worlds. Keep the same value on
+  all machines of a modpack. Above 5 it is cut to 5: 8 needed about 9 GB.
 - **Lowland Swamps with biome mods:** swamps go where the terrain is low, mostly river valleys, because the setting does not reshape the land. With
   Biomes O' Plenty and Terralith at 12 / 12 they cover about 10 % of the land and only about 3 % of them are wide. Wide swamps come from Swamp Basins (see
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
+- **Mineshafts under river beds at sea level** are still not built: their start point is above the depth threshold.
+- **The surface on beaches and slopes** sometimes takes a biome without the erosion of its tile, as in the original. Not fixed.
 
 ## Problems and fixes in detail
+
+<details>
+<summary><b>Swamp Basins: the climate of another region</b> (0.0.32, a possible cause of <a href="https://github.com/Vladeezyy/reterraforged/issues/42">#42</a>)</summary>
+
+**Problem.** A piece of the world could get the swamp basin and the climate of another region: whole chunks of swamp in the middle of a desert, for example. It depended on the order of the generation threads and was gone when the world was made again.
+
+**Cause.** Region ids repeat from region to region, and the cache of each generation thread looked a region up by its id alone.
+
+**Fix.** Fixed in 0.0.32. The cause was not reproduced, so it is a possible cause of #42, not a proven one.
+
+</details>
+
+<details>
+<summary><b>Strongholds under rivers and lakes</b> (0.0.32, generation version 1)</summary>
+
+**Problem.** Under rivers and lakes no strongholds, ancient cities or trial chambers were built at any depth. There were fewer strongholds, and the Eye of Ender skipped their point.
+
+**Cause.** The structure rule refused deep structures at any depth.
+
+**Fix.** Generation version 1 builds them under rivers and lakes. It applies to new worlds only: a world made before keeps every block. Its rock strata also follow the seed (see below).
+
+</details>
+
+<details>
+<summary><b>Rock strata and 64-bit seeds</b> (0.0.32, generation version 1)</summary>
+
+**Problem.** The rock strata were the same in every world. The terrain of a 64-bit seed used only its lower 32 bits, so seeds `x` and `x + 2^32` had nearly the same terrain.
+
+**Cause.** The strata did not depend on the seed, and the terrain read only the lower 32 bits of it.
+
+**Fix.** In generation version 1 (new worlds) the strata follow the seed, and a 64-bit seed gives its own terrain. Seeds that fit 32 bits, text seeds included, give the terrain they gave before.
+
+</details>
+
+<details>
+<summary><b>tileSize: seams after a config change</b> (0.0.32)</summary>
+
+**Problem.** Changing `tileSize` in `performance.conf` (or another config on a server) gave erosion seams between the chunks made before and after the change.
+
+**Cause.** The world did not store the tile size it was made with.
+
+**Fix.** The tile size is stored in `reterraforged/generation.json` in the world folder. The config applies to new worlds.
+
+</details>
+
+<details>
+<summary><b>Datapack noise: huge values hung the generation</b> (0.0.32)</summary>
+
+**Problem.** A datapack with a huge or negative number of octaves or terrace steps hung or crashed the generation. A strata selector below 0 crashed the game.
+
+**Cause.** The values were not limited.
+
+**Fix.** The number of octaves and terrace steps is limited. A strata selector below 0 no longer crashes the game, and the `simplex_ridge` type can be written.
+
+</details>
+
+<details>
+<summary><b>Sapling trees replaced the blocks under their roots</b> (0.0.32)</summary>
+
+**Problem.** A tree grown from a sapling replaced the blocks under its roots (glass, water, flowers, saplings, rails). It happened with tree templates from datapacks that have blocks beside the trunk on the bottom layer.
+
+**Cause.** Such templates have blocks in the bottom layer beside the trunk, and the tree replaced them.
+
+**Fix.** The tree no longer replaces the blocks under its roots. The mod's built-in trees were not affected.
+
+</details>
+
+<details>
+<summary><b>Other mods' mixins</b> (0.0.32)</summary>
+
+**Problem.** Some injections would conflict with another mod's injections at the same place.
+
+**Cause.** Redirects and captured local variables.
+
+**Fix.** Wrap is used instead of redirect, local variables are not captured, and the mixin fields are unique.
+
+</details>
+
+<details>
+<summary><b>Snow Line Follows World Height in other dimensions</b> (0.0.32)</summary>
+
+**Problem.** The snow line moved in other mods' dimensions too: snow and ice shifted there.
+
+**Cause.** The setting had one scale for the whole game.
+
+**Fix.** The scale applies only in the dimension the preset builds.
+
+</details>
+
+<details>
+<summary><b>Preset screen: the game froze on Create World and export</b> (0.0.32)</summary>
+
+**Problem.** Opening Create World, Done or Export As Datapack froze the game.
+
+**Cause.** The datapack was exported on the render thread.
+
+**Fix.** The export runs off the render thread, and the vanilla loading screen shows while it runs. A stale preview calculation is stopped.
+
+</details>
 
 <details>
 <summary><b>Seams along chunk borders on cliffs</b> (0.0.17, <a href="https://github.com/Vladeezyy/reterraforged/issues/2">#2</a>)</summary>
@@ -540,7 +657,12 @@ the biome up at the surface already.
   since 0.0.24 a ReTerraForged world falls back on its own, the overworld generates on the CPU (still multi-threaded
   by C2ME) and the Nether and the End keep the GPU. With 0.0.23 set `allowIncompatibilityFallback = true` under
   `[openclAccel]` in the existing `config/c2me.toml` (a file written from scratch without `version = 3` is reset by
-  C2ME).
+  C2ME). On 1.21.1 (0.0.32) the self test passes with C2ME.
+- **TerraBlender** is an optional dependency since 0.0.32: the mod loads without it, and worlds without it are not affected.
+- **Other mods' mixins** (0.0.32): injections that would conflict with another mod at the same place are replaced with compatible ones (wrap instead of redirect, no capture of local variables).
+- **Spawn point** (0.0.32): the search is replaced only in worlds with a ReTerraForged preset; other worlds keep vanilla's.
+- **Darker Depths and Deeper Darker** (0.0.32): with either installed, TerraBlender's diagnostic counters ran on every biome pick and wrote lines to the log. They run only with `-Drtf.tbdiag=true` now.
+
 ## Testing
 
 Every release is checked on all 10 Minecraft versions and both loaders before it is published. The tests are part
@@ -700,6 +822,15 @@ Raw output of spark (26.3, ReTerraForged):
 
 </details>
 
+### 0.0.32, 1.21.1
+
+- Dedicated NeoForge and Fabric servers: self test 41 of 41 on both loaders; the worlds of the two loaders match; the chunk fingerprint matches 0.0.31.
+- C2ME: the self test passes.
+- Biomes O' Plenty with Regions Unexplored: 89 of 121 biome kinds, as in 0.0.31.
+- A tile that fails to generate stops the server by itself.
+- A world made by the previous release, opened with this build, gives the same terrain (CI).
+- 98 unit tests (was 45).
+
 ### Results of 0.0.13
 
 | Minecraft | Self test, NeoForge | Self test, Fabric | Structure test | Click test, NeoForge | Click test, Fabric |
@@ -854,6 +985,19 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 перекрашивают поверхность гор, например William Wythers' Overhauled Overworld, камень крутых склонов выходил
 квадратами и полосами по чанкам.
 
+**Прочие исправления, 0.0.32**:
+- **Болотные низины в климате другого региона** ([#42](https://github.com/Vladeezyy/reterraforged/issues/42), возможная причина): участок мира мог получить болотную низину и климат другого региона, например целые чанки болота посреди пустыни. Идентификаторы регионов повторяются, а кэш каждого потока генерации искал регион только по идентификатору. Зависело от порядка работы потоков и пропадало при пересоздании мира. Воспроизведением не подтверждено, поэтому причина не доказана.
+- **Скорость генерации при том же мире:** кэш на каждый поток (16 столбцов болот и 64 ячейки рельефа вместо одной записи), округлённая высота столбца считается раз на столбец чанка, тайлы создаются вне общей блокировки, шаг фич не ждёт тайл, шаблоны деревьев читаются без общей блокировки на каждое дерево, а дерево проверяет структуры только своего чанка. Мир остаётся блок в блок тем же: отпечатки чанков пресета Default и пресета с «Болотными низинами» и «Болотами в низинах» дают те же 4501 строку, что и в 0.0.31. Замеров скорости пока нет.
+- **Выход из мира** отменяет его незаконченные тайлы, поэтому они не задерживают первый тайл следующего мира.
+- **Деревья из саженцев не заменяют блоки под корнями** (стекло, воду, цветы, саженцы, рельсы). Касалось шаблонов деревьев из датапаков, у которых на нижнем слое есть блоки в стороне от ствола; встроенные деревья мода не затронуты.
+- **Шум в датапаках:** число октав и ступеней террасы ограничено (огромное или отрицательное значение вешало или роняло генерацию); селектор пластов меньше 0 больше не роняет игру; тип `simplex_ridge` можно записать.
+- **Другие моды:** инъекции, которые конфликтовали бы с другим модом в том же месте, заменены на совместимые (wrap вместо redirect, без захвата локальных переменных), поля миксинов уникальны, а поиск точки спавна подменяется только в мирах с пресетом (в остальных ванильный). TerraBlender объявлен необязательной зависимостью. Диагностические счётчики TerraBlender, которые при установленных Darker Depths или Deeper Darker работали на каждом выборе биома и писали строки в лог, теперь включаются только с `-Drtf.tbdiag=true`.
+- **«Снеговая линия по высоте мира»** действует только в измерении, которое строит пресет: раньше масштаб был один на всю игру, и снег и лёд сдвигались и в измерениях других модов.
+- **Размер тайла хранится в мире** (`reterraforged/generation.json` в папке мира): раньше смена `tileSize` в `performance.conf` или другом конфиге на сервере давала швы эрозии между старыми и новыми чанками. Теперь конфиг действует на новые миры.
+- **Экран пресета:** экспорт датапака идёт не в потоке рендера, поэтому «Создать мир», «Готово» и «Экспорт в датапак» больше не замораживают игру (на время экспорта показывается ванильный экран подготовки). Устаревший расчёт превью останавливается. Пять подсказок снова описывают свои настройки («Эрозия обычным камнем», две дистанции озёр, «Горные биомы» и «Вулканические биомы»): их тексты из 0.0.21 были потеряны во всех 11 языках.
+- **Версия генерации 1, только для новых миров** (миры, созданные раньше, сохраняют каждый блок; пресет из библиотеки игрока получает её при создании нового мира; включается вместе с «Исправлениями генерации»): под реками и озёрами строятся глубокие структуры (крепости, древние города, испытательные камеры: раньше правило структур отказывало им на любой глубине, поэтому крепостей было меньше, а око Эндера пропускало их точку); пласты горных пород зависят от сида мира (раньше были одинаковыми во всех мирах); 64-битный сид даёт свой рельеф (раньше учитывались только младшие 32 бита; сиды, которые помещаются в 32 бита, включая все текстовые, дают тот же рельеф, что и раньше).
+- **Сборка:** версии Loom и плагина Architectury закреплены (не снапшоты); токен CI только читает.
+
 **Прочие исправления, 0.0.31**:
 - **Эрозия не трогает поверхностные блоки других модов** ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)): тег размываемых блоков перечисляет земляные блоки ванили по именам, а не весь тег земли. Chalk Cliffs из Regions Unexplored держали 29,1 % мелового травяного блока (было 11,2 %, при 18,3 % породы пластов). Датапак может добавить блок мода в тег. Существующий мир сохраняет тег из датапака своего пресета, поэтому исправление действует в новых мирах.
 - **Горизонтальный масштаб островов** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)) больше не работает наоборот. **Крутые берега** получают климат каменистого берега, поэтому песок пляжа не выходит на склоны гор ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)), а Chalk Cliffs из Regions Unexplored генерируются ([#40](https://github.com/Vladeezyy/reterraforged/issues/40)).
@@ -907,16 +1051,120 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 ## Известные ограничения
 
 - **Далеко от центра** (за 16,7 млн блоков, 2^24) координаты рельефа теряют точность, и земля идёт ступенями по 2 блока. Сбоев и дыр нет. Исправление
-  изменило бы шум всех миров.
-- **Сиды:** рельеф использует младшие 32 бита сида, поэтому у сидов `x` и `x + 2^32` почти одинаковый рельеф (99 % высот). Учёт старших битов изменил
-  бы все миры с 64-битным сидом.
+  изменило бы шум всех миров. Координаты считаются во float, как в оригинальном ReTerraForged, а искажения шума грубеют уже около 8 млн блоков:
+  держите границу мира не дальше 8 млн блоков (`/worldborder`).
+- **Сиды:** в мирах, созданных без версии генерации 1, рельеф использует младшие 32 бита сида, поэтому у сидов `x` и `x + 2^32` там почти
+  одинаковый рельеф (99 % высот). Версия генерации 1 (новые миры с «Исправлениями генерации») использует весь 64-битный сид. Переход старых
+  миров на старшие биты изменил бы рельеф всех миров с 64-битным сидом.
 - **`tileSize` в `performance.conf`** меняет и часть блоков поверхности (различия есть в 7–11 % поверхностных чанков), потому что эрозия считается по
-  тайлам. Держите одно значение всю жизнь мира и одно на всех машинах модпака. Больше 5 обрезается до 5: для 8 требовалось около 9 ГБ.
+  тайлам. Мир хранит размер тайла, с которым создан (`reterraforged/generation.json`), а конфиг действует на новые миры. Держите одно значение
+  на всех машинах модпака. Больше 5 обрезается до 5: для 8 требовалось около 9 ГБ.
 - **«Болота в низинах» с модами биомов:** болота идут туда, где рельеф низкий, в основном в долины рек, потому что настройка не меняет форму суши. С
   Biomes O' Plenty и Terralith при 12 / 12 они занимают около 10 % суши, и широких среди них только около 3 %. Широкие болота даёт настройка «Болотные низины» (см.
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
+- **Шахты под руслами рек у уровня моря** по-прежнему не строятся: точка старта выше порога глубины.
+- **Поверхность у пляжей и на склонах** местами берёт биом без учёта эрозии тайла, как в оригинале. Не исправлено.
 
 ## Проблемы и исправления подробно
+
+<details>
+<summary><b>Болотные низины: климат другого региона</b> (0.0.32, возможная причина <a href="https://github.com/Vladeezyy/reterraforged/issues/42">#42</a>)</summary>
+
+**Проблема.** Участок мира мог получить болотную низину и климат другого региона: например, целые чанки болота посреди пустыни. Зависело от порядка работы потоков и пропадало при пересоздании мира.
+
+**Причина.** Идентификаторы регионов повторяются от региона к региону, а кэш каждого потока генерации искал регион только по идентификатору.
+
+**Исправление.** Исправлено в 0.0.32. Воспроизведением причина не подтверждена, поэтому это возможная причина #42, а не доказанная.
+
+</details>
+
+<details>
+<summary><b>Крепости под реками и озёрами</b> (0.0.32, версия генерации 1)</summary>
+
+**Проблема.** Под реками и озёрами не строились крепости, древние города и испытательные камеры на любой глубине. Крепостей было меньше, а око Эндера пропускало их точку.
+
+**Причина.** Правило структур отказывало глубоким структурам на любой глубине.
+
+**Исправление.** Версия генерации 1 строит их под реками и озёрами. Действует только в новых мирах: мир, созданный раньше, сохраняет каждый блок. Её пласты горных пород тоже зависят от сида (см. ниже).
+
+</details>
+
+<details>
+<summary><b>Пласты пород и 64-битные сиды</b> (0.0.32, версия генерации 1)</summary>
+
+**Проблема.** Пласты горных пород были одинаковыми во всех мирах. Рельеф 64-битного сида использовал только младшие 32 бита, поэтому у сидов `x` и `x + 2^32` рельеф был почти одинаковым.
+
+**Причина.** Пласты не зависели от сида, а рельеф читал только младшие 32 бита сида.
+
+**Исправление.** В версии генерации 1 (новые миры) пласты следуют за сидом, а 64-битный сид даёт свой рельеф. Сиды, которые помещаются в 32 бита, включая все текстовые, дают тот же рельеф, что и раньше.
+
+</details>
+
+<details>
+<summary><b>tileSize: швы после смены конфига</b> (0.0.32)</summary>
+
+**Проблема.** Смена `tileSize` в `performance.conf` (или другого конфига на сервере) давала швы эрозии между чанками, созданными до и после смены.
+
+**Причина.** Мир не хранил размер тайла, с которым был создан.
+
+**Исправление.** Размер тайла хранится в `reterraforged/generation.json` в папке мира. Конфиг действует на новые миры.
+
+</details>
+
+<details>
+<summary><b>Шум в датапаке: огромные значения вешали генерацию</b> (0.0.32)</summary>
+
+**Проблема.** Датапак с огромным или отрицательным числом октав или ступеней террасы вешал или ронял генерацию. Селектор пластов меньше 0 ронял игру.
+
+**Причина.** Значения не ограничивались.
+
+**Исправление.** Число октав и ступеней террасы ограничено. Селектор пластов меньше 0 больше не роняет игру, а тип `simplex_ridge` можно записать.
+
+</details>
+
+<details>
+<summary><b>Деревья из саженцев заменяли блоки под корнями</b> (0.0.32)</summary>
+
+**Проблема.** Дерево, выросшее из саженца, заменяло блоки под корнями (стекло, воду, цветы, саженцы, рельсы). Так бывало с шаблонами деревьев из датапаков, у которых на нижнем слое есть блоки в стороне от ствола.
+
+**Причина.** На нижнем слое таких шаблонов есть блоки рядом со стволом, и дерево их заменяло.
+
+**Исправление.** Дерево больше не заменяет блоки под корнями. Встроенные деревья мода не затрагивались.
+
+</details>
+
+<details>
+<summary><b>Миксины других модов</b> (0.0.32)</summary>
+
+**Проблема.** Некоторые инъекции конфликтовали бы с инъекциями другого мода в том же месте.
+
+**Причина.** Redirect и захват локальных переменных.
+
+**Исправление.** Вместо redirect используется wrap, локальные переменные не захватываются, поля миксинов уникальны.
+
+</details>
+
+<details>
+<summary><b>«Снеговая линия по высоте мира» в других измерениях</b> (0.0.32)</summary>
+
+**Проблема.** Снеговая линия сдвигалась и в измерениях других модов: там сдвигались снег и лёд.
+
+**Причина.** Настройка имела один масштаб на всю игру.
+
+**Исправление.** Масштаб действует только в измерении, которое строит пресет.
+
+</details>
+
+<details>
+<summary><b>Экран пресета: игра замирала при создании мира и экспорте</b> (0.0.32)</summary>
+
+**Проблема.** При открытии «Создать мир», «Готово» или «Экспорт в датапак» игра замирала.
+
+**Причина.** Датапак экспортировался в потоке рендера.
+
+**Исправление.** Экспорт идёт вне потока рендера, на время экспорта показывается ванильный экран подготовки. Устаревший расчёт превью останавливается.
+
+</details>
 
 <details>
 <summary><b>Швы по границам чанков на склонах</b> (0.0.17, <a href="https://github.com/Vladeezyy/reterraforged/issues/2">#2</a>)</summary>
@@ -1246,7 +1494,12 @@ y 0, так что рельеф не меняется. Чанки, создан�
   ModernFix-mVUS 5.27.19). **Модуль OpenCL** у C2ME (C2ME OpenCL Acceleration) ускоряет только ванильный рельеф: с
   0.0.24 мир ReTerraForged откатывается сам, обычный мир генерируется на процессоре (C2ME всё равно распараллеливает
   генерацию), а Незер и Энд остаются на видеокарте. С 0.0.23 поставьте `allowIncompatibilityFallback = true` в разделе
-  `[openclAccel]` уже созданного `config/c2me.toml` (файл, написанный с нуля без `version = 3`, C2ME сбрасывает).
+  `[openclAccel]` уже созданного `config/c2me.toml` (файл, написанный с нуля без `version = 3`, C2ME сбрасывает). На 1.21.1 (0.0.32) самотест с C2ME проходит.
+- **TerraBlender** с 0.0.32 необязательная зависимость: мод запускается без неё, миры без неё не меняются.
+- **Миксины других модов** (0.0.32): инъекции, которые конфликтовали бы с другим модом в том же месте, заменены на совместимые (wrap вместо redirect, без захвата локальных переменных).
+- **Точка спавна** (0.0.32): поиск подменяется только в мирах с пресетом ReTerraForged; в остальных мирах ванильный.
+- **Darker Depths и Deeper Darker** (0.0.32): при их установке диагностические счётчики TerraBlender работали на каждом выборе биома и писали строки в лог. Теперь только с `-Drtf.tbdiag=true`.
+
 ## Проверка
 
 Каждый релиз перед публикацией проверяется на всех 10 версиях Minecraft и обоих загрузчиках. Тесты встроены в мод
@@ -1407,6 +1660,15 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 | ReTerraForged `ITerrain$Delegate.erosionModifier` | 4.5 % в 0.0.12, убран в 0.0.13 | – |
 
 </details>
+
+### 0.0.32, 1.21.1
+
+- Выделенные серверы NeoForge и Fabric: самотест 41 из 41 на обоих загрузчиках; миры двух загрузчиков совпадают; отпечаток чанков совпадает с 0.0.31.
+- C2ME: самотест проходит.
+- Biomes O' Plenty с Regions Unexplored: 89 из 121 вида биомов, как в 0.0.31.
+- Отказ генерации тайла: сервер завершается сам.
+- Мир прошлого релиза, открытый этой сборкой, даёт тот же рельеф (CI).
+- Юнит-тестов 98 (было 45).
 
 ### Результаты 0.0.13
 
