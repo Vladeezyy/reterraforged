@@ -33,7 +33,7 @@
   },
   "accessWidener": "reterraforged.accesswidener",
   "suggests": {
-    "terrablender": ">=26.1.2.0.3"
+    "terrablender": ">=26.2.0.0"
   },
   "mixins": [
     "reterraforged-common.mixins.json",
