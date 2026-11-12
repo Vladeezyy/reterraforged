@@ -85,7 +85,7 @@ The mod only affects new worlds created with its preset. It does not change an e
   are above the water, and their horizontal scale changes only their terrain, not their outline. Swamp floors no longer repeat from chunk to chunk.
   Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates, and reaches the mixed terrains it used to leave
   out, most of the terrain regions. It now also reaches dry and cold lowland, where Terralith keeps Orchid Swamp and Ice Marsh. The Infinite continent type has land. Another mod's
-  dimension on the overworld's noise settings gets terrain instead of a flat sea.
+  dimension on the overworld's noise settings gets terrain instead of a flat sea. In new worlds it also turns on generation version 1: deep structures under rivers and lakes, rock strata that follow the world's seed, and the full 64-bit seed. Worlds made before do not change.
 - **Lowland Swamps and Highest Swamps** (0.0.29, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): wet,
   flat lowlands can get wide swamps (off by default), and a swamp biome too high above the sea is picked again (12 blocks in
   new presets), which keeps Terralith's swamps off the hills.
@@ -146,7 +146,7 @@ squares and stripes.
 
 **Other fixes, 0.0.32**:
 - **Swamp Basins in another region's climate** ([#42](https://github.com/Vladeezyy/reterraforged/issues/42), a possible cause): a piece of the world could get the swamp basin and the climate of another region, as whole chunks of swamp in the middle of a desert, for example. Region ids repeat, and the cache of each generation thread looked a region up by its id alone. It depended on the order of the threads and was gone when the world was made again. Not reproduced, so the cause is not proven.
-- **Generation speed, the same world:** a cache of 16 swamp columns and 64 terrain cells per thread instead of one entry, a column's rounded height computed once per chunk column, tiles made outside the shared lock, the feature step no longer waiting for a tile, tree templates read without a shared lock per tree, and a tree checking the structures of its own chunk only. The world stays block for block the same as in 0.0.31: the chunk fingerprints of the Default preset and of the preset with Swamp Basins and Lowland Swamps are the same 4501 lines as in 0.0.31. No speed figures yet.
+- **Generation speed, the same world:** a cache of 16 swamp columns and 64 terrain cells per thread instead of one entry, a column's rounded height computed once per chunk column, tiles made outside the shared lock, the feature step no longer waiting for a tile, tree templates read without a shared lock per tree, and a tree checking the structures of its own chunk only. The world stays block for block the same as in 0.0.31: the chunk fingerprints of the Default preset and of the preset with Swamp Basins and Lowland Swamps are the same 4501 lines as in 0.0.31. Measured in Testing: a few percent faster, nothing a player would notice.
 - **Leaving a world cancels its unfinished tiles**, so they do not delay the first tile of the next world.
 - **Trees from saplings keep the blocks under their roots** (glass, water, flowers, saplings, rails). It touched tree templates from datapacks with blocks beside the trunk on the bottom layer; the mod's built-in trees are not affected.
 - **Noise in datapacks:** the number of octaves and terrace steps is limited (a huge or negative value hung or crashed generation); a strata selector below 0 no longer crashes the game; the `simplex_ridge` type can be written.
@@ -322,6 +322,14 @@ from files are held to valid values, and a broken file in the presets folder no 
 **Cause.** The datapack was exported on the render thread.
 
 **Fix.** The export runs off the render thread, and the vanilla loading screen shows while it runs. A stale preview calculation is stopped.
+
+</details>
+
+<details>
+<summary><b>Differences between versions</b> (0.0.32)</summary>
+
+- **1.21.5 and newer:** a tree grown from a sapling takes the small flower under its roots, as vanilla trees do: the `#replaceable_by_trees` tag includes `#small_flowers` there.
+- **26.3:** the column height cache is not needed and is not ported: the engine computes such functions once per column itself.
 
 </details>
 
@@ -669,10 +677,10 @@ Every release is checked on all 10 Minecraft versions and both loaders before it
 of the mod (`rtf` commands, enabled only in test runs) and of the repository (`tools/*.sh`), so anyone can repeat them.
 
 <details>
-<summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 18 checks</summary>
+<summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 42 checks</summary>
 
 A real dedicated NeoForge or Fabric server is installed, the preset datapack is exported, a new world is created with
-the "Default" preset and `rtf selftest` runs in it. Output of 1.21.11 NeoForge:
+the "Default" preset and `rtf selftest` runs in it. Output of 1.21.11 NeoForge (the list below is not complete: it shows 18 of the 42 checks):
 
 ```
 [RTF selftest] ok   overworld uses the ReTerraForged generator
@@ -782,6 +790,8 @@ On 1.21.1 ReTerraForged is about 9 % slower than vanilla. The mod computes a who
 | 26.3 vanilla | 4096 | 15.5 s | 264.0 | 3.8 ms | 1101 MB |
 | 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 s | 270.1 | 3.7 ms | 1165 MB |
 
+**Generation speed, 0.0.32** (1.21.1 NeoForge, 1024 chunks on 16 cores, the builds alternated; ms per chunk): the Default preset 15.2 in 0.0.31 against 14.8 in 0.0.32 (−2.6 %, within the spread of the runs); the preset with Swamp Basins and Lowland Swamps 15.3 against 14.6 (−4.6 %); vanilla on the same machine 13.4. A 4-core server: no change (25.1 against 25.4 on average over 5 runs, spread 2 ms). The generation is a few percent faster, nothing a player would notice, and the world stays block for block the same.
+
 **Tile cache, 0.0.30.** A tile used to be thrown out after its 64th chunk, and the neighbours made it again: 47 % of the tiles in `rtf bench 96` were
 made twice. Now none are: at 2 GB 53.1 chunks/s against 44.6 (heap peak 1615 MB against 1664), at 3 GB 60.2 against 58.8 (1786 MB against 2575). `rtf bench 32` at
 3 GB, four runs each in turns: 54.2 chunks/s against 50.6, within the noise of a run that short. Vanilla in the same conditions: 61.0 chunks/s, ReTerraForged 55.7
@@ -822,14 +832,30 @@ Raw output of spark (26.3, ReTerraForged):
 
 </details>
 
-### 0.0.32, 1.21.1
+### 0.0.32, five versions
 
-- Dedicated NeoForge and Fabric servers: self test 41 of 41 on both loaders; the worlds of the two loaders match; the chunk fingerprint matches 0.0.31.
-- C2ME: the self test passes.
-- Biomes O' Plenty with Regions Unexplored: 89 of 121 biome kinds, as in 0.0.31.
-- A tile that fails to generate stops the server by itself.
-- A world made by the previous release, opened with this build, gives the same terrain (CI).
-- 98 unit tests (was 45).
+On 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3, NeoForge and Fabric, on real dedicated servers:
+
+- **Self test:** 42 checks pass on each version and loader (on 1.21.1 with the biome mods: 41).
+- **Structures:** checked on each version and loader.
+- **Two loaders:** the worlds of NeoForge and Fabric match in heights and biomes.
+- **Fingerprint against 0.0.31:** a preset from 0.0.31 on this build gives the same surface and heights. All 4501 lines match on 1.21.1, 1.21.11 and 26.2. On 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ: there the features cross the chunk border and depend on the order in which the neighbours are generated.
+- **New reference:** the new fingerprint reference differs from the old one only in the rock strata; all 4225 height and biome lines match on each version.
+- **Biomes O' Plenty with TerraBlender** (NeoForge): the self test and the biome kinds of the mods pass.
+- **A tile that fails to generate:** the server stops by itself, in 47–48 s.
+- **Client GUI test** in Russian on both loaders: 31 screenshots, including the five restored hints.
+- **Unit tests:** 98 on every version except 26.3 (92).
+
+Only on 1.21.1:
+
+- **C2ME** on NeoForge and on Fabric (with ModernFix on Fabric): the self test passes.
+- **Biomes O' Plenty with Regions Unexplored** on NeoForge: 89 of 121 biome kinds, as in 0.0.31.
+- **Stress test:** 467 preset variants, no failures.
+- **GUI test** in English.
+- **A world made by 0.0.31** opened by this build gives the same terrain (CI).
+
+Not checked: Biomes O' Plenty with Regions Unexplored on Fabric 1.21.1. Lithostitched 1.8.1 does not load with Fabric Loader 0.18.3, and Regions Unexplored 0.6.3 needs Fabric Loader 0.17 or newer.
+
 
 ### Results of 0.0.13
 
@@ -927,7 +953,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
   рельеф. В новых пресетах включены, в сохранённых раньше выключены, поэтому существующие миры не меняются. Острова разные у разных сидов, их пляжи
   над водой, горизонтальный масштаб меняет только их рельеф, а не очертания. Дно болот не повторяется от чанка к чанку. «Болота в низинах»
   подбирают и те болота, которые моды биомов вроде Terralith держат в другом климате, и доходят до смешанных областей рельефа, которые раньше пропускали, а это большинство областей. Теперь «Болота в низинах» доходят и до сухих и холодных низин, где Terralith держит Orchid Swamp и Ice Marsh. У типа материков «Бесконечный» появляется суша. Измерение
-  другого мода на шуме верхнего мира получает рельеф вместо ровного моря.
+  другого мода на шуме верхнего мира получает рельеф вместо ровного моря. В новых мирах оно также включает версию генерации 1: глубокие структуры под реками и озёрами, пласты камня по сиду мира и полный 64-битный сид. Миры, созданные раньше, не меняются.
 - **Болота в низинах и Самые высокие болота** (0.0.29, страница «Климат», [#28](https://github.com/Vladeezyy/reterraforged/issues/28)):
   на влажных ровных низинах могут появляться широкие болота (по умолчанию выключено), а болотный биом слишком высоко над морем
   выбирается заново (12 блоков в новых пресетах), поэтому болота Terralith не забираются на холмы.
@@ -987,7 +1013,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 **Прочие исправления, 0.0.32**:
 - **Болотные низины в климате другого региона** ([#42](https://github.com/Vladeezyy/reterraforged/issues/42), возможная причина): участок мира мог получить болотную низину и климат другого региона, например целые чанки болота посреди пустыни. Идентификаторы регионов повторяются, а кэш каждого потока генерации искал регион только по идентификатору. Зависело от порядка работы потоков и пропадало при пересоздании мира. Воспроизведением не подтверждено, поэтому причина не доказана.
-- **Скорость генерации при том же мире:** кэш на каждый поток (16 столбцов болот и 64 ячейки рельефа вместо одной записи), округлённая высота столбца считается раз на столбец чанка, тайлы создаются вне общей блокировки, шаг фич не ждёт тайл, шаблоны деревьев читаются без общей блокировки на каждое дерево, а дерево проверяет структуры только своего чанка. Мир остаётся блок в блок тем же: отпечатки чанков пресета Default и пресета с «Болотными низинами» и «Болотами в низинах» дают те же 4501 строку, что и в 0.0.31. Замеров скорости пока нет.
+- **Скорость генерации при том же мире:** кэш на каждый поток (16 столбцов болот и 64 ячейки рельефа вместо одной записи), округлённая высота столбца считается раз на столбец чанка, тайлы создаются вне общей блокировки, шаг фич не ждёт тайл, шаблоны деревьев читаются без общей блокировки на каждое дерево, а дерево проверяет структуры только своего чанка. Мир остаётся блок в блок тем же: отпечатки чанков пресета Default и пресета с «Болотными низинами» и «Болотами в низинах» дают те же 4501 строку, что и в 0.0.31. Замеры в разделе «Проверка»: на несколько процентов быстрее, заметного игроку ускорения нет.
 - **Выход из мира** отменяет его незаконченные тайлы, поэтому они не задерживают первый тайл следующего мира.
 - **Деревья из саженцев не заменяют блоки под корнями** (стекло, воду, цветы, саженцы, рельсы). Касалось шаблонов деревьев из датапаков, у которых на нижнем слое есть блоки в стороне от ствола; встроенные деревья мода не затронуты.
 - **Шум в датапаках:** число октав и ступеней террасы ограничено (огромное или отрицательное значение вешало или роняло генерацию); селектор пластов меньше 0 больше не роняет игру; тип `simplex_ridge` можно записать.
@@ -1163,6 +1189,14 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 **Причина.** Датапак экспортировался в потоке рендера.
 
 **Исправление.** Экспорт идёт вне потока рендера, на время экспорта показывается ванильный экран подготовки. Устаревший расчёт превью останавливается.
+
+</details>
+
+<details>
+<summary><b>Различия между версиями</b> (0.0.32)</summary>
+
+- **1.21.5 и новее:** дерево, выросшее из саженца, забирает мелкий цветок под корнями, как ванильные деревья: тег `#replaceable_by_trees` там включает `#small_flowers`.
+- **26.3:** кэш высоты столбца не нужен и не перенесён: движок сам считает такие функции раз на столбец.
 
 </details>
 
@@ -1507,10 +1541,10 @@ y 0, так что рельеф не меняется. Чанки, создан�
 повторить кто угодно.
 
 <details>
-<summary><b>1. Самопроверка на сервере</b>: <code>tools/servertest.sh</code>, 18 пунктов</summary>
+<summary><b>1. Самопроверка на сервере</b>: <code>tools/servertest.sh</code>, 42 пункта</summary>
 
 Ставится настоящий выделенный сервер NeoForge или Fabric, экспортируется датапак пресета, создаётся новый мир с
-пресетом «По умолчанию», и в нём запускается `rtf selftest`. Вывод на 1.21.11 NeoForge:
+пресетом «По умолчанию», и в нём запускается `rtf selftest`. Вывод на 1.21.11 NeoForge (список ниже неполный: он показывает 18 из 42 проверок):
 
 ```
 [RTF selftest] ok   overworld uses the ReTerraForged generator
@@ -1621,6 +1655,8 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 | 26.3 ваниль | 4096 | 15.5 с | 264.0 | 3.8 мс | 1101 МБ |
 | 26.3 ReTerraForged 0.0.13 | 4096 | 15.2 с | 270.1 | 3.7 мс | 1165 МБ |
 
+**Скорость генерации, 0.0.32** (1.21.1 NeoForge, 1024 чанка на 16 ядрах, сборки чередовались; мс на чанк): Default — 15,2 в 0.0.31 против 14,8 в 0.0.32 (−2,6 %, разница в пределах разброса прогонов); пресет с «Болотными низинами» и «Болотами в низинах» — 15,3 против 14,6 (−4,6 %); ваниль на той же машине — 13,4. Сервер с 4 ядрами: без изменений (в среднем по 5 прогонам 25,1 против 25,4, разброс 2 мс). Генерация стала быстрее на несколько процентов, заметного игроку ускорения нет, мир тот же блок в блок.
+
 **Кэш тайлов, 0.0.30.** Раньше тайл выбрасывался после 64-го чанка, и соседи считали его заново: в `rtf bench 96` 47 % тайлов считались дважды. Теперь таких нет: при
 2 ГБ 53,1 чанка/с против 44,6 (пик кучи 1615 МБ против 1664), при 3 ГБ 60,2 против 58,8 (1786 МБ против 2575). `rtf bench 32` при 3 ГБ, по четыре прогона по очереди: 54,2
 чанка/с против 50,6, в пределах шума такого короткого прогона. Ваниль в тех же условиях: 61,0 чанка/с, ReTerraForged 55,7 (TPS за минуту 17,76 и 17,74, медиана тика 5,3 и
@@ -1661,14 +1697,30 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 
 </details>
 
-### 0.0.32, 1.21.1
+### 0.0.32, пять версий
 
-- Выделенные серверы NeoForge и Fabric: самотест 41 из 41 на обоих загрузчиках; миры двух загрузчиков совпадают; отпечаток чанков совпадает с 0.0.31.
-- C2ME: самотест проходит.
-- Biomes O' Plenty с Regions Unexplored: 89 из 121 вида биомов, как в 0.0.31.
-- Отказ генерации тайла: сервер завершается сам.
-- Мир прошлого релиза, открытый этой сборкой, даёт тот же рельеф (CI).
-- Юнит-тестов 98 (было 45).
+На 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3, NeoForge и Fabric, на настоящих выделенных серверах:
+
+- **Самотест:** 42 проверки проходят на каждой версии и загрузчике (на 1.21.1 с модами биомов: 41).
+- **Структуры:** проверены на каждой версии и загрузчике.
+- **Два загрузчика:** миры NeoForge и Fabric совпадают по высотам и биомам.
+- **Отпечаток относительно 0.0.31:** пресет из 0.0.31 на этой сборке даёт ту же поверхность и высоты. Все 4501 строка совпадают на 1.21.1, 1.21.11 и 26.2. На 26.1.2 и 26.3 отличаются 1 и 4 полных чанка из 96: там фичи пересекают границу чанка и зависят от порядка генерации соседей.
+- **Новый эталон:** новый эталон отпечатков отличается от старого только пластами камня; все 4225 строк высот и биомов совпадают на каждой версии.
+- **Biomes O' Plenty с TerraBlender** (NeoForge): самотест и биомы модов проходят.
+- **Отказ генерации тайла:** сервер завершается сам, за 47–48 с.
+- **GUI-тест клиента** на русском на обоих загрузчиках: 31 скриншот, включая пять восстановленных подсказок.
+- **Юнит-тесты:** 98 на каждой версии, кроме 26.3 (92).
+
+Только на 1.21.1:
+
+- **C2ME** на NeoForge и на Fabric (на Fabric вместе с ModernFix): самотест проходит.
+- **Biomes O' Plenty с Regions Unexplored** на NeoForge: 89 из 121 вида биомов, как в 0.0.31.
+- **Стресс-тест:** 467 вариантов пресета, без сбоев.
+- **GUI-тест** на английском.
+- **Мир, созданный 0.0.31,** открытый этой сборкой, даёт тот же рельеф (CI).
+
+Не проверено: Biomes O' Plenty с Regions Unexplored на Fabric 1.21.1. Lithostitched 1.8.1 не грузится с Fabric Loader 0.18.3, а Regions Unexplored 0.6.3 требует Fabric Loader 0.17 или новее.
+
 
 ### Результаты 0.0.13
 
