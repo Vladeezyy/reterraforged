@@ -116,6 +116,64 @@ public final class RTFWorldChecks {
 		deepslate(overworld, check);
 		swampTrees(overworld, check);
 		warmRainforestOceans(overworld, check);
+		farColumns(overworld, check);
+	}
+
+	// Past 2^24 blocks a float holds only the even coordinates (FarColumns). Generation version 1: an odd column's height is
+	// between its neighbours', a tile's (without erosion and smoothing) the same as the lookup's; an older world: a
+	// neighbour's, as before. Nearer: the cell of the float coordinates, bit for bit. Cells and one tile, no chunks
+	private static void farColumns(ServerLevel level, BiConsumer<String, Boolean> check) {
+		if (!((Object) level.getChunkSource().randomState() instanceof RTFRandomState s) || s.preset() == null || s.generatorContext() == null) return;
+		var ctx = s.generatorContext();
+		var lookup = ctx.lookup;
+		boolean fixed = s.preset().world().properties.fixes(1);
+		raccoonman.reterraforged.world.worldgen.cell.Cell low = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+		raccoonman.reterraforged.world.worldgen.cell.Cell mid = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+		raccoonman.reterraforged.world.worldgen.cell.Cell high = new raccoonman.reterraforged.world.worldgen.cell.Cell();
+		int differ = 0, between = 0, stepped = 0;
+		for (int i = 0; i < 192; i++) {
+			// along x and along z in turn, over 200 000 blocks of terrain; both even, then the odd column between them
+			int along = 20_000_000 + i * 1046, across = i * 734;
+			boolean onZ = (i & 1) == 1;
+			int x = onZ ? across : along, z = onZ ? along : across, dx = onZ ? 0 : 1, dz = onZ ? 1 : 0;
+			lookup.applyCell(low.reset(), x, z, false);
+			lookup.applyCell(mid.reset(), x + dx, z + dz, false);
+			lookup.applyCell(high.reset(), x + 2 * dx, z + 2 * dz, false);
+			if (low.height == high.height) continue;
+			differ++;
+			if (Math.min(low.height, high.height) < mid.height && mid.height < Math.max(low.height, high.height)) between++;
+			if (mid.height == low.height || mid.height == high.height) stepped++;
+		}
+		String far = "the columns past 2^24 blocks (generation version " + (fixed ? "1" : "0") + "): of " + differ + " odd columns " + between + " between their neighbours, " + stepped + " a neighbour's";
+		check.accept(far, differ >= 20 && (fixed ? between >= differ * 0.95 : stepped == differ));
+		// nearer than 2^24: the float coordinates' cell, as before
+		int near = 0, same = 0;
+		for (int x = (1 << 24) - 64; x <= 1 << 24; x += 7) {
+			int z = -(1 << 24) + 3 * (x & 15);
+			lookup.applyCell(low.reset(), x, z, false);
+			ctx.generator.getHeightmap().apply(mid.reset(), (float) x, (float) z, false);
+			near++;
+			if (Float.floatToIntBits(low.height) == Float.floatToIntBits(mid.height)) same++;
+		}
+		check.accept("the columns nearer than 2^24 blocks are as before (" + same + "/" + near + ")", same == near);
+		if (!fixed) return;
+		// a tile past the line without erosion and smoothing: the heights of the lookup, odd columns too
+		int matched = 0, cells = 0;
+		try {
+			float centerX = 20_000_512.0F, centerZ = -20_000_512.0F;
+			raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile tile = ctx.generator.generateZoomed(centerX, centerZ, 1.0F, false).get(120, java.util.concurrent.TimeUnit.SECONDS);
+			int offsetX = (int) (centerX - tile.getBlockSize().size() / 2.0F), offsetZ = (int) (centerZ - tile.getBlockSize().size() / 2.0F);
+			int c = tile.getChunksSize().total() / 2;
+			raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile.Chunk chunk = tile.getChunkWriter(c, c);
+			for (int dz = 0; dz < 16; dz++) for (int dx = 0; dx < 16; dx++) {
+				lookup.applyCell(low.reset(), chunk.getBlockX() + dx + offsetX, chunk.getBlockZ() + dz + offsetZ, false);
+				cells++;
+				if (Float.floatToIntBits(low.height) == Float.floatToIntBits(chunk.getCell(dx, dz).height)) matched++;
+			}
+		} catch (Exception e) {
+			RTFCommon.LOGGER.warn("[RTF selftest] far tile", e);
+		}
+		check.accept("a tile past 2^24 blocks has the lookup's heights (" + matched + "/" + cells + ")", cells > 0 && matched == cells);
 	}
 
 	// a preset with Warm Oceans by Rainforests (#35, tools/servertest.sh PRESET=set:climate().warmRainforestOceans=true):
