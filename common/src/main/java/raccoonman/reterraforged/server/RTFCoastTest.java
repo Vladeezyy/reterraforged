@@ -20,6 +20,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
@@ -44,7 +45,9 @@ import raccoonman.reterraforged.world.worldgen.cell.Cell;
  * (minecraft:is_beach) on a steep shore carries its sand up the slope (#38); stony shores (c:is_stony_shores) are what
  * Regions Unexplored's Chalk Cliffs replace (#40). Then 3 x 3 real chunks at a few of the steepest shores, chosen by the
  * ground alone (the same places when only the biomes change): sand on top of columns above the sea that stand on a slope,
- * by biome and by height above the sea.
+ * by biome and by height above the sea. There too the chunk's biome against the biome source's (the cell without the tile:
+ * what the erosion of older worlds reads, SurfaceBiomes): the land columns where they differ, and the sand on a slope the
+ * erosion of rock slopes takes (a beach or not c:is_sandy) by one of them and leaves by the other.
  * The vanilla world is the reference. Writes rtf-coasts-<rtf|vanilla>.txt in the server folder and prints "[RTF coasts] ...".
  */
 public final class RTFCoastTest {
@@ -55,6 +58,7 @@ public final class RTFCoastTest {
 	private static final int SPOTS = 8, SPOT_DISTANCE = 384, SPOT_NEAR = 24, SPOT_RISE = 2 * STEEP;
 	// a column on a slope: a neighbour column this many blocks higher or lower
 	private static final int SLOPE = 2;
+	private static final TagKey<Biome> SANDY = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("c", "is_sandy"));
 	private static final TagKey<Biome> STONY_SHORES = TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("c", "is_stony_shores"));
 
 	private RTFCoastTest() {
@@ -171,18 +175,24 @@ public final class RTFCoastTest {
 		}
 		List<String> lines = new ArrayList<>();
 		lines.add("# " + kind + " world, seed " + level.getSeed() + ": coast points on a grid every " + STEP + " blocks within " + RADIUS + ", steep: the ground rises " + STEEP + "+ blocks within " + NEAR);
-		int landColumns = 0, sandColumns = 0, sandSlope = 0, sandHigh = 0;
+		int landColumns = 0, sandColumns = 0, sandSlope = 0, sandHigh = 0, differs = 0, erodedByChunk = 0, erodedBySource = 0;
 		Map<String, Integer> slopeBiomes = new HashMap<>();
+		// the biome source's at the same blocks, with the zoom of the level's (and the regions') seed
+		BiomeManager sourceBiomes = level.getBiomeManager().withDifferentSource((x, y, z) -> source.getNoiseBiome(x, y, z, sampler));
 		for (int[] spot : spots) {
 			Map<String, Integer> here = new HashMap<>();
-			int[] r = chunks(level, spot[0] >> 4, spot[1] >> 4, sea, here);
+			int[] r = chunks(level, sourceBiomes, spot[0] >> 4, spot[1] >> 4, sea, here);
 			landColumns += r[0];
 			sandColumns += r[1];
 			sandSlope += r[2];
 			sandHigh += r[3];
+			differs += r[5];
+			erodedByChunk += r[6];
+			erodedBySource += r[7];
 			here.forEach((k, v) -> slopeBiomes.merge(k, v, Integer::sum));
-			lines.add(String.format(Locale.ROOT, "spot %d %d rise %d: land columns %d, sand %d, sand on a slope %d, sand %d+ above the sea %d, highest sand %d above the sea; sand on a slope by biome %s",
-				spot[0], spot[1], spot[2], r[0], r[1], r[2], STEEP, r[3], r[4], top(here, 6)));
+			lines.add(String.format(Locale.ROOT, "spot %d %d rise %d: land columns %d, sand %d, sand on a slope %d, sand %d+ above the sea %d, highest sand %d above the sea; sand on a slope by biome %s; "
+				+ "chunk and source biome differ %d, sand on a slope erodible by the chunk's biome only %d, by the source's only %d",
+				spot[0], spot[1], spot[2], r[0], r[1], r[2], STEEP, r[3], r[4], top(here, 6), r[5], r[6], r[7]));
 		}
 		long t3 = System.nanoTime();
 
@@ -192,20 +202,24 @@ public final class RTFCoastTest {
 		String result = String.format(Locale.ROOT,
 			"[RTF coasts] %s coast %d of %d points, above the sea %d, steep %d (%.1f%%); beach %d, on steep shores %d (%.1f%% of steep); stony shore %d (%.1f%%), steep %d, flat %d; "
 				+ "stony or chalk cliffs at temperature -0.1 to 0.2 %d, of them erosion -0.6 or less %d; chalk cliffs %d; "
-				+ "%d spots: land columns %d, sand %d, sand on a slope %d (%s), sand %d+ above the sea %d; biomes %s; %d + %d + %d ms",
+				+ "%d spots: land columns %d, sand %d, sand on a slope %d (%s), sand %d+ above the sea %d; chunk and source biome differ %d, sand on a slope erodible by the chunk's biome only %d, by the source's only %d; biomes %s; %d + %d + %d ms",
 			kind, coast.size(), samples, land, steep, pct(steep, land), beachLand, beachSteep, pct(beachSteep, steep), stonyLand, pct(stonyLand, land), stonySteep, stonyFlat, stonyWarm, stonyWarmEroded, chalk,
-			spots.size(), landColumns, sandColumns, sandSlope, top(slopeBiomes, 3), STEEP, sandHigh, top(biomes, 8), (t1 - t0) / 1_000_000, (t2 - t1) / 1_000_000, (t3 - t2) / 1_000_000);
+			spots.size(), landColumns, sandColumns, sandSlope, top(slopeBiomes, 3), STEEP, sandHigh, differs, erodedByChunk, erodedBySource, top(biomes, 8), (t1 - t0) / 1_000_000, (t2 - t1) / 1_000_000, (t3 - t2) / 1_000_000);
 		RTFCommon.LOGGER.info(result);
 		return result;
 	}
 
 	// 3 x 3 chunks around a chunk: land columns, sand on top, sand on a slope (and their biomes), sand high above the sea,
-	// the highest sand above the sea
-	private static int[] chunks(ServerLevel level, int cx, int cz, int sea, Map<String, Integer> slopeBiomes) {
+	// the highest sand above the sea; land columns whose chunk biome is not the source's, sand on a slope the rock slopes'
+	// erosion takes by the chunk's biome and not by the source's, and the other way round
+	private static int[] chunks(ServerLevel level, BiomeManager sourceBiomes, int cx, int cz, int sea, Map<String, Integer> slopeBiomes) {
 		int size = 48;
 		int[][] top = new int[size][size];
 		boolean[][] sand = new boolean[size][size];
 		String[][] biome = new String[size][size];
+		boolean[][] differs = new boolean[size][size];
+		// 1: the erosion takes sand on a rock slope by the chunk's biome only, 2: by the source's only
+		byte[][] erodes = new byte[size][size];
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for (int dx = -1; dx <= 1; dx++) {
 			for (int dz = -1; dz <= 1; dz++) {
@@ -223,17 +237,25 @@ public final class RTFCoastTest {
 						// water on top: not land
 						top[i][j] = state.getFluidState().isEmpty() ? y : Integer.MIN_VALUE;
 						sand[i][j] = state.is(BlockTags.SAND);
-						if (sand[i][j]) biome[i][j] = name(level.getBiome(pos.set(bx, y, bz)));
+						// the level's biome manager reads the chunk's biomes
+						Holder<Biome> chunkBiome = level.getBiome(pos.set(bx, y, bz)), sourceBiome = sourceBiomes.getBiome(pos);
+						differs[i][j] = !chunkBiome.equals(sourceBiome);
+						if (sand[i][j]) {
+							biome[i][j] = name(chunkBiome);
+							boolean byChunk = erodesSand(chunkBiome), bySource = erodesSand(sourceBiome);
+							erodes[i][j] = (byte) (byChunk == bySource ? 0 : byChunk ? 1 : 2);
+						}
 					}
 				}
 			}
 		}
-		int landColumns = 0, sandColumns = 0, sandSlope = 0, sandHigh = 0, highest = 0;
+		int landColumns = 0, sandColumns = 0, sandSlope = 0, sandHigh = 0, highest = 0, differ = 0, byChunk = 0, bySource = 0;
 		for (int i = 1; i < size - 1; i++) {
 			for (int j = 1; j < size - 1; j++) {
 				int y = top[i][j];
 				if (y < sea) continue;
 				landColumns++;
+				if (differs[i][j]) differ++;
 				if (!sand[i][j]) continue;
 				sandColumns++;
 				int slope = 0;
@@ -244,12 +266,19 @@ public final class RTFCoastTest {
 				if (slope >= SLOPE) {
 					sandSlope++;
 					slopeBiomes.merge(biome[i][j], 1, Integer::sum);
+					if (erodes[i][j] == 1) byChunk++;
+					if (erodes[i][j] == 2) bySource++;
 				}
 				if (y >= sea + STEEP) sandHigh++;
 				highest = Math.max(highest, y - sea);
 			}
 		}
-		return new int[] { landColumns, sandColumns, sandSlope, sandHigh, highest };
+		return new int[] { landColumns, sandColumns, sandSlope, sandHigh, highest, differ, byChunk, bySource };
+	}
+
+	// the erosion turns sand on a rock slope to rock in these biomes (ErodeFeature.erodeColumn), not in the badlands at all
+	private static boolean erodesSand(Holder<Biome> biome) {
+		return !biome.is(Biomes.BADLANDS) && !biome.is(Biomes.WOODED_BADLANDS) && (!biome.is(SANDY) || biome.is(BiomeTags.IS_BEACH));
 	}
 
 	private static boolean notGround(BlockState state) {
