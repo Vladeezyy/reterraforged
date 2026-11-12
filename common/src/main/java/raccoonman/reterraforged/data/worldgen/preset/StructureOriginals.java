@@ -56,7 +56,7 @@ public interface StructureOriginals {
 	 */
 	static StructureOriginals of(ResourceManager resources) {
 		FileToIdConverter files = FileToIdConverter.json(Registries.elementsDirPath(Registries.STRUCTURE_SET));
-		Identifier presetFile = FileToIdConverter.json(Registries.elementsDirPath(RTFRegistries.PRESET)).idToFile(Preset.KEY.identifier());
+		Identifier presetFile = PresetStructureSets.presetFile();
 		Map<ResourceKey<StructureSet>, Optional<StructureSetEntry>> read = new HashMap<>();
 		return (key) -> read.computeIfAbsent(key, (k) -> Optional.ofNullable(fromFiles(resources.getResourceStack(files.idToFile(k.identifier())), presetFile))).orElse(null);
 	}
