@@ -1,6 +1,7 @@
 #!/bin/bash
 # Stress test of the presets on a real dedicated server: tools/stresstest.sh [neoforge|fabric] [random variants|abuse|effects|curves]
-# (after tools/servertest.sh for that loader, which installs the server). Starts the server with a throwaway world
+# (after tools/servertest.sh for that loader, which installs the server; Fabric: the loader and Fabric API it installed,
+# by default gradle.properties' fabric_*_test_version). Starts the server with a throwaway world
 # and runs "rtf stress" (server/stress/RTFStressTest): every preset screen setting at both ends of its slider, every
 # built-in preset, all at minimum, all at maximum and random combinations, each through the preset codec, the
 # datapack registries of a new world, the preview and world tiles with every filter, with a time limit. Prints the

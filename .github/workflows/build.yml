@@ -1,9 +1,15 @@
-# Build on every push and pull request, then the release jars on real NeoForge and Fabric servers, both at once
+# Build on every push and pull request, then the release jars on real NeoForge and Fabric servers, at the same time
 # (tools/servertest.sh, structures left out):
-# - new: a new world with this build's preset: the self test, rtf weather;
-# - legacy: a world made by the last release for this Minecraft version, opened with this build: the same ground as a
-#   new world of that preset (worlds made before keep their terrain);
-# - parity: NeoForge and Fabric make the same world.
+# - server-test new: a new world with this build's preset: the self test, rtf weather;
+# - server-test legacy: a world made by the last release for this Minecraft version, opened with this build: the same
+#   ground as a new world of that preset (worlds made before keep their terrain);
+# - fabric-minimum: the self test on the Fabric Loader and Fabric API the mod is built against and requires (the other
+#   Fabric servers run the newest ones, fabric_*_test_version in gradle.properties);
+# - fingerprint: the last release's jar and this build, each with that release's preset datapack on the same runner,
+#   hash the same blocks and biomes (a change of the code keeps the world of an existing preset);
+# - preset-other-loader: each loader's export has the biome modifiers of both, and the self test passes with it on the
+#   other loader (a NeoForge pack on Fabric had no trees, erosion or swamp surface of the mod), the same world as its own;
+# - parity: NeoForge and Fabric make the same world, and Fabric the same on its newest and its minimum versions.
 # The jars are kept as artifacts, and the server logs and world shapes of every test; the new world's NeoForge export
 # (server-neoforge-new) holds the preset datapack a release ships.
 name: Build
@@ -14,7 +20,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-# read only: checkout, and gh release list and download of the last release for the legacy test
+# read only: checkout, and gh release list and download of the last release (legacy and fingerprint)
 permissions:
   contents: read
 
@@ -82,7 +88,10 @@ jobs:
         loader: [neoforge, fabric]
         world: [new, legacy]
     steps:
+      # no token in .git/config: a release's jar runs in this job
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
@@ -93,22 +102,33 @@ jobs:
           distribution: temurin
           java-version: ${{ needs.build.outputs.java }}
 
-      # legacy: the last release for this Minecraft version (v<version>-<mc>); none yet: nothing to compare with
-      - name: Server test
+      # legacy: the last release for this Minecraft version (v<version>-<mc>); none yet: nothing to compare with. The
+      # token only here: the release's jar runs in the next step, without it
+      - name: Last release
+        id: last
+        if: matrix.world == 'legacy'
         env:
           GH_TOKEN: ${{ github.token }}
           MC: ${{ needs.build.outputs.mc }}
         run: |
+          last=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' | grep -- "-$MC\$" | sed 's/^v//; s/-[^-]*$//' | sort -V | tail -1)
+          echo "version=$last" >> "$GITHUB_OUTPUT"
+
+      - name: Server test
+        env:
+          LAST: ${{ steps.last.outputs.version }}
+          MC: ${{ needs.build.outputs.mc }}
+        run: |
           sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
           if [ "${{ matrix.world }}" = legacy ]; then
-            last=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' | grep -- "-$MC\$" | sed 's/^v//; s/-[^-]*$//' | sort -V | tail -1)
-            if [ -z "$last" ]; then echo "no release for $MC yet, nothing to compare"; exit 0; fi
-            echo "worlds of $last"
-            LEGACY=$last SKIP_SELFTEST=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
+            if [ -z "$LAST" ]; then echo "no release for $MC yet, nothing to compare"; exit 0; fi
+            echo "worlds of $LAST"
+            LEGACY=$LAST SKIP_SELFTEST=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
           else
             WEATHER=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
           fi
 
+      # with the preset datapack of each loader's export: preset-other-loader runs it on the other loader
       - name: Upload the world shape and logs
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -119,24 +139,231 @@ jobs:
             run/server-*/*.log
             run/server-*/logs/latest.log
             run/server-*/rtf-*.txt
-            run/server-neoforge/reterraforged-preset.zip
+            run/server-*/reterraforged-preset.zip
           if-no-files-found: ignore
 
-  parity:
-    needs: server-test
+  # the versions the mod is built against are its minimum (fabric.mod.json: fabricloader >=0.16, fabric-api >=
+  # fabric_api_min): the self test on them, at the same time as server-test
+  fabric-minimum:
+    needs: build
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: jars
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ needs.build.outputs.java }}
+
+      - name: Server test on the minimum Fabric
+        run: |
+          sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          prop() { sed -n "s/^$1=//p" gradle.properties | tr -d '[:space:]'; }
+          export FABRIC_LOADER=$(prop fabric_loader_version) FABRIC_API=$(prop fabric_api_version)
+          echo "Fabric Loader $FABRIC_LOADER, Fabric API $FABRIC_API"
+          SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh fabric
+
+      - name: Upload the world shape and logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-fabric-minimum
+          path: |
+            run/heights-*.txt
+            run/server-*/*.log
+            run/server-*/logs/latest.log
+            run/server-*/fabric-versions.txt
+          if-no-files-found: ignore
+
+  # the world of an existing preset stays the same: the last release's NeoForge jar and this build, one after the other
+  # on this runner with that release's preset datapack (a reference taken on another machine differed in a few full
+  # chunks without any change). One generation thread (servertest.sh sets it): about two quick runs
+  fingerprint:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      MC: ${{ needs.build.outputs.mc }}
+    steps:
+      # no token in .git/config: a release's jar runs in this job
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: jars
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ needs.build.outputs.java }}
+
+      # gh with the token, nothing downloaded runs here
+      - name: Download the last release
+        id: last
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' | grep -- "-$MC\$" | sed 's/^v//; s/-[^-]*$//' | sort -V | tail -1)
+          if [ -z "$last" ]; then echo "no release for $MC yet, nothing to compare"; exit 0; fi
+          gh release download "v$last-$MC" --repo "$GITHUB_REPOSITORY" --dir release --pattern "reterraforged-$last-neoforge-$MC.jar" --pattern "reterraforged-preset-$MC.zip"
+          ls -l release
+          echo "version=$last" >> "$GITHUB_OUTPUT"
+
+      # the release's run only gives the reference: its other results do not fail the job
+      - name: Fingerprint of the release
+        if: steps.last.outputs.version != ''
+        env:
+          LAST: ${{ steps.last.outputs.version }}
+        run: |
+          sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          mkdir -p fingerprints
+          MOD_JAR=release/reterraforged-$LAST-neoforge-$MC.jar PRESET_ZIP=release/reterraforged-preset-$MC.zip FINGERPRINT=1 SKIP_SELFTEST=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh neoforge \
+            || echo "::warning::the run of release $LAST reported failures (release-console.log); only its fingerprint is used"
+          cp run/server-neoforge/console.log fingerprints/release-console.log || true
+          mv run/fingerprint-neoforge.txt fingerprints/release.txt || { echo "release $LAST wrote no fingerprint"; exit 1; }
+
+      # moved away above: a run that fails here leaves no stale fingerprint behind to compare
+      - name: Fingerprint of this build
+        if: steps.last.outputs.version != ''
+        run: |
+          st=0
+          PRESET_ZIP=release/reterraforged-preset-$MC.zip FINGERPRINT=1 SKIP_SELFTEST=1 SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh neoforge || st=$?
+          cp run/server-neoforge/console.log fingerprints/build-console.log || true
+          mv run/fingerprint-neoforge.txt fingerprints/build.txt || echo "this build wrote no fingerprint"
+          exit $st
+
+      # base and surface exact; a few full chunks may differ where features cross chunk borders (tools/comparefingerprint.py)
+      - name: The release's preset makes the same world
+        if: ${{ !cancelled() && steps.last.outputs.version != '' }}
+        env:
+          LAST: ${{ steps.last.outputs.version }}
+        run: |
+          [ -f fingerprints/release.txt ] && [ -f fingerprints/build.txt ] || { echo "a fingerprint is missing"; exit 1; }
+          r=$(python3 tools/comparefingerprint.py fingerprints/release.txt fingerprints/build.txt)
+          echo "$r"
+          { echo "### Release $LAST against this build, preset of $LAST (NeoForge, $MC)"; echo; echo '```'; echo "$r"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$r" == *" differ where features cross chunk borders"* ]]; then echo "::notice::full chunks that differ: ${r##*: }"; fi
+          [[ "$r" == PASS* ]]
+
+      - name: Upload the fingerprints
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: fingerprint-neoforge
+          path: |
+            fingerprints/
+            run/heights-*.txt
+          if-no-files-found: ignore
+
+  # each loader's export (server-test new) on the other loader: the datapack has both loaders' biome modifier folders,
+  # the self test (the forest's trees, the swamp surface) passes, the world is the one that loader's own export makes
+  preset-other-loader:
+    name: preset-other-loader (${{ matrix.from }} export on ${{ matrix.loader }})
+    needs: [build, server-test]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - from: neoforge
+            loader: fabric
+          - from: fabric
+            loader: neoforge
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: jars
 
       - uses: actions/download-artifact@v8
         with:
           pattern: server-*-new
           path: shapes
 
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ needs.build.outputs.java }}
+
+      - name: The export has the biome modifiers of both loaders
+        run: |
+          zip=$(find shapes/server-${{ matrix.from }}-new -name reterraforged-preset.zip | head -1)
+          [ -n "$zip" ] || { echo "server-test (${{ matrix.from }}, new) uploaded no reterraforged-preset.zip"; exit 1; }
+          cp "$zip" preset-of-${{ matrix.from }}.zip
+          r=$(python3 tools/checkpresetzip.py preset-of-${{ matrix.from }}.zip) || { echo "$r"; echo "${{ matrix.from }} export: $r" >> "$GITHUB_STEP_SUMMARY"; exit 1; }
+          echo "$r"
+
+      - name: Server test with the other loader's preset
+        run: |
+          sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          PRESET_ZIP=preset-of-${{ matrix.from }}.zip SKIP_STRUCTURES=1 JAVA=$JAVA_HOME/bin/java bash tools/servertest.sh ${{ matrix.loader }}
+
+      - name: The same world as with its own export
+        run: |
+          own=$(find shapes/server-${{ matrix.loader }}-new -name heights-${{ matrix.loader }}.txt | head -1)
+          [ -n "$own" ] || { echo "server-test (${{ matrix.loader }}, new) uploaded no heights"; exit 1; }
+          r=$(python3 tools/compareheights.py "$own" run/heights-${{ matrix.loader }}.txt all)
+          echo "${{ matrix.from }} export against ${{ matrix.loader }}'s own: $r"
+          [[ "$r" == PASS* ]]
+
+      - name: Upload the world shape and logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-${{ matrix.loader }}-preset-of-${{ matrix.from }}
+          path: |
+            run/heights-*.txt
+            run/server-*/*.log
+            run/server-*/logs/latest.log
+          if-no-files-found: ignore
+
+  # also when a legacy or the minimum test failed (not without a build): each comparison needs only its two files
+  parity:
+    needs: [server-test, fabric-minimum]
+    if: ${{ !cancelled() && needs.server-test.result != 'skipped' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: server-*-new
+          path: shapes
+
+      # missing when fabric-minimum broke off early: the comparison below fails, the one above still runs
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: server-fabric-minimum
+          path: shapes/server-fabric-minimum
+
       # the new worlds of both loaders: the same heights, ground and biomes
       - name: NeoForge and Fabric make the same world
         run: |
           r=$(python3 tools/compareheights.py shapes/server-neoforge-new/heights-neoforge.txt shapes/server-fabric-new/heights-fabric.txt all)
           echo "NeoForge and Fabric: $r"
+          [[ "$r" == PASS* ]]
+
+      - name: Fabric makes the same world on its minimum versions
+        if: ${{ !cancelled() }}
+        run: |
+          r=$(python3 tools/compareheights.py shapes/server-fabric-new/heights-fabric.txt shapes/server-fabric-minimum/heights-fabric.txt all)
+          echo "Fabric newest and minimum: $r"
           [[ "$r" == PASS* ]]
