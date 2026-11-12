@@ -1,7 +1,17 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
@@ -11,34 +21,47 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.joml.Matrix3x2fStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.ARGB;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.Toasts;
 import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
+import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.PresetListPage.PresetEntry;
+import raccoonman.reterraforged.client.gui.screen.presetconfig.SettingControl.DefaultValue;
+import raccoonman.reterraforged.client.gui.widget.ChangeMarker;
+import raccoonman.reterraforged.client.gui.widget.Label;
 import raccoonman.reterraforged.client.gui.widget.ValueButton;
 import raccoonman.reterraforged.concurrent.cache.CacheManager;
 import raccoonman.reterraforged.config.PerformanceConfig;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
+import raccoonman.reterraforged.data.worldgen.preset.settings.Presets;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
+import raccoonman.reterraforged.mixin.ScreenInvoker;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
@@ -48,24 +71,356 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, AbstractWidget, AbstractWidget> {
+	static final String SEARCH_HINT = "reterraforged.gui.search.hint";
+	static final String SEARCH_NONE = "reterraforged.gui.search.none";
+	private static final int SEARCH_WIDTH = 160;
 	// one texture for all the pages: a new one registered for each page stayed in the TextureManager after it was closed
 	@Nullable
 	private static DynamicTexture previewTexture;
 	@Nullable
 	private static Identifier previewTextureId;
+	// Default's settings by page and setting id, for each preset screen (the same while it is open, built once). Plain
+	// data: no widget or page, which would hold the screen and keep it in the map
+	private static final Map<Screen, Map<Class<?>, Map<String, DefaultValue>>> DEFAULTS = new WeakHashMap<>();
 	private CycleButton<RenderMode> renderMode;
 	private ValueButton<Integer> seed;
+	@Nullable
 	private Preview preview;
 	protected final PresetEntry preset;
-	
+	// built only to read its settings: no preview, no search, nothing on the screen
+	private boolean detached;
+	// the settings of this page, and the ones whose value is not Default's (with a mark, reset with a right click)
+	private List<Row> rows = List.of();
+	private final Map<AbstractWidget, Row> rowsByWidget = new IdentityHashMap<>();
+	private Map<String, DefaultValue> defaults = Map.of();
+	private final Set<AbstractWidget> changed = Collections.newSetFromMap(new IdentityHashMap<>());
+	// all the pages in order, the others as they were when this one was opened (they do not change meanwhile)
+	private List<PageInfo> pages = List.of();
+	private final List<Tab> tabs = new ArrayList<>();
+	@Nullable
+	private EditBox searchBox;
+	// kept on the page: a resize builds the screen again
+	private String query = "";
+	private boolean searching;
+	private double scrollBeforeSearch;
+	private List<AbstractWidget> pageWidgets = List.of();
+	// the setting a search result on another page led to, shown when this page is opened
+	@Nullable
+	private String reveal;
+
 	public PresetEditorPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen);
-		
+
 		this.preset = preset;
 	}
-	
+
 	public PresetEntry getPreset() {
 		return this.preset;
+	}
+
+	// a setting of a page: the id is the same in every build of the page (SettingIds)
+	private record Row(String id, String section, AbstractWidget widget, SettingControl control) {
+	}
+
+	// a setting of a page as the search shows it
+	private record Item(String id, String name, String section, boolean repeated, Component message) {
+	}
+
+	// items null for this page: its widgets are read when searching, with their values at that time
+	private record PageInfo(Class<?> type, Component title, boolean changed, @Nullable List<Item> items) {
+	}
+
+	private record Tab(AbstractWidget button, Class<?> page) {
+	}
+
+	// the settings pages bound to a preset, in order: the first page, then next() up to the last
+	static List<PresetEditorPage> pages(PresetConfigScreen screen, PresetEntry preset) {
+		List<PresetEditorPage> pages = new ArrayList<>();
+		Set<Class<?>> seen = new HashSet<>();
+		Optional<Page> page = Optional.of(new WorldSettingsPage(screen, preset));
+		while(page.isPresent() && page.get() instanceof PresetEditorPage editor && seen.add(editor.getClass())) {
+			pages.add(editor);
+			page = editor.next();
+		}
+		return pages;
+	}
+
+	// the settings of a page built only for them; null if it could not be built (the page itself is never stopped by it)
+	@Nullable
+	private static List<Row> build(PresetEditorPage page) {
+		page.detached = true;
+		try {
+			page.init();
+			return rows(page);
+		} catch (RuntimeException e) {
+			RTFCommon.LOGGER.warn("Could not read the settings of {}", page.getClass().getSimpleName(), e);
+			return null;
+		}
+	}
+
+	private static List<Row> rows(PresetEditorPage page) {
+		List<Row> rows = new ArrayList<>();
+		SettingIds ids = new SettingIds();
+		String section = "";
+		for(AbstractWidget widget : page.left.widgets()) {
+			if(widget instanceof Label) {
+				section = widget.getMessage().getString();
+				ids.section(section);
+				continue;
+			}
+			// only the widgets made by PresetWidgets (the others are not settings, or are not known)
+			SettingControl control = SettingControl.of(widget);
+			if(control != null) {
+				rows.add(new Row(ids.next(control.key), section, widget, control));
+			}
+		}
+		return rows;
+	}
+
+	private static List<Item> items(List<Row> rows) {
+		Map<String, Integer> keys = new HashMap<>();
+		for(Row row : rows) {
+			keys.merge(row.control().key, 1, Integer::sum);
+		}
+		List<Item> items = new ArrayList<>(rows.size());
+		for(Row row : rows) {
+			String name = Component.translatable(row.control().key).getString();
+			items.add(new Item(row.id(), name, row.section(), keys.get(row.control().key) > 1, row.widget().getMessage()));
+		}
+		return items;
+	}
+
+	private Map<Class<?>, Map<String, DefaultValue>> defaultsOfScreen() {
+		return DEFAULTS.computeIfAbsent(this.screen, (screen) -> {
+			Map<Class<?>, Map<String, DefaultValue>> pages = new HashMap<>();
+			for(PresetEditorPage page : pages(this.screen, this.preset.withPreset(Presets.makeDefault()))) {
+				List<Row> rows = build(page);
+				if(rows != null) {
+					Map<String, DefaultValue> values = new HashMap<>();
+					for(Row row : rows) {
+						values.put(row.id(), row.control().snapshot());
+					}
+					pages.put(page.getClass(), values);
+				}
+			}
+			return pages;
+		});
+	}
+
+	// the other pages built on a copy (the structure page adds the sets it shows to the preset it is built on)
+	private List<PageInfo> pageInfos(Map<Class<?>, Map<String, DefaultValue>> defaults) {
+		List<PageInfo> pages = new ArrayList<>();
+		PresetEntry copy = this.preset.withPreset(this.preset.getPreset().copy());
+		for(PresetEditorPage page : pages(this.screen, copy)) {
+			if(page.getClass() == this.getClass()) {
+				pages.add(new PageInfo(page.getClass(), page.title(), false, null));
+				continue;
+			}
+			List<Row> rows = build(page);
+			if(rows == null) {
+				continue;
+			}
+			Map<String, DefaultValue> values = defaults.getOrDefault(page.getClass(), Map.of());
+			boolean changed = false;
+			for(Row row : rows) {
+				DefaultValue value = values.get(row.id());
+				changed |= value != null && !Objects.equals(value.state(), row.control().state());
+			}
+			pages.add(new PageInfo(page.getClass(), page.title(), changed, items(rows)));
+		}
+		return pages;
+	}
+
+	@Override
+	protected boolean isDetached() {
+		return this.detached;
+	}
+
+	@Override
+	public void afterInit() {
+		if(this.detached) {
+			return;
+		}
+		this.rows = rows(this);
+		this.pageWidgets = this.left.widgets();
+		this.rowsByWidget.clear();
+		this.changed.clear();
+		Map<Class<?>, Map<String, DefaultValue>> defaults = this.defaultsOfScreen();
+		this.defaults = defaults.getOrDefault(this.getClass(), Map.of());
+		for(Row row : this.rows) {
+			this.rowsByWidget.put(row.widget(), row);
+			// a widget's change can only change its own value (the others' greying and tooltips go through setUsable)
+			row.control().setListener(() -> this.refresh(row));
+			this.refresh(row);
+		}
+		this.pages = this.pageInfos(defaults);
+		this.left.setMarked(this.changed::contains);
+		this.left.onRightClick(this::reset);
+		if(!this.query.isEmpty()) {
+			this.search(this.query);
+		}
+		if(this.reveal != null) {
+			this.reveal(this.reveal);
+			this.reveal = null;
+		}
+	}
+
+	private void refresh(Row row) {
+		DefaultValue value = this.defaults.get(row.id());
+		boolean differs = value != null && !Objects.equals(value.state(), row.control().state());
+		row.control().setDefaultText(differs ? value.text() : null);
+		if(differs) {
+			this.changed.add(row.widget());
+		} else {
+			this.changed.remove(row.widget());
+		}
+	}
+
+	// a right click on a setting that is not at Default: back to Default through the widget's callback, as a click does.
+	// Greyed-out ones too: the reset is the same everywhere, and the setting comes back when its switch does
+	private boolean reset(AbstractWidget widget) {
+		Row row = this.rowsByWidget.get(widget);
+		DefaultValue value = row != null && this.changed.contains(widget) ? this.defaults.get(row.id()) : null;
+		if(value == null) {
+			return false;
+		}
+		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		row.control().restore(value.value());
+		return true;
+	}
+
+	// for the GUI test and the tabs
+	public boolean isChanged(AbstractWidget widget) {
+		return this.changed.contains(widget);
+	}
+
+	// whether a page has settings that are not Default's (for another page: as they were when this one was opened)
+	public boolean hasChanges(Class<?> page) {
+		if(page == this.getClass()) {
+			return !this.changed.isEmpty();
+		}
+		for(PageInfo info : this.pages) {
+			if(info.type() == page) {
+				return info.changed();
+			}
+		}
+		return false;
+	}
+
+	// a tab of the screen that opens a page: marked while that page has settings that are not Default's
+	public void addTab(AbstractWidget button, Class<?> page) {
+		this.tabs.add(new Tab(button, page));
+	}
+
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		for(Tab tab : this.tabs) {
+			if(tab.button().visible && this.hasChanges(tab.page())) {
+				ChangeMarker.extractRenderState(graphics, tab.button());
+			}
+		}
+	}
+
+	@Nullable
+	public EditBox searchBox() {
+		return this.searchBox;
+	}
+
+	// right of the page title (LinkedPageScreen draws it at x 16) and above the list, its right edge on the widgets' one
+	@Nullable
+	private EditBox createSearchBox() {
+		Font font = Minecraft.getInstance().font;
+		int rowWidth = this.left.getRowWidth();
+		int optionWidth = Math.min(450, rowWidth);
+		int right = this.left.getRowLeft() + (rowWidth - optionWidth) / 2 + optionWidth;
+		int leftLimit = Math.max(this.left.getRowLeft(), 16 + font.width(this.title()) + 8);
+		int width = Math.min(SEARCH_WIDTH, right - leftLimit);
+		if(width < 40) {
+			return null;
+		}
+		EditBox box = new EditBox(font, right - width, 6, width, 18, Component.translatable(SEARCH_HINT));
+		box.setMaxLength(64);
+		box.setHint(Component.translatable(SEARCH_HINT));
+		box.setValue(this.query);
+		box.setResponder(this::search);
+		((ScreenInvoker) this.screen).invokeAddRenderableWidget(box);
+		return box;
+	}
+
+	// the settings of all the pages whose name (or section: a structure set's name) has the query, in the list in place
+	// of this page's widgets; an empty query brings them back where they were
+	private void search(String query) {
+		this.query = query;
+		SettingSearch search = SettingSearch.of(query);
+		if(search.isEmpty()) {
+			if(this.searching) {
+				this.searching = false;
+				this.left.setWidgets(this.pageWidgets);
+				this.left.setScrollAmount(this.scrollBeforeSearch);
+			}
+			return;
+		}
+		if(!this.searching) {
+			this.scrollBeforeSearch = this.left.scrollAmount();
+			this.searching = true;
+		}
+		List<AbstractWidget> results = new ArrayList<>();
+		for(PageInfo page : this.pages) {
+			for(Item item : page.items() != null ? page.items() : items(this.rows)) {
+				if(search.matches(item.name()) || search.matches(item.section())) {
+					results.add(this.result(page, item));
+				}
+			}
+		}
+		if(results.isEmpty()) {
+			results.add(PresetWidgets.createLabel(SEARCH_NONE));
+		}
+		this.left.setWidgets(results);
+		this.left.setScrollAmount(0.0);
+	}
+
+	// "Page » Setting: value", with the section when the page has the setting more than once (the structure sets)
+	private AbstractWidget result(PageInfo page, Item item) {
+		MutableComponent text = Component.empty().append(page.title().copy().withStyle(ChatFormatting.GRAY)).append(Component.literal(" » ").withStyle(ChatFormatting.GRAY));
+		if(item.repeated() && !item.section().isEmpty()) {
+			text.append(Component.literal(item.section() + " » ").withStyle(ChatFormatting.GRAY));
+		}
+		text.append(item.message());
+		return Button.builder(text, (button) -> this.jump(page.type(), item.id())).build();
+	}
+
+	private void jump(Class<?> type, String id) {
+		if(type == this.getClass()) {
+			if(this.searchBox != null) {
+				this.searchBox.setValue("");
+			}
+			this.search("");
+			this.reveal(id);
+			return;
+		}
+		for(PresetEditorPage page : pages(this.screen, this.preset)) {
+			if(page.getClass() == type) {
+				page.reveal = id;
+				this.screen.setPage(page);
+				return;
+			}
+		}
+	}
+
+	private void reveal(String id) {
+		for(Row row : this.rows) {
+			if(row.id().equals(id)) {
+				this.left.reveal(row.widget());
+				this.left.highlight(row.widget());
+				return;
+			}
+		}
+	}
+
+	// the page's own scroll while the search results are shown, so it comes back there
+	@Override
+	public double getScroll() {
+		return this.searching ? this.scrollBeforeSearch : super.getScroll();
 	}
 
 	// for the widget test (RTFGuiTest): how often the preview was drawn, a hash of its last picture, and whether a new
@@ -83,12 +438,19 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	}
 
 	protected void regenerate() {
-		this.preview.regenerate();
+		if(this.preview != null) {
+			this.preview.regenerate();
+		}
 	}
-	
+
 	@Override
 	public void init() {
 		super.init();
+		if(this.detached) {
+			return;
+		}
+		this.tabs.clear();
+		this.searching = false;
 
 		if(this.preview != null) {
 			this.preview.close();
@@ -114,14 +476,17 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		this.right.addWidget(this.renderMode);
 		this.right.addWidget(this.seed);
 		this.right.addWidget(this.preview);
+		this.searchBox = this.createSearchBox();
 	}
 	
 	// nothing saved here: going to another page keeps the edits in the screen's copy, Done saves them, Cancel drops them
 	@Override
 	public void onClose() {
 		super.onClose();
-		
-		this.preview.close();
+
+		if(this.preview != null) {
+			this.preview.close();
+		}
 	}
 	
 	@Override
