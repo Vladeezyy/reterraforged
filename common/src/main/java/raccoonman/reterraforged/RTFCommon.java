@@ -3,11 +3,16 @@ package raccoonman.reterraforged;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mojang.brigadier.CommandDispatcher;
+
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.platform.RegistryUtil;
 import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
 import raccoonman.reterraforged.registries.RTFRegistries;
+import raccoonman.reterraforged.server.RTFInfoCommand;
+import raccoonman.reterraforged.server.WorldInfo;
 import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
 import raccoonman.reterraforged.world.worldgen.OverworldRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifiers;
@@ -59,6 +64,12 @@ public class RTFCommon {
 		AltitudeCooling.reset();
 		raccoonman.reterraforged.config.WorldTileSize.clear();
 		OverworldRegistries.clear();
+		WorldInfo.onServerStopped();
+	}
+
+	// the commands of a normal game; the self tests' "rtf" is registered apart (RTFSelfTest, only with -Drtf.selftest=true)
+	public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+		RTFInfoCommand.register(dispatcher);
 	}
 
 	public static ResourceLocation location(String name) {

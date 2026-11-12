@@ -27,11 +27,23 @@ public class RTFNeoForge {
     	RTFNeoForgeNetwork.register(modEventBus);
     	modEventBus.addListener(RTFNeoForge::gatherData);
     	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent event) -> raccoonman.reterraforged.server.RTFSelfTest.register(event.getDispatcher()));
+    	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent event) -> RTFCommon.registerCommands(event.getDispatcher()));
+    	// NeoForge reads only neoforge/biome_modifier: a preset datapack with forge/biome_modifier alone gets none of its modifiers
+    	raccoonman.reterraforged.server.WorldInfo.setPlatform(new raccoonman.reterraforged.server.WorldInfo.Platform("NeoForge", version("neoforge"), version("minecraft"), container.getModInfo().getVersion().toString(), "neoforge/biome_modifier", "forge/biome_modifier", false));
     	RegistryUtilImpl.register(modEventBus);
     	// its queued tiles are not generated ahead of the next world's (the generation threads are shared)
     	net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppedEvent event) -> raccoonman.reterraforged.world.worldgen.densityfunction.tile.TileCache.closeAll());
     }
     
+    private static String version(String modId) {
+    	// only for the log: a mod list not there yet must not stop the mod from loading
+    	try {
+    		return net.neoforged.fml.ModList.get().getModContainerById(modId).map((mod) -> mod.getModInfo().getVersion().toString()).orElse("?");
+    	} catch (RuntimeException e) {
+    		return "?";
+    	}
+    }
+
     private static void gatherData(GatherDataEvent event) {
     	boolean includeClient = true; //event.includeClient();
     	DataGenerator generator = event.getGenerator();
