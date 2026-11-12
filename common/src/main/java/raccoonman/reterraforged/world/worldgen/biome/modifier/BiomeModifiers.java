@@ -1,7 +1,12 @@
 package raccoonman.reterraforged.world.worldgen.biome.modifier;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 import com.mojang.datafixers.util.Pair;
 
@@ -11,6 +16,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -65,6 +71,24 @@ public class BiomeModifiers {
 	@ExpectPlatform
 	public static BiomeModifier density(VegetationDensity density) {
 		throw new UnsupportedOperationException();
+	}
+
+	// The modifiers of the loader's own folder, and those of the other loader's folder for a namespace that has none in
+	// its own: a preset datapack exported before both folders were written (PresetExport.mirrorBiomeModifiers) has only
+	// the folder of the loader it was made on. By whole namespaces, not single names: a pack with its own folder stays
+	// exactly as it was, whatever another pack has in the other folder, and one with both folders applies once.
+	public static <T> List<T> withFallback(List<T> own, List<T> other, Function<T, Identifier> id) {
+		Set<String> namespaces = new HashSet<>();
+		for (T modifier : own) {
+			namespaces.add(id.apply(modifier).getNamespace());
+		}
+		List<T> modifiers = new ArrayList<>(own);
+		for (T modifier : other) {
+			if (!namespaces.contains(id.apply(modifier).getNamespace())) {
+				modifiers.add(modifier);
+			}
+		}
+		return modifiers;
 	}
 
 	public static void register(String name, MapCodec<? extends BiomeModifier> value) {
