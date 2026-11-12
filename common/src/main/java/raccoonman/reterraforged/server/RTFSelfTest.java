@@ -329,6 +329,9 @@ public final class RTFSelfTest {
 	}
 
 	private String run(MinecraftServer server) {
+		// the list of a preset's differences from Default (the log, crash reports): every built-in preset, read back through the datapack codec
+		List<String> presetDiff = PresetDiffCheck.run();
+		this.check("the differences of the built-in presets from Default are listed " + presetDiff, presetDiff.isEmpty());
 		try {
 			this.overworld(server.overworld());
 			this.nether(server.getLevel(Level.NETHER));
@@ -352,6 +355,7 @@ public final class RTFSelfTest {
 	private void overworld(ServerLevel level) {
 		boolean rtf = (Object) level.getChunkSource().randomState() instanceof RTFRandomState s && s.generatorContext() != null;
 		check("overworld uses the ReTerraForged generator", rtf);
+		check("the density sliders act in the overworld", raccoonman.reterraforged.world.worldgen.feature.placement.DensityFilter.scalesIn(level.getChunkSource().randomState(), level.registryAccess()));
 		// the preset's biome modifiers are applied: the forest has the mod's trees instead of vanilla's (on NeoForge
 		// they were left out of the preset datapack, and every tree was vanilla)
 		List<String> trees = level.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.FOREST).getGenerationSettings().features().stream()
@@ -397,13 +401,22 @@ public final class RTFSelfTest {
 			}
 			check("trees stand in the forest at " + center.getX() + ", " + center.getZ() + " (" + trunks + " trunk columns)", trunks >= 5);
 		}
-		// the structure page reaches the world: a preset with other village spacing, separation and salt makes a
-		// datapack whose villages have them
+		// the structure page reaches the world: a preset with other village spacing, separation and salt gives the
+		// loaded villages those (PresetStructureSets.apply when the registries load), and its datapack has no structure
+		// set (one names the set's structures: with their mod removed the world did not load)
 		Preset spaced = Presets.makeDefault();
 		StructureSettings.StructureSetEntry villages = new StructureSettings.StructureSetEntry(21, 9, -12345, false);
 		spaced.structures().entries.put(BuiltinStructureSets.VILLAGES, villages);
-		StructureSet set = spaced.buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS)).lookupOrThrow(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES).value();
-		check("the structure page sets the villages' spacing, separation and salt", PresetStructureSets.matches(set, villages));
+		StructureSet set = level.registryAccess().registryOrThrow(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES);
+		check("the structure page sets the villages' spacing, separation and salt", PresetStructureSets.matches(PresetStructureSets.placement(set.placement(), villages), villages));
+		check("the preset datapack writes no structure set", spaced.buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS)).lookup(Registries.STRUCTURE_SET).map((sets) -> sets.listElements().findAny().isEmpty()).orElse(true));
+		// the world's own preset: every entry on a set of this world is its placement now
+		level.registryAccess().registry(raccoonman.reterraforged.registries.RTFRegistries.PRESET).flatMap((presets) -> presets.getOptional(Preset.KEY)).ifPresent((worldPreset) -> worldPreset.structures().entries.forEach((key, entry) -> {
+			StructureSet loaded = level.registryAccess().registryOrThrow(Registries.STRUCTURE_SET).get(key);
+			if (loaded != null && loaded.placement() instanceof net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement && PresetStructureSets.valid(entry)) {
+				check("the preset's structure settings are on " + key.location(), PresetStructureSets.matches(loaded.placement(), entry) && (!entry.disabled || ((raccoonman.reterraforged.mixin.StructurePlacementAccessor) (Object) loaded.placement()).reterraforged$frequency() == 0.0F));
+			}
+		}));
 		// a new world's preset (rtf exportpreset, the preset screen) has the fixes of this version, also after the
 		// datapack's codec, and its strata noise reads the world's seed
 		net.minecraft.core.HolderLookup.Provider fresh = Presets.makeDefault().buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS));
@@ -664,6 +677,14 @@ public final class RTFSelfTest {
 				RTFCommon.LOGGER.error("[RTF selftest] the mod's trees in the Nether", e);
 			}
 			check("the mod's trees place in a dimension without its terrain" + (error != null ? " (" + error + ")" : ""), error == null);
+		}
+		// the density sliders only where the preset builds the world: a biome of the overworld is also in other mods'
+		// dimensions. Here a filter of density 0 lets the position through (in a world of generation version 0 it did not)
+		{
+			raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.Properties properties = level.registryAccess().registry(raccoonman.reterraforged.registries.RTFRegistries.PRESET).flatMap((presets) -> presets.getOptional(Preset.KEY)).map((preset) -> preset.world().properties).orElse(null);
+			long through = new raccoonman.reterraforged.world.worldgen.feature.placement.DensityFilter(0.0F).getPositions(new net.minecraft.world.level.levelgen.placement.PlacementContext(level, level.getChunkSource().getGenerator(), Optional.empty()), RandomSource.create(0), new BlockPos(0, 70, 0)).count();
+			boolean scales = raccoonman.reterraforged.world.worldgen.feature.placement.DensityFilter.scales(false, properties);
+			check("the density sliders " + (scales ? "act" : "do not act") + " in the Nether (" + through + " of 1 position)", through == (scales ? 0 : 1));
 		}
 		int floorHoles = 0, roofHoles = 0;
 		int floorY = level.getMinBuildHeight(), roofY = floorY + level.dimensionType().logicalHeight() - 1;
