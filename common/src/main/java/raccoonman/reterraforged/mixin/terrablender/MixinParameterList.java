@@ -3,6 +3,7 @@ package raccoonman.reterraforged.mixin.terrablender;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,11 +20,10 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.CaveSettings.CompatibilityMode;
-import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.platform.ModLoaderUtil;
-import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.region.SwampBasins;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
+import raccoonman.reterraforged.world.worldgen.terrablender.TBCaveCompat;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBCompat;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBRegions;
 import raccoonman.reterraforged.world.worldgen.terrablender.TBTargetPoint;
@@ -72,8 +72,10 @@ class MixinParameterList<T> {
 	// the regions' shares of the biome cells (TBRegions)
 	@Unique
 	private float[] regionBounds;
+	// the preset's, null in a world without a preset (TerraBlender's regions stay as they are, TBCaveCompat)
 	@Unique
-	private CompatibilityMode caveCompatibilityMode = CompatibilityMode.AUTO;
+	@Nullable
+	private CompatibilityMode caveCompatibilityMode;
 	@Unique
 	private int darkerDepthsIndex = -1;
 	@Unique
@@ -108,7 +110,7 @@ class MixinParameterList<T> {
 		this.regionBounds = TBRegions.bounds(registryAccess, regionType);
 		this.regionTemperatureNoise = regionType == RegionType.OVERWORLD ? new SimplexNoise(RandomSource.create(seed ^ 0x52544654L)) : null;
 		this.regionHumidityNoise = regionType == RegionType.OVERWORLD ? new SimplexNoise(RandomSource.create(seed ^ 0x52544648L)) : null;
-		this.caveCompatibilityMode = getCaveCompatibilityMode(registryAccess);
+		this.caveCompatibilityMode = TBCaveCompat.mode(registryAccess);
 		if(regionType == RegionType.OVERWORLD && hasUndergroundBiomeCompatTarget()) {
 			// the indices choose the underground regions (selectUndergroundCompatTarget), with or without the diagnostic
 			this.darkerDepthsIndex = getRegionIndex(regionType, DARKER_DEPTHS_REGION);
@@ -237,14 +239,6 @@ class MixinParameterList<T> {
 		return known == 2;
 	}
 
-	private static CompatibilityMode getCaveCompatibilityMode(RegistryAccess registryAccess) {
-		return registryAccess.lookup(RTFRegistries.PRESET).flatMap((registry) -> {
-			return registry.get(Preset.KEY);
-		}).map((holder) -> {
-			return holder.value().caves().compatibilityMode;
-		}).orElse(CompatibilityMode.AUTO);
-	}
-
 	private static int getRegionIndex(RegionType regionType, Identifier region) {
 		try {
 			return Regions.getIndex(regionType, region);
@@ -262,7 +256,7 @@ class MixinParameterList<T> {
 	}
 
 	private boolean isDirectUndergroundCompatEnabled() {
-		return this.caveCompatibilityMode == CompatibilityMode.AUTO && this.hasUndergroundCompatTargetRegion();
+		return TBCaveCompat.replacesRegions(this.caveCompatibilityMode, this.hasUndergroundCompatTargetRegion());
 	}
 
 	private boolean hasUndergroundCompatTargetRegion() {
