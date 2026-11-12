@@ -14,7 +14,7 @@ import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.network.AltitudeCoolingPayload;
 import raccoonman.reterraforged.world.worldgen.AltitudeCooling;
 
-/** The altitude cooling scale: set from the overworld's preset, sent to joining players (AltitudeCooling) */
+/** The altitude cooling scale: the default set from the overworld's preset, the player's dimension's sent on join and on every change of dimension (AltitudeCooling) */
 final class RTFNeoForgeNetwork {
 
 	private RTFNeoForgeNetwork() {
@@ -23,7 +23,7 @@ final class RTFNeoForgeNetwork {
 	static void register(IEventBus modEventBus) {
 		// optional: players without the mod (or an older one) can still join
 		modEventBus.addListener((RegisterPayloadHandlersEvent event) -> event.registrar("1").optional()
-			.playToClient(AltitudeCoolingPayload.TYPE, AltitudeCoolingPayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> AltitudeCooling.set(payload.scale()))));
+			.playToClient(AltitudeCoolingPayload.TYPE, AltitudeCoolingPayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> AltitudeCooling.setClient(payload.scale()))));
 		// before the spawn chunks are generated (their snow and ice depend on it)
 		NeoForge.EVENT_BUS.addListener((LevelEvent.Load event) -> {
 			if (event.getLevel() instanceof ServerLevel level && level.dimension() == Level.OVERWORLD) {
@@ -31,10 +31,15 @@ final class RTFNeoForgeNetwork {
 			}
 		});
 		NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> RTFCommon.onServerStopped());
-		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
-			if (event.getEntity() instanceof ServerPlayer player && player.connection.hasChannel(AltitudeCoolingPayload.TYPE)) {
-				PacketDistributor.sendToPlayer(player, new AltitudeCoolingPayload(AltitudeCooling.of(player.server.overworld())));
-			}
-		});
+		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> send(event.getEntity()));
+		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent event) -> send(event.getEntity()));
+		NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> send(event.getEntity()));
+	}
+
+	// the scale of the player's dimension: another mod's dimension cools as in vanilla
+	private static void send(net.minecraft.world.entity.player.Player entity) {
+		if (entity instanceof ServerPlayer player && player.connection.hasChannel(AltitudeCoolingPayload.TYPE)) {
+			PacketDistributor.sendToPlayer(player, new AltitudeCoolingPayload(AltitudeCooling.of(player.serverLevel())));
+		}
 	}
 }
