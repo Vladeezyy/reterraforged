@@ -18,6 +18,27 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.METADATA_DESCRIPTION, "ReTerraForged resources");
 			this.add(RTFTranslationKeys.PRESET_METADATA_DESCRIPTION, "ReTerraForged preset");
 			this.add(RTFTranslationKeys.NO_ERROR_MESSAGE, "{No error message}");
+			// 0.0.32: world info, the preset list, the settings pages
+			this.add("reterraforged.chat.biomeModifiersNotApplied", "[ReTerraForged] This world's preset datapack has its biome modifiers only in %s, for the other mod loader: the world generates without the preset's trees, erosion and swamp surface. Export the preset again with this version and replace the datapack.");
+			this.add("reterraforged.gui.preset.default.description", "The mod's main preset: continents, rivers and every kind of terrain.");
+			this.add("reterraforged.gui.preset.archipelago.description", "Big island groups off the coasts, some volcanic. You spawn on an island.");
+			this.add("reterraforged.gui.preset.wetlands.description", "Wide swamps just above the sea, more lakes and wetlands.");
+			this.add("reterraforged.gui.preset.toweringPeaks.description", "A higher world with more and taller mountains. Slower to generate.");
+			this.add("reterraforged.gui.preset.endlessContinent.description", "One endless land without oceans, with more rivers and lakes.");
+			this.add("reterraforged.gui.preset.riverValleys.description", "Many rivers in wide winding valleys, with gorges and lakes.");
+			this.add("reterraforged.gui.preset.lushWilds.description", "Denser forests, more grass and flowers.");
+			this.add("reterraforged.gui.preset.rollingPlains.description", "Wide, gentle plains and steppes with few mountains: room to build.");
+			this.add("reterraforged.gui.preset.ruggedHighlands.description", "Plateaus, badlands, terraced hills and volcanoes instead of plains.");
+			this.add("reterraforged.gui.preset.legacy.description", "A preset of the original TerraForged, kept for old worlds.");
+			this.add("reterraforged.gui.presetInfo.differs", "Settings that differ from Default: %s");
+			this.add("reterraforged.gui.presetInfo.same", "The same settings as Default.");
+			this.add("reterraforged.gui.button.copyWorldInfo", "Copy World Info");
+			this.add("reterraforged.gui.button.copyWorldInfo.tooltip", "Copies the mod version, the seed and the selected preset's settings to the clipboard, for a bug report.");
+			this.add("reterraforged.gui.button.copyWorldInfo.tooltip.fail", "Failed to copy the world info");
+			this.add("reterraforged.gui.button.copyWorldInfo.success", "World info copied");
+			this.add("reterraforged.gui.setting.default", "Default: %s. Right-click to reset.");
+			this.add("reterraforged.gui.search.hint", "Search settings");
+			this.add("reterraforged.gui.search.none", "No settings found");
 			
 			this.add(RTFTranslationKeys.GUI_INPUT_PROMPT, "Type preset name");
 			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, "Could not save or apply the preset");
