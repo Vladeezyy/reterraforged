@@ -391,6 +391,12 @@ public final class RTFSelfTest {
 		spaced.structures().entries.put(BuiltinStructureSets.VILLAGES, villages);
 		StructureSet set = spaced.buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS)).lookupOrThrow(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES).value();
 		check("the structure page sets the villages' spacing, separation and salt", PresetStructureSets.matches(set, villages));
+		// a new world's preset (rtf exportpreset, the preset screen) has the fixes of this version, also after the
+		// datapack's codec, and its strata noise reads the world's seed
+		net.minecraft.core.HolderLookup.Provider fresh = Presets.makeDefault().buildPatch(level.getServer().registries().getAccessForLoading(RegistryLayer.DIMENSIONS));
+		int generationVersion = fresh.lookupOrThrow(raccoonman.reterraforged.registries.RTFRegistries.PRESET).getOrThrow(Preset.KEY).value().world().properties.generationVersion;
+		String strataDepth = raccoonman.reterraforged.world.worldgen.noise.module.Noise.DIRECT_CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, fresh.lookupOrThrow(raccoonman.reterraforged.registries.RTFRegistries.NOISE).getOrThrow(raccoonman.reterraforged.data.worldgen.preset.PresetStrataNoise.STRATA_DEPTH).value()).getOrThrow().toString();
+		check("a new preset has generation version " + generationVersion + " of " + raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.Properties.CURRENT_GENERATION_VERSION + ", its strata noise of the world's seed", generationVersion == raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings.Properties.CURRENT_GENERATION_VERSION && strataDepth.contains("\"seeded\":true"));
 
 		// relief: surface heights over a 6 x 6 km area from the generator itself (no chunks are built for this)
 		var gen = level.getChunkSource().getGenerator();

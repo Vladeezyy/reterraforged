@@ -1,6 +1,7 @@
 package raccoonman.reterraforged.world.worldgen.noise.module;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -18,6 +19,19 @@ import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
 public class Noises {
+	// the Perlin noises made in it read the seed they are computed with (Perlin.seeded): a preset's noise data of
+	// generation version 1 (PresetNoiseData). Not the terrain's own, made in code: their seed already is the world's
+	private static final ThreadLocal<Boolean> SEEDED_PERLIN = ThreadLocal.withInitial(() -> false);
+
+	public static <T> T withSeededPerlin(boolean seeded, Supplier<T> make) {
+		boolean previous = SEEDED_PERLIN.get();
+		SEEDED_PERLIN.set(seeded);
+		try {
+			return make.get();
+		} finally {
+			SEEDED_PERLIN.set(previous);
+		}
+	}
 
 	// a scale of 0 (a terrain's horizontal scale slider at its minimum, or what scales derive from small ones) is the
 	// finest scale instead of an infinite frequency, which made every noise using it NaN
@@ -113,7 +127,7 @@ public class Noises {
 	}
 	
 	public static Noise perlin(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return new Perlin(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3);
+		return new Perlin(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3, SEEDED_PERLIN.get());
 	}
 	
 	public static Noise perlin2(int seed, int scale, int octaves) {
@@ -125,7 +139,7 @@ public class Noises {
 	}
 	
 	public static Noise perlin2(int seed, int scale, int octaves, float lacunarity, float gain) {
-		return new Perlin2(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3);
+		return new Perlin2(seed, frequencyOf(scale), octaves, lacunarity, gain, Interpolation.CURVE3, SEEDED_PERLIN.get());
 	}
 	
 	public static Noise perlinRidge(int seed, int scale, int octaves) {

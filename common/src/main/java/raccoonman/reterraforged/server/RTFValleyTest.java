@@ -51,7 +51,7 @@ public final class RTFValleyTest {
 		}
 		HolderLookup.Provider patch = preset.buildPatch(server.registries().getAccessForLoading(RegistryLayer.DIMENSIONS));
 		Preset patched = patch.lookupOrThrow(RTFRegistries.PRESET).getOrThrow(Preset.KEY).value();
-		GeneratorContext ctx = GeneratorContext.makeUncached(patched, patch.lookupOrThrow(RTFRegistries.NOISE), (int) seed, 4, 0, PerformanceConfig.makeDefault().batchCount());
+		GeneratorContext ctx = GeneratorContext.makeUncached(patched, patch.lookupOrThrow(RTFRegistries.NOISE), GeneratorContext.terrainSeed(seed, patched), 4, 0, PerformanceConfig.makeDefault().batchCount());
 		Levels levels = ctx.levels;
 		int tile = 256, size = tile * TILES;
 		// height above sea level in blocks, and whether the cell is in a valley (river mask below 1)
