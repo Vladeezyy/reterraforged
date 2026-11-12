@@ -7,6 +7,7 @@ import java.util.function.BooleanSupplier;
 import raccoonman.reterraforged.concurrent.ThreadPools;
 import raccoonman.reterraforged.world.worldgen.WorldFilters;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.heightmap.FarColumns;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
@@ -64,6 +65,11 @@ public class TileGenerator {
 
 	// the tile's chunks in batchCount x batchCount batches on the generation threads, then the filters (erosion, smoothing)
 	private CompletableFuture<Tile> generate(Tile tile, float zoom, float translateX, float translateZ, boolean applyOptionalFilters, BooleanSupplier cancelled) {
+		// a cell per block on whole blocks (the world's tiles, a preview at zoom 1): the columns a float does not hold are
+		// interpolated in a world of generation version 1 (FarColumns), as WorldLookup does
+		boolean blockColumns = this.heightmap.farColumns() && zoom == 1.0F && translateX == (int) translateX && translateZ == (int) translateZ;
+		int offsetX = (int) translateX;
+		int offsetZ = (int) translateZ;
 		CompletableFuture<?>[] futures = new CompletableFuture<?>[this.batchCount * this.batchCount];
 		for (int batchZ = 0; batchZ < this.batchCount; batchZ++) {
 			for (int batchX = 0; batchX < this.batchCount; batchX++) {
@@ -79,6 +85,16 @@ public class TileGenerator {
 					for (int cZ = chunkZ; cZ < maxZ; cZ++) {
 						for (int cX = chunkX; cX < maxX; cX++) {
 							Chunk chunk = tile.getChunkWriter(cX, cZ);
+							int blockX = chunk.getBlockX() + offsetX;
+							int blockZ = chunk.getBlockZ() + offsetZ;
+							if (blockColumns && (FarColumns.reaches(blockX, blockX + 15) || FarColumns.reaches(blockZ, blockZ + 15))) {
+								for (int dz = 0; dz < 16; dz++) {
+									for (int dx = 0; dx < 16; dx++) {
+										this.heightmap.applyColumn(chunk.getCell(dx, dz), blockX + dx, blockZ + dz, true);
+									}
+								}
+								continue;
+							}
 							Rivermap rivers = null;
 							for (int dz = 0; dz < 16; dz++) {
 								for (int dx = 0; dx < 16; dx++) {

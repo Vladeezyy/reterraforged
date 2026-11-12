@@ -41,8 +41,40 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands) {
-	
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands, boolean farColumns) {
+
+	// a block column as a tile's cell before its filters (TileGenerator, WorldLookup): the terrain, the rivers and the
+	// climate. farColumns (generation version 1): a column a float does not hold is interpolated (FarColumns)
+	public void applyColumn(Cell cell, int x, int z, boolean applyClimate) {
+		if (this.farColumns && !FarColumns.exact(x, z)) {
+			FarColumns.apply(cell, x, z, (side, sideX, sideZ) -> this.sampleColumn(side, sideX, sideZ, applyClimate));
+			return;
+		}
+		this.sampleColumn(cell, x, z, applyClimate);
+	}
+
+	private void sampleColumn(Cell cell, float x, float z, boolean applyClimate) {
+		this.applyGround(cell, x, z);
+		this.applyClimate(cell, x, z, applyClimate);
+	}
+
+	// apply for a block column (WorldLookup)
+	public void applyBlock(Cell cell, int x, int z, boolean applyClimate) {
+		this.applyColumn(cell, x, z, applyClimate);
+		if (cell.terrain == TerrainType.ISLAND_BEACH) {
+			cell.terrain = TerrainType.BEACH;
+		}
+	}
+
+	// applyGround for a block column (the neighbours of a shore, WorldLookup)
+	public void applyGroundColumn(Cell cell, int x, int z) {
+		if (this.farColumns && !FarColumns.exact(x, z)) {
+			FarColumns.apply(cell, x, z, this::applyGround);
+			return;
+		}
+		this.applyGround(cell, x, z);
+	}
+
 	public void apply(Cell cell, float x, float z, boolean applyClimate) {
 		this.applyGround(cell, x, z);
 		this.applyClimate(cell, x, z, applyClimate);
@@ -233,7 +265,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         // off: no height is at most the water's
         int lowlandSwamps = preset.climate().lowlandSwamps;
         float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes);
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes, world.properties.fixes(1));
 	}
 
 	// the noise of the continents' mountains for the islands, at the islands' scale; its own seed, so the other noises keep theirs
