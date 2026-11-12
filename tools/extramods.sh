@@ -26,6 +26,14 @@ deps = [d["project_id"] for d in v["dependencies"] if d["dependency_type"] == "r
 print(f["url"], f["filename"], *deps)' | tr -d '\r'
 }
 
+# Required dependencies that the Modrinth versions do not declare: the 26.x versions of Biomes O' Plenty list only
+# GlitchCore (or nothing) and omit TerraBlender, so the server does not start. Slug -> slugs, added to every version.
+known_deps() {
+    case "$1" in
+        biomes-o-plenty) echo "terrablender glitchcore" ;;
+    esac
+}
+
 todo=("$@"); seen=" P7dR8mSH fabric-api "  # Fabric API: the pinned version from servertest.sh
 while [ ${#todo[@]} -gt 0 ]; do
     p=${todo[0]}; todo=("${todo[@]:1}")
@@ -37,6 +45,6 @@ while [ ${#todo[@]} -gt 0 ]; do
     cp "run/modcache/$file" "$DIR/"
     echo "$file" >> "$DIR/.extramods"
     echo "extra mod: $file"
-    for d in $deps; do todo+=("$d"); done
+    for d in $deps $(known_deps "$p"); do todo+=("$d"); done
 done
 exit 0
