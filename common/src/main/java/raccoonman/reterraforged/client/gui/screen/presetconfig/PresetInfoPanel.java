@@ -21,7 +21,7 @@ import raccoonman.reterraforged.RTFCommon;
  * freed when the screen is left (PresetConfigScreen.removed), both on the render thread.
  */
 final class PresetInfoPanel {
-	private static final int MIN_MAP = 40;
+	private static final int MIN_MAP = 64;
 	private static final int MAX_MAP = 2 * PresetMapDrawer.SIZE;
 	private static final int LINE = 10;
 	private static final int TEXT = 0xFFA0A0A0;
@@ -38,6 +38,10 @@ final class PresetInfoPanel {
 	// the key of the picture in the texture
 	@Nullable
 	private String uploaded;
+	// what the last frame did, for the GUI test's message: the box, the map's size, the key of the map drawn in it
+	private int boxWidth, boxHeight, mapSize;
+	@Nullable
+	private String drawn;
 
 	PresetInfoPanel(PresetMaps<PresetMapDrawer.Input> maps) {
 		this.maps = maps;
@@ -53,16 +57,43 @@ final class PresetInfoPanel {
 
 	/** The selected preset's map is on the screen (the GUI test waits for it) */
 	boolean mapShown() {
-		return this.shown != null && this.shown.mapKey().equals(this.uploaded);
+		return this.shown != null && this.shown.mapKey().equals(this.drawn);
 	}
 
 	boolean mapFailed() {
 		return this.shown != null && this.maps.failed(this.shown.mapKey());
 	}
 
+	/** The page has no room for the box (the smallest windows) */
+	void noRoom(int width) {
+		this.boxWidth = width;
+		this.boxHeight = 0;
+		this.mapSize = 0;
+		this.drawn = null;
+	}
+
+	/** Why the map is or is not on the screen, for the GUI test's log */
+	String diagnosis() {
+		String box = "box " + this.boxWidth + "x" + this.boxHeight + ", map " + this.mapSize;
+		if(this.shown == null) {
+			return box + ": nothing selected";
+		}
+		if(this.boxWidth <= 0 || this.mapSize < MIN_MAP) {
+			return box + ": no room (the map needs " + MIN_MAP + ")";
+		}
+		if(this.mapFailed()) {
+			return box + ": the map could not be made (see the log)";
+		}
+		return box + (this.mapShown() ? ": shown" : ": not made yet" + (this.maps.isBusy() ? " (being made)" : ""));
+	}
+
 	/** In the box x, y, width, height: the map as large as fits above the description, or the description alone */
 	void render(GuiGraphics graphics, int x, int y, int width, int height) {
 		Shown shown = this.shown;
+		this.boxWidth = width;
+		this.boxHeight = height;
+		this.mapSize = 0;
+		this.drawn = null;
 		if(shown == null || width <= 0 || height < LINE) {
 			return;
 		}
@@ -73,6 +104,7 @@ final class PresetInfoPanel {
 		boolean text = textHeight <= height;
 		int size = Math.min(Math.min(width, MAX_MAP), height - (text ? textHeight + 4 : 0));
 		int top = y;
+		this.mapSize = size;
 		if(size >= MIN_MAP) {
 			int left = x + (width - size) / 2;
 			// the same box while the picture is made: nothing below it moves when it comes
@@ -81,6 +113,7 @@ final class PresetInfoPanel {
 			if(picture != null) {
 				this.upload(shown.mapKey(), picture);
 				graphics.blit(this.textureId, left + 1, top + 1, 0, 0, size - 2, size - 2, size - 2, size - 2);
+				this.drawn = shown.mapKey();
 			}
 			graphics.renderOutline(left, top, size, size, FRAME);
 			top += size + 4;
@@ -121,5 +154,6 @@ final class PresetInfoPanel {
 		this.texture = null;
 		this.textureId = null;
 		this.uploaded = null;
+		this.drawn = null;
 	}
 }
