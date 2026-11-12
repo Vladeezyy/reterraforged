@@ -91,7 +91,7 @@ public class WorldLookup {
 	}
 
 	private boolean compute(Cell cell, int x, int z, boolean applyClimate) {
-		this.heightmap.apply(cell, x, z, applyClimate);
+		this.heightmap.applyBlock(cell, x, z, applyClimate);
 		if (cell.terrain == TerrainType.COAST && cell.height > this.waterLevel && cell.height <= this.beachLevel) {
 			cell.terrain = TerrainType.BEACH;
 		}
@@ -117,7 +117,7 @@ public class WorldLookup {
 	}
 
 	private float height(Cell cell, int x, int z) {
-		this.heightmap.applyGround(cell.reset(), x, z);
+		this.heightmap.applyGroundColumn(cell.reset(), x, z);
 		return cell.height;
 	}
 }
