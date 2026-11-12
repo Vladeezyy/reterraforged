@@ -171,8 +171,8 @@ public final class RTFGuiTest {
 					// the first round: a new preset's map and description next to the list, then Default as always
 					PresetListPage list = (PresetListPage) ((PresetConfigScreen) mc.screen).getCurrentPage();
 					if (!list.infoMapShown() && !list.infoMapFailed() && ++infoWait < 400) return;
-					log("preset map of Towering Peaks after {} ticks: {}", infoWait, list.infoMapShown() ? "shown" : list.infoMapFailed() ? "failed" : "not there");
-					if (!list.infoMapShown()) fail("the preset list shows no map of the selected preset");
+					log("preset map of Towering Peaks after {} ticks: {}", infoWait, list.infoDiagnosis());
+					if (!list.infoMapShown()) fail("the preset list shows no map of the selected preset: " + list.infoDiagnosis());
 					if (!I18n.exists(BuiltinPresets.descriptionKey("toweringPeaks"))) fail("no description of Towering Peaks in the language file");
 					shoot(mc, "gui-preset-info");
 					infoState = 2;
