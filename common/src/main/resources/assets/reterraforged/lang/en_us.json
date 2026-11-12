@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "Could not save or apply the preset",
   "reterraforged.gui.button.delete.confirm": "Delete this preset? This cannot be undone.",
   "reterraforged.gui.button.generationFixes": "Generation Fixes",
-  "reterraforged.gui.button.generationFixes.tooltip": "Fixes that change the terrain: islands differ from seed to seed, have beaches above the water, and the horizontal scale of islands changes only their terrain; swamp floors no longer repeat from chunk to chunk; Lowland Swamps also works with biome mods that keep their swamps elsewhere; the continent type Infinite has land. Presets saved by earlier versions have this off, so their worlds keep their terrain.",
+  "reterraforged.gui.button.generationFixes.tooltip": "Fixes that change the terrain: islands differ from seed to seed, have beaches above the water, and the horizontal scale of islands changes only their terrain; swamp floors no longer repeat from chunk to chunk; Lowland Swamps also works with biome mods that keep their swamps elsewhere; the continent type Infinite has land. New worlds also get: deep structures (strongholds, ancient cities, trial chambers) under rivers and lakes, rock strata that follow the world's seed, and terrain from the whole 64-bit seed. Presets saved by earlier versions have this off, so their worlds keep their terrain.",
   "reterraforged.gui.button.islandContinentMountains": "Continent Mountains",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "Islands use the mountain noise of the continents instead of their own ridges.",
   "reterraforged.gui.button.islandSeedOffset": "Island Seed Offset",

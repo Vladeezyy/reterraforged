@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "Preset konnte nicht gespeichert oder angewendet werden",
   "reterraforged.gui.button.delete.confirm": "Dieses Preset löschen? Das kann nicht rückgängig gemacht werden.",
   "reterraforged.gui.button.generationFixes": "Generierungskorrekturen",
-  "reterraforged.gui.button.generationFixes.tooltip": "Korrekturen, die das Gelände ändern: Inseln unterscheiden sich von Seed zu Seed, ihre Strände liegen über dem Wasser, und die horizontale Inselskalierung ändert nur ihr Gelände; Sumpfböden wiederholen sich nicht mehr von Chunk zu Chunk; „Sümpfe im Tiefland“ wirkt auch bei Biom-Mods, die Sümpfe anderswo einordnen; der Kontinenttyp „Unendlich“ hat Land. In Presets aus früheren Versionen ist dies aus, ihre Welten behalten ihr Gelände.",
+  "reterraforged.gui.button.generationFixes.tooltip": "Korrekturen, die das Gelände ändern: Inseln unterscheiden sich von Seed zu Seed, ihre Strände liegen über dem Wasser, und die horizontale Inselskalierung ändert nur ihr Gelände; Sumpfböden wiederholen sich nicht mehr von Chunk zu Chunk; „Sümpfe im Tiefland“ wirkt auch bei Biom-Mods, die Sümpfe anderswo einordnen; der Kontinenttyp „Unendlich“ hat Land. Neue Welten erhalten außerdem: tiefe Bauwerke (Festungen, Antike Städte, Prüfungskammern) unter Flüssen und Seen, Gesteinsschichten, die dem Seed der Welt folgen, und Gelände aus dem gesamten 64-Bit-Seed. In Presets aus früheren Versionen ist dies aus, ihre Welten behalten ihr Gelände.",
   "reterraforged.gui.button.islandContinentMountains": "Kontinentgebirge",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "Inseln nutzen das Gebirgsrauschen der Kontinente statt ihrer eigenen Grate.",
   "reterraforged.gui.button.islandSeedOffset": "Insel-Seed-Versatz",
