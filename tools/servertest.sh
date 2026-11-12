@@ -54,6 +54,13 @@ NEOFORGE=$(prop neoforge_version)
 FABRIC_LOADER=${FABRIC_LOADER:-$(prop fabric_loader_version)}
 FABRIC_API=${FABRIC_API:-$(prop fabric_api_version)}
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) WIN=1; ARGS_FILE=win_args.txt ;; *) WIN=; ARGS_FILE=unix_args.txt ;; esac
+# Git Bash has no pgrep and pkill (FAULT, VEGETATION and LOCATE ask whether the server still runs: without them "ended" came out
+# as a PASS after 1 s): the same through PowerShell, java processes by a part of their command line
+if [ -n "$WIN" ] && ! command -v pgrep > /dev/null 2>&1; then
+    winjava() { PAT="$1" powershell -NoProfile -Command '$p=$env:PAT; Get-CimInstance Win32_Process | Where-Object { $_.Name -like "java*" -and $_.CommandLine -and $_.CommandLine.Contains($p) } | ForEach-Object { $_.ProcessId }' | tr -d ''; }
+    pgrep() { [ "$1" = "-f" ] && shift; local pids; pids=$(winjava "$1"); [ -n "$pids" ] && echo "$pids"; }
+    pkill() { while [ "${1#-}" != "$1" ]; do shift; done; local p; for p in $(winjava "$1"); do taskkill //F //PID "$p" > /dev/null 2>&1; done; }
+fi
 if [ -z "$JAVA" ]; then
     if [ -n "$JAVA_HOME" ]; then JAVA="$JAVA_HOME/bin/java"
     elif [ -x /opt/homebrew/opt/openjdk@21/bin/java ]; then JAVA=/opt/homebrew/opt/openjdk@21/bin/java
