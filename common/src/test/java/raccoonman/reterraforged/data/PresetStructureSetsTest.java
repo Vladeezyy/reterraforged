@@ -23,6 +23,13 @@ class PresetStructureSetsTest {
 	}
 
 	@Test
+	void thePresetFolderHasTheNamespaceFirstOnBothLoaders() {
+		// NeoForge: Registries.elementsDirPath gives it with the namespace; Fabric: without (it adds it when it loads)
+		assertEquals("reterraforged/worldgen/preset", PresetStructureSets.presetDir("reterraforged/worldgen/preset", "reterraforged"));
+		assertEquals("reterraforged/worldgen/preset", PresetStructureSets.presetDir("worldgen/preset", "reterraforged"));
+	}
+
+	@Test
 	void anEntryAsTheSetIsChangesNothing() {
 		// villages: 34, 8, 10387312 (an entry the page made from the set)
 		assertFalse(PresetStructureSets.changes(34, 8, 10387312, new StructureSetEntry(34, 8, 10387312, false)));
