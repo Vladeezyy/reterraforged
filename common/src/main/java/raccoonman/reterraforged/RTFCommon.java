@@ -57,6 +57,7 @@ public class RTFCommon {
 	// what a world leaves behind in static fields (a client goes on to other worlds)
 	public static void onServerStopped() {
 		AltitudeCooling.reset();
+		raccoonman.reterraforged.config.WorldTileSize.clear();
 		OverworldRegistries.clear();
 	}
 
