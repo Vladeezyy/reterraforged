@@ -76,6 +76,8 @@ public final class RTFGuiTest {
 	private static final List<TooltipShot> TOOLTIP_SHOTS = List.of(
 		new TooltipShot("WorldSettingsPage", "continent-type", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof ContinentType),
 		new TooltipShot("WorldSettingsPage", "render-mode", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof RenderMode),
+		// the longest tooltip of the screen (it lists the fixes)
+		new TooltipShot("WorldSettingsPage", "generation-fixes", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES)),
 		new TooltipShot("IslandSettingsPage", "island-density", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_ISLAND_DENSITY)),
 		new TooltipShot("StructureSettingsPage", "placement-seed", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_SALT)),
 		// the five tooltips whose texts were lost once (0.0.22 to 0.0.31), the longest of the screen; down their pages, in the
