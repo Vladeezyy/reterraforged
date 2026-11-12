@@ -23,8 +23,8 @@ public final class RTFLanguageProvider {
 			this.add("reterraforged.gui.preset.default.description", "The mod's main preset: continents, rivers and every kind of terrain.");
 			this.add("reterraforged.gui.preset.archipelago.description", "Big island groups off the coasts, some volcanic. You spawn on an island.");
 			this.add("reterraforged.gui.preset.wetlands.description", "Wide swamps just above the sea, more lakes and wetlands.");
-			this.add("reterraforged.gui.preset.toweringPeaks.description", "A higher world with more and taller mountains. Slower to generate.");
-			this.add("reterraforged.gui.preset.endlessContinent.description", "One endless land without oceans, with more rivers and lakes.");
+			this.add("reterraforged.gui.preset.toweringPeaks.description", "A higher world with more and taller mountains.");
+			this.add("reterraforged.gui.preset.endlessContinent.description", "One endless land without oceans, with more rivers and lakes. Slower to generate.");
 			this.add("reterraforged.gui.preset.riverValleys.description", "Many rivers in wide winding valleys, with gorges and lakes.");
 			this.add("reterraforged.gui.preset.lushWilds.description", "Denser forests, more grass and flowers.");
 			this.add("reterraforged.gui.preset.rollingPlains.description", "Wide, gentle plains and steppes with few mountains: room to build.");
