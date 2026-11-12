@@ -357,6 +357,18 @@ public final class RTFSelfTest {
 			.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).map((key) -> key.identifier().toString())
 			.filter((id) -> id.endsWith("trees") || id.contains("trees_")).toList();
 		check("the forest grows ReTerraForged trees, not vanilla ones " + trees, trees.equals(List.of(RTFCommon.MOD_ID + ":forest_trees")));
+		// the datapack's biome modifiers reach this loader whichever loader exported it: NeoForge reads
+		// neoforge/biome_modifier, Fabric forge/biome_modifier, and a pack with only the other one's folder gave a world
+		// without them (no swamp surface, erosion, trees of the preset). PRESET_ZIP=<the other loader's export>
+		List<String> modifierFolders = new ArrayList<>();
+		for (String folder : List.of("neoforge/biome_modifier", "forge/biome_modifier")) {
+			if (!level.getServer().getResourceManager().listResources(folder, (id) -> id.getNamespace().equals(RTFCommon.MOD_ID) && id.getPath().endsWith("/add_swamp_surface.json")).isEmpty()) modifierFolders.add(folder);
+		}
+		if (!modifierFolders.isEmpty()) {
+			boolean swampSurface = level.registryAccess().lookupOrThrow(Registries.BIOME).getValueOrThrow(Biomes.SWAMP).getGenerationSettings().features().stream()
+				.flatMap(HolderSet::stream).map(Holder::unwrapKey).flatMap(Optional::stream).anyMatch(raccoonman.reterraforged.data.worldgen.preset.PresetPlacedFeatures.SWAMP_SURFACE::equals);
+			check("the preset datapack's biome modifiers are applied (the swamp has the swamp surface, the pack has " + modifierFolders + ")", swampSurface);
+		}
 		// and they stand in the world: trunks in the nearest forest (the feature list above holds even when every tree
 		// fails to place, as on 26.1 with the soil tag and 26.3 with the template block names)
 		// a forest on the surface (biomes are 3D: at a fixed height a "forest" can be inside a mountain or in the air)

@@ -43,6 +43,7 @@ public final class PresetExport {
 		try {
 			DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName);
 			dataGenerator.run();
+			mirrorBiomeModifiers(datagenOutputPath);
 			Files.deleteIfExists(tempPath);
 			copyToZip(datagenOutputPath, tempPath);
 			Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
@@ -83,6 +84,34 @@ public final class PresetExport {
 		} catch (IOException | UncheckedIOException e) {
 			RTFCommon.LOGGER.warn("Could not look for old export folders in {}", temp, e);
 		}
+	}
+
+	// The biome modifiers in the folders of both loaders: NeoForge reads data/<ns>/neoforge/biome_modifier, the mod's
+	// registry on Fabric data/<ns>/forge/biome_modifier, and each skips the other's folder without a word. A pack
+	// exported on one loader had no trees, erosion or swamp surface of the preset on the other, and the release file is
+	// the NeoForge export. The JSON is the same on both (the types are the mod's own). A namespace that has both
+	// folders is left as it is; each loader reads only its own, so nothing applies twice.
+	public static void mirrorBiomeModifiers(Path pack) throws IOException {
+		Path data = pack.resolve("data");
+		if (!Files.isDirectory(data)) {
+			return;
+		}
+		try (DirectoryStream<Path> namespaces = Files.newDirectoryStream(data)) {
+			for (Path namespace : namespaces) {
+				Path neoforge = namespace.resolve("neoforge").resolve("biome_modifier");
+				Path fabric = namespace.resolve("forge").resolve("biome_modifier");
+				if (Files.isDirectory(neoforge) && !Files.exists(fabric)) {
+					copyFolder(neoforge, fabric);
+				} else if (Files.isDirectory(fabric) && !Files.exists(neoforge)) {
+					copyFolder(fabric, neoforge);
+				}
+			}
+		}
+	}
+
+	private static void copyFolder(Path from, Path to) throws IOException {
+		Files.createDirectories(to.getParent());
+		PathUtils.copyDirectory(from, to);
 	}
 
 	// the path, not a "jar:" URI: the zip provider cuts such a URI at its first "!/", and Path.toUri does not escape "!".
