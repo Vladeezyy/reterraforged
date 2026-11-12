@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "프리셋을 저장하거나 적용하지 못했습니다",
   "reterraforged.gui.button.delete.confirm": "이 프리셋을 삭제할까요? 되돌릴 수 없습니다.",
   "reterraforged.gui.button.generationFixes": "생성 수정",
-  "reterraforged.gui.button.generationFixes.tooltip": "지형을 바꾸는 수정입니다: 섬은 시드마다 달라지고, 해변은 물 위에 있으며, 섬의 수평 크기는 섬의 지형만 바꿉니다. 늪 바닥은 더 이상 청크마다 반복되지 않습니다. \"저지대 늪\" 설정은 늪을 다른 곳에 두는 생물 군계 모드에서도 작동합니다. 대륙 유형 \"무한\"에 육지가 생깁니다. 이전 버전에서 저장한 프리셋은 꺼져 있어 세계의 지형이 바뀌지 않습니다.",
+  "reterraforged.gui.button.generationFixes.tooltip": "지형을 바꾸는 수정입니다: 섬은 시드마다 달라지고, 해변은 물 위에 있으며, 섬의 수평 크기는 섬의 지형만 바꿉니다. 늪 바닥은 더 이상 청크마다 반복되지 않습니다. \"저지대 늪\" 설정은 늪을 다른 곳에 두는 생물 군계 모드에서도 작동합니다. 대륙 유형 \"무한\"에 육지가 생깁니다. 새 세계에서는 강과 호수 아래의 깊은 구조물(요새, 고대 도시, 시련의 회당), 세계 시드를 따르는 암석 지층, 64비트 시드 전체를 반영한 지형도 적용됩니다. 이전 버전에서 저장한 프리셋은 꺼져 있어 세계의 지형이 바뀌지 않습니다.",
   "reterraforged.gui.button.islandContinentMountains": "대륙 산맥",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "섬이 자체 능선 대신 대륙의 산 노이즈를 사용합니다.",
   "reterraforged.gui.button.islandSeedOffset": "섬 시드 오프셋",
