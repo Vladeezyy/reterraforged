@@ -497,14 +497,16 @@ public final class RTFSelfTest {
 				int x = spawn.getX() + 600 + k * 40, z = spawn.getZ() + i * 40;
 				BlockPos ground = this.saplingGround(level, x, z, size);
 				for (int dx = 0; dx < size; dx++) for (int dz = 0; dz < size; dz++) level.setBlock(ground.offset(dx, 0, dz), block.defaultBlockState().setValue(SaplingBlock.STAGE, 1), 3);
+				// the leaves that were there: with the trees of other mods around (their bushes have persistent leaves) only
+				// what this tree adds is counted
+				int leavesBefore = badLeaves(level, ground);
 				((SaplingBlock) block).advanceTree(level, ground, level.getBlockState(ground), RandomSource.create(k * 100 + i));
 				if (level.getBlockState(ground).is(block)) continue;
 				grownTrees++;
 				boolean trunk = true;
 				for (int dx = 0; dx < size; dx++) for (int dz = 0; dz < size; dz++) trunk &= level.getBlockState(ground.offset(dx, 0, dz)).is(BlockTags.LOGS);
 				if (trunk) onSaplings++;
-				badLeaves += (int) BlockPos.betweenClosedStream(ground.offset(-12, 0, -12), ground.offset(12, 40, 12)).map(level::getBlockState)
-					.filter((state) -> state.getBlock() instanceof LeavesBlock && (state.getValue(LeavesBlock.PERSISTENT) || state.getValue(LeavesBlock.DISTANCE) >= LeavesBlock.DECAY_DISTANCE)).count();
+				badLeaves += Math.max(0, badLeaves(level, ground) - leavesBefore);
 			}
 			mod = SaplingTrees.grown - before;
 			String name = size + "x" + size + " " + block.getName().getString();
@@ -680,5 +682,11 @@ public final class RTFSelfTest {
 		int stone = 0;
 		for (int y = 40; y < 70; y++) if (c.getBlockState(new BlockPos(0, y, 0)).is(Blocks.END_STONE)) stone++;
 		check("the end island is there", stone > 5);
+	}
+
+	// the leaves around a sapling that are persistent or about to decay
+	private static int badLeaves(ServerLevel level, BlockPos ground) {
+		return (int) BlockPos.betweenClosedStream(ground.offset(-12, 0, -12), ground.offset(12, 40, 12)).map(level::getBlockState)
+			.filter((state) -> state.getBlock() instanceof LeavesBlock && (state.getValue(LeavesBlock.PERSISTENT) || state.getValue(LeavesBlock.DISTANCE) >= LeavesBlock.DECAY_DISTANCE)).count();
 	}
 }
