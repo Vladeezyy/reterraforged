@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "Nie udało się zapisać ani zastosować presetu",
   "reterraforged.gui.button.delete.confirm": "Usunąć ten preset? Tego nie można cofnąć.",
   "reterraforged.gui.button.generationFixes": "Poprawki generowania",
-  "reterraforged.gui.button.generationFixes.tooltip": "Poprawki zmieniające teren: wyspy różnią się między ziarnami, ich plaże są nad wodą, a skala pozioma wysp zmienia tylko ich rzeźbę; dno bagien nie powtarza się już z chunka na chunk; „Bagna na nizinach” działa też z modami biomów, które umieszczają bagna gdzie indziej; typ kontynentów „Nieskończony” ma ląd. W presetach z wcześniejszych wersji wyłączone, więc ich światy zachowują teren.",
+  "reterraforged.gui.button.generationFixes.tooltip": "Poprawki zmieniające teren: wyspy różnią się między ziarnami, ich plaże są nad wodą, a skala pozioma wysp zmienia tylko ich rzeźbę; dno bagien nie powtarza się już z chunka na chunk; „Bagna na nizinach” działa też z modami biomów, które umieszczają bagna gdzie indziej; typ kontynentów „Nieskończony” ma ląd. Nowe światy dostają też: głębokie budowle (twierdze, prastare miasta, komnaty prób) pod rzekami i jeziorami, warstwy skał zależne od ziarna świata oraz teren z całego 64-bitowego ziarna. W presetach z wcześniejszych wersji wyłączone, więc ich światy zachowują teren.",
   "reterraforged.gui.button.islandContinentMountains": "Góry kontynentów",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "Wyspy używają szumu gór kontynentów zamiast własnych grzbietów.",
   "reterraforged.gui.button.islandSeedOffset": "Przesunięcie ziarna wysp",

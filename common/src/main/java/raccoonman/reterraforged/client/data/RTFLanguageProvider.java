@@ -23,7 +23,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, "Could not save or apply the preset");
 			this.add(RTFTranslationKeys.GUI_BUTTON_DELETE_CONFIRM, "Delete this preset? This cannot be undone.");
 			this.add(RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES, "Generation Fixes");
-			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES), "Fixes that change the terrain: islands differ from seed to seed, have beaches above the water, and the horizontal scale of islands changes only their terrain; swamp floors no longer repeat from chunk to chunk; Lowland Swamps also works with biome mods that keep their swamps elsewhere; the continent type Infinite has land. Presets saved by earlier versions have this off, so their worlds keep their terrain.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_GENERATION_FIXES), "Fixes that change the terrain: islands differ from seed to seed, have beaches above the water, and the horizontal scale of islands changes only their terrain; swamp floors no longer repeat from chunk to chunk; Lowland Swamps also works with biome mods that keep their swamps elsewhere; the continent type Infinite has land. New worlds also get: deep structures (strongholds, ancient cities, trial chambers) under rivers and lakes, rock strata that follow the world's seed, and terrain from the whole 64-bit seed. Presets saved by earlier versions have this off, so their worlds keep their terrain.");
 			
 			this.add(RTFTranslationKeys.GUI_SELECT_PRESET_TITLE, "Presets & Defaults");
 			this.add(RTFTranslationKeys.GUI_STRUCTURE_SET_PREFIX + "minecraft.villages", "Villages");

@@ -19,7 +19,7 @@
   "reterraforged.gui.createWorld.applyFailed": "无法保存或应用预设",
   "reterraforged.gui.button.delete.confirm": "删除此预设？此操作无法撤销。",
   "reterraforged.gui.button.generationFixes": "生成修复",
-  "reterraforged.gui.button.generationFixes.tooltip": "会改变地形的修复：不同种子的岛屿各不相同，岛屿海滩高出水面，岛屿水平缩放只影响岛屿地形；沼泽底部不再逐区块重复；“低地沼泽”也适用于把沼泽放在其他气候的生物群系模组；“无限”大陆类型会生成陆地。旧版本保存的预设默认关闭，其世界的地形保持不变。",
+  "reterraforged.gui.button.generationFixes.tooltip": "会改变地形的修复：不同种子的岛屿各不相同，岛屿海滩高出水面，岛屿水平缩放只影响岛屿地形；沼泽底部不再逐区块重复；“低地沼泽”也适用于把沼泽放在其他气候的生物群系模组；“无限”大陆类型会生成陆地。新世界还会：河流和湖泊下的深层结构（要塞、远古城市、试炼密室），岩层随世界种子变化，地形取自完整的64位种子。旧版本保存的预设默认关闭，其世界的地形保持不变。",
   "reterraforged.gui.button.islandContinentMountains": "大陆山脉",
   "reterraforged.gui.button.islandContinentMountains.tooltip": "岛屿使用大陆的山脉噪声,而不是自身的山脊。",
   "reterraforged.gui.button.islandSeedOffset": "岛屿种子偏移",
