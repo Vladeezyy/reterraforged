@@ -594,10 +594,12 @@ public final class RTFSelfTest {
 			if (!level.getBlockState(root).is(Blocks.OAK_LOG)) continue;
 			roots++;
 			BlockState after = level.getBlockState(root.below());
-			if (sapling && after == underRoot) keptUnder++;
+			// a flower goes as under Minecraft's trees where #replaceable_by_trees has #small_flowers (1.21.5 on): the base takes it
+			boolean replaceable = flowersReplaced && underRoot.is(Blocks.POPPY);
+			if (sapling && (replaceable ? after.is(Blocks.OAK_LOG) : after == underRoot)) keptUnder++;
 			if (!sapling && after.is(Blocks.OAK_LOG)) filledUnder++;
 		}
-		check("a sapling's tree keeps the glass, flowers and water below its roots (" + keptUnder + " of " + cases + ", generation fills " + filledUnder + " of " + cases + ", roots " + roots + ")", roots == cases * 2 && keptUnder == cases && filledUnder == cases);
+		check("a sapling's tree keeps the glass, flowers and water below its roots (" + keptUnder + " of " + cases + ", generation fills " + filledUnder + " of " + cases + ", roots " + roots + (flowersReplaced ? "; flowers replaceable as in Minecraft" : "") + ")", roots == cases * 2 && keptUnder == cases && filledUnder == cases);
 		// Fabric: the preset's biome modifiers are applied from a copy of Fabric's list, not added to it. Added, they stayed
 		// for every world loaded after this one in the same game (a vanilla world got the preset's trees)
 		check("the preset's biome modifiers are not left in Fabric's list (" + fabricModifiersOfThisMod() + ")", fabricModifiersOfThisMod() <= 0);
