@@ -8,10 +8,16 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
   - **Strongholds, ancient cities and trial chambers are built under rivers and lakes.** The structure rule refused them at any depth there, so there were fewer strongholds, and the Eye of Ender skipped their point.
   - **Rock strata follow the world's seed.** Before, every world had the same strata.
   - **A 64-bit seed gives its own terrain.** Before, only the lower 32 bits counted. Seeds that fit 32 bits, including all text seeds, give the same terrain as before.
+  - **Erosion reads the biomes of each chunk**, as the surface rules do: sand no longer stays on steep slopes by islands ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)).
+  - **Columns past 16.7 million blocks** no longer come in pairs of equal columns.
 - **Snow Line Follows World Height** applies only in the dimension the preset builds. Before, the setting changed snow and ice in other mods' dimensions too.
 - **The tile size is stored in the world** (`reterraforged/generation.json` in the world folder). A change of `tileSize` in `performance.conf` now applies to new worlds only, so it no longer makes erosion seams in an existing world.
 - **Preset screen:** exporting a datapack no longer freezes the game. Opening Create World, Done and Export As Datapack keep the game responsive; the vanilla loading screen shows during the export.
 - **Preset screen hints:** five hints describe their settings again (Plain Stone Erosion, Min and Max Start Distance of lakes, Mountain Biome Usage, Volcano Biome Usage). Their texts were lost in all 11 languages after 0.0.21.
+- **Eight new built-in presets:** Archipelago, Wetlands, Towering Peaks, Endless Continent, River Valleys, Lush Wilds, Rolling Plains and Rugged Highlands (see Built-in presets).
+- **Preset datapacks work on both loaders:** exports write the biome modifiers for NeoForge and for Fabric. Fabric also reads the NeoForge folder of older datapacks.
+- **Preset screen:** the preset list has three columns: the list, a relief map and description of the selected preset, and the buttons. A setting that differs from Default is marked, and a right click resets it. The search box finds settings on all pages. Done without changes does not export the datapack again.
+- **Bug reports:** the log and crash reports carry the versions, the generation version, the tile size, the preset's differences from Default and the mods that touch generation. `/reterraforged info` (permission level 2) shows the same. The seed of a dedicated server is written only with `logSeed=true` in `config/reterraforged/diagnostics.conf`.
 
 ## Fixes
 
@@ -22,12 +28,16 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
 - **Noise in datapacks:** the number of octaves and terrace steps is limited (a huge or negative value hung or crashed generation); a strata selector below 0 no longer crashes the game; the `simplex_ridge` type can be written.
 - **Other mods:** injections that would conflict with another mod at the same place are replaced with compatible ones, and the spawn point search is replaced only in worlds with a preset. TerraBlender is an optional dependency. Its diagnostic counters, which ran on every biome pick with Darker Depths or Deeper Darker installed, now run only with `-Drtf.tbdiag=true`.
 - **Preset export** no longer runs on the render thread (see above).
+- **Structure settings** no longer write whole structure sets into the world's datapack, so a world loads after a structure mod is removed. The sets of datapacks from 0.0.12–0.0.31 are skipped.
+- **Behaviour change, TerraBlender with Darker Depths or Deeper Darker:** in worlds without a preset their underground regions stay TerraBlender's own. Before, the mod replaced them there too. Worlds with a preset are unchanged.
 - **Build:** the Loom and Architectury plugin versions are pinned (not snapshots).
 
 ## Known limitations
 
 - Mineshafts under river beds at sea level are still not built: their start point is above the depth threshold.
-- Far from the center (past 16.7 million blocks) the ground comes in steps of 2 blocks, and the noise distortion gets coarse already around 8 million blocks. Keep the world border within 8 million blocks (`/worldborder`).
+- Far from the center (past 16.7 million blocks), in worlds made without generation version 1 the ground comes in pairs of equal columns (steps of 2 blocks). New worlds have no pairs, but float precision still leaves fine roughness. The noise distortion gets coarse already around 8 million blocks. Keep the world border within 8 million blocks (`/worldborder`).
+- A preset datapack exported on Fabric by an older version gives NeoForge worlds none of the mod's trees, erosion, swamp surface or snow. NeoForge logs a warning, and an operator who joins is told in chat. Export the preset again with this version.
+- A Fabric world made with a preset datapack exported on NeoForge (the preset zip of the releases is one) had none of the mod's trees, erosion, swamp surface or snow. With this version its new chunks get them, so such a world can show a seam between the chunks made before and after the update.
 - Seeds: in worlds made without generation version 1 the terrain uses only the lower 32 bits, so seeds `x` and `x + 2^32` have nearly the same terrain there.
 - `tileSize` in `performance.conf` also changes a few surface blocks, as erosion runs per tile. An existing world keeps the tile size it was made with.
 - The surface on beaches and slopes sometimes takes a biome without the erosion of its tile, as in the original. Not fixed.
@@ -44,7 +54,16 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
 
 ## Built-in presets
 
-To be added: 8 new built-in presets from another branch.
+Eight presets are added to the preset list. Each is Default with a few settings changed:
+
+- **Archipelago:** island groups off the coasts, some volcanic.
+- **Wetlands:** wide swamps just above the sea, more lakes and wetlands.
+- **Towering Peaks:** a higher world with more and taller mountains.
+- **Endless Continent:** one land without oceans, with more rivers and lakes. Slower to generate (about 30 %).
+- **River Valleys:** many rivers in wide, winding valleys, with gorges and lakes.
+- **Lush Wilds:** denser forests, more grass and flowers.
+- **Rolling Plains:** wide, gentle plains and steppes with few mountains.
+- **Rugged Highlands:** plateaus, badlands, terraced hills and volcanoes instead of plains.
 
 ## Versions
 
@@ -60,3 +79,4 @@ Each version has a NeoForge jar, a Fabric jar (Fabric API required) and a preset
 
 - Replace the old jar in `mods/` with the new one. New worlds are made with the preset as before.
 - Generation version 1 applies to new worlds only: a world made before keeps every block.
+- A preset datapack exported on Fabric by an older version gives NeoForge worlds none of the mod's biome modifiers: export the preset again.

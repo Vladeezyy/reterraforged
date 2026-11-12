@@ -55,9 +55,18 @@ Done. Without this step the world will be vanilla. The experimental settings war
 
 **Server.** For a new world, put the datapack `reterraforged-preset-<version>.zip` into
 `world/datapacks/` before the first start. Your own preset can be exported with the "Export As Datapack" button on the
-preset screen.
+preset screen. A datapack exported by this version works on NeoForge and on Fabric. One exported on NeoForge by an older
+version works on Fabric too; one exported on Fabric by an older version gets no biome modifiers on NeoForge (see Known
+limitations).
 
 The mod only affects new worlds created with its preset. It does not change an existing world.
+
+**Bug reports.** When the overworld loads, the log gets the world's details, and every crash report has them too: the
+versions, the generation version, the tile size, the preset's differences from Default and the mods that touch
+generation. The seed of a dedicated server is written only with `logSeed=true` in `config/reterraforged/diagnostics.conf`
+(the default is `false`; single player always writes it). An operator can run `/reterraforged info` (permission level 2)
+for the same details, with the seed. The preset list has a Copy World Info button, which copies the mod version, the seed
+and the selected preset's settings.
 
 ## Features
 
@@ -85,7 +94,7 @@ The mod only affects new worlds created with its preset. It does not change an e
   are above the water, and their horizontal scale changes only their terrain, not their outline. Swamp floors no longer repeat from chunk to chunk.
   Lowland Swamps also picks the swamps that biome mods such as Terralith keep on other climates, and reaches the mixed terrains it used to leave
   out, most of the terrain regions. It now also reaches dry and cold lowland, where Terralith keeps Orchid Swamp and Ice Marsh. The Infinite continent type has land. Another mod's
-  dimension on the overworld's noise settings gets terrain instead of a flat sea. In new worlds it also turns on generation version 1: deep structures under rivers and lakes, rock strata that follow the world's seed, and the full 64-bit seed. Worlds made before do not change.
+  dimension on the overworld's noise settings gets terrain instead of a flat sea. In new worlds it also turns on generation version 1: deep structures under rivers and lakes, rock strata that follow the world's seed, the full 64-bit seed, erosion that reads the biomes of each chunk (sand no longer stays on steep slopes by islands, [#38](https://github.com/Vladeezyy/reterraforged/issues/38)), and columns past 16.7 million blocks that no longer come in pairs. Worlds made before do not change.
 - **Lowland Swamps and Highest Swamps** (0.0.29, Climate page, [#28](https://github.com/Vladeezyy/reterraforged/issues/28)): wet,
   flat lowlands can get wide swamps (off by default), and a swamp biome too high above the sea is picked again (12 blocks in
   new presets), which keeps Terralith's swamps off the hills.
@@ -94,7 +103,8 @@ The mod only affects new worlds created with its preset. It does not change an e
   Plenty and Terralith, 25 % gives swamps on 5 to 7 % of the land, 36 to 46 % of them wide, in patches of 1 to 1.5 km². It changes the terrain, so it is
   off by default and presets saved before have none. Generation is 4 to 5 % slower at 25 %. Rivers still cross the basins.
 - **Island settings** (0.0.30, Islands page, [#38](https://github.com/Vladeezyy/reterraforged/issues/38)): Coast Noise Octaves (1 to 8, default 5), Coast Noise Gain (0 to 1, default 0.5) and Coast Noise Lacunarity (1 to 4, default 2) make island coasts rough instead of always smooth. Island Seed Offset (with a button for a random one) moves the islands to another layout. Distance From Continents (0 to 1, default 0) keeps islands away from continents: at 1 the nearest island is about 190 blocks from a continent and the median island 860, against 30 and 610 at 0. Continent Mountains (off by default) gives islands the continents' mountain noise; with the island mountain sliders at maximum, the highest point is about 300 instead of 235.
-- **Vegetation density** (0.0.30, Miscellaneous page, [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): Grass Density (0 to 3), Tree Density (0 to 2) and Plant Density (0 to 3, flowers, bushes, mushrooms and other plants): 1 is the usual amount, 0 none. They need Custom Biome Features (on in Default). They also scale the vegetation of other mods' biomes, recognised by the names of their features (one with an unknown name stays as it is). At 1 they cost nothing.
+- **Vegetation density** (0.0.30, Miscellaneous page, [#37](https://github.com/Vladeezyy/reterraforged/issues/37)): Grass Density (0 to 3), Tree Density (0 to 2) and Plant Density (0 to 3, flowers, bushes, mushrooms and other plants): 1 is the usual amount, 0 none. They need Custom Biome Features (on in Default). They also scale the vegetation of other mods' biomes, recognised by the names of their features (one with an unknown name stays as it is). At 1 they cost nothing. In new worlds they apply
+  only where the preset builds the terrain, not in other dimensions that use the same biomes.
 - **Saplings grow the mod's trees** (0.0.31, [#41](https://github.com/Vladeezyy/reterraforged/issues/41), with Custom Biome Features on, on in Default): an oak, birch, spruce, jungle, acacia or dark oak sapling, bone meal too, grows one of the mod's template trees instead of the vanilla one. Spruce, jungle and dark oak grow 2 × 2 from four saplings. Next to flowers a bee nest appears with a 5 % chance, as in vanilla. Vanilla still picks the tree and puts the saplings back when the tree does not fit: the mod's trees are taller (jungle 16–19 blocks, redwood about 20), so a sapling needs more room than in vanilla. Saplings of other mods, cherry, mangrove and azalea are unchanged. With Custom Biome Features off, saplings grow vanilla trees.
 - **Rock strata** ([#1](https://github.com/Vladeezyy/reterraforged/issues/1)): bands of granite, diorite, andesite and
   stone under the ground. The number of layers and their relative thickness are sliders on the Miscellaneous page.
@@ -106,11 +116,21 @@ The mod only affects new worlds created with its preset. It does not change an e
   vanilla ones.
 - **Preset editor:** more than 160 settings on eleven pages (world, surface, caves, climate, terrain, islands, rivers,
   filters, structures and more) with a preview map that redraws on every change. Presets can be saved, copied and
-  exported as a datapack.
+  exported as a datapack. The preset list has three columns: the list, the selected preset's relief map and description, and
+  the buttons. A setting that differs from Default is marked (and its page in the menu), and a right click resets it. The
+  search box finds settings on all pages. Done without changes does not export the datapack again.
 - **Structures:** spacing, separation and salt for every structure set, or disable it. Villages and other surface
   structures are not placed on mountains, as in 0.0.6.
-- **Presets:** the "Default" of ReTerraForged 0.0.6 and the classic TerraForged presets (Beautiful, Huge Biomes, Lite,
-  Vanilla-ish).
+- **Presets:** the "Default" of ReTerraForged 0.0.6, eight presets added in 0.0.32, and the classic TerraForged presets
+  (Beautiful, Huge Biomes, Lite, Vanilla-ish). Each new preset is Default with a few settings changed:
+  - **Archipelago:** island groups off the coasts, some volcanic.
+  - **Wetlands:** wide swamps just above the sea, more lakes and wetlands.
+  - **Towering Peaks:** a higher world with more and taller mountains.
+  - **Endless Continent:** one land without oceans, with more rivers and lakes. Slower to generate: 16.6–16.9 ms per chunk against 12.5–13.2 for Default (1.21.1 NeoForge, 16 cores); the other seven are within 12.4–14.6.
+  - **River Valleys:** many rivers in wide, winding valleys, with gorges and lakes.
+  - **Lush Wilds:** denser forests, more grass and flowers.
+  - **Rolling Plains:** wide, gentle plains and steppes with few mountains.
+  - **Rugged Highlands:** plateaus, badlands, terraced hills and volcanoes instead of plains.
 - **11 languages:** English, Russian, Ukrainian, Chinese, German, French, Spanish, Portuguese (Brazil), Japanese, Korean,
   Polish.
 
@@ -155,6 +175,18 @@ squares and stripes.
 - **Tile size is stored in the world** (`reterraforged/generation.json` in the world folder). Before, changing `tileSize` in `performance.conf` (or another config on a server) gave erosion seams between old and new chunks. Now the config applies to new worlds.
 - **Preset screen:** the datapack export no longer runs on the render thread, so opening Create World, Done and Export As Datapack no longer freezes the game (the vanilla loading screen shows during the export). A stale preview calculation is stopped. Five hints describe their settings again (Plain Stone Erosion, the two lake start distances, Mountain Biome Usage, Volcano Biome Usage): their texts from 0.0.21 were lost in all 11 languages.
 - **Generation version 1, new worlds only** (worlds made before keep every block; a preset from the player's library gets it when a new world is created; it comes with Generation Fixes): deep structures are built under rivers and lakes (strongholds, ancient cities, trial chambers; the structure rule refused them at any depth, so there were fewer strongholds and the Eye of Ender skipped their point); the rock strata follow the world's seed (before, they were the same in every world); a 64-bit seed gives its own terrain (before, only the lower 32 bits counted; seeds that fit 32 bits, text seeds included, give the terrain they gave before).
+- **Structure settings and the datapack:** they no longer write whole structure sets into the world's datapack, so a world
+  that had changed structure settings no longer fails to load after a structure mod is removed. The sets of datapacks from
+  0.0.12–0.0.31 are skipped, and the settings apply to the sets the game has.
+- **Preset datapack on both loaders:** exports write the biome modifiers for NeoForge and for Fabric. Before, a datapack of
+  the other loader gave a world without the mod's trees, erosion, swamp surface and snow. Fabric also reads the NeoForge
+  folder of an older datapack (see Known limitations for the other direction).
+- **Erosion and island shores** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38), generation version 1, new
+  worlds): the erosion reads the biomes of the chunk, as the surface rules do, so sand no longer stays on steep slopes by
+  islands.
+- **Columns past 16.7 million blocks** (generation version 1, new worlds): they no longer come in pairs of equal columns.
+- **Darker Depths and Deeper Darker** (behaviour change): in worlds without a preset, TerraBlender's own underground regions
+  stay (see Compatibility).
 - **Build:** the Loom and Architectury plugin versions are pinned (not snapshots); the CI token only reads.
 
 **Other fixes, 0.0.31**:
@@ -209,9 +241,16 @@ from files are held to valid values, and a broken file in the presets folder no 
 
 ## Known limitations
 
-- **Far from the center** (past 16.7 million blocks, 2^24) terrain coordinates lose precision and the ground comes in steps of 2 blocks. No crash and no
-  holes. Fixing it would change the noise of every world. The coordinates are floats, as in the original ReTerraForged, and the noise
-  distortion gets coarse already around 8 million blocks: keep the world border within 8 million blocks (`/worldborder`).
+- **Far from the center** (past 16.7 million blocks, 2^24) terrain coordinates lose precision. In worlds made without
+  generation version 1 the ground comes in pairs of equal columns (steps of 2 blocks). New worlds have no pairs, but the
+  float precision still leaves fine roughness. No crash and no holes. Old worlds keep the steps, since changing them would
+  change their terrain. The coordinates are floats, as in the original ReTerraForged, and the noise distortion gets coarse
+  already around 8 million blocks: keep the world border within 8 million blocks (`/worldborder`).
+- **A Fabric world made with a preset datapack exported on NeoForge** (the preset zip of the releases is one) had none of the mod's trees, erosion, swamp surface or snow. With 0.0.32 its new chunks get them, so such a world can show a seam between the chunks made before and after the update.
+- **A preset datapack exported on Fabric by an older version, used on NeoForge:** it has no NeoForge biome modifiers, so the
+  world has no trees, erosion, swamp surface or snow of the mod. NeoForge logs a warning, and an operator who joins is told
+  in chat. Export the preset again with this version. Not fixed: reading those modifiers would need a mixin into NeoForge's
+  application of the modifiers.
 - **Seeds:** in worlds made without generation version 1 the terrain uses the lower 32 bits of the seed, so seeds `x` and `x + 2^32` have nearly
   the same terrain there (99 % of the heights). Generation version 1 (new worlds, with Generation Fixes) uses the whole 64-bit seed. Switching old
   worlds to the upper bits would change every world made from a 64-bit seed.
@@ -322,6 +361,61 @@ from files are held to valid values, and a broken file in the presets folder no 
 **Cause.** The datapack was exported on the render thread.
 
 **Fix.** The export runs off the render thread, and the vanilla loading screen shows while it runs. A stale preview calculation is stopped.
+
+</details>
+
+<details>
+<summary><b>Structure settings: a world did not load after a mod was removed</b> (0.0.32)</summary>
+
+**Problem.** A world with changed structure settings did not load after a structure mod was removed.
+
+**Cause.** The settings wrote whole structure sets into the world's datapack. Such a file names every structure of the set and
+the set of its exclusion zone, so the missing mod made the file fail.
+
+**Fix.** The datapack has no structure sets. The preset's entries are applied to the sets that are loaded, and a set whose
+mod is gone is skipped. The files of datapacks from 0.0.12–0.0.31 are left out.
+
+</details>
+
+<details>
+<summary><b>A preset datapack on the other loader had no trees or erosion</b> (0.0.32)</summary>
+
+**Problem.** A preset datapack exported on one loader and used on the other gave a world without the mod's trees, erosion,
+swamp surface and snow.
+
+**Cause.** The export wrote the biome modifiers into one loader's folder only (`neoforge/biome_modifier` or
+`forge/biome_modifier`), and each loader read only its own. The preset file of the releases is a NeoForge export.
+
+**Fix.** Exports write both folders. Fabric also reads the NeoForge folder of an older datapack. An older Fabric export on
+NeoForge is not fixed: NeoForge logs a warning, and an operator who joins is told in chat. Export the preset again.
+
+</details>
+
+<details>
+<summary><b>Sand on steep island slopes</b> (0.0.32, generation version 1, <a href="https://github.com/Vladeezyy/reterraforged/issues/38">#38</a>)</summary>
+
+**Problem.** Sand stayed on steep slopes by islands, and near shores and biome borders the surface took another biome than
+the chunk's.
+
+**Cause.** The erosion asked the biome source again, with the terrain computed without the tile, so it got another biome than
+the surface rules, which read the chunk's own biomes.
+
+**Fix.** In generation version 1 the erosion reads the biomes the chunk has, as the surface rules do. Older worlds keep the
+old lookup.
+
+</details>
+
+<details>
+<summary><b>Pairs of equal columns past 16.7 million blocks</b> (0.0.32, generation version 1)</summary>
+
+**Problem.** Past 2^24 (16 777 216) blocks from the centre the ground came in pairs of equal columns up to the world border.
+
+**Cause.** The terrain is computed with float coordinates. A float cannot hold an odd coordinate that far out, so it was
+rounded to an even one, and the column had the cell of its neighbour.
+
+**Fix.** In new worlds (generation version 1) a column the float cannot hold takes its cell from the floats on both sides of
+it. Worlds made before keep the pairs. The float precision still leaves fine roughness beyond about 8 million blocks (see
+Known limitations).
 
 </details>
 
@@ -669,12 +763,21 @@ the biome up at the surface already.
 - **TerraBlender** is an optional dependency since 0.0.32: the mod loads without it, and worlds without it are not affected.
 - **Other mods' mixins** (0.0.32): injections that would conflict with another mod at the same place are replaced with compatible ones (wrap instead of redirect, no capture of local variables).
 - **Spawn point** (0.0.32): the search is replaced only in worlds with a ReTerraForged preset; other worlds keep vanilla's.
-- **Darker Depths and Deeper Darker** (0.0.32): with either installed, TerraBlender's diagnostic counters ran on every biome pick and wrote lines to the log. They run only with `-Drtf.tbdiag=true` now.
+- **Darker Depths and Deeper Darker** (0.0.32): with either installed, TerraBlender's diagnostic counters ran on every biome pick and wrote lines to the log. They run only with `-Drtf.tbdiag=true` now. In worlds without a preset (vanilla generation with TerraBlender) the mod no longer
+  replaces their underground regions: TerraBlender's own choice stays, as without the mod. Before, the mod replaced them there
+  too. Worlds with a preset are unchanged.
 
 ## Testing
 
 Every release is checked on every Minecraft version it is published for (currently five) and both loaders before it is published. The tests are part
 of the mod (`rtf` commands, enabled only in test runs) and of the repository (`tools/*.sh`), so anyone can repeat them.
+
+The CI (`.github/workflows/build.yml`) runs on every push that changes more than the docs, and on every pull request. A world
+made by the last release for the same Minecraft version opens with this build, and the last release's preset gives the same
+world with this build as with the release jar on the same runner. A preset exported on one loader runs on the other. The self
+test runs on the Fabric Loader and Fabric API the mod is built against, as well as on the newest ones. NeoForge and Fabric
+must make the same world. `tools/extramods.sh` installs the other mods of the test runs (`MODS=`); Biomes O' Plenty comes
+with TerraBlender and GlitchCore on every version.
 
 <details>
 <summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 42 checks</summary>
