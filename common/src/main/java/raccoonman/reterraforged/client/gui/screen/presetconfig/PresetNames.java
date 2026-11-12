@@ -1,8 +1,11 @@
 package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.jetbrains.annotations.Nullable;
 
 /** What a preset, a file in the presets folder, can be called */
 final class PresetNames {
@@ -26,5 +29,14 @@ final class PresetNames {
 	/** The same file on macOS and Windows, whose file names ignore case */
 	static boolean sameFile(String name, String other) {
 		return name.equalsIgnoreCase(other);
+	}
+
+	/**
+	 * What the preset screen keeps a preset's edits under: a built-in preset's own id, or the file of a player's preset.
+	 * The shown name was the key, and a player's "Default" or two files shown alike shared one copy, so an edit of one
+	 * went into the other or was lost
+	 */
+	static String workingKey(@Nullable String builtinId, Path file) {
+		return builtinId != null ? "builtin:" + builtinId : "file:" + file.toAbsolutePath().normalize();
 	}
 }

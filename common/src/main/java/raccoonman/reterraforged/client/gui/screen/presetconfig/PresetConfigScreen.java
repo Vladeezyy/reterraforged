@@ -10,8 +10,12 @@ import java.util.WeakHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.ChatFormatting;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -28,12 +32,19 @@ import raccoonman.reterraforged.data.worldgen.PresetExport;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
 public class PresetConfigScreen extends LinkedPageScreen {
-	// built-in presets as Done left them (they are not saved to files) for each create world screen, by name
+	// built-in presets as Done left them (they are not saved to files) for each create world screen, by working key
 	private static final Map<CreateWorldScreen, Map<String, Preset>> EDITED_BUILTINS = new WeakHashMap<>();
 	private final CreateWorldScreen parent;
-	// what this screen edits, by name: copies, until Done keeps them and Cancel throws them away. The pages wrote straight
-	// into the presets and saved the files when they closed, so Cancel changed the player's preset all the same
+	// what this screen edits, by working key (PresetNames.workingKey): copies, until Done keeps them and Cancel throws them
+	// away. The pages wrote straight into the presets and saved the files when they closed, so Cancel changed the
+	// player's preset all the same
 	private final Map<String, PresetEntry> working = new LinkedHashMap<>();
+	// the preset whose settings pages were open last: "<<" back to the list selects it, not another of the same name
+	@Nullable
+	private String lastEdited;
+	// the preset list's maps, kept while the screen is open (the list page is made again on every resize and tab)
+	final PresetMaps<PresetMapDrawer.Input> maps = new PresetMaps<>(Util.backgroundExecutor(), PresetMapDrawer::draw);
+	final PresetInfoPanel infoPanel = new PresetInfoPanel(this.maps);
 	private final String seedBefore;
 	private boolean seedChanged;
 	private boolean done;
@@ -50,6 +61,24 @@ public class PresetConfigScreen extends LinkedPageScreen {
 		this.currentPage = new PresetListPage(this);
 	}
 	
+	// the preset list's map and description over its right column (the list's rows are one widget high each)
+	@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		super.render(graphics, mouseX, mouseY, partialTicks);
+		if(this.currentPage instanceof PresetListPage list) {
+			list.renderInfo(graphics);
+		}
+	}
+
+	// every time another screen takes over (a question, the waiting screen, the create world screen): the map being made
+	// stops and the texture is freed here, on the render thread; both come back when the list is drawn again
+	@Override
+	public void removed() {
+		super.removed();
+		this.maps.cancel();
+		this.infoPanel.release();
+	}
+
 	@Override
 	public void onClose() {
 		super.onClose();
@@ -69,7 +98,7 @@ public class PresetConfigScreen extends LinkedPageScreen {
 		this.done = true;
 		for(PresetEntry entry : this.working.values()) {
 			if(entry.isBuiltin()) {
-				EDITED_BUILTINS.computeIfAbsent(this.parent, (screen) -> new HashMap<>()).put(entry.getName().getString(), entry.getPreset());
+				EDITED_BUILTINS.computeIfAbsent(this.parent, (screen) -> new HashMap<>()).put(entry.workingKey(), entry.getPreset());
 			} else {
 				Toasts.tryOrToast(RTFTranslationKeys.GUI_CREATE_WORLD_APPLY_FAILED, entry::save);
 			}
@@ -79,16 +108,41 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	
 	// the copy this screen edits: a built-in preset's has the changes of the last Done on this create world screen
 	public PresetEntry editable(PresetEntry entry) {
-		return this.working.computeIfAbsent(entry.getName().getString(), (name) -> {
-			Map<String, Preset> edited = entry.isBuiltin() ? EDITED_BUILTINS.get(this.parent) : null;
-			Preset preset = edited != null ? edited.get(name) : null;
+		this.lastEdited = entry.workingKey();
+		return this.working.computeIfAbsent(entry.workingKey(), (key) -> {
+			Preset preset = this.editedBuiltin(entry);
 			return entry.withPreset((preset != null ? preset : entry.getPreset()).copy());
 		});
+	}
+
+	// the settings the preset has on this screen, without making a copy to edit (the list shows them): the working copy,
+	// a built-in preset's last Done, or the preset as it was read. Not to be changed
+	public Preset current(PresetEntry entry) {
+		PresetEntry copy = this.working.get(entry.workingKey());
+		if(copy != null) {
+			return copy.getPreset();
+		}
+		Preset preset = this.editedBuiltin(entry);
+		return preset != null ? preset : entry.getPreset();
+	}
+
+	@Nullable
+	private Preset editedBuiltin(PresetEntry entry) {
+		Map<String, Preset> edited = entry.isBuiltin() ? EDITED_BUILTINS.get(this.parent) : null;
+		return edited != null ? edited.get(entry.workingKey()) : null;
+	}
+
+	@Nullable
+	String lastEdited() {
+		return this.lastEdited;
 	}
 	
 	// the preset was deleted: nothing of it to keep on Done
 	public void forget(PresetEntry entry) {
-		this.working.remove(entry.getName().getString());
+		this.working.remove(entry.workingKey());
+		if(entry.workingKey().equals(this.lastEdited)) {
+			this.lastEdited = null;
+		}
 	}
 
 	// through the seed field's own state: the field on the World tab shows it when the screen comes back
@@ -129,7 +183,7 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	}
 
 	private static final List<Tab> TABS = List.of(
-		new Tab(RTFTranslationKeys.GUI_TAB_PRESETS, PresetListPage.class, (screen, preset) -> new PresetListPage(screen, preset.getName().getString())),
+		new Tab(RTFTranslationKeys.GUI_TAB_PRESETS, PresetListPage.class, PresetListPage::new),
 		new Tab(RTFTranslationKeys.GUI_TAB_WORLD, WorldSettingsPage.class, WorldSettingsPage::new),
 		new Tab(RTFTranslationKeys.GUI_TAB_SURFACE, SurfaceSettingsPage.class, SurfaceSettingsPage::new),
 		new Tab(RTFTranslationKeys.GUI_TAB_CAVES, CaveSettingsPage.class, CaveSettingsPage::new),
@@ -179,6 +233,8 @@ public class PresetConfigScreen extends LinkedPageScreen {
 			}).bounds(10, y, width, height).build();
 			button.active = !current;
 			this.addRenderableWidget(button);
+			// the marker of a page with settings that differ from Default
+			editor.addTab(button, tab.type());
 			y += height + 2;
 		}
 	}
