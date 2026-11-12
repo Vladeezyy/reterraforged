@@ -1,6 +1,7 @@
 #!/bin/bash
 # World generation speed and where the time goes: tools/benchmark.sh [neoforge|fabric] (after tools/servertest.sh for
-# that loader, which installs the server and exports the "Default" preset datapack).
+# that loader, which installs the server and exports the "Default" preset datapack; Fabric: the loader and Fabric API it
+# installed, by default gradle.properties' fabric_*_test_version).
 # Two fresh worlds on the same seed: one with the preset datapack (ReTerraForged), one without it (vanilla generation,
 # the baseline). In each, "rtf bench" generates 32 x 32 chunks far from the spawn to the full status and reports chunks
 # per second; the server runs with spark ("spark tps" during the generation: TPS, tick times, CPU; printed in the
