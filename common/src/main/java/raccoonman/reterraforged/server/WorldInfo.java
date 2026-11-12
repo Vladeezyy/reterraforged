@@ -20,6 +20,7 @@ import raccoonman.reterraforged.config.DiagnosticsConfig;
 import raccoonman.reterraforged.config.PerformanceConfig;
 import raccoonman.reterraforged.config.WorldTileSize;
 import raccoonman.reterraforged.data.worldgen.preset.PresetDiff;
+import raccoonman.reterraforged.data.worldgen.preset.StructureOriginals;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.platform.ModLoaderUtil;
@@ -138,8 +139,10 @@ public record WorldInfo(List<String> head, long seed, boolean showSeedInLog, Lis
 		int tileSize = WorldTileSize.current(config.tileSize());
 		tail.add("tileSize " + tileSize + (tileSize != config.tileSize() ? " (the world's; performance.conf has " + config.tileSize() + ")" : "") + ", batchCount " + config.batchCount() + ", generation threads " + ThreadPools.WORLD_GEN.getMaximumPoolSize() + ", CPU cores " + Runtime.getRuntime().availableProcessors());
 
-		List<String> diff = PresetDiff.lines(preset);
-		String name = PresetDiff.builtInName(preset).orElse("custom");
+		// the structure page's entries of sets it did not change are no difference (the sets' files, as before the preset)
+		Preset changed = PresetDiff.changedOnly(preset, StructureOriginals.of(server.getResourceManager()));
+		List<String> diff = PresetDiff.lines(changed);
+		String name = PresetDiff.builtInName(changed).orElse("custom");
 		tail.add("preset: " + name + (diff.isEmpty() ? ", no changes from Default" : ", " + diff.size() + " change" + (diff.size() == 1 ? "" : "s") + " from Default:"));
 		for (int i = 0; i < Math.min(diff.size(), MAX_DIFF_LINES); i++) {
 			tail.add("  " + diff.get(i));

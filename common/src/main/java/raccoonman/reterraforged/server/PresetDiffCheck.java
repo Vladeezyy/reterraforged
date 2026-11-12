@@ -70,6 +70,14 @@ public final class PresetDiffCheck {
 			if (PresetDiff.builtInName(custom).isPresent()) {
 				failures.add("custom named " + PresetDiff.builtInName(custom));
 			}
+			// a structure set the structure page filled in with its own values: still Default, no line
+			Preset filled = Presets.makeLushWilds();
+			net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.structure.StructureSet> villages = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.STRUCTURE_SET, net.minecraft.resources.ResourceLocation.withDefaultNamespace("villages"));
+			filled.structures().entries.put(villages, new raccoonman.reterraforged.data.worldgen.preset.settings.StructureSettings.StructureSetEntry(34, 8, 10387312, false));
+			raccoonman.reterraforged.data.worldgen.preset.StructureOriginals originals = (key) -> key.equals(villages) ? new raccoonman.reterraforged.data.worldgen.preset.settings.StructureSettings.StructureSetEntry(34, 8, 10387312, false) : null;
+			if (!PresetDiff.builtInName(filled, originals).equals(Optional.of("Lush Wilds")) || PresetDiff.lines(filled, originals).size() != 3 || PresetDiff.builtInName(filled).isPresent()) {
+				failures.add("filled structure page " + PresetDiff.builtInName(filled, originals) + " " + PresetDiff.lines(filled, originals));
+			}
 		} catch (RuntimeException e) {
 			failures.add("exception " + e);
 		}

@@ -111,4 +111,26 @@ class PresetDiffTest {
 		base.beachWidth = Float.NaN;
 		assertEquals(List.of(), PresetDiff.lines(island, base));
 	}
+
+	// the structure page fills in every set with its own values: those are no change (#42's log had 16 such lines)
+	@Test
+	void structureSetsWithTheirOwnValuesAreNoChange() {
+		ResourceKey<StructureSet> mansions = ResourceKey.create(Registries.STRUCTURE_SET, ResourceLocation.withDefaultNamespace("woodland_mansions"));
+		ResourceKey<StructureSet> modded = ResourceKey.create(Registries.STRUCTURE_SET, ResourceLocation.fromNamespaceAndPath("somemod", "towers"));
+		StructureOriginals originals = (key) -> key.equals(VILLAGES) ? new StructureSetEntry(34, 8, 10387312, false) : key.equals(mansions) ? new StructureSetEntry(80, 20, 10387319, false) : null;
+		StructureSettings structures = new StructureSettings();
+		structures.entries.put(VILLAGES, new StructureSetEntry(34, 8, 10387312, false));
+		// the salt button gives any int, the set gets it without the sign bit
+		structures.entries.put(mansions, new StructureSetEntry(80, 20, 10387319 | Integer.MIN_VALUE, false));
+		assertEquals(List.of(), PresetDiff.lines(StructureOriginals.changedOnly(structures, originals), new StructureSettings()));
+
+		// changed, disabled or of a set not known stay
+		structures.entries.get(VILLAGES).spacing = 40;
+		structures.entries.get(mansions).disabled = true;
+		structures.entries.put(modded, new StructureSetEntry(10, 5, 1, false));
+		assertEquals(List.of("entries.minecraft:villages", "entries.minecraft:woodland_mansions", "entries.somemod:towers"), PresetDiff.paths(StructureOriginals.changedOnly(structures, originals), new StructureSettings()));
+		// the preset itself is not changed
+		assertEquals(3, structures.entries.size());
+		assertEquals(3, StructureOriginals.changedOnly(structures, StructureOriginals.NONE).entries.size());
+	}
 }
