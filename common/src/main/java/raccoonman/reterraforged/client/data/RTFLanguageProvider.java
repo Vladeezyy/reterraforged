@@ -241,6 +241,10 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES, "Fake Water Biomes");
 			this.add(RTFTranslationKeys.GUI_BUTTON_STEPPE_FAKE_RIVERS, "Steppe Fake Rivers");
 			this.add(RTFTranslationKeys.GUI_BUTTON_BADLANDS_FAKE_OCEANS, "Badlands Fake Rivers");
+			this.add(RTFTranslationKeys.GUI_BUTTON_PLATEAU_FAKE_RIVERS, "Plateau Fake Rivers");
+			this.add(RTFTranslationKeys.GUI_BUTTON_HILLS_FAKE_RIVERS, "Hills Fake Rivers");
+			this.add(RTFTranslationKeys.GUI_BUTTON_MOUNTAINS_FAKE_RIVERS, "Mountain Fake Rivers");
+			this.add(RTFTranslationKeys.GUI_BUTTON_PLAINS_FAKE_RIVERS, "Plains Fake Rivers");
 			this.add(RTFTranslationKeys.GUI_VALUE_CAVE_COMPATIBILITY_MODE + ".auto", "Auto");
 			this.add(RTFTranslationKeys.GUI_VALUE_CAVE_COMPATIBILITY_MODE + ".rtf", "RTF");
 			this.add(RTFTranslationKeys.GUI_VALUE_CAVE_COMPATIBILITY_MODE + ".vanilla", "Vanilla");
@@ -419,6 +423,10 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES), "Allow below-sea-level dry terrain to request water biomes.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_STEPPE_FAKE_RIVERS), "Treat below-sea-level steppe terrain as river biome terrain.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_BADLANDS_FAKE_OCEANS), "Treat below-sea-level badlands terrain as river biome terrain.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_PLATEAU_FAKE_RIVERS), "Treat below-sea-level plateau terrain as river biome terrain.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_HILLS_FAKE_RIVERS), "Treat below-sea-level hills terrain as river biome terrain.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_MOUNTAINS_FAKE_RIVERS), "Treat below-sea-level mountain terrain as river biome terrain.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_PLAINS_FAKE_RIVERS), "Treat below-sea-level plains terrain as river biome terrain.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_FANCY_MOUNTAINS), "Carries out extra processing on mountains to make them look even nicer. Can be disabled to improve performance slightly.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_LEGACY_MOUNTAIN_SCALING), "Changes mountain scaling to be compatible with legacy TerraForged");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_BUTTON_ALTITUDE_COOLING), "Biomes get colder with height as in a world of the vanilla height (320), so in a taller world rain does not turn into snow on most of the land. Off: vanilla cooling, high ground snows instead of raining (snow has no sound)");

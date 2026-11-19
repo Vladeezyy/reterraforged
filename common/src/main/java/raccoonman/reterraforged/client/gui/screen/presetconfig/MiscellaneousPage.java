@@ -98,7 +98,8 @@ public class MiscellaneousPage extends PresetEditorPage {
 		this.snowLine = PresetWidgets.createToggle(snow.enabled, RTFTranslationKeys.GUI_BUTTON_SNOW_LINE, (button, value) -> {
 			snow.enabled = value;
 		});
-		this.snowLineHeight = PresetWidgets.createIntSlider(snow.height, -64, 512, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT, (slider, value) -> {
+		// up to the top of the tallest world (World Height on the World page goes to 1024)
+		this.snowLineHeight = PresetWidgets.createIntSlider(snow.height, -64, 1024, RTFTranslationKeys.GUI_SLIDER_SNOW_LINE_HEIGHT, (slider, value) -> {
 			snow.height = (int) slider.scaleValue(value);
 			return value;
 		});

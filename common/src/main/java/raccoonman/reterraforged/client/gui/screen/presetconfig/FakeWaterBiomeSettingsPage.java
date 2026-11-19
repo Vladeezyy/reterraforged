@@ -15,6 +15,10 @@ public class FakeWaterBiomeSettingsPage extends PresetEditorPage {
 	private CycleButton<Boolean> enableFakeWaterBiomes;
 	private CycleButton<Boolean> steppeBelowSeaLevelRiverBiomes;
 	private CycleButton<Boolean> badlandsBelowSeaLevelOceanBiomes;
+	private CycleButton<Boolean> plateauBelowSeaLevelRiverBiomes;
+	private CycleButton<Boolean> hillsBelowSeaLevelRiverBiomes;
+	private CycleButton<Boolean> mountainsBelowSeaLevelRiverBiomes;
+	private CycleButton<Boolean> plainsBelowSeaLevelRiverBiomes;
 	private Slider heightOffset;
 
 	public FakeWaterBiomeSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
@@ -45,6 +49,22 @@ public class FakeWaterBiomeSettingsPage extends PresetEditorPage {
 			fakeWaterBiomes.badlandsBelowSeaLevelOceanBiomes = value;
 			this.regenerate();
 		});
+		this.plateauBelowSeaLevelRiverBiomes = PresetWidgets.createToggle(fakeWaterBiomes.plateauBelowSeaLevelRiverBiomes, RTFTranslationKeys.GUI_BUTTON_PLATEAU_FAKE_RIVERS, (button, value) -> {
+			fakeWaterBiomes.plateauBelowSeaLevelRiverBiomes = value;
+			this.regenerate();
+		});
+		this.hillsBelowSeaLevelRiverBiomes = PresetWidgets.createToggle(fakeWaterBiomes.hillsBelowSeaLevelRiverBiomes, RTFTranslationKeys.GUI_BUTTON_HILLS_FAKE_RIVERS, (button, value) -> {
+			fakeWaterBiomes.hillsBelowSeaLevelRiverBiomes = value;
+			this.regenerate();
+		});
+		this.mountainsBelowSeaLevelRiverBiomes = PresetWidgets.createToggle(fakeWaterBiomes.mountainsBelowSeaLevelRiverBiomes, RTFTranslationKeys.GUI_BUTTON_MOUNTAINS_FAKE_RIVERS, (button, value) -> {
+			fakeWaterBiomes.mountainsBelowSeaLevelRiverBiomes = value;
+			this.regenerate();
+		});
+		this.plainsBelowSeaLevelRiverBiomes = PresetWidgets.createToggle(fakeWaterBiomes.plainsBelowSeaLevelRiverBiomes, RTFTranslationKeys.GUI_BUTTON_PLAINS_FAKE_RIVERS, (button, value) -> {
+			fakeWaterBiomes.plainsBelowSeaLevelRiverBiomes = value;
+			this.regenerate();
+		});
 		this.heightOffset = PresetWidgets.createFloatSlider(fakeWaterBiomes.heightOffset, 0.0F, 0.05F, RTFTranslationKeys.GUI_SLIDER_FAKE_WATER_HEIGHT_OFFSET, (slider, value) -> {
 			fakeWaterBiomes.heightOffset = (float) slider.scaleValue(value);
 			this.regenerate();
@@ -55,6 +75,10 @@ public class FakeWaterBiomeSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.enableFakeWaterBiomes);
 		this.left.addWidget(this.steppeBelowSeaLevelRiverBiomes);
 		this.left.addWidget(this.badlandsBelowSeaLevelOceanBiomes);
+		this.left.addWidget(this.plateauBelowSeaLevelRiverBiomes);
+		this.left.addWidget(this.hillsBelowSeaLevelRiverBiomes);
+		this.left.addWidget(this.mountainsBelowSeaLevelRiverBiomes);
+		this.left.addWidget(this.plainsBelowSeaLevelRiverBiomes);
 		this.left.addWidget(this.heightOffset);
 	}
 
