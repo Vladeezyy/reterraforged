@@ -12,7 +12,7 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
   - **Columns past 16.7 million blocks** no longer come in pairs of equal columns.
 - **Snow Line Follows World Height** applies only in the dimension the preset builds. Before, the setting changed snow and ice in other mods' dimensions too.
 - **Snow Line Height goes up to 1024** (it was 512), the top of the tallest world.
-- **Fake rivers on four more terrains** (Fake Water Biomes on the Terrain and Islands pages, off by default): land below sea level gets a river biome, as steppes already did, now also on plateaus, hills, mountains and plains. Before, a plateau canyon below sea level kept its land biome. Presets saved before have these switches off, so existing worlds keep their biomes.
+- **Fake rivers on four more terrains** (the Fake Water Biomes page, off by default): land below sea level gets a river biome, as steppe and badlands already did, now also on plateaus, hills, mountains and plains. Before, a plateau canyon below sea level kept its land biome. Presets saved before have these switches off, so existing worlds keep their biomes.
 - **The tile size is stored in the world** (`reterraforged/generation.json` in the world folder). A change of `tileSize` in `performance.conf` now applies to new worlds only, so it no longer makes erosion seams in an existing world.
 - **Preset screen:** exporting a datapack no longer freezes the game. Opening Create World, Done and Export As Datapack keep the game responsive; the vanilla loading screen shows during the export.
 - **Preset screen hints:** five hints describe their settings again (Plain Stone Erosion, Min and Max Start Distance of lakes, Mountain Biome Usage, Volcano Biome Usage). Their texts were lost in all 11 languages after 0.0.21.
@@ -54,9 +54,11 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
 - The 0.0.31 preset on this build gives the same surface and heights: on 1.21.1 all 4501 lines match on both loaders, and on 1.21.11 and 26.2 all 4501 match. On 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ, where features cross the chunk border.
 - Client GUI test in Russian on NeoForge: 35 screenshots on 1.21.1, 34 on 1.21.11, 26.2 and 26.3.
 - Unit tests: 167 on 1.21.1, 1.21.11, 26.1.2 and 26.2; 159 on 26.3.
-- Biomes O' Plenty with TerraBlender on NeoForge: the self test and the biome kinds of the mods pass. <!-- RP -->
-- A tile that fails to generate stops the server by itself, in 47–48 s. <!-- RP -->
-- 1.21.1 only: widget test of the preset screen, 697 actions, all checks passed; GUI test in Russian on Fabric and in English on NeoForge; stress test with 483 preset variants, no failures; C2ME on NeoForge and on Fabric (with ModernFix on Fabric), self test passes <!-- RP -->; Biomes O' Plenty with Regions Unexplored on NeoForge: 89 of 121 biome kinds, as in 0.0.31 <!-- RP -->; a world made by 0.0.31 opened by this build gives the same terrain <!-- RP -->.
+- Biomes O' Plenty with TerraBlender on NeoForge (26.2, 26.3): the self test (49 of 49) and the biome kinds of the mods pass. With Terralith added (every version, both loaders) the biome kinds pass; two checks of the self test fail because of Terralith, as with 0.0.31: its forest grows its own trees, and five of its biomes have no vanilla dungeons (on 26.3 also: cherry saplings have room for 5 of 12 trees there).
+- A tile that fails to generate stops the server by itself (Fabric, every version).
+- A world made by 0.0.31 opened by this build gives the same ground as a new one (NeoForge, every version).
+- C2ME on Fabric, every version: the self test passes.
+- 1.21.1 only: widget test of the preset screen, 697 actions, all checks passed; GUI test in Russian on Fabric and in English on NeoForge; stress test with 483 preset variants, no failures; C2ME on NeoForge and with ModernFix on Fabric, self test passes; Biomes O' Plenty with Regions Unexplored on NeoForge: 89 of 121 biome kinds, as in 0.0.31.
 
 ## Built-in presets
 
