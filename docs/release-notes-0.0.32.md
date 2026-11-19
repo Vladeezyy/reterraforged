@@ -1,4 +1,4 @@
-# ReTerraForged 0.0.32 (draft)
+# ReTerraForged 0.0.32
 
 TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Java 21 for 1.21.x, Java 25 for 26.x. License LGPL-3.0-only. Full list of changes: README in the repository.
 
@@ -11,12 +11,14 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
   - **Erosion reads the biomes of each chunk**, as the surface rules do: sand no longer stays on steep slopes by islands ([#38](https://github.com/Vladeezyy/reterraforged/issues/38)).
   - **Columns past 16.7 million blocks** no longer come in pairs of equal columns.
 - **Snow Line Follows World Height** applies only in the dimension the preset builds. Before, the setting changed snow and ice in other mods' dimensions too.
+- **Snow Line Height goes up to 1024** (it was 512), the top of the tallest world.
+- **Fake rivers on four more terrains** (Fake Water Biomes on the Terrain and Islands pages, off by default): land below sea level gets a river biome, as steppes already did, now also on plateaus, hills, mountains and plains. Before, a plateau canyon below sea level kept its land biome. Presets saved before have these switches off, so existing worlds keep their biomes.
 - **The tile size is stored in the world** (`reterraforged/generation.json` in the world folder). A change of `tileSize` in `performance.conf` now applies to new worlds only, so it no longer makes erosion seams in an existing world.
 - **Preset screen:** exporting a datapack no longer freezes the game. Opening Create World, Done and Export As Datapack keep the game responsive; the vanilla loading screen shows during the export.
 - **Preset screen hints:** five hints describe their settings again (Plain Stone Erosion, Min and Max Start Distance of lakes, Mountain Biome Usage, Volcano Biome Usage). Their texts were lost in all 11 languages after 0.0.21.
 - **Eight new built-in presets:** Archipelago, Wetlands, Towering Peaks, Endless Continent, River Valleys, Lush Wilds, Rolling Plains and Rugged Highlands (see Built-in presets).
 - **Preset datapacks work on both loaders:** exports write the biome modifiers for NeoForge and for Fabric. Fabric also reads the NeoForge folder of older datapacks.
-- **Preset screen:** the preset list has three columns: the list, a relief map and description of the selected preset, and the buttons. A setting that differs from Default is marked, and a right click resets it. The search box finds settings on all pages. Done without changes does not export the datapack again.
+- **Preset screen:** the preset list has three columns: the list, the selected preset's map and description, and the buttons. The map is drawn in the colours of the settings preview's Biome Types mode, at twice its detail. A setting that differs from Default is marked, and a right click resets it. The search box finds settings on all pages. Done without changes does not export the datapack again.
 - **Bug reports:** the log and crash reports carry the versions, the generation version, the tile size, the preset's differences from Default and the mods that touch generation. `/reterraforged info` (permission level 2) shows the same. The seed of a dedicated server is written only with `logSeed=true` in `config/reterraforged/diagnostics.conf`.
 
 ## Fixes
@@ -28,12 +30,14 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
 - **Noise in datapacks:** the number of octaves and terrace steps is limited (a huge or negative value hung or crashed generation); a strata selector below 0 no longer crashes the game; the `simplex_ridge` type can be written.
 - **Other mods:** injections that would conflict with another mod at the same place are replaced with compatible ones, and the spawn point search is replaced only in worlds with a preset. TerraBlender is an optional dependency. Its diagnostic counters, which ran on every biome pick with Darker Depths or Deeper Darker installed, now run only with `-Drtf.tbdiag=true`.
 - **Preset export** no longer runs on the render thread (see above).
-- **Structure settings** no longer write whole structure sets into the world's datapack, so a world loads after a structure mod is removed. The sets of datapacks from 0.0.12–0.0.31 are skipped.
+- **Structure settings** no longer write whole structure sets into the world's datapack, so a world loads after a structure mod is removed. The sets of datapacks from 0.0.12–0.0.31 are skipped. On both loaders: before, Fabric looked for the preset file on the NeoForge path, so a Fabric world with the set of a removed mod still did not load.
+- **26.3 only: the Nether and the End no longer use the overworld's ReTerraForged context** (also in 0.0.30 and 0.0.31, in worlds with Generation Fixes). A check read a tag of the preset datapack, which every dimension sees, so the Nether's structure rule dropped starts where the overworld has a river, a lake or mountains (on a 160 × 160 chunk test: 493 nether fossils instead of 526, and one fortress became a bastion), and each chunk of the Nether and the End built overworld tiles (structure starts on 128 × 128 chunks: Nether 5.5 s instead of 1.4 s, End 13.9 s instead of 1.3 s). Now only the dimension's own noise router decides, as on 26.2. The terrain of the Nether and the End did not change, and their saplings are vanilla again.
 - **Behaviour change, TerraBlender with Darker Depths or Deeper Darker:** in worlds without a preset their underground regions stay TerraBlender's own. Before, the mod replaced them there too. Worlds with a preset are unchanged.
 - **Build:** the Loom and Architectury plugin versions are pinned (not snapshots).
 
 ## Known limitations
 
+- **26.3 worlds made with 0.0.30 or 0.0.31 (Generation Fixes on):** the new Nether chunks get vanilla's structure choice. A fortress whose start falls on a new chunk at the edge of the explored area may be cut off (rare).
 - Mineshafts under river beds at sea level are still not built: their start point is above the depth threshold.
 - Far from the center (past 16.7 million blocks), in worlds made without generation version 1 the ground comes in pairs of equal columns (steps of 2 blocks). New worlds have no pairs, but float precision still leaves fine roughness. The noise distortion gets coarse already around 8 million blocks. Keep the world border within 8 million blocks (`/worldborder`).
 - A preset datapack exported on Fabric by an older version gives NeoForge worlds none of the mod's trees, erosion, swamp surface or snow. NeoForge logs a warning, and an operator who joins is told in chat. Export the preset again with this version.
@@ -45,12 +49,14 @@ TerraForged-style terrain for Minecraft 1.21.1 – 26.3, NeoForge and Fabric. Ja
 
 ## Tested
 
-- 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3, NeoForge and Fabric, real dedicated servers: self test 42 checks on each version and loader (on 1.21.1 with biome mods: 41); the worlds of the two loaders match in heights and biomes; the 0.0.31 preset on this build gives the same surface and heights (all 4501 fingerprint lines match on 1.21.1, 1.21.11 and 26.2; on 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ, where features cross the chunk border).
-- Client GUI test in Russian on both loaders: 31 screenshots, including the five restored hints.
-- Biomes O' Plenty with TerraBlender on NeoForge: the self test and the biome kinds of the mods pass.
-- A tile that fails to generate stops the server by itself, in 47–48 s.
-- Unit tests: 98 on every version except 26.3 (92).
-- 1.21.1 only: C2ME on NeoForge and on Fabric (with ModernFix on Fabric), self test passes; Biomes O' Plenty with Regions Unexplored on NeoForge: 89 of 121 biome kinds, as in 0.0.31; stress test with 467 preset variants, no failures; GUI test in English.
+- 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3, NeoForge and Fabric, real dedicated servers: self test 50 checks on each version and loader; structures checked; the worlds of the two loaders match in heights and biomes.
+- Fingerprint of the new world against the NeoForge reference: on 1.21.1, 26.1.2, 26.2 and 26.3 all 4501 of 4501 lines match. On 1.21.11 the surface and the base match, and one whole chunk out of 96 differs (vegetation across the chunk border). Before and after the new switches of this build, the Fabric fingerprint matches on 1.21.11, 26.1.2, 26.2 and 26.3; the Fabric references were taken again.
+- The 0.0.31 preset on this build gives the same surface and heights: on 1.21.1 all 4501 lines match on both loaders, and on 1.21.11 and 26.2 all 4501 match. On 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ, where features cross the chunk border.
+- Client GUI test in Russian on NeoForge: 35 screenshots on 1.21.1, 34 on 1.21.11, 26.2 and 26.3.
+- Unit tests: 167 on 1.21.1, 1.21.11, 26.1.2 and 26.2; 159 on 26.3.
+- Biomes O' Plenty with TerraBlender on NeoForge: the self test and the biome kinds of the mods pass. <!-- RP -->
+- A tile that fails to generate stops the server by itself, in 47–48 s. <!-- RP -->
+- 1.21.1 only: widget test of the preset screen, 697 actions, all checks passed; GUI test in Russian on Fabric and in English on NeoForge; stress test with 483 preset variants, no failures; C2ME on NeoForge and on Fabric (with ModernFix on Fabric), self test passes <!-- RP -->; Biomes O' Plenty with Regions Unexplored on NeoForge: 89 of 121 biome kinds, as in 0.0.31 <!-- RP -->; a world made by 0.0.31 opened by this build gives the same terrain <!-- RP -->.
 
 ## Built-in presets
 

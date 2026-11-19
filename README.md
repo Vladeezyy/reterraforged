@@ -74,11 +74,18 @@ and the selected preset's settings.
   steppes, badlands, volcanoes.
 - **Water:** river networks with main rivers and tributaries, lakes on rivers, wetlands; riverbed depth and width are
   configurable.
+- **Fake rivers on four more terrains** (0.0.32, Fake Water Biomes on the Terrain and Islands pages, off by default):
+  land below sea level gets a river biome, as steppes already did, now also on plateaus, hills, mountains and plains.
+  Before, a plateau canyon below sea level kept its land biome. Presets saved before have these switches off, so existing
+  worlds keep their biomes. Island mountains and volcanoes are not changed: their land below the sea is seabed. On the
+  test seed with Default, plateaus, hills and plains change about 1 % of the cells. Default's mountains go below sea level
+  only at the coast, so the mountain switch changes nothing there.
 - **Surface:** water droplet erosion simulation, rock and scree on steep slopes, rock strata, snow only where it would
   settle naturally.
 - **Snow Line** (0.0.25, Miscellaneous page, off by default): snow on the ground and on the trees above a height,
   whatever the biome, so mountains in warm climates get snowy peaks; still water above it freezes. Snow Line Height
-  and Snow Line Variation set where it lies and how far its edge goes up and down. Since 0.0.26 the snow can be deeper:
+  and Snow Line Variation set where it lies and how far its edge goes up and down. Snow Line Height goes up to 1024
+  (0.0.32, it was 512), the top of the tallest world. Since 0.0.26 the snow can be deeper:
   Snow Depth at the Line and Snow Depth on the Peaks (1 to 8 layers, 8 is a full block) and Snow Depth Growth (over how
   many blocks above the line the depth goes from one to the other).
 - **River and lake valleys** (0.0.27, Rivers page, [#29](https://github.com/Vladeezyy/reterraforged/issues/29)): Valley
@@ -116,8 +123,9 @@ and the selected preset's settings.
   vanilla ones.
 - **Preset editor:** more than 160 settings on eleven pages (world, surface, caves, climate, terrain, islands, rivers,
   filters, structures and more) with a preview map that redraws on every change. Presets can be saved, copied and
-  exported as a datapack. The preset list has three columns: the list, the selected preset's relief map and description, and
-  the buttons. A setting that differs from Default is marked (and its page in the menu), and a right click resets it. The
+  exported as a datapack. The preset list has three columns: the list, the selected preset's map and description, and
+  the buttons. The map is 512 × 512 points of 25 blocks (12 800 blocks a side), in the colours of the settings preview's
+  Biome Types mode, so it shows twice the detail of that preview. A setting that differs from Default is marked (and its page in the menu), and a right click resets it. The
   search box finds settings on all pages. Done without changes does not export the datapack again.
 - **Structures:** spacing, separation and salt for every structure set, or disable it. Villages and other surface
   structures are not placed on mountains, as in 0.0.6.
@@ -177,7 +185,15 @@ squares and stripes.
 - **Generation version 1, new worlds only** (worlds made before keep every block; a preset from the player's library gets it when a new world is created; it comes with Generation Fixes): deep structures are built under rivers and lakes (strongholds, ancient cities, trial chambers; the structure rule refused them at any depth, so there were fewer strongholds and the Eye of Ender skipped their point); the rock strata follow the world's seed (before, they were the same in every world); a 64-bit seed gives its own terrain (before, only the lower 32 bits counted; seeds that fit 32 bits, text seeds included, give the terrain they gave before).
 - **Structure settings and the datapack:** they no longer write whole structure sets into the world's datapack, so a world
   that had changed structure settings no longer fails to load after a structure mod is removed. The sets of datapacks from
-  0.0.12–0.0.31 are skipped, and the settings apply to the sets the game has.
+  0.0.12–0.0.31 are skipped, and the settings apply to the sets the game has. On both loaders: before, Fabric looked for
+  the preset file on the NeoForge path, so a Fabric world with the set of a removed mod still did not load.
+- **26.3 only: the Nether and the End no longer use the overworld's ReTerraForged context** (also in 0.0.30 and 0.0.31,
+  in worlds with Generation Fixes). A check read a tag of the preset datapack, which every dimension sees, so the
+  Nether's structure rule dropped fortresses and other starts where the overworld has a river, a lake or mountains (on a
+  160 × 160 chunk test: 493 nether fossils instead of 526, and one fortress became a bastion), and each chunk of the
+  Nether and the End built overworld tiles (structure starts on 128 × 128 chunks: Nether 5.5 s instead of 1.4 s, End
+  13.9 s instead of 1.3 s). Now only the dimension's own noise router decides, as on 26.2. The terrain of the Nether and the
+  End did not change (0 block differences), and their saplings are vanilla again. Other versions were not affected.
 - **Preset datapack on both loaders:** exports write the biome modifiers for NeoForge and for Fabric. Before, a datapack of
   the other loader gave a world without the mod's trees, erosion, swamp surface and snow. Fabric also reads the NeoForge
   folder of an older datapack (see Known limitations for the other direction).
@@ -260,6 +276,8 @@ from files are held to valid values, and a broken file in the presets folder no 
 - **Lowland Swamps with biome mods:** swamps go where the terrain is low, mostly river valleys, because the setting does not reshape the land. With
   Biomes O' Plenty and Terralith at 12 / 12 they cover about 10 % of the land and only about 3 % of them are wide. Wide swamps come from Swamp Basins (see
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
+- **26.3 worlds made with 0.0.30 or 0.0.31 (Generation Fixes on):** the new Nether chunks get vanilla's structure choice. A
+  fortress whose start falls on a new chunk at the edge of the explored area may be cut off (rare).
 - **Mineshafts under river beds at sea level** are still not built: their start point is above the depth threshold.
 - **The surface on beaches and slopes** sometimes takes a biome without the erosion of its tile, as in the original. Not fixed.
 
@@ -373,7 +391,25 @@ from files are held to valid values, and a broken file in the presets folder no 
 the set of its exclusion zone, so the missing mod made the file fail.
 
 **Fix.** The datapack has no structure sets. The preset's entries are applied to the sets that are loaded, and a set whose
-mod is gone is skipped. The files of datapacks from 0.0.12–0.0.31 are left out.
+mod is gone is skipped. The files of datapacks from 0.0.12–0.0.31 are left out. On both loaders: Fabric looked for the
+preset file on the NeoForge path, so a Fabric world with the set of a removed mod did not load until this fix.
+
+</details>
+
+<details>
+<summary><b>26.3: the Nether and the End used the overworld's context</b> (0.0.30 and 0.0.31 on 26.3, fixed in 0.0.32)</summary>
+
+**Problem.** In worlds with Generation Fixes on 26.3, the Nether and the End were built with the overworld's ReTerraForged
+context. The Nether's structure rule dropped fortresses and other starts where the overworld has a river, a lake or
+mountains (on a 160 × 160 chunk test: 493 nether fossils instead of 526, one fortress became a bastion). Each chunk of the
+Nether and the End built overworld tiles: structure starts on 128 × 128 chunks took 5.5 s in the Nether instead of 1.4 s,
+and 13.9 s in the End instead of 1.3 s.
+
+**Cause.** A check that decides whether a dimension uses the ReTerraForged context read a tag of the preset datapack. Every
+dimension sees that tag, so the overworld's answer applied to the Nether and the End.
+
+**Fix.** A dimension other than the overworld decides only by its own noise router, as on 26.2. The terrain of the Nether
+and the End did not change (0 block differences). Existing 26.3 worlds: see Known limitations.
 
 </details>
 
@@ -780,7 +816,7 @@ must make the same world. `tools/extramods.sh` installs the other mods of the te
 with TerraBlender and GlitchCore on every version.
 
 <details>
-<summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 42 checks</summary>
+<summary><b>1. Server self test</b>: <code>tools/servertest.sh</code>, 50 checks</summary>
 
 A real dedicated NeoForge or Fabric server is installed, the preset datapack is exported, a new world is created with
 the "Default" preset and `rtf selftest` runs in it. Output of 1.21.11 NeoForge (the list below is not complete: it shows 18 of the 42 checks):
@@ -939,23 +975,25 @@ Raw output of spark (26.3, ReTerraForged):
 
 On 1.21.1, 1.21.11, 26.1.2, 26.2 and 26.3, NeoForge and Fabric, on real dedicated servers:
 
-- **Self test:** 42 checks pass on each version and loader (on 1.21.1 with the biome mods: 41).
+- **Self test:** 50 checks pass on each version and loader. <!-- RP: self test on 1.21.1 with the biome mods, number of checks -->
 - **Structures:** checked on each version and loader.
 - **Two loaders:** the worlds of NeoForge and Fabric match in heights and biomes.
-- **Fingerprint against 0.0.31:** a preset from 0.0.31 on this build gives the same surface and heights. All 4501 lines match on 1.21.1, 1.21.11 and 26.2. On 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ: there the features cross the chunk border and depend on the order in which the neighbours are generated.
-- **New reference:** the new fingerprint reference differs from the old one only in the rock strata; all 4225 height and biome lines match on each version.
-- **Biomes O' Plenty with TerraBlender** (NeoForge): the self test and the biome kinds of the mods pass.
-- **A tile that fails to generate:** the server stops by itself, in 47–48 s.
-- **Client GUI test** in Russian on both loaders: 31 screenshots, including the five restored hints.
-- **Unit tests:** 98 on every version except 26.3 (92).
+- **Fingerprint of the new world against the NeoForge reference:** on 1.21.1, 26.1.2, 26.2 and 26.3 all 4501 of 4501 lines match. On 1.21.11 the surface and the base match, and one whole chunk out of 96 differs (vegetation across the chunk border).
+- **Fabric fingerprint:** before and after the new switches of this build, the surface and the base match on 1.21.11, 26.1.2, 26.2 and 26.3. The Fabric references were taken again.
+- **Fingerprint against 0.0.31:** a preset from 0.0.31 on this build gives the same surface and heights. On 1.21.1 all 4501 lines match on both loaders, and on 1.21.11 and 26.2 all 4501 match. On 26.1.2 and 26.3, 1 and 4 whole chunks out of 96 differ: there the features cross the chunk border and depend on the order in which the neighbours are generated.
+- **Biomes O' Plenty with TerraBlender** (NeoForge): the self test and the biome kinds of the mods pass. <!-- RP -->
+- **A tile that fails to generate:** the server stops by itself, in 47–48 s. <!-- RP -->
+- **Client GUI test** in Russian on NeoForge: 35 screenshots on 1.21.1, 34 on 1.21.11, 26.2 and 26.3.
+- **Unit tests:** 167 on 1.21.1, 1.21.11, 26.1.2 and 26.2; 159 on 26.3.
 
 Only on 1.21.1:
 
-- **C2ME** on NeoForge and on Fabric (with ModernFix on Fabric): the self test passes.
-- **Biomes O' Plenty with Regions Unexplored** on NeoForge: 89 of 121 biome kinds, as in 0.0.31.
-- **Stress test:** 467 preset variants, no failures.
-- **GUI test** in English.
-- **A world made by 0.0.31** opened by this build gives the same terrain (CI).
+- **Widget test:** every widget of the preset screen, 697 actions, all checks passed.
+- **GUI test:** in Russian on Fabric and in English on NeoForge.
+- **C2ME** on NeoForge and on Fabric (with ModernFix on Fabric): the self test passes. <!-- RP -->
+- **Biomes O' Plenty with Regions Unexplored** on NeoForge: 89 of 121 biome kinds, as in 0.0.31. <!-- RP -->
+- **Stress test:** 483 preset variants, no failures.
+- **A world made by 0.0.31** opened by this build gives the same terrain (CI). <!-- RP -->
 
 Not checked: Biomes O' Plenty with Regions Unexplored on Fabric 1.21.1. Lithostitched 1.8.1 does not load with Fabric Loader 0.18.3, and Regions Unexplored 0.6.3 needs Fabric Loader 0.17 or newer.
 
@@ -1038,11 +1076,12 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Рельеф TerraForged:** материки с береговыми линиями, отмелями и заливами, горные цепи, плато, холмы, долины,
   степи, бесплодные земли, вулканы.
 - **Вода:** речные сети с главными реками и притоками, озёра на реках, болота, глубина и ширина русла настраиваются.
+- **Ложные реки на четырёх других рельефах** (0.0.32, «Ложные водные биомы» на страницах «Рельеф» и «Острова», по умолчанию выключено): суша ниже уровня моря получает речной биом, как уже было у степей; теперь так же на плато, холмах, горах и равнинах. Раньше плато-каньон ниже уровня моря оставался с сухопутным биомом. Пресеты, сохранённые раньше, выключают эти переключатели, поэтому существующие миры сохраняют свои биомы. Горы островов и вулканы не меняются: их суша ниже моря — морское дно. На тестовом сиде с «По умолчанию» плато, холмы и равнины меняют около 1 % клеток. Горы «По умолчанию» опускаются ниже моря только у побережья, поэтому переключатель гор там ничего не меняет.
 - **Поверхность:** симуляция эрозии каплями воды, камень и осыпи на крутых склонах, пласты горных пород, снег только
   там, где он лёг бы естественно.
 - **Снеговая линия** (0.0.25, страница «Прочее», по умолчанию выключена): снег на земле и деревьях выше заданной
   высоты в любом биоме, так что у гор в тёплом климате появляются снежные вершины; стоячая вода выше неё замерзает.
-  «Высота снеговой линии» и «Разброс снеговой линии» задают, где она проходит и насколько неровен её край. С 0.0.26
+  «Высота снеговой линии» и «Разброс снеговой линии» задают, где она проходит и насколько неровен её край. «Высота снеговой линии» идёт до 1024 (в 0.0.32 было 512), до верха самого высокого мира. С 0.0.26
   снег может быть глубже: «Глубина снега у линии» и «Глубина снега на вершинах» (от 1 до 8 слоёв, 8 — полный блок) и
   «Нарастание снега» (за сколько блоков над линией глубина меняется от одного значения к другому).
 - **Долины рек и озёр** (0.0.27, страница «Реки», [#29](https://github.com/Vladeezyy/reterraforged/issues/29)):
@@ -1078,7 +1117,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Деревья мода** из шаблонов — дубы, берёзы, ели, секвойи, ивы, акации, джунгли — с ульями, как у ванильных.
 - **Редактор пресетов:** больше 160 настроек на одиннадцати страницах — мир, поверхность, пещеры, климат, рельеф, острова, реки,
   фильтры, структуры и прочее — с картой-превью, которая перерисовывается при каждом изменении. Пресеты сохраняются,
-  копируются и выгружаются как датапак. Список пресетов в три колонки: сам список, карта рельефа и описание выбранного пресета и кнопки. Настройка, которая отличается от «По умолчанию», отмечается (как и её страница в меню), а правый клик сбрасывает её. Поле поиска находит настройки на всех страницах. «Готово» без изменений не выгружает датапак повторно.
+  копируются и выгружаются как датапак. Список пресетов в три колонки: сам список, карта выбранного пресета и его описание, и кнопки. Карта — 512 × 512 точек по 25 блоков (12 800 блоков по стороне) в цветах превью настроек в режиме «Типы биомов», то есть вдвое подробнее этого превью. Настройка, которая отличается от «По умолчанию», отмечается (как и её страница в меню), а правый клик сбрасывает её. Поле поиска находит настройки на всех страницах. «Готово» без изменений не выгружает датапак повторно.
 - **Структуры:** для каждого набора структур можно задать расстояние, разнос и salt или отключить его. Деревни и
   другие наземные структуры не ставятся на горы, как в 0.0.6.
 - **Пресеты:** «По умолчанию» из ReTerraForged 0.0.6, восемь пресетов, добавленных в 0.0.32, и классические пресеты TerraForged (Beautiful, Huge Biomes, Lite, Vanilla-ish). Каждый новый пресет — «По умолчанию» с несколькими изменёнными настройками:
@@ -1134,7 +1173,8 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **Размер тайла хранится в мире** (`reterraforged/generation.json` в папке мира): раньше смена `tileSize` в `performance.conf` или другом конфиге на сервере давала швы эрозии между старыми и новыми чанками. Теперь конфиг действует на новые миры.
 - **Экран пресета:** экспорт датапака идёт не в потоке рендера, поэтому «Создать мир», «Готово» и «Экспорт в датапак» больше не замораживают игру (на время экспорта показывается ванильный экран подготовки). Устаревший расчёт превью останавливается. Пять подсказок снова описывают свои настройки («Эрозия обычным камнем», две дистанции озёр, «Горные биомы» и «Вулканические биомы»): их тексты из 0.0.21 были потеряны во всех 11 языках.
 - **Версия генерации 1, только для новых миров** (миры, созданные раньше, сохраняют каждый блок; пресет из библиотеки игрока получает её при создании нового мира; включается вместе с «Исправлениями генерации»): под реками и озёрами строятся глубокие структуры (крепости, древние города, испытательные камеры: раньше правило структур отказывало им на любой глубине, поэтому крепостей было меньше, а око Эндера пропускало их точку); пласты горных пород зависят от сида мира (раньше были одинаковыми во всех мирах); 64-битный сид даёт свой рельеф (раньше учитывались только младшие 32 бита; сиды, которые помещаются в 32 бита, включая все текстовые, дают тот же рельеф, что и раньше).
-- **Настройки структур и датапак:** они больше не записывают целые наборы структур в датапак мира, поэтому мир, в котором менялись настройки структур, больше не перестаёт загружаться после удаления мода структур. Наборы из датапаков 0.0.12–0.0.31 пропускаются, а настройки применяются к наборам, которые есть в игре.
+- **Настройки структур и датапак:** они больше не записывают целые наборы структур в датапак мира, поэтому мир, в котором менялись настройки структур, больше не перестаёт загружаться после удаления мода структур. Наборы из датапаков 0.0.12–0.0.31 пропускаются, а настройки применяются к наборам, которые есть в игре. На обоих загрузчиках: раньше Fabric искал файл пресета по пути NeoForge, поэтому мир на Fabric с набором удалённого мода не загружался.
+- **Только 26.3: Нижний мир и Край больше не используют контекст генератора обычного мира** (то же было в 0.0.30 и 0.0.31, в мирах с «Исправлениями генерации»). Проверка читала тег датапака пресета, который виден из любого измерения, поэтому структурное правило Нижнего мира убирало старты там, где в обычном мире река, озеро или горы (на тесте 160 × 160 чанков: 493 окаменелости Нижнего мира вместо 526, одна крепость стала бастионом), а каждый чанк Нижнего мира и Края строил тайлы обычного мира (старты структур на 128 × 128 чанков: Нижний мир 5,5 с вместо 1,4 с, Край 13,9 с вместо 1,3 с). Теперь решает только собственный роутер шума измерения, как на 26.2. Рельеф Нижнего мира и Края не менялся (0 отличий по блокам), саженцы в них снова ванильные. Другие версии не страдали.
 - **Датапак пресета на обоих загрузчиках:** экспорт записывает модификаторы биомов для NeoForge и для Fabric. Раньше датапак другого загрузчика давал мир без деревьев мода, эрозии, поверхности болот и снега. Fabric также читает папку NeoForge старого датапака (о другом направлении см. в «Известных ограничениях»).
 - **Эрозия и берега островов** ([#38](https://github.com/Vladeezyy/reterraforged/issues/38), версия генерации 1, новые миры): эрозия читает биомы чанка, как правила поверхности, поэтому песок больше не остаётся на крутых склонах у островов.
 - **Колонки дальше 16,7 млн блоков** (версия генерации 1, новые миры): они больше не идут парами одинаковых колонок.
@@ -1205,6 +1245,7 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 - **«Болота в низинах» с модами биомов:** болота идут туда, где рельеф низкий, в основном в долины рек, потому что настройка не меняет форму суши. С
   Biomes O' Plenty и Terralith при 12 / 12 они занимают около 10 % суши, и широких среди них только около 3 %. Широкие болота даёт настройка «Болотные низины» (см.
   [#28](https://github.com/Vladeezyy/reterraforged/issues/28)).
+- **26.3, миры, созданные 0.0.30 или 0.0.31 (включены «Исправления генерации»):** новые чанки Нижнего мира получают ванильный выбор структур. Крепость, чей старт придётся на новый чанк у самой границы исследованного, может оказаться обрезанной (редко).
 - **Шахты под руслами рек у уровня моря** по-прежнему не строятся: точка старта выше порога глубины.
 - **Поверхность у пляжей и на склонах** местами берёт биом без учёта эрозии тайла, как в оригинале. Не исправлено.
 
@@ -1316,7 +1357,18 @@ License: **LGPL-3.0-only** ([LICENSE](LICENSE), with the GPL-3.0 text in [COPYIN
 
 **Причина.** Настройки записывали в датапак мира целые наборы структур. Такой файл называет каждую структуру набора и набор её зоны исключения, поэтому отсутствующий мод ломал файл.
 
-**Исправление.** В датапаке нет наборов структур. Записи пресета применяются к загруженным наборам, а набор, чей мод удалён, пропускается. Файлы датапаков 0.0.12–0.0.31 пропускаются.
+**Исправление.** В датапаке нет наборов структур. Записи пресета применяются к загруженным наборам, а набор, чей мод удалён, пропускается. Файлы датапаков 0.0.12–0.0.31 пропускаются. На обоих загрузчиках: раньше Fabric искал файл пресета по пути NeoForge, поэтому мир на Fabric с набором удалённого мода не загружался.
+
+</details>
+
+<details>
+<summary><b>26.3: Нижний мир и Край использовали контекст обычного мира</b> (0.0.30 и 0.0.31 на 26.3, исправлено в 0.0.32)</summary>
+
+**Проблема.** В мирах с «Исправлениями генерации» на 26.3 Нижний мир и Край строились с контекстом генератора ReTerraForged обычного мира. Структурное правило Нижнего мира убирало старты там, где в обычном мире река, озеро или горы (на тесте 160 × 160 чанков: 493 окаменелости Нижнего мира вместо 526, одна крепость стала бастионом). Каждый чанк Нижнего мира и Края строил тайлы обычного мира: старты структур на 128 × 128 чанков занимали 5,5 с в Нижнем мире вместо 1,4 с и 13,9 с в Крае вместо 1,3 с.
+
+**Причина.** Проверка, нужен ли измерению контекст ReTerraForged, читала тег из датапака пресета. Его видит каждое измерение, поэтому ответ обычного мира действовал и в Нижнем мире, и в Крае.
+
+**Исправление.** Измерение, кроме обычного мира, решает только по собственному роутеру шума, как на 26.2. Рельеф Нижнего мира и Края не изменился (0 отличий по блокам). Существующие миры 26.3: см. «Известные ограничения».
 
 </details>
 
@@ -1704,7 +1756,7 @@ y 0, так что рельеф не меняется. Чанки, создан�
 CI (`.github/workflows/build.yml`) запускается на каждый push, который меняет не только документацию, и на каждый pull request. Мир, созданный последним релизом для той же версии Minecraft, открывается этой сборкой, а пресет последнего релиза даёт с этой сборкой тот же мир, что и релизный jar на том же раннере. Датапак пресета, выгруженный на одном загрузчике, работает на другом. Самопроверка запускается на Fabric Loader и Fabric API, под которые собран мод, а также на самых новых. NeoForge и Fabric должны создавать один и тот же мир. `tools/extramods.sh` ставит остальные моды тестовых запусков (`MODS=`); Biomes O' Plenty идёт вместе с TerraBlender и GlitchCore на каждой версии.
 
 <details>
-<summary><b>1. Самопроверка на сервере</b>: <code>tools/servertest.sh</code>, 42 пункта</summary>
+<summary><b>1. Самопроверка на сервере</b>: <code>tools/servertest.sh</code>, 50 пунктов</summary>
 
 Ставится настоящий выделенный сервер NeoForge или Fabric, экспортируется датапак пресета, создаётся новый мир с
 пресетом «По умолчанию», и в нём запускается `rtf selftest`. Вывод на 1.21.11 NeoForge (список ниже неполный: он показывает 18 из 42 проверок):
@@ -1864,23 +1916,25 @@ stress: 935 variants in 126 s: 935 ok, 0 failed, 0 hung; slowest world().contine
 
 На 1.21.1, 1.21.11, 26.1.2, 26.2 и 26.3, NeoForge и Fabric, на настоящих выделенных серверах:
 
-- **Самотест:** 42 проверки проходят на каждой версии и загрузчике (на 1.21.1 с модами биомов: 41).
+- **Самотест:** 50 проверок проходят на каждой версии и загрузчике. <!-- RP: самотест на 1.21.1 с модами биомов, число проверок -->
 - **Структуры:** проверены на каждой версии и загрузчике.
 - **Два загрузчика:** миры NeoForge и Fabric совпадают по высотам и биомам.
-- **Отпечаток относительно 0.0.31:** пресет из 0.0.31 на этой сборке даёт ту же поверхность и высоты. Все 4501 строка совпадают на 1.21.1, 1.21.11 и 26.2. На 26.1.2 и 26.3 отличаются 1 и 4 полных чанка из 96: там фичи пересекают границу чанка и зависят от порядка генерации соседей.
-- **Новый эталон:** новый эталон отпечатков отличается от старого только пластами камня; все 4225 строк высот и биомов совпадают на каждой версии.
-- **Biomes O' Plenty с TerraBlender** (NeoForge): самотест и биомы модов проходят.
-- **Отказ генерации тайла:** сервер завершается сам, за 47–48 с.
-- **GUI-тест клиента** на русском на обоих загрузчиках: 31 скриншот, включая пять восстановленных подсказок.
-- **Юнит-тесты:** 98 на каждой версии, кроме 26.3 (92).
+- **Отпечаток нового мира относительно эталона NeoForge:** на 1.21.1, 26.1.2, 26.2 и 26.3 совпадают все 4501 из 4501 строк. На 1.21.11 совпадают поверхность и основа, а один полный чанк из 96 отличается (растительность через границу чанка).
+- **Отпечаток Fabric:** до и после новых переключателей этой сборки совпадают поверхность и основа на 1.21.11, 26.1.2, 26.2 и 26.3. Эталоны Fabric сняты заново.
+- **Отпечаток относительно 0.0.31:** пресет из 0.0.31 на этой сборке даёт ту же поверхность и высоты. На 1.21.1 все 4501 строка совпадают на обоих загрузчиках, а на 1.21.11 и 26.2 все 4501 тоже совпадают. На 26.1.2 и 26.3 отличаются 1 и 4 полных чанка из 96: там фичи пересекают границу чанка и зависят от порядка генерации соседей.
+- **Biomes O' Plenty с TerraBlender** (NeoForge): самотест и биомы модов проходят. <!-- RP -->
+- **Отказ генерации тайла:** сервер завершается сам, за 47–48 с. <!-- RP -->
+- **GUI-тест клиента** на русском на NeoForge: 35 скриншотов на 1.21.1, 34 на 1.21.11, 26.2 и 26.3.
+- **Юнит-тесты:** 167 на 1.21.1, 1.21.11, 26.1.2 и 26.2; 159 на 26.3.
 
 Только на 1.21.1:
 
-- **C2ME** на NeoForge и на Fabric (на Fabric вместе с ModernFix): самотест проходит.
-- **Biomes O' Plenty с Regions Unexplored** на NeoForge: 89 из 121 вида биомов, как в 0.0.31.
-- **Стресс-тест:** 467 вариантов пресета, без сбоев.
-- **GUI-тест** на английском.
-- **Мир, созданный 0.0.31,** открытый этой сборкой, даёт тот же рельеф (CI).
+- **Тест всех виджетов** экрана пресетов: 697 действий, все проверки прошли.
+- **GUI-тест:** на русском на Fabric и на английском на NeoForge.
+- **C2ME** на NeoForge и на Fabric (на Fabric вместе с ModernFix): самотест проходит. <!-- RP -->
+- **Biomes O' Plenty с Regions Unexplored** на NeoForge: 89 из 121 вида биомов, как в 0.0.31. <!-- RP -->
+- **Стресс-тест:** 483 варианта пресета, без сбоев.
+- **Мир, созданный 0.0.31,** открытый этой сборкой, даёт тот же рельеф (CI). <!-- RP -->
 
 Не проверено: Biomes O' Plenty с Regions Unexplored на Fabric 1.21.1. Lithostitched 1.8.1 не грузится с Fabric Loader 0.18.3, а Regions Unexplored 0.6.3 требует Fabric Loader 0.17 или новее.
 
