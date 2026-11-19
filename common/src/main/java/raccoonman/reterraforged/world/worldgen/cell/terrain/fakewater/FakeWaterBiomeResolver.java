@@ -31,6 +31,18 @@ public class FakeWaterBiomeResolver {
 		if (this.settings.badlandsBelowSeaLevelOceanBiomes && isBadlands(terrain)) {
 			return FakeWaterBiomeTarget.RIVER;
 		}
+		if (this.settings.plateauBelowSeaLevelRiverBiomes && isPlateau(terrain)) {
+			return FakeWaterBiomeTarget.RIVER;
+		}
+		if (this.settings.hillsBelowSeaLevelRiverBiomes && isHills(terrain)) {
+			return FakeWaterBiomeTarget.RIVER;
+		}
+		if (this.settings.mountainsBelowSeaLevelRiverBiomes && isMountains(terrain)) {
+			return FakeWaterBiomeTarget.RIVER;
+		}
+		if (this.settings.plainsBelowSeaLevelRiverBiomes && isPlains(terrain)) {
+			return FakeWaterBiomeTarget.RIVER;
+		}
 		return FakeWaterBiomeTarget.NONE;
 	}
 	
@@ -40,5 +52,25 @@ public class FakeWaterBiomeResolver {
 	
 	public static boolean isBadlands(Terrain terrain) {
 		return terrain == TerrainType.BADLANDS || terrain.getName().contains("badlands");
+	}
+
+	// by the name, as steppe and badlands: where two kinds of terrain meet the cell has a terrain named after both
+	public static boolean isPlateau(Terrain terrain) {
+		return terrain == TerrainType.PLATEAU || terrain.getName().contains("plateau");
+	}
+
+	public static boolean isHills(Terrain terrain) {
+		return terrain == TerrainType.HILLS || terrain.getName().contains("hills");
+	}
+
+	// the mountains of the mainland: those of islands stand in the ocean, their ground below the sea is the sea floor
+	public static boolean isMountains(Terrain terrain) {
+		String name = terrain.getName();
+		return name.contains("mountain") && !name.contains("island");
+	}
+
+	// "Plains" on the terrain page
+	public static boolean isPlains(Terrain terrain) {
+		return terrain == TerrainType.FLATS || terrain.getName().contains("flats");
 	}
 }

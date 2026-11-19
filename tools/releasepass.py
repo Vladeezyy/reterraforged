@@ -26,9 +26,10 @@ BASINS = "set:climate().swampBasins=0.25;climate().swampMaxHeight=12"
 ISLANDS = "set:island().enableArchipelago=true"
 # a case that takes longer has hung
 TIMEOUT = 20 * 60
-# the settings "rtf stress effects" finds no effect of in the terrain cells or the datapack: all four are read while
-# chunks generate (RTFEffectTest). Another one is a setting that does nothing
-WITHOUT_EFFECT = {"climate().swampMaxHeight", "miscellaneous().snowLine.height", "world().properties.altitudeCoolingFollowsHeight", "world().properties.lavaLevel"}
+# the settings "rtf stress effects" finds no effect of in the terrain cells or the datapack: four are read while chunks
+# generate (RTFEffectTest). Another one is a setting that does nothing. Mountains below the sea: Default has no mountain
+# ground below sea level in the tested area (plateau canyons, hills and plains have some)
+WITHOUT_EFFECT = {"climate().swampMaxHeight", "fakeWaterBiomes().mountainsBelowSeaLevelRiverBiomes", "miscellaneous().snowLine.height", "world().properties.altitudeCoolingFollowsHeight", "world().properties.lavaLevel"}
 
 
 def prop(checkout, key, required=True):

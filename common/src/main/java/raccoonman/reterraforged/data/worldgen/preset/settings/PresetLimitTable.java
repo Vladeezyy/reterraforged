@@ -66,7 +66,7 @@ final class PresetLimitTable {
 		PresetLimits.Limit.ofInt("miscellaneous().strata.maxLayers", 1, 64, 1, p -> p.miscellaneous().strata.maxLayers, (p, v) -> p.miscellaneous().strata.maxLayers = v),
 		PresetLimits.Limit.ofFloat("miscellaneous().strata.minDepth", 0.01F, 3.0F, p -> p.miscellaneous().strata.minDepth, (p, v) -> p.miscellaneous().strata.minDepth = v),
 		PresetLimits.Limit.ofFloat("miscellaneous().strata.maxDepth", 0.01F, 3.0F, p -> p.miscellaneous().strata.maxDepth, (p, v) -> p.miscellaneous().strata.maxDepth = v),
-		PresetLimits.Limit.ofInt("miscellaneous().snowLine.height", -64, 512, 1, p -> p.miscellaneous().snowLine.height, (p, v) -> p.miscellaneous().snowLine.height = v),
+		PresetLimits.Limit.ofInt("miscellaneous().snowLine.height", -64, 1024, 1, p -> p.miscellaneous().snowLine.height, (p, v) -> p.miscellaneous().snowLine.height = v),
 		PresetLimits.Limit.ofInt("miscellaneous().snowLine.variation", 0, 64, 1, p -> p.miscellaneous().snowLine.variation, (p, v) -> p.miscellaneous().snowLine.variation = v),
 		PresetLimits.Limit.ofInt("miscellaneous().snowLine.depth", 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, 1, p -> p.miscellaneous().snowLine.depth, (p, v) -> p.miscellaneous().snowLine.depth = v),
 		PresetLimits.Limit.ofInt("miscellaneous().snowLine.peakDepth", 1, MiscellaneousSettings.SnowLine.MAX_DEPTH, 1, p -> p.miscellaneous().snowLine.peakDepth, (p, v) -> p.miscellaneous().snowLine.peakDepth = v),
