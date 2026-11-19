@@ -14,7 +14,8 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.tile.Tile;
 
 /**
  * A whole preset as a small picture for the preset list: 512 cells of 25 blocks around the origin (the area the settings
- * pages' preview shows at its default zoom), drawn as a relief map. The land has the colour of its climate (the biome
+ * pages' preview shows at its default zoom), in the colours of that preview's Biome Types mode (the default), or with
+ * RELIEF as a relief map. The relief map: the land has the colour of its climate (the biome
  * type: snow, forest, steppe, desert), from 70 blocks above the sea the colour of its height (rock, then snow), and is
  * lit from the north-west, which is what shows the mountains and valleys the presets differ in; the sea is darker with
  * its depth, rivers and lakes are drawn, sea shores are sand. About 0.15 s on a background thread.
@@ -25,6 +26,9 @@ public final class PresetMapDrawer {
 	public static final int SIZE = 16 << TILE_CHUNKS;
 	// blocks per cell: 12800 blocks a side, as the preview's default (256 cells of 50)
 	private static final float ZOOM = 25.0F;
+	// false: the colours of the settings pages' preview in its Biome Types mode, as the player knows them from there;
+	// true: the relief map of 0.0.32's first drafts (climate colours lit from the north-west), kept to switch back to
+	private static final boolean RELIEF = false;
 
 	private PresetMapDrawer() {
 	}
@@ -49,6 +53,17 @@ public final class PresetMapDrawer {
 		int width = tile.getBlockSize().size();
 		Cell[] cells = tile.getBacking();
 		int n = SIZE;
+		if (!RELIEF) {
+			// the colours of the settings pages' preview (Biome Types), cell by cell
+			int topY = properties.worldHeight - 1;
+			int[] colors = new int[n * n];
+			for (int z = 0; z < n; z++) {
+				for (int x = 0; x < n; x++) {
+					colors[z * n + x] = RenderMode.BIOME_TYPE.getColor(cells[Math.min(z, width - 1) * width + Math.min(x, width - 1)], levels, topY);
+				}
+			}
+			return colors;
+		}
 		float[] height = new float[n * n];
 		int[] climate = new int[n * n];
 		boolean[] mountain = new boolean[n * n];
