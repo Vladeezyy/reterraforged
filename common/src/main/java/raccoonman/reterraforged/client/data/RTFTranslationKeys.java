@@ -119,6 +119,10 @@ public final class RTFTranslationKeys {
 	public static final String GUI_BUTTON_ENABLE_FAKE_WATER_BIOMES = resolve("gui.button.enableFakeWaterBiomes");
 	public static final String GUI_BUTTON_STEPPE_FAKE_RIVERS = resolve("gui.button.steppeFakeRivers");
 	public static final String GUI_BUTTON_BADLANDS_FAKE_OCEANS = resolve("gui.button.badlandsFakeOceans");
+	public static final String GUI_BUTTON_PLATEAU_FAKE_RIVERS = resolve("gui.button.plateauFakeRivers");
+	public static final String GUI_BUTTON_HILLS_FAKE_RIVERS = resolve("gui.button.hillsFakeRivers");
+	public static final String GUI_BUTTON_MOUNTAINS_FAKE_RIVERS = resolve("gui.button.mountainsFakeRivers");
+	public static final String GUI_BUTTON_PLAINS_FAKE_RIVERS = resolve("gui.button.plainsFakeRivers");
 	public static final String GUI_VALUE_CAVE_COMPATIBILITY_MODE = resolve("gui.value.caveCompatibilityMode");
 	
 	public static final String GUI_SLIDER_CONTINENT_SCALE = resolve("gui.slider.continentScale");
