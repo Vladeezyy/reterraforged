@@ -98,16 +98,25 @@ class MixinRandomState {
 		RegistryAccess registries = level.registryAccess();
 		this.initialized = true;
 		try {
+			boolean cells;
 			if(level.dimension().equals(Level.OVERWORLD)) {
 				OverworldRegistries.set(registries);
-			} else if(!this.usesCellSamplers(registries) || !generationFixes(registries)) {
-				this.clearGeneratorContext();
-				return;
+				cells = this.usesCellSamplers(registries, true);
+			} else {
+				// by this dimension's own noise router only, as in 26.2: the tagged functions are the preset datapack's and
+				// are seen from every dimension, so with them the Nether and the End got the overworld's context: its
+				// structure rule took their structures away where the overworld has rivers, lakes or mountains (6 % of the
+				// nether fossils, a fortress gave way to a bastion), and overworld tiles were made for each of their chunks
+				cells = this.usesCellSamplers(registries, false);
+				if(!cells || !generationFixes(registries)) {
+					this.clearGeneratorContext();
+					return;
+				}
 			}
 			// also another dimension on the overworld's noise settings (a mod's mining dimension, a datapack's): our functions
 			// are in its noise router, and without a context they gave a sea over a flat floor everywhere. Not in a world with a
 			// preset saved before: what was explored of such a dimension stays as it is
-			this.initialize(registries, level);
+			this.initialize(registries, level, cells);
 		} finally {
 			this.ready = true;
 		}
@@ -140,7 +149,8 @@ class MixinRandomState {
 		if(!this.initialized && registries != null) {
 			this.initialized = true;
 			try {
-				this.initialize(registries, null);
+				// by its own router too: a random state of another dimension's noise settings has nothing of the preset
+				this.initialize(registries, null, this.usesCellSamplers(registries, false));
 			} finally {
 				this.ready = true;
 			}
@@ -152,7 +162,7 @@ class MixinRandomState {
 	}
 
 	@Unique
-	private void initialize(RegistryAccess registries, @Nullable ServerLevel level) {
+	private void initialize(RegistryAccess registries, @Nullable ServerLevel level, boolean cells) {
 		// 只在主世界应用RTF地形
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
@@ -166,7 +176,7 @@ class MixinRandomState {
 		presets.get(Preset.KEY).ifPresent((presetHolder) -> {
 			this.preset = presetHolder.value();
 
-			if(this.usesCellSamplers(registries)) {
+			if(cells) {
 				PerformanceConfig config = PerformanceConfig.read(PerformanceConfig.defaultFile())
 					.resultOrPartial(RTFCommon.LOGGER::error)
 					.orElseGet(PerformanceConfig::makeDefault);
@@ -197,10 +207,10 @@ class MixinRandomState {
 		}
 	}
 
-	// the generator context is only made when the noise router (or the functions tagged as additional router
-	// functions) samples the preset's cells
+	// the generator context is only made when the noise router (in the overworld also the functions tagged as additional
+	// router functions) samples the preset's cells
 	@Unique
-	private boolean usesCellSamplers(RegistryAccess registries) {
+	private boolean usesCellSamplers(RegistryAccess registries, boolean additionalFunctions) {
 		Set<DensityFunction> visited = Collections.newSetFromMap(new IdentityHashMap<>());
 		boolean[] found = new boolean[1];
 		DfRewriteRule finder = new DfRewriteRule() {
@@ -219,9 +229,11 @@ class MixinRandomState {
 		for(DensityFunction function : new DensityFunction[] { router.temperature(), router.vegetation(), router.continents(), router.erosion(), router.depth(), router.ridges(), router.chunkSurfaceLevel(), router.finalDensity() }) {
 			finder.rewrite(function);
 		}
-		registries.lookupOrThrow(Registries.DENSITY_FUNCTION).get(RTFDensityFunctionTags.ADDITIONAL_NOISE_ROUTER_FUNCTIONS).ifPresent((set) -> {
-			set.forEach((function) -> finder.rewrite(function.value()));
-		});
+		if(additionalFunctions && !found[0]) {
+			registries.lookupOrThrow(Registries.DENSITY_FUNCTION).get(RTFDensityFunctionTags.ADDITIONAL_NOISE_ROUTER_FUNCTIONS).ifPresent((set) -> {
+				set.forEach((function) -> finder.rewrite(function.value()));
+			});
+		}
 		return found[0];
 	}
 
