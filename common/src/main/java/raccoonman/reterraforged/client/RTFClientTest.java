@@ -245,7 +245,7 @@ public final class RTFClientTest {
 		});
 	}
 
-	// CAMS: every chunk within the render distance - 2 of the camera is loaded on the server, then SETTLE ticks for the
+	// CAMS: every chunk within a circle of the render distance - 2 around the camera is loaded on the server and the client, then SETTLE ticks for the
 	// client to build the sections
 	private static boolean ready(Minecraft mc, float[] spot) {
 		if (settling) {
@@ -260,6 +260,7 @@ public final class RTFClientTest {
 				var source = server.overworld().getChunkSource();
 				int have = 0, all = 0;
 				for (int x = -r; x <= r; x++) for (int z = -r; z <= r; z++) {
+					if (x * x + z * z > r * r) continue;
 					all++;
 					if (source.hasChunk(cx + x, cz + z)) have++;
 				}
@@ -269,6 +270,18 @@ public final class RTFClientTest {
 		if (!loaded.isDone()) return false;
 		int[] count = loaded.join();
 		loaded = null;
+		// the client must have them too: the server sends chunks in batches as fast as the client acknowledges them
+		if (count[0] == count[1] && mc.level != null) {
+			int cx = Mth.floor(spot[0]) >> 4, cz = Mth.floor(spot[2]) >> 4, r = Math.max(2, RENDER - 2);
+			var client = mc.level.getChunkSource();
+			int have = 0;
+			// a circle: the chunks a player sees are a circle since 1.20.2 (ChunkTrackingView), the corners never come
+			for (int x = -r; x <= r; x++) for (int z = -r; z <= r; z++) {
+				if (x * x + z * z > r * r) continue;
+				if (client.hasChunk(cx + x, cz + z)) have++;
+			}
+			count[0] = have;
+		}
 		waited += 20;
 		if (waited % 400 == 0) RTFCommon.LOGGER.info("[RTF clienttest] chunks around the camera {}/{} after {} ticks", count[0], count[1], waited);
 		if (count[0] < count[1] && waited < MAX_WAIT) {

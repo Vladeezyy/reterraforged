@@ -4,7 +4,7 @@
 # The world: a server test world, e.g. PRESET="preset:Towering Peaks" SKIP_SELFTEST=1 SKIP_STRUCTURES=1
 # tools/servertest.sh fabric (its chunks at the cameras must not be generated yet: every variant generates them itself).
 # Variants: nodrops (-Drtf.erosionfilter.drops=0), drops (as released), f05 (filter x0.5 + drops), f10 (filter x1 + drops).
-# CAMS="name:x,y,z,yaw,pitch;..." (RTFClientTest), RENDER=<chunks> (24), TIME=<ticks> (10500), SHADERS=1 Iris + Sodium +
+# CAMS="name:x,y,z,yaw,pitch;..." (RTFClientTest), RENDER=<chunks> (24), TIME=<ticks> (9000), SHADERS=1 Iris + Sodium +
 # Complementary Reimagined (as tools/showcase.sh), SODIUM=1 Sodium only. Screenshots: <out dir>/<variant>/<cam>.png.
 {
 cd "$(dirname "$0")/.."
@@ -34,9 +34,14 @@ if [ -n "$SHADERS" ]; then
         | $PY -c 'import json,sys; v=json.load(sys.stdin)[0]["files"][0]; print(v["url"], v["filename"])' | tr -d '\r')
     [ -f "$RUN/shaderpacks/$pack" ] || curl -fsSL -o "$RUN/shaderpacks/$pack" "$url"
     printf 'enableShaders=true\nshaderPack=%s\n' "$pack" > "$RUN/config/iris.properties"
+    # the pack's own clouds (the vanilla cloud option does not turn them off) and its haze off, the far mountains clear
+    printf 'CLOUD_STYLE_DEFINE=0\nATM_FOG_MULT=0.50\nATM_FOG_DISTANCE=300\nBORDER_FOG=false\n' > "$RUN/shaderpacks/$pack.txt"
     echo "shaders: $pack"
 fi
-base="-Drtf.clientcams=$CAMS -Drtf.clientrender=${RENDER:-24} -Drtf.clienttime=${TIME:-10500} -Drtf.clientsettle=${SETTLE:-300}"
+# no vanilla clouds either
+touch "$RUN/options.txt"
+if grep -q '^renderClouds:' "$RUN/options.txt"; then sed -i 's/^renderClouds:.*/renderClouds:"false"/' "$RUN/options.txt"; else echo 'renderClouds:"false"' >> "$RUN/options.txt"; fi
+base="-Drtf.clientcams=$CAMS -Drtf.clientrender=${RENDER:-24} -Drtf.clienttime=${TIME:-9000} -Drtf.clientsettle=${SETTLE:-300}"
 for v in $VARIANTS; do
     case $v in
         nodrops) props="-Drtf.erosionfilter.drops=0" ;;
