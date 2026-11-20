@@ -32,7 +32,9 @@ public class WorldFilters {
         this.steepness = Steepness.make(1, 10.0F, context.levels);
         this.corrections = new NoiseCorrection(context.levels);
         this.erosion = new WorldErosion<>(factory, (e, size) -> e.getSize() == size);
-        this.erosionIterations = context.preset.filters().erosion.dropletsPerChunk;
+        // PROTOTYPE (proto/erosion-filter): -Drtf.erosionfilter.drops=<n> overrides the droplets per chunk for comparison
+        // pictures; a preset cannot say 0, PresetLimits clamps dropletsPerChunk to 10..250 when the preset is read
+        this.erosionIterations = Integer.getInteger("rtf.erosionfilter.drops", context.preset.filters().erosion.dropletsPerChunk);
         this.smoothingIterations = context.preset.filters().smoothing.iterations;
     }
     

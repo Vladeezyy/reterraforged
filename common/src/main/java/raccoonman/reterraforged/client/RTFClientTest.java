@@ -60,6 +60,15 @@ public final class RTFClientTest {
 	private static float[][] spots;
 	private static String[] names;
 	private static CompletableFuture<float[][]> search;
+	// PROTOTYPE (proto/erosion-filter, tools/erosionshots.sh): CAMS="name:x,y,z,yaw,pitch;..." only these cameras, the preset
+	// screen and the other places are left out; each shot waits until the server has every chunk around the camera
+	private static final String CAMS = System.getProperty("rtf.clientcams", "");
+	private static final int RENDER = Integer.getInteger("rtf.clientrender", 16);
+	private static final int SETTLE = Integer.getInteger("rtf.clientsettle", 300);
+	private static final int MAX_WAIT = Integer.getInteger("rtf.clientmaxwait", 12000);
+	private static CompletableFuture<int[]> loaded;
+	private static int waited;
+	private static boolean settling;
 
 	private RTFClientTest() {
 	}
@@ -86,7 +95,12 @@ public final class RTFClientTest {
 		switch (step) {
 			case 0 -> {
 				if (mc.screen instanceof TitleScreen title) {
-					mc.options.renderDistance().set(16);
+					mc.options.renderDistance().set(RENDER);
+					if (!CAMS.isEmpty()) {
+						step = 4;
+						wait = 20;
+						return;
+					}
 					CreateWorldScreen.openFresh(mc, title);
 					next(60);
 				}
@@ -134,7 +148,7 @@ public final class RTFClientTest {
 				if (!search.isDone()) return;
 				spots = search.join();
 				command(mc, "gamemode spectator");
-				command(mc, SHOWCASE ? "time set 10500" : "time set 6000");
+				command(mc, "time set " + System.getProperty("rtf.clienttime", SHOWCASE ? "10500" : "6000"));
 				command(mc, "weather clear");
 				// the time stops: doDaylightCycle up to 1.21.10, advance_time since 1.21.11 (the other one just fails)
 				command(mc, "gamerule doDaylightCycle false");
@@ -151,7 +165,8 @@ public final class RTFClientTest {
 						command(mc, String.format(java.util.Locale.ROOT, "tp @s %.1f %.1f %.1f %.1f %.1f", spot[0], spot[1], spot[2], spot[3], spot[4]));
 						next(500); // chunks around the new place are generated and rendered
 					} else {
-						shoot(mc, names[i / 2]);
+						if (!CAMS.isEmpty() && !ready(mc, spot)) return;
+							shoot(mc, names[i / 2]);
 						next(20);
 					}
 				} else {
@@ -230,8 +245,56 @@ public final class RTFClientTest {
 		});
 	}
 
+	// CAMS: every chunk within the render distance - 2 of the camera is loaded on the server, then SETTLE ticks for the
+	// client to build the sections
+	private static boolean ready(Minecraft mc, float[] spot) {
+		if (settling) {
+			settling = false;
+			waited = 0;
+			return true;
+		}
+		if (loaded == null) {
+			MinecraftServer server = mc.getSingleplayerServer();
+			int cx = Mth.floor(spot[0]) >> 4, cz = Mth.floor(spot[2]) >> 4, r = Math.max(2, RENDER - 2);
+			loaded = server.submit(() -> {
+				var source = server.overworld().getChunkSource();
+				int have = 0, all = 0;
+				for (int x = -r; x <= r; x++) for (int z = -r; z <= r; z++) {
+					all++;
+					if (source.hasChunk(cx + x, cz + z)) have++;
+				}
+				return new int[] { have, all };
+			});
+		}
+		if (!loaded.isDone()) return false;
+		int[] count = loaded.join();
+		loaded = null;
+		waited += 20;
+		if (waited % 400 == 0) RTFCommon.LOGGER.info("[RTF clienttest] chunks around the camera {}/{} after {} ticks", count[0], count[1], waited);
+		if (count[0] < count[1] && waited < MAX_WAIT) {
+			wait = 20;
+			return false;
+		}
+		RTFCommon.LOGGER.info("[RTF clienttest] chunks around the camera {}/{} after {} ticks, settling {} ticks", count[0], count[1], waited, SETTLE);
+		settling = true;
+		wait = SETTLE;
+		return false;
+	}
+
 	// camera spots: x, y, z, yaw, pitch
 	private static float[][] findSpots(MinecraftServer server) {
+		if (!CAMS.isEmpty()) {
+			List<float[]> list = new ArrayList<>();
+			List<String> named = new ArrayList<>();
+			for (String cam : CAMS.split(";")) {
+				String[] kv = cam.trim().split(":", 2);
+				String[] v = kv[1].split(",");
+				list.add(new float[] { Float.parseFloat(v[0]), Float.parseFloat(v[1]), Float.parseFloat(v[2]), Float.parseFloat(v[3]), Float.parseFloat(v[4]) });
+				named.add(kv[0].trim());
+			}
+			names = named.toArray(String[]::new);
+			return list.toArray(float[][]::new);
+		}
 		ServerLevel level = server.overworld();
 		var gen = level.getChunkSource().getGenerator();
 		var rs = level.getChunkSource().randomState();

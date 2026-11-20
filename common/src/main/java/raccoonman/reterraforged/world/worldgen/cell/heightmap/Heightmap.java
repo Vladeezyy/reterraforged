@@ -91,6 +91,15 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 	}
 
 	public void applyTerrain(Cell cell, float x, float z) {
+		this.applyTerrainRaw(cell, x, z);
+		// PROTOTYPE (proto/erosion-filter): -Drtf.erosionfilter=<strength>, off without the property
+		if (ErosionFilterProto.ENABLED) {
+			ErosionFilterProto.apply(this, cell, x, z);
+			this.keepFinite(cell);
+		}
+	}
+
+	void applyTerrainRaw(Cell cell, float x, float z) {
         cell.terrain = TerrainType.FLATS;
         cell.beachNoise = this.beachNoise.compute(x, z, 0);
         this.continent.apply(cell, x, z);
