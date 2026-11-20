@@ -94,7 +94,11 @@ public final class RTFSelfTest {
 			String result = RTFValleyTest.run(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"), IntegerArgumentType.getInteger(ctx, "x"), IntegerArgumentType.getInteger(ctx, "z"), LongArgumentType.getLong(ctx, "seed"), StringArgumentType.getString(ctx, "spec"));
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;
-		}))))))).then(Commands.literal("bench").executes(ctx -> {
+		}))))))).then(Commands.literal("heightdump").then(Commands.argument("name", StringArgumentType.word()).then(Commands.argument("x0", IntegerArgumentType.integer()).then(Commands.argument("z0", IntegerArgumentType.integer()).then(Commands.argument("size", IntegerArgumentType.integer(1)).then(Commands.argument("step", IntegerArgumentType.integer(1)).then(Commands.argument("seed", LongArgumentType.longArg()).then(Commands.argument("spec", StringArgumentType.greedyString()).executes(ctx -> {
+			String result = RTFHeightDump.start(ctx.getSource().getServer(), StringArgumentType.getString(ctx, "name"), IntegerArgumentType.getInteger(ctx, "x0"), IntegerArgumentType.getInteger(ctx, "z0"), IntegerArgumentType.getInteger(ctx, "size"), IntegerArgumentType.getInteger(ctx, "step"), LongArgumentType.getLong(ctx, "seed"), StringArgumentType.getString(ctx, "spec"));
+			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+			return 1;
+		}))))))))).then(Commands.literal("bench").executes(ctx -> {
 			String result = RTFBench.start(ctx.getSource().getServer(), 32);
 			ctx.getSource().sendSuccess(() -> Component.literal(result), false);
 			return 1;

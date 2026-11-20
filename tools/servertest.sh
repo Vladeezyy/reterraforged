@@ -27,6 +27,8 @@
 # SWAMPS=1 where the swamp biomes are against the river valleys and the heights (run/swamps-<loader>.txt, #28).
 # PREVIEWMAPS="<name> <spec>|<name> <spec>|...": "rtf previewmap" of each (spec: default, preset:<built-in name>, set:...),
 # no world needed, PREVIEWMAP_ZOOM blocks per pixel (16); PNGs and the lines go to run/previewmap-<loader>/.
+# HEIGHTDUMPS="<name> <x0> <z0> <size> <step> <seed> <spec>|...": "rtf heightdump" of each (raw, eroded and final heights
+# and masks as .npy + .json for offline erosion work, run/heightdump-<loader>/; tools/heightdump_shade.py draws them).
 # ISLANDS=1 with PRESET=set:island().enableArchipelago=true;... what the land of the islands is made of (run/islands-<loader>.txt, .png,
 # #38); ISLANDS_REF=<file> says what differs from that run (tools/compareislands.py). With SKIP_SELFTEST=1 SKIP_STRUCTURES=1 about 1 minute.
 # COASTS=1 what the shores are ("rtf coasts", #38, #40): coast biomes, beaches on steep shores, stony shores, sand on slopes in real
@@ -327,6 +329,20 @@ for loader in $LOADERS; do
             cp "$dir/rtf-previewmap-${m%% *}.png" "$dir/rtf-previewmap-${m%% *}-screen.png" "run/previewmap-$loader/" 2>/dev/null
         done
         grep -o 'RTF previewmap\] .*' "$dir/console.log" | sed 's/ -> .*//' | tee "run/previewmap-$loader/previewmap.txt" | sed 's/^/  /'
+    fi
+    # HEIGHTDUMPS="<name> <x0> <z0> <size> <step> <seed> <spec>|...": "rtf heightdump" of each (RTFHeightDump: the
+    # heights before and after the erosion as .npy and .json, spec: default (the world's preset), preset:<built-in name>,
+    # set:...); with default and the world's seed it checks the heights against the world. Files to run/heightdump-<loader>/
+    if [ -n "$HEIGHTDUMPS" ]; then
+        mkdir -p "run/heightdump-$loader"
+        IFS='|' read -r -a dumps <<< "$HEIGHTDUMPS"
+        for d in "${dumps[@]}"; do
+            d=$(echo "$d" | sed 's/^ *//')
+            echo "rtf heightdump $d" >> "$dir/console.in"
+            wait_for "$dir/console.log" "RTF heightdump\] ${d%% *} \(done\|FAIL\)" ${HEIGHTDUMP_WAIT:-3600}
+            grep -o "RTF heightdump\] ${d%% *} [dF].*" "$dir/console.log" | tail -1 | cut -c1-3000 | sed 's/^/  /'
+            cp "$dir/heightdump/${d%% *}".* "run/heightdump-$loader/" 2>/dev/null
+        done
     fi
     # ISLANDS=1: what the land of the islands is made of ("rtf islands", #38), the table copied to run/islands-<loader>.txt;
     # ISLANDS_REF=<file>: what differs from that run
