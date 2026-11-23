@@ -90,7 +90,10 @@ public final class RTFGuiTest {
 		new TooltipShot("RiverSettingsPage", "lake-max-start-distance", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_LAKE_MAX_START_DISTANCE)),
 		new TooltipShot("MiscellaneousPage", "plain-stone-erosion", (w) -> startsWith(w, RTFTranslationKeys.GUI_BUTTON_PLAIN_STONE_EROSION)),
 		new TooltipShot("MiscellaneousPage", "mountain-biome-usage", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_MOUNTAIN_BIOME_USAGE)),
-		new TooltipShot("MiscellaneousPage", "volcano-biome-usage", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE))
+		new TooltipShot("MiscellaneousPage", "volcano-biome-usage", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_VOLCANO_BIOME_USAGE)),
+		// the Ridges of the erosion filter (test feature), at the bottom of the filter page
+		new TooltipShot("FilterSettingsPage", "ridges-strength", (w) -> startsWith(w, RTFTranslationKeys.GUI_SLIDER_RIDGES_STRENGTH)),
+		new TooltipShot("FilterSettingsPage", "ridges-style", (w) -> w instanceof CycleButton<?> cycle && cycle.getValue() instanceof raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.RidgeStyle)
 	);
 	// the wheel steps a page was scrolled by for a tooltip's widget
 	private static int tooltipScrolls;

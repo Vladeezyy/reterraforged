@@ -46,6 +46,7 @@ final class PresetLimitTable {
 		PresetLimits.Limit.ofInt("filters().smoothing.iterations", 0, 5, 1, p -> p.filters().smoothing.iterations, (p, v) -> p.filters().smoothing.iterations = v),
 		PresetLimits.Limit.ofFloat("filters().smoothing.smoothingRadius", 0.0F, 5.0F, p -> p.filters().smoothing.smoothingRadius, (p, v) -> p.filters().smoothing.smoothingRadius = v),
 		PresetLimits.Limit.ofFloat("filters().smoothing.smoothingRate", 0.0F, 1.0F, p -> p.filters().smoothing.smoothingRate, (p, v) -> p.filters().smoothing.smoothingRate = v),
+		PresetLimits.Limit.ofFloat("filters().ridges.strength", 0.0F, 1.0F, p -> p.filters().ridges.strength, (p, v) -> p.filters().ridges.strength = v),
 		PresetLimits.Limit.ofFloat("island().islandDensity", 0.0F, 1.0F, p -> p.island().islandDensity, (p, v) -> p.island().islandDensity = v),
 		PresetLimits.Limit.ofFloat("island().islandSize", 50.0F, 500.0F, p -> p.island().islandSize, (p, v) -> p.island().islandSize = v),
 		PresetLimits.Limit.ofFloat("island().islandHeight", 0.1F, 1.0F, p -> p.island().islandHeight, (p, v) -> p.island().islandHeight = v),

@@ -2,6 +2,8 @@ package raccoonman.reterraforged.client.gui.screen.presetconfig;
 
 import java.util.Optional;
 
+import net.minecraft.client.gui.components.CycleButton;
+
 import net.minecraft.network.chat.Component;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.LinkedPageScreen.Page;
@@ -10,6 +12,8 @@ import raccoonman.reterraforged.client.gui.widget.Slider;
 import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.Erosion;
+import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.RidgeStyle;
+import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.Ridges;
 import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.Smoothing;
 
 class FilterSettingsPage extends PresetEditorPage {
@@ -23,6 +27,9 @@ class FilterSettingsPage extends PresetEditorPage {
 	private Slider smoothingIterations;
 	private Slider smoothingRadius;
 	private Slider smoothingRate;
+	
+	private Slider ridgesStrength;
+	private CycleButton<RidgeStyle> ridgesStyle;
 
 	public FilterSettingsPage(PresetConfigScreen screen, PresetEntry preset) {
 		super(screen, preset);
@@ -75,6 +82,18 @@ class FilterSettingsPage extends PresetEditorPage {
 			return value;
 		});
 		
+		Ridges ridges = filters.ridges;
+		// steps of 0.05 (0 = off): stepTowards in twentieths, rounded first so 0.45 * 20 is 9 and not 9.000000000000002
+		this.ridgesStrength = PresetWidgets.createFloatSlider(ridges.strength, 0.0F, 1.0F, RTFTranslationKeys.GUI_SLIDER_RIDGES_STRENGTH, (slider, value) -> {
+			int twentieths = SliderLimits.stepTowards(Math.round(value * 20.0E6) / 1.0E6, Math.round(slider.getPrevious() * 20.0E6) / 1.0E6, 1);
+			twentieths = Math.max(0, Math.min(20, twentieths));
+			ridges.strength = twentieths / 20.0F;
+			return twentieths / 20.0;
+		});
+		this.ridgesStyle = PresetWidgets.createCycle(RidgeStyle.values(), ridges.style, RTFTranslationKeys.GUI_SLIDER_RIDGES_STYLE, (button, value) -> {
+			ridges.style = value;
+		});
+		
 		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_EROSION));
 		this.left.addWidget(this.erosionDropletsPerChunk);
 		this.left.addWidget(this.erosionDropletLifetime);
@@ -87,6 +106,10 @@ class FilterSettingsPage extends PresetEditorPage {
 		this.left.addWidget(this.smoothingIterations);
 		this.left.addWidget(this.smoothingRadius);
 		this.left.addWidget(this.smoothingRate);
+		
+		this.left.addWidget(PresetWidgets.createLabel(RTFTranslationKeys.GUI_LABEL_RIDGES));
+		this.left.addWidget(this.ridgesStrength);
+		this.left.addWidget(this.ridgesStyle);
 	}
 		
 	@Override

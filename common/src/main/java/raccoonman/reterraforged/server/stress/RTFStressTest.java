@@ -252,9 +252,18 @@ public final class RTFStressTest {
 			String[] kv = assignment.split("=", 2);
 			Setting<?> setting = PresetStressTable.SETTINGS.stream().filter((st) -> st.name().equals(kv[0].trim())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("unknown setting " + kv[0]));
-			Object value = setting.extremes().get(0) instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : setting.extremes().get(0) instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
+			Object first = setting.extremes().get(0);
+			Object value = first instanceof Integer ? (Object) Integer.parseInt(kv[1].trim()) : first instanceof Boolean ? (Object) Boolean.parseBoolean(kv[1].trim()) : first instanceof Enum<?> e ? enumValue(e, kv[1].trim()) : (Object) Float.parseFloat(kv[1].trim());
 			setting.set(preset, value);
 		}
+	}
+
+	// a value of the enum of 'example' by its name ("smooth", "SMOOTH")
+	private static Object enumValue(Enum<?> example, String name) {
+		for (Enum<?> value : example.getDeclaringClass().getEnumConstants()) {
+			if (value.name().equalsIgnoreCase(name)) return value;
+		}
+		throw new IllegalArgumentException("no " + example.getDeclaringClass().getSimpleName() + " " + name);
 	}
 
 	public static Preset makePreset(String spec) {

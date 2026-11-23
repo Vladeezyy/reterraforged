@@ -95,6 +95,8 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_UNIT_SNOW_LAYERS, "%s of 8");
 			this.add(RTFTranslationKeys.GUI_UNIT_DEGREES, "%s°");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi", "Several continents");
+			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "ridgestyle.sharp", "Sharp");
+			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "ridgestyle.smooth", "Smooth");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.single", "One continent");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.multi_improved", "Several continents (improved)");
 			this.add(RTFTranslationKeys.GUI_ENUM_PREFIX + "continenttype.experimental", "Experimental");
@@ -340,6 +342,8 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_ITERATIONS, "Smoothing Iterations");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_RADIUS, "Smoothing Radius");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_RATE, "Smoothing Rate");
+			this.add(RTFTranslationKeys.GUI_SLIDER_RIDGES_STRENGTH, "Ridge Strength");
+			this.add(RTFTranslationKeys.GUI_SLIDER_RIDGES_STYLE, "Ridge Style");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SPACING, "Spacing");
 			this.add(RTFTranslationKeys.GUI_SLIDER_SEPARATION, "Separation");
 			this.add(RTFTranslationKeys.GUI_SLIDER_STRATA_REGION_SIZE, "Strata Region Size");
@@ -402,6 +406,7 @@ public final class RTFLanguageProvider {
 			this.add(RTFTranslationKeys.GUI_LABEL_WETLANDS, "Wetlands");
 			this.add(RTFTranslationKeys.GUI_LABEL_EROSION, "Erosion");
 			this.add(RTFTranslationKeys.GUI_LABEL_SMOOTHING, "Smoothing");
+			this.add(RTFTranslationKeys.GUI_LABEL_RIDGES, "Ridges");
 			this.add(RTFTranslationKeys.GUI_LABEL_ISLAND, "Island");
 			this.add(RTFTranslationKeys.GUI_LABEL_FAKE_WATER_BIOMES, "Fake Water Biomes");
 			
@@ -558,6 +563,8 @@ public final class RTFLanguageProvider {
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_ITERATIONS), "Controls the number of smoothing iterations");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_RADIUS), "Controls the smoothing radius");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SMOOTHING_RATE), "Controls how strongly smoothing is applied");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIDGES_STRENGTH), "Carves branching ridges and valleys into mountains and hills. 0 = off (same world as before). Test feature.");
+			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_RIDGES_STYLE), "Sharp: fine ridges, jagged peaks. Smooth: wider ridges, peaks keep their shape.");
 			this.add(Tooltips.translationKey(RTFTranslationKeys.GUI_SLIDER_SPACING),
 				  "Controls the size of the grid used to generate the structure. "
 				+ "Structures will attempt to generate once per grid cell. Larger "

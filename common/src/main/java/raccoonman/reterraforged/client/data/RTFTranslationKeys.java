@@ -216,6 +216,8 @@ public final class RTFTranslationKeys {
 	public static final String GUI_SLIDER_SMOOTHING_ITERATIONS = resolve("gui.slider.smoothing.iterations");
 	public static final String GUI_SLIDER_SMOOTHING_RADIUS = resolve("gui.slider.smoothing.radius");
 	public static final String GUI_SLIDER_SMOOTHING_RATE = resolve("gui.slider.smoothing.rate");
+	public static final String GUI_SLIDER_RIDGES_STRENGTH = resolve("gui.slider.ridges.strength");
+	public static final String GUI_SLIDER_RIDGES_STYLE = resolve("gui.slider.ridges.style");
 	public static final String GUI_SLIDER_SPACING = resolve("gui.slider.spacing");
 	public static final String GUI_SLIDER_SEPARATION = resolve("gui.slider.separation");
 	public static final String GUI_SLIDER_STRATA_REGION_SIZE = resolve("gui.slider.strataRegionSize");
@@ -280,6 +282,7 @@ public final class RTFTranslationKeys {
 	public static final String GUI_LABEL_WETLANDS = resolve("gui.label.wetlands");
 	public static final String GUI_LABEL_EROSION = resolve("gui.label.erosion");
 	public static final String GUI_LABEL_SMOOTHING = resolve("gui.label.smoothing");
+	public static final String GUI_LABEL_RIDGES = resolve("gui.label.ridges");
 	public static final String GUI_LABEL_ISLAND = resolve("gui.label.island");
 	public static final String GUI_LABEL_FAKE_WATER_BIOMES = resolve("gui.label.fakeWaterBiomes");
 	

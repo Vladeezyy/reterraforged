@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import raccoonman.reterraforged.data.worldgen.preset.settings.ClimateSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.ContinentType;
+import raccoonman.reterraforged.data.worldgen.preset.settings.FilterSettings.RidgeStyle;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.RiverSettings;
 import raccoonman.reterraforged.data.worldgen.preset.settings.SpawnType;
@@ -67,6 +68,8 @@ final class PresetStressTable {
 		Setting.ofInt("filters().smoothing.iterations", 0, 5, (p, v) -> p.filters().smoothing.iterations = v),
 		Setting.ofFloat("filters().smoothing.smoothingRadius", 0.0F, 5.0F, (p, v) -> p.filters().smoothing.smoothingRadius = v),
 		Setting.ofFloat("filters().smoothing.smoothingRate", 0.0F, 1.0F, (p, v) -> p.filters().smoothing.smoothingRate = v),
+		Setting.ofFloat("filters().ridges.strength", 0.0F, 1.0F, (p, v) -> p.filters().ridges.strength = v),
+		Setting.ofEnum("filters().ridges.style", RidgeStyle.values(), (p, v) -> p.filters().ridges.style = v),
 		Setting.ofBoolean("island().enableArchipelago", (p, v) -> p.island().enableArchipelago = v),
 		Setting.ofFloat("island().islandDensity", 0.0F, 1.0F, (p, v) -> p.island().islandDensity = v),
 		Setting.ofFloat("island().islandSize", 50.0F, 500.0F, (p, v) -> p.island().islandSize = v),

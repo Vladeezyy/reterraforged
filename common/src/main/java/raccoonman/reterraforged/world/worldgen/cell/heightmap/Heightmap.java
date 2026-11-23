@@ -41,7 +41,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 import raccoonman.reterraforged.world.worldgen.util.Seed;
 
-public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands, boolean farColumns) {
+public record Heightmap(CellPopulator terrain, CellPopulator region, Continent continent, Climate climate, Levels levels, ControlPoints controlPoints, float terrainFrequency, Noise beachNoise, FakeWaterBiomeResolver fakeWaterBiomeResolver, float mountainBiomeUsage, Noise mountainBiomeMask, float lowlandSwampTop, SwampBasins swampBasins, boolean mixedLowlands, boolean farColumns, @org.jetbrains.annotations.Nullable ErosionFilterProto ridges) {
 
 	// a block column as a tile's cell before its filters (TileGenerator, WorldLookup): the terrain, the rivers and the
 	// climate. farColumns (generation version 1): a column a float does not hold is interpolated (FarColumns)
@@ -92,9 +92,9 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
 
 	public void applyTerrain(Cell cell, float x, float z) {
 		this.applyTerrainRaw(cell, x, z);
-		// PROTOTYPE (proto/erosion-filter): -Drtf.erosionfilter=<strength>, off without the property
-		if (ErosionFilterProto.ENABLED) {
-			ErosionFilterProto.apply(this, cell, x, z);
+		// the preset's Ridges (test feature), none at strength 0
+		if (this.ridges != null) {
+			this.ridges.apply(this, cell, x, z);
 			this.keepFinite(cell);
 		}
 	}
@@ -274,7 +274,7 @@ public record Heightmap(CellPopulator terrain, CellPopulator region, Continent c
         // off: no height is at most the water's
         int lowlandSwamps = preset.climate().lowlandSwamps;
         float lowlandSwampTop = lowlandSwamps > 0 ? levels.water(lowlandSwamps) : levels.water;
-        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes, world.properties.fixes(1));
+        return new Heightmap(terrain, region, continent, climate, levels, controlPoints, terrainFrequency, beachNoise, fakeWaterBiomeResolver, Math.min(1.0F, preset.miscellaneous().mountainBiomeUsage), mountainBiomeMask, lowlandSwampTop, swampBasins, world.properties.generationFixes, world.properties.fixes(1), ErosionFilterProto.make(preset.filters().ridges, ctx.seed));
 	}
 
 	// the noise of the continents' mountains for the islands, at the islands' scale; its own seed, so the other noises keep theirs
