@@ -3,7 +3,8 @@
 #   tools/erosionshots.sh <world folder> <out dir> [variant ...]
 # The world: a server test world, e.g. PRESET="preset:Towering Peaks" SKIP_SELFTEST=1 SKIP_STRUCTURES=1
 # tools/servertest.sh fabric (its chunks at the cameras must not be generated yet: every variant generates them itself).
-# Variants: nodrops (-Drtf.erosionfilter.drops=0), drops (as released), f05 (filter x0.5 + drops), f10 (filter x1 + drops).
+# Variants: nodrops (-Drtf.erosionfilter.drops=0), drops (as released), f05 (filter x0.5 + drops), f10 (filter x1 + drops),
+# s035 / s040 (filter x0.35 / x0.4 with the first settings + drops), subtle / bold (ridges: ErosionFilterProto.SUBTLE / BOLD + drops).
 # CAMS="name:x,y,z,yaw,pitch;..." (RTFClientTest), RENDER=<chunks> (24), TIME=<ticks> (9000), SHADERS=1 Iris + Sodium +
 # Complementary Reimagined (as tools/showcase.sh), SODIUM=1 Sodium only. Screenshots: <out dir>/<variant>/<cam>.png.
 {
@@ -48,6 +49,10 @@ for v in $VARIANTS; do
         drops) props="" ;;
         f05) props="-Drtf.erosionfilter=0.5" ;;
         f10) props="-Drtf.erosionfilter=1.0" ;;
+        s035) props="-Drtf.erosionfilter=0.35" ;;
+        s040) props="-Drtf.erosionfilter=0.4" ;;
+        subtle) props="-Drtf.erosionfilter.preset=subtle" ;;
+        bold) props="-Drtf.erosionfilter.preset=bold" ;;
         *) echo "unknown variant $v"; continue ;;
     esac
     echo "== $v ($props) $(date +%T)"
