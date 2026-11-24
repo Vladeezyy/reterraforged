@@ -19,6 +19,7 @@
 		"MixinStructure",
 		"StructurePlacementAccessor",
 		"StructureSetAccessor",
+		"NoiseGeneratorSettingsAccessor",
 		"MixinRegistryDataLoader",
 		"MixinRegistrySetBuilder$EmptyTagLookup",
 		"MixinSpawnFinder",
