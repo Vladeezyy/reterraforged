@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
+import raccoonman.reterraforged.mixin.NoiseGeneratorSettingsAccessor;
 import raccoonman.reterraforged.tags.RTFBlockTags;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 import raccoonman.reterraforged.world.worldgen.surface.rule.RTFSurfaceRules;
@@ -57,7 +58,8 @@ public class PresetSurfaceRuleData {
     public static SurfaceRules.RuleSource base(RegistryAccess registries) {
 		SurfaceRules.RuleSource rule = registries.lookup(Registries.NOISE_SETTINGS)
 			.flatMap((settings) -> settings.getOptional(NoiseGeneratorSettings.OVERWORLD))
-			.map(NoiseGeneratorSettings::surfaceRule)
+			// the field itself: a mod may change what surfaceRule() returns (NoiseGeneratorSettingsAccessor)
+			.map((settings) -> ((NoiseGeneratorSettingsAccessor) (Object) settings).reterraforged$getSurfaceRule())
 			.orElse(null);
 		if(rule == null) {
 			return SurfaceRuleData.overworld();
