@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -31,10 +32,12 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 import raccoonman.reterraforged.world.worldgen.surface.RTFSurfaceSystem;
+import raccoonman.reterraforged.world.worldgen.surface.rule.StrataLast;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 
 @Mixin(SurfaceSystem.class)
@@ -61,6 +64,19 @@ class MixinSurfaceSystem {
 			PositionalRandomFactory factory = this.randomState.getOrCreateRandomFactory(GEOLOGY_RANDOM);
 			return strata.apply(factory.fromHashOf(k));
 		});
+	}
+
+	// rules another mod appends to the noise settings' rules (Alex's Caves through Citadel) go before our strata, which
+	// otherwise covered its cave biomes' rock (StrataLast); the rule is unchanged in a world without the preset
+	@ModifyVariable(method = "buildSurface", at = @At("HEAD"), argsOnly = true)
+	private SurfaceRules.RuleSource modRulesBeforeStrata(SurfaceRules.RuleSource rule) {
+		return StrataLast.apply(rule);
+	}
+
+	// the same for the top block carvers put back where a cave opens the surface (grass on a cave floor in the open)
+	@ModifyVariable(method = "topMaterial", at = @At("HEAD"), argsOnly = true)
+	private SurfaceRules.RuleSource modRulesBeforeStrataTop(SurfaceRules.RuleSource rule) {
+		return StrataLast.apply(rule);
 	}
 
 	// The biome buildSurface looks up for each column is the column's surface biome to other mods: Ecliptic Seasons
