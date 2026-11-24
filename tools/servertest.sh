@@ -45,6 +45,9 @@
 # EXTRA_JVM="..." more JVM arguments for the server.
 # MOD_JAR=<jar> (one loader) runs that jar instead of the newest build (a release's: the reference of FINGERPRINT_REF).
 # FABRIC_LOADER=<version> FABRIC_API=<version> the Fabric server's (default: gradle.properties' fabric_*_test_version).
+# LEGACY_FABRIC_API=<version> the Fabric API the old release of LEGACY runs on (default: gradle.properties'
+# fabric_api_legacy_test_version, else FABRIC_API): a newer Fabric API can break an old release (#44: 0.0.32 on 26.3 with
+# Fabric API 0.166+), and then the old world is never made.
 # Works in bash on macOS / Linux and in Git Bash on Windows. JAVA=... overrides the java binary (JDK 21).
 # eula=true: the Minecraft EULA is accepted for these local test servers.
 { # parsed as a whole before running, so editing this file during a run is safe
@@ -61,6 +64,17 @@ FABRIC_LOADER=${FABRIC_LOADER:-$(prop fabric_loader_test_version)}
 FABRIC_LOADER=${FABRIC_LOADER:-$(prop fabric_loader_version)}
 FABRIC_API=${FABRIC_API:-$(prop fabric_api_test_version)}
 FABRIC_API=${FABRIC_API:-$(prop fabric_api_version)}
+LEGACY_FABRIC_API=${LEGACY_FABRIC_API:-$(prop fabric_api_legacy_test_version)}
+LEGACY_FABRIC_API=${LEGACY_FABRIC_API:-$FABRIC_API}
+# fabric_api_jar <version>: the Fabric API jar of that version for this Minecraft version, cached in run/fabric-api
+fabric_api_jar() {
+    local f="run/fabric-api/fabric-api-$1.jar"
+    if [ ! -s "$f" ]; then
+        mkdir -p run/fabric-api
+        curl -fsSL -o "$f" "https://cdn.modrinth.com/data/P7dR8mSH/versions/$(curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22fabric%22%5D" | $PY -c 'import json,sys; v=[x for x in json.load(sys.stdin) if x["version_number"]=="'$1'"]; print(v[0]["id"]+"/"+v[0]["files"][0]["filename"])')" || { rm -f "$f"; return 1; }
+    fi
+    echo "$f"
+}
 # MOD_JAR=<jar> (one loader): this jar instead of the newest build, e.g. a release's for a reference to compare with
 if [ -n "$MOD_JAR" ]; then
     [ "$(echo $LOADERS | wc -w)" -eq 1 ] || { echo "MOD_JAR= takes one loader, not: $LOADERS"; exit 1; }
@@ -162,9 +176,10 @@ for loader in $LOADERS; do
             if [ ! -f "$dir/fabric-server-launch.jar" ] || [ "$(cat "$dir/fabric-versions.txt" 2>/dev/null)" != "$FABRIC_LOADER $FABRIC_API" ]; then
                 rm -f "$dir/fabric-server-launch.jar" "$dir/mods/fabric-api.jar"; rm -rf "$dir/.fabric"
                 curl -fsSL -o "$dir/fabric-server-launch.jar" "https://meta.fabricmc.net/v2/versions/loader/$MC/$FABRIC_LOADER/1.0.1/server/jar"
-                curl -fsSL -o "$dir/mods/fabric-api.jar" "https://cdn.modrinth.com/data/P7dR8mSH/versions/$(curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D&loaders=%5B%22fabric%22%5D" | $PY -c 'import json,sys; v=[x for x in json.load(sys.stdin) if x["version_number"]=="'$FABRIC_API'"]; print(v[0]["id"]+"/"+v[0]["files"][0]["filename"])')"
                 echo "$FABRIC_LOADER $FABRIC_API" > "$dir/fabric-versions.txt"
             fi
+            # every run (from the cache): a LEGACY run that was cut off may have left the old release's Fabric API
+            cp "$(fabric_api_jar "$FABRIC_API")" "$dir/mods/fabric-api.jar" || { echo "no Fabric API $FABRIC_API for $MC"; FAILS=$((FAILS+1)); continue; }
             jar=${MOD_JAR:-$(ls -t fabric/build/libs/reterraforged-*-fabric-*.jar | head -1)}
             start=("$JAVA" -Drtf.selftest=true "-Drtf.run=$TAG" -Xmx$HEAP $EXTRA_JVM -jar fabric-server-launch.jar nogui) ;;
     esac
@@ -211,6 +226,10 @@ for loader in $LOADERS; do
         rm -rf "$dir/world-legacy"; mkdir -p "$dir/world-legacy/datapacks"; cp "$old/preset.zip" "$dir/world-legacy/datapacks/"
         printf "${props}level-name=world-legacy\n" > "$dir/server.properties"
         rm -f "$dir"/mods/reterraforged-*.jar; cp "$oldjar" "$dir/mods/"
+        if [ $loader = fabric ] && [ "$LEGACY_FABRIC_API" != "$FABRIC_API" ]; then
+            echo "  $LEGACY on Fabric API $LEGACY_FABRIC_API, this build on $FABRIC_API"
+            cp "$(fabric_api_jar "$LEGACY_FABRIC_API")" "$dir/mods/fabric-api.jar"
+        fi
         start_server "$dir" legacy-old.log
         if wait_for "$dir/legacy-old.log" 'Done (' 600; then
             # the old version generates the 81 chunks "rtf heights" reads (about 4 minutes faster than its self test,
@@ -224,14 +243,21 @@ for loader in $LOADERS; do
             fi
         fi
         stop_server "$dir" legacy-old.log
+        [ $loader != fabric ] || [ "$LEGACY_FABRIC_API" = "$FABRIC_API" ] || cp "$(fabric_api_jar "$FABRIC_API")" "$dir/mods/fabric-api.jar"
         rm -f "$dir"/mods/reterraforged-*.jar "$dir/rtf-heights-legacy.txt"; cp "$jar" "$dir/mods/"
-        start_server "$dir" legacy-new.log
-        if wait_for "$dir/legacy-new.log" 'Done (' 600; then
-            echo "rtf heights legacy" >> "$dir/console.in"
-            wait_for "$dir/legacy-new.log" 'RTF heights\]' 300
+        # the old release did not make its world (it did not start): nothing to open, and a new one would not be its world
+        if ! grep -qE 'RTF (heights|selftest)\]' "$dir/legacy-old.log"; then
+            legacy="FAIL $LEGACY did not make its world (legacy-old.log)"
+            grep -m3 -E 'Exception|ERROR|HUNG' "$dir/legacy-old.log" | cut -c1-300 | sed 's/^/  /'
+        else
+            start_server "$dir" legacy-new.log
+            if wait_for "$dir/legacy-new.log" 'Done (' 600; then
+                echo "rtf heights legacy" >> "$dir/console.in"
+                wait_for "$dir/legacy-new.log" 'RTF heights\]' 300
+            fi
+            stop_server "$dir" legacy-new.log
+            cp "$dir/rtf-heights-legacy.txt" "run/heights-legacy-$loader.txt" 2>/dev/null || legacy="FAIL no heights from the old world"
         fi
-        stop_server "$dir" legacy-new.log
-        cp "$dir/rtf-heights-legacy.txt" "run/heights-legacy-$loader.txt" 2>/dev/null || legacy="FAIL no heights from the old world"
         cp "$old/preset.zip" "$dir/reterraforged-preset.zip"
     fi
     # PRESET_ZIP=<file>: pass 2 uses this preset datapack (for example the one a GUI world saved) instead of the export
