@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.core.Holder;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.levelgen.material.MaterialSystem;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.world.worldgen.surface.RTFSurfaceSystem;
+import raccoonman.reterraforged.world.worldgen.surface.rule.StrataLast;
 import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 
 // 26.3: the surface system is MaterialSystem
@@ -67,6 +69,20 @@ class MixinMaterialSystem {
 	)
 	private void buildSurfaceReturn(RandomState randomState, BiomeManager biomeManager, WorldGenerationContext generationContext, ChunkAccess protoChunk, NoiseChunk noiseChunk, MaterialRule ruleSource, @Nullable Set<Holder<Biome>> possibleBiomes, CallbackInfo callback) {
 		RTFSurfaceSystem.BUILDING_CHUNK.remove();
+	}
+
+	// rules another mod appends to the noise settings' rule (Citadel on 1.21.1, for Alex's Caves) go before our strata, which
+	// otherwise covered its cave biomes' rock (StrataLast); the rule is unchanged in a world without the preset. A mixin:
+	// no event or API gives the rule a chunk's surface is built with
+	@ModifyVariable(method = "buildSurface", at = @At("HEAD"), argsOnly = true)
+	private MaterialRule modRulesBeforeStrata(MaterialRule rule) {
+		return StrataLast.apply(rule);
+	}
+
+	// the same for the top block carvers put back where a cave opens the surface (grass on a cave floor in the open)
+	@ModifyVariable(method = "topMaterial", at = @At("HEAD"), argsOnly = true)
+	private MaterialRule modRulesBeforeStrataTop(MaterialRule rule) {
+		return StrataLast.apply(rule);
 	}
 
 	public List<List<StrataRule.Layer>> reterraforged$RTFSurfaceSystem$getOrCreateStrata(Identifier name, Function<RandomSource, List<List<StrataRule.Layer>>> strata) {
