@@ -13,7 +13,8 @@ import net.minecraft.world.level.levelgen.SurfaceRules;
  * and turned the rock of its cave biomes to the strata's stone (a quarter of the Candy Cavity's chocolate). This puts
  * the appended rules before the strata, the order they had when the preset was built from the merged rules (which
  * copied the mod's rules into the world's datapack, NoiseGeneratorSettingsAccessor). Anything else is left as it is:
- * no strata (a world without the preset), nothing appended, TerraBlender's and Lithostitched's wrappers.
+ * no strata (a world without the preset), nothing appended, TerraBlender's and Lithostitched's wrappers, and Alex's
+ * Caves Continued's own copy of Citadel, whose wrapper already tries the mod's rules first (CitadelRules).
  */
 public final class StrataLast {
 	private record Cached(SurfaceRules.RuleSource in, SurfaceRules.RuleSource out) {

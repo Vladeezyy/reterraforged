@@ -20,6 +20,7 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.data.worldgen.compat.CitadelRules;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 import raccoonman.reterraforged.data.worldgen.preset.settings.MiscellaneousSettings;
 import raccoonman.reterraforged.mixin.NoiseGeneratorSettingsAccessor;
@@ -71,9 +72,14 @@ public class PresetSurfaceRuleData {
     // noise settings' rules (with our old strata inside, where withoutStrata did not look) and the mods' own; with Biomes O'
     // Plenty the export failed as with Lithostitched's wrapper. Only what it wraps goes into the preset: TerraBlender wraps
     // the preset's rules again when a world starts. Before and after saved(), in case Lithostitched wrapped TerraBlender's
+    // Alex's Caves Continued's wrapper (its copy of Citadel) taken off too: it is in the field itself (CitadelRules)
     private static SurfaceRules.RuleSource unwrapped(SurfaceRules.RuleSource rule) {
-		while(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
-			rule = namespaced.base();
+		for(SurfaceRules.RuleSource before = null; before != rule; ) {
+			before = rule;
+			while(TBCompat.isEnabled() && rule instanceof NamespacedSurfaceRuleSource namespaced) {
+				rule = namespaced.base();
+			}
+			rule = CitadelRules.unwrapped(rule);
 		}
 		return rule;
     }
@@ -91,13 +97,14 @@ public class PresetSurfaceRuleData {
 			.orElse(rule);
     }
 
-    // our strata taken out of the sequences, at any depth; the rest as it was
+    // our strata taken out of the sequences, at any depth; the rest as it was. Citadel's wrappers in them taken off as
+    // well: the preset of a world made with Alex's Caves Continued before 0.0.34 has one in front of the strata
     private static SurfaceRules.RuleSource withoutStrata(SurfaceRules.RuleSource rule) {
 		if(!(rule instanceof SurfaceRules.SequenceRuleSource sequence)) {
 			return rule;
 		}
 		List<SurfaceRules.RuleSource> rules = sequence.sequence();
-		List<SurfaceRules.RuleSource> without = rules.stream().filter((r) -> !(r instanceof StrataRule)).map(PresetSurfaceRuleData::withoutStrata).toList();
+		List<SurfaceRules.RuleSource> without = rules.stream().filter((r) -> !(r instanceof StrataRule)).map((r) -> withoutStrata(CitadelRules.unwrapped(r))).toList();
 		boolean changed = without.size() != rules.size();
 		for(int i = 0; !changed && i < rules.size(); i++) {
 			changed = without.get(i) != rules.get(i);
