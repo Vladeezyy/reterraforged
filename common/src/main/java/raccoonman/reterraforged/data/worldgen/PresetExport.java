@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.DataGenerator;
 import raccoonman.reterraforged.RTFCommon;
+import raccoonman.reterraforged.data.worldgen.compat.CitadelRules;
 import raccoonman.reterraforged.data.worldgen.preset.settings.Preset;
 
 /**
@@ -44,6 +45,9 @@ public final class PresetExport {
 			DataGenerator dataGenerator = Datapacks.makePreset(preset, registryAccess, datagenPath, datagenOutputPath, presetName);
 			dataGenerator.run();
 			mirrorBiomeModifiers(datagenOutputPath);
+			// the codec writes the noise settings with Alex's Caves Continued's wrapper around their rules: such a pack did
+			// not load without the mod
+			CitadelRules.unwrapPack(datagenOutputPath);
 			Files.deleteIfExists(tempPath);
 			copyToZip(datagenOutputPath, tempPath);
 			Files.move(tempPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
